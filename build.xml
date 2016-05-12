@@ -46,13 +46,12 @@
 	<target name="dist" depends="compile">
 		<delete dir="dist" />
 		<mkdir dir="dist" />
-		<jar jarfile="plantuml.jar" basedir="build">
+		<jar jarfile="dist/plantuml.jar" basedir="build">
 			<manifest>
 				<attribute name="Main-Class" value="net.sourceforge.plantuml.Run" />
 			</manifest>
 		</jar>
 		<delete dir="build" />
-		<delete dir="dist" />
 	</target>
 
 </project>
