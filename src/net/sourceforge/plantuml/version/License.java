@@ -40,7 +40,7 @@ public enum License {
 	GPL, LGPL, APACHE, EPL, MIT;
 
 	public static License getCurrent() {
-		return GPL;
+		return MIT;
 	}
 
 	private void addMit(final List<String> text) {
