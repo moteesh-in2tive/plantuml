@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 5024 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram.command;
@@ -57,6 +59,7 @@ import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 
@@ -82,11 +85,9 @@ public class CommandLinkActivity extends SingleLineCommand2<ActivityDiagram> {
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 
 				new RegexLeaf("ARROW_BODY1", "([-.]+)"), //
-				new RegexLeaf("ARROW_STYLE1",
-						"(?:\\[((?:#\\w+|dotted|dashed|plain|bold|hidden)(?:,#\\w+|,dotted|,dashed|,plain|,bold|,hidden)*)\\])?"), //
+				new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("ARROW_DIRECTION", "(\\*|left|right|up|down|le?|ri?|up?|do?)?"), //
-				new RegexLeaf("ARROW_STYLE2",
-						"(?:\\[((?:#\\w+|dotted|dashed|plain|bold|hidden)(?:,#\\w+|,dotted|,dashed|,plain|,bold|,hidden)*)\\])?"), //
+				new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("ARROW_BODY2", "([-.]*)\\>"), //
 
 				new RegexLeaf("[%s]*"), //
@@ -148,7 +149,7 @@ public class CommandLinkActivity extends SingleLineCommand2<ActivityDiagram> {
 
 		LinkType type = new LinkType(LinkDecor.ARROW, LinkDecor.NONE);
 		if ((arrowBody1 + arrowBody2).contains(".")) {
-			type = type.getDotted();
+			type = type.goDotted();
 		}
 
 		Link link = new Link(entity1, entity2, type, linkLabel, lenght);
@@ -248,7 +249,7 @@ public class CommandLinkActivity extends SingleLineCommand2<ActivityDiagram> {
 	static LeafType getTypeIfExisting(ActivityDiagram system, Code code) {
 		if (system.leafExist(code)) {
 			final IEntity ent = system.getLeafsget(code);
-			if (ent.getEntityType() == LeafType.BRANCH) {
+			if (ent.getLeafType() == LeafType.BRANCH) {
 				return LeafType.BRANCH;
 			}
 		}

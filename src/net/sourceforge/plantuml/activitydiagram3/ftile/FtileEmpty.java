@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,20 +28,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 
@@ -47,12 +51,17 @@ public class FtileEmpty extends AbstractFtile {
 	private final Swimlane swimlaneIn;
 	private final Swimlane swimlaneOut;
 
-	public FtileEmpty(boolean shadowing, double width, double height) {
-		this(shadowing, width, height, null, null);
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return Collections.emptyList();
 	}
 
-	public FtileEmpty(boolean shadowing, double width, double height, Swimlane swimlaneIn, Swimlane swimlaneOut) {
-		super(shadowing);
+	public FtileEmpty(ISkinParam skinParam, double width, double height) {
+		this(skinParam, width, height, null, null);
+	}
+
+	public FtileEmpty(ISkinParam skinParam, double width, double height, Swimlane swimlaneIn, Swimlane swimlaneOut) {
+		super(skinParam);
 		this.width = width;
 		this.height = height;
 		this.swimlaneIn = swimlaneIn;
@@ -60,12 +69,12 @@ public class FtileEmpty extends AbstractFtile {
 
 	}
 
-	public FtileEmpty(boolean shadowing) {
-		this(shadowing, 0, 0, null, null);
+	public FtileEmpty(ISkinParam skinParam) {
+		this(skinParam, 0, 0, null, null);
 	}
 
-	public FtileEmpty(boolean shadowing, Swimlane swimlane) {
-		this(shadowing, 0, 0, swimlane, swimlane);
+	public FtileEmpty(ISkinParam skinParam, Swimlane swimlane) {
+		this(skinParam, 0, 0, swimlane, swimlane);
 	}
 
 	@Override
@@ -76,7 +85,12 @@ public class FtileEmpty extends AbstractFtile {
 	public void drawU(UGraphic ug) {
 	}
 
-	public FtileGeometry calculateDimension(StringBounder stringBounder) {
+	@Override
+	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
+		return calculateDimensionEmpty();
+	}
+
+	final protected FtileGeometry calculateDimensionEmpty() {
 		return new FtileGeometry(width, height, width / 2, 0, height);
 	}
 

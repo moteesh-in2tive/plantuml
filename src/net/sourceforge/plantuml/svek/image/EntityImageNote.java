@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5183 $
  *
  */
 package net.sourceforge.plantuml.svek.image;
@@ -42,6 +44,7 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
@@ -184,7 +187,7 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 		if (url != null) {
 			ug.startUrl(url);
 		}
-		final UGraphic ug2 = new UGraphicStencil(ug, this, new UStroke());
+		final UGraphic ug2 = UGraphicStencil.create(ug, this, new UStroke());
 		if (opaleLine == null || opaleLine.isOpale() == false) {
 			drawNormal(ug2);
 		} else {
@@ -209,7 +212,8 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 					-shape.getMinY());
 			final Opale opale = new Opale(borderColor, noteBackgroundColor, textBlock, skinParam.shadowing(), true);
 			opale.setOpale(strategy, pp1, projection);
-			opale.drawU(Colors.applyStroke(ug2, getEntity().getColors(skinParam)));
+			final UGraphic stroked = applyStroke(ug2);
+			opale.drawU(Colors.applyStroke(stroked, getEntity().getColors(skinParam)));
 		}
 		if (url != null) {
 			ug.closeAction();
@@ -227,11 +231,20 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 			polygon.setDeltaShadow(4);
 		}
 		ug = ug.apply(new UChangeBackColor(noteBackgroundColor)).apply(new UChangeColor(borderColor));
-		ug.draw(polygon);
+		final UGraphic stroked = applyStroke(ug);
+		stroked.draw(polygon);
 
-		ug.apply(new UTranslate(getTextWidth(stringBounder) - cornersize, 0)).draw(new ULine(0, cornersize));
-		ug.apply(new UTranslate(getTextWidth(stringBounder), cornersize)).draw(new ULine(-cornersize, 0));
+		stroked.apply(new UTranslate(getTextWidth(stringBounder) - cornersize, 0)).draw(new ULine(0, cornersize));
+		stroked.apply(new UTranslate(getTextWidth(stringBounder), cornersize)).draw(new ULine(-cornersize, 0));
 		getTextBlock().drawU(ug.apply(new UTranslate(marginX1, marginY)));
+	}
+
+	private UGraphic applyStroke(UGraphic ug) {
+		final UStroke stroke = skinParam.getThickness(LineParam.noteBorder, null);
+		if (stroke == null) {
+			return ug;
+		}
+		return ug.apply(stroke);
 	}
 
 	private UPolygon getPolygonNormal(final StringBounder stringBounder) {
@@ -268,10 +281,6 @@ public class EntityImageNote extends AbstractEntityImage implements Stencil {
 
 	public ShapeType getShapeType() {
 		return ShapeType.RECTANGLE;
-	}
-
-	public int getShield() {
-		return 0;
 	}
 
 	private Line opaleLine;

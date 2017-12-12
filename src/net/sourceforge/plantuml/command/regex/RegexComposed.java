@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 4762 $
  *
  */
 package net.sourceforge.plantuml.command.regex;
@@ -38,14 +40,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public abstract class RegexComposed implements IRegex {
 
 	private final List<IRegex> partials;
 
-	abstract protected Pattern getFull();
+	abstract protected Pattern2 getFull();
 
 	public RegexComposed(IRegex... partial) {
 		this.partials = Arrays.asList(partial);
@@ -72,7 +72,7 @@ public abstract class RegexComposed implements IRegex {
 	}
 
 	public RegexResult matcher(String s) {
-		final Matcher matcher = getFull().matcher(s);
+		final Matcher2 matcher = getFull().matcher(s);
 		if (matcher.find() == false) {
 			throw new IllegalArgumentException(getClass()+" "+s);
 		}

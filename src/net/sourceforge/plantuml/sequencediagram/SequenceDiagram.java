@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,8 +28,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
@@ -37,10 +40,12 @@ import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sourceforge.plantuml.ColorParam;
@@ -51,10 +56,10 @@ import net.sourceforge.plantuml.Scale;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.DiagramDescriptionImpl;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.sequencediagram.graphic.FileMaker;
@@ -85,7 +90,7 @@ public class SequenceDiagram extends UmlDiagram {
 	public Participant getOrCreateParticipant(String code, Display display) {
 		Participant result = participants.get(code);
 		if (result == null) {
-			result = new Participant(ParticipantType.PARTICIPANT, code, display);
+			result = new Participant(ParticipantType.PARTICIPANT, code, display, hiddenPortions);
 			participants.put(code, result);
 			participantEnglobers2.put(result, participantEnglober);
 		}
@@ -106,7 +111,7 @@ public class SequenceDiagram extends UmlDiagram {
 			// display = Arrays.asList(code);
 			display = Display.getWithNewlines(code);
 		}
-		final Participant result = new Participant(type, code, display);
+		final Participant result = new Participant(type, code, display, hiddenPortions);
 		participants.put(code, result);
 		participantEnglobers2.put(result, participantEnglober);
 		return result;
@@ -297,7 +302,7 @@ public class SequenceDiagram extends UmlDiagram {
 	}
 
 	public DiagramDescription getDescription() {
-		return new DiagramDescriptionImpl("(" + participants.size() + " participants)", getClass());
+		return new DiagramDescription("(" + participants.size() + " participants)");
 	}
 
 	public boolean changeSkin(String className) {
@@ -317,45 +322,30 @@ public class SequenceDiagram extends UmlDiagram {
 		return skin2;
 	}
 
-	private boolean autonumber = false;
-	private int messageNumber;
-	private int incrementMessageNumber;
+	private final AutoNumber autoNumber = new AutoNumber();
 
-	private DecimalFormat decimalFormat;
-
-	public final void autonumberGo(int startingNumber, int increment, DecimalFormat decimalFormat) {
-		this.autonumber = true;
-		this.messageNumber = startingNumber;
-		this.incrementMessageNumber = increment;
-		this.decimalFormat = decimalFormat;
+	public final void autonumberGo(DottedNumber startingNumber, int increment, DecimalFormat decimalFormat) {
+		autoNumber.go(startingNumber, increment, decimalFormat);
 	}
 
 	public final void autonumberStop() {
-		this.autonumber = false;
+		autoNumber.stop();
 	}
 
-	public final void autonumberResume(DecimalFormat decimalFormat) {
-		this.autonumber = true;
-		if (decimalFormat != null) {
-			this.decimalFormat = decimalFormat;
-		}
+	public final AutoNumber getAutoNumber() {
+		return autoNumber;
 	}
 
-	public final void autonumberResume(int increment, DecimalFormat decimalFormat) {
-		this.autonumber = true;
-		this.incrementMessageNumber = increment;
-		if (decimalFormat != null) {
-			this.decimalFormat = decimalFormat;
-		}
-	}
+//	public final void autonumberResume(DecimalFormat decimalFormat) {
+//		autoNumber.resume(decimalFormat);
+//	}
+//
+//	public final void autonumberResume(int increment, DecimalFormat decimalFormat) {
+//		autoNumber.resume(increment, decimalFormat);
+//	}
 
 	public String getNextMessageNumber() {
-		if (autonumber == false) {
-			return null;
-		}
-		final int result = messageNumber;
-		messageNumber += incrementMessageNumber;
-		return decimalFormat.format(result);
+		return autoNumber.getNextMessageNumber();
 	}
 
 	public boolean isShowFootbox() {
@@ -501,6 +491,24 @@ public class SequenceDiagram extends UmlDiagram {
 			dpiFactor = scale.getScale(dim.getWidth(), dim.getHeight());
 		}
 		return dpiFactor;
+	}
+
+	@Override
+	public String checkFinalError() {
+		if (this.isHideUnlinkedData()) {
+			this.removeHiddenParticipants();
+		}
+		return super.checkFinalError();
+	}
+
+	private final Set<EntityPortion> hiddenPortions = EnumSet.<EntityPortion> noneOf(EntityPortion.class);
+
+	public void hideOrShow(Set<EntityPortion> portions, boolean show) {
+		if (show) {
+			hiddenPortions.removeAll(portions);
+		} else {
+			hiddenPortions.addAll(portions);
+		}
 	}
 
 }

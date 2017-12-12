@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,56 +28,67 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4768 $
  *
  */
 package net.sourceforge.plantuml.core;
 
+import net.sourceforge.plantuml.utils.StartUtils;
+
 public enum DiagramType {
-	UML, DITAA, DOT, PROJECT, JCCKIT, SALT, TURING, FLOW, CREOLE, JUNGLE, CUTE, UNKNOWN;
+	UML, BPM, DITAA, DOT, PROJECT, JCCKIT, SALT, FLOW, CREOLE, JUNGLE, CUTE, MATH, LATEX, DEFINITION, GANTT, UNKNOWN;
 
 	static public DiagramType getTypeFromArobaseStart(String s) {
 		s = s.toLowerCase();
-//		if (s.startsWith("@startuml2")) {
-//			return UML2;
-//		}
-		if (s.startsWith("@startuml")) {
+		// if (s.startsWith("@startuml2")) {
+		// return UML2;
+		// }
+		if (StartUtils.startsWithSymbolAnd("startbpm", s)) {
+			return BPM;
+		}
+		if (StartUtils.startsWithSymbolAnd("startuml", s)) {
 			return UML;
 		}
-		if (s.startsWith("@startdot")) {
+		if (StartUtils.startsWithSymbolAnd("startdot", s)) {
 			return DOT;
 		}
-		if (s.startsWith("@startjcckit")) {
+		if (StartUtils.startsWithSymbolAnd("startjcckit", s)) {
 			return JCCKIT;
 		}
-		if (s.startsWith("@startditaa")) {
+		if (StartUtils.startsWithSymbolAnd("startditaa", s)) {
 			return DITAA;
 		}
-		if (s.startsWith("@startproject")) {
+		if (StartUtils.startsWithSymbolAnd("startproject", s)) {
 			return PROJECT;
 		}
-		if (s.startsWith("@startsalt")) {
+		if (StartUtils.startsWithSymbolAnd("startsalt", s)) {
 			return SALT;
 		}
-		if (s.startsWith("@startturing")) {
-			return TURING;
-		}
-		if (s.startsWith("@startflow")) {
+		if (StartUtils.startsWithSymbolAnd("startflow", s)) {
 			return FLOW;
 		}
-		if (s.startsWith("@startcreole")) {
+		if (StartUtils.startsWithSymbolAnd("startcreole", s)) {
 			return CREOLE;
 		}
-		if (s.startsWith("@starttree")) {
+		if (StartUtils.startsWithSymbolAnd("starttree", s)) {
 			return JUNGLE;
 		}
-		if (s.startsWith("@startcute")) {
+		if (StartUtils.startsWithSymbolAnd("startcute", s)) {
 			return CUTE;
+		}
+		if (StartUtils.startsWithSymbolAnd("startmath", s)) {
+			return MATH;
+		}
+		if (StartUtils.startsWithSymbolAnd("startlatex", s)) {
+			return LATEX;
+		}
+		if (StartUtils.startsWithSymbolAnd("startdef", s)) {
+			return DEFINITION;
+		}
+		if (StartUtils.startsWithSymbolAnd("startgantt", s)) {
+			return GANTT;
 		}
 		return UNKNOWN;
 	}

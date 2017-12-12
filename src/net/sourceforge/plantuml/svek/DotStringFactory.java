@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4236 $
  * 
  */
 package net.sourceforge.plantuml.svek;
@@ -61,6 +63,8 @@ import net.sourceforge.plantuml.cucadiagram.dot.ProcessState;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.posimo.Moveable;
+import net.sourceforge.plantuml.vizjs.GraphvizJs;
+import net.sourceforge.plantuml.vizjs.GraphvizJsRuntimeException;
 
 public class DotStringFactory implements Moveable {
 
@@ -78,23 +82,23 @@ public class DotStringFactory implements Moveable {
 
 	private final StringBounder stringBounder;
 
-	public DotStringFactory(ColorSequence colorSequence, StringBounder stringBounder, DotData dotData) {
+	public DotStringFactory(StringBounder stringBounder, DotData dotData) {
 		this.skinParam = dotData.getSkinParam();
 		this.umlDiagramType = dotData.getUmlDiagramType();
 		this.dotMode = dotData.getDotMode();
 
-		this.colorSequence = colorSequence;
+		this.colorSequence = new ColorSequence();
 		this.stringBounder = stringBounder;
 		this.root = new Cluster(colorSequence, skinParam, dotData.getRootGroup());
 		this.current = root;
 	}
 
-	public DotStringFactory(ColorSequence colorSequence, StringBounder stringBounder, CucaDiagram diagram) {
+	public DotStringFactory(StringBounder stringBounder, CucaDiagram diagram) {
 		this.skinParam = diagram.getSkinParam();
 		this.umlDiagramType = diagram.getUmlDiagramType();
 		this.dotMode = DotMode.NORMAL;
 
-		this.colorSequence = colorSequence;
+		this.colorSequence = new ColorSequence();
 		this.stringBounder = stringBounder;
 		this.root = new Cluster(colorSequence, skinParam, diagram.getEntityFactory().getRootGroup());
 		this.current = root;
@@ -200,16 +204,16 @@ public class DotStringFactory implements Moveable {
 
 		manageMinMaxCluster(sb);
 
-		root.printCluster1(sb, bibliotekon.allLines());
+		root.printCluster1(sb, bibliotekon.allLines(), stringBounder);
 		for (Line line : bibliotekon.lines0()) {
-			line.appendLine(sb);
+			line.appendLine(getGraphvizVersion(), sb, dotMode);
 		}
 		root.fillRankMin(rankMin);
 		root.printCluster2(sb, bibliotekon.allLines(), stringBounder, dotMode, getGraphvizVersion(), umlDiagramType);
 		printMinRanking(sb);
 
 		for (Line line : bibliotekon.lines1()) {
-			line.appendLine(sb);
+			line.appendLine(getGraphvizVersion(), sb, dotMode);
 		}
 		SvekUtils.println(sb);
 		sb.append("}");
@@ -268,26 +272,51 @@ public class DotStringFactory implements Moveable {
 		return 35;
 	}
 
+	private GraphvizVersion graphvizVersion;
+
 	public GraphvizVersion getGraphvizVersion() {
+		if (graphvizVersion == null) {
+			graphvizVersion = getGraphvizVersionInternal();
+		}
+		return graphvizVersion;
+	}
+
+	private GraphvizVersion getGraphvizVersionInternal() {
 		final Graphviz graphviz = GraphvizUtils.create(skinParam, "foo;", "svg");
+		if (graphviz instanceof GraphvizJs) {
+			return GraphvizJs.getGraphvizVersion(false);
+		}
 		final File f = graphviz.getDotExe();
 		return GraphvizVersions.getInstance().getVersion(f);
 	}
 
-	public String getSvg(BaseFile basefile, String[] dotStrings) throws IOException {
-		final String dotString = createDotString(dotStrings);
+	public String getSvg(BaseFile basefile, String[] dotOptions) throws IOException {
+		String dotString = createDotString(dotOptions);
 
 		if (basefile != null) {
 			final File f = basefile.getTraceFile("svek.dot");
 			SvekUtils.traceString(f, dotString);
 		}
 
-		final Graphviz graphviz = GraphvizUtils.create(skinParam, dotString, "svg");
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		final ProcessState state = graphviz.createFile3(baos);
-		baos.close();
-		if (state.differs(ProcessState.TERMINATED_OK())) {
-			throw new IllegalStateException("Timeout4 " + state, state.getCause());
+		Graphviz graphviz = GraphvizUtils.create(skinParam, dotString, "svg");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			final ProcessState state = graphviz.createFile3(baos);
+			baos.close();
+			if (state.differs(ProcessState.TERMINATED_OK())) {
+				throw new IllegalStateException("Timeout4 " + state, state.getCause());
+			}
+		} catch (GraphvizJsRuntimeException e) {
+			System.err.println("GraphvizJsRuntimeException");
+			graphvizVersion = GraphvizJs.getGraphvizVersion(true);
+			dotString = createDotString(dotOptions);
+			graphviz = GraphvizUtils.create(skinParam, dotString, "svg");
+			baos = new ByteArrayOutputStream();
+			final ProcessState state = graphviz.createFile3(baos);
+			baos.close();
+			if (state.differs(ProcessState.TERMINATED_OK())) {
+				throw new IllegalStateException("Timeout4 " + state, state.getCause());
+			}
 		}
 		final byte[] result = baos.toByteArray();
 		final String s = new String(result, "UTF-8");
@@ -302,6 +331,9 @@ public class DotStringFactory implements Moveable {
 
 	public boolean illegalDotExe() {
 		final Graphviz graphviz = GraphvizUtils.create(skinParam, "svg");
+		if (graphviz instanceof GraphvizJs) {
+			return false;
+		}
 		final File dotExe = graphviz.getDotExe();
 		return dotExe == null || dotExe.isFile() == false || dotExe.canRead() == false;
 	}
@@ -328,8 +360,8 @@ public class DotStringFactory implements Moveable {
 
 		for (Shape sh : bibliotekon.allShapes()) {
 			int idx = svg.indexOf("<title>" + sh.getUid() + "</title>");
-			if (sh.getType() == ShapeType.RECTANGLE || sh.getType() == ShapeType.FOLDER
-					|| sh.getType() == ShapeType.DIAMOND) {
+			if (sh.getType() == ShapeType.RECTANGLE || sh.getType() == ShapeType.RECTANGLE_HTML_FOR_PORTS
+					|| sh.getType() == ShapeType.FOLDER || sh.getType() == ShapeType.DIAMOND) {
 				final List<Point2D.Double> points = SvekUtils.extractPointsList(svg, idx, fullHeight);
 				final double minX = SvekUtils.getMinX(points);
 				final double minY = SvekUtils.getMinY(points);

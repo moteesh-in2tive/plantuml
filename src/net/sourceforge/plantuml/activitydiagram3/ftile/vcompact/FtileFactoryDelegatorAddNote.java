@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,43 +28,46 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
+import java.util.Collection;
+
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.activitydiagram3.PositionedNote;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactoryDelegator;
-import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.sequencediagram.NotePosition;
+import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.sequencediagram.NoteType;
 
 public class FtileFactoryDelegatorAddNote extends FtileFactoryDelegator {
 
-	// private final Rose rose = new Rose();
-
-	public FtileFactoryDelegatorAddNote(FtileFactory factory, ISkinParam skinParam) {
-		super(factory, skinParam);
+	public FtileFactoryDelegatorAddNote(FtileFactory factory) {
+		super(factory);
 	}
 
 	@Override
-	public Ftile addNote(Ftile ftile, Display note, NotePosition notePosition) {
-		if (note == null) {
+	public Ftile addNote(Ftile ftile, Swimlane swimlane, Collection<PositionedNote> notes) {
+		if (notes.size() == 0) {
 			throw new IllegalArgumentException();
 		}
-		// final HtmlColor colorlink;
-		// final LinkRendering inlinkRendering = ftile.getInLinkRendering();
-		// if (inlinkRendering == null || inlinkRendering.getColor() == null) {
-		// colorlink = rose.getHtmlColor(getSkinParam(), ColorParam.activityArrow);
-		// } else {
-		// colorlink = inlinkRendering.getColor();
+		// if (notes.size() > 1) {
+		// throw new IllegalArgumentException();
 		// }
-		return new FtileWithNoteOpale(ftile, note, notePosition, getSkinParam(), true);
+		ISkinParam skinParam = skinParam();
+		if (ftile == null) {
+			final PositionedNote note = notes.iterator().next();
+			if (note.getColors() != null) {
+				skinParam = note.getColors().mute(skinParam);
+			}
+			return new FtileNoteAlone(skinParam.shadowing(), note.getDisplay(), skinParam,
+					note.getType() == NoteType.NOTE, swimlane);
+		}
+		return FtileWithNoteOpale.create(ftile, notes, skinParam, true);
 	}
 }

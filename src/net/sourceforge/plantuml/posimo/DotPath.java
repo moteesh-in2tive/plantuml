@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4236 $
  * 
  */
 package net.sourceforge.plantuml.posimo;
@@ -48,7 +50,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.sourceforge.plantuml.EnsureVisible;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.asciiart.BasicCharArea;
 import net.sourceforge.plantuml.eps.EpsGraphics;
 import net.sourceforge.plantuml.geom.LineSegmentDouble;
@@ -92,6 +93,7 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	private final List<CubicCurve2D.Double> beziers = new ArrayList<CubicCurve2D.Double>();
+	private String comment;
 
 	public DotPath() {
 		this(new ArrayList<CubicCurve2D.Double>());
@@ -128,7 +130,7 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	public DotPath(String init, double deltaY) {
-		if (init.startsWith("M") == false) {
+		if (isPathConsistent(init) == false) {
 			throw new IllegalArgumentException();
 		}
 		final int posC = init.indexOf("C");
@@ -156,6 +158,13 @@ public class DotPath implements UShape, Moveable {
 			y = p.y;
 		}
 		// this.print = triPoints.toString();
+	}
+
+	public static boolean isPathConsistent(String init) {
+		if (init.startsWith("M") == false) {
+			return false;
+		}
+		return true;
 	}
 
 	// private final String print;
@@ -398,7 +407,7 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	public UPath toUPath() {
-		final UPath result = new UPath();
+		final UPath result = new UPath(comment);
 		boolean start = true;
 		for (CubicCurve2D.Double bez : beziers) {
 			if (start) {
@@ -551,9 +560,9 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	public DotPath simulateCompound(Cluster head, Cluster tail) {
-//		if (OptionFlags.USE_COMPOUND) {
-//			throw new IllegalStateException();
-//		}
+		// if (OptionFlags.USE_COMPOUND) {
+		// throw new IllegalStateException();
+		// }
 		if (head == null && tail == null) {
 			return this;
 		}
@@ -658,6 +667,10 @@ public class DotPath implements UShape, Moveable {
 			}
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19540 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
@@ -44,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sourceforge.plantuml.BackSlash;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.Log;
@@ -77,9 +80,19 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 
 	public abstract IEntity getOrCreateLeaf(Code code, LeafType type, USymbol symbol);
 
-	public String getNamespaceSeparator() {
-		return null;
+	private String namespaceSeparator = ".";
+
+	final public void setNamespaceSeparator(String namespaceSeparator) {
+		this.namespaceSeparator = namespaceSeparator;
 	}
+
+	final public String getNamespaceSeparator() {
+		return namespaceSeparator;
+	}
+
+	// public String getNamespaceSeparator() {
+	// return null;
+	// }
 
 	@Override
 	public boolean hasUrl() {
@@ -114,8 +127,10 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 			result = createLeafInternal(code, Display.getWithNewlines(code), type, getCurrentGroup(), symbol);
 			result.setUSymbol(symbol);
 		}
-		if (result.getEntityType() == LeafType.CLASS && type == LeafType.OBJECT) {
-			result.muteToType(type, symbol);
+		if (result.getLeafType() == LeafType.CLASS && type == LeafType.OBJECT) {
+			if (result.muteToType(type, symbol) == false) {
+				return null;
+			}
 		}
 		this.lastEntity = result;
 		return result;
@@ -152,12 +167,40 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 		}
 		return Collections.unmodifiableCollection(result);
 	}
-
+	
+	final public IGroup getOrCreateNamespace(Code namespace, Display display, GroupType type, IGroup parent) {
+		if (getNamespaceSeparator() != null) {
+			namespace = namespace.withSeparator(getNamespaceSeparator()).getFullyQualifiedCode(getCurrentGroup());
+		}
+		final IGroup g = getOrCreateNamespaceInternal(namespace, display, type, parent);
+		currentGroup = g;
+		return g;
+	}
+	
 	final public IGroup getOrCreateGroup(Code code, Display display, GroupType type, IGroup parent) {
 		final IGroup g = getOrCreateGroupInternal(code, display, null, type, parent);
 		currentGroup = g;
 		return g;
 	}
+
+
+
+	final protected IGroup getOrCreateNamespaceInternal(Code namespace, Display display, GroupType type, IGroup parent) {
+		IGroup result = entityFactory.getGroups().get(namespace);
+		if (result != null) {
+			return result;
+		}
+		if (entityFactory.getLeafs().containsKey(namespace)) {
+			result = entityFactory.muteToGroup(namespace, namespace, type, parent);
+			result.setDisplay(display);
+		} else {
+			result = entityFactory.createGroup(namespace, display, namespace, type, parent, getHides(),
+					getNamespaceSeparator());
+		}
+		entityFactory.addGroup(result);
+		return result;
+	}
+
 
 	private IGroup getOrCreateGroupInternal(Code code, Display display, Code namespace2, GroupType type, IGroup parent) {
 		IGroup result = entityFactory.getGroups().get(code);
@@ -197,7 +240,7 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 	}
 
 	public final boolean isGroup(Code code) {
-		return entityFactory.getGroups().containsKey(code);
+		return leafExist(code) == false && entityFactory.getGroups().containsKey(code);
 	}
 
 	public final Collection<IGroup> getGroups(boolean withRootGroup) {
@@ -282,6 +325,10 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 		if (aspect != null) {
 			result.add("aspect=" + aspect + ";");
 		}
+		final String ratio = getPragma().getValue("ratio");
+		if (ratio != null) {
+			result.add("ratio=" + ratio + ";");
+		}
 		return result.toArray(new String[result.size()]);
 	}
 
@@ -325,8 +372,8 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 
 		// final CucaDiagramFileMaker maker = OptionFlags.USE_HECTOR ? new CucaDiagramFileMakerHectorC1(this)
 		// : new CucaDiagramFileMakerSvek(this);
-		final CucaDiagramFileMaker maker = this.isUseJDot() ? new CucaDiagramFileMakerJDot(this)
-				: new CucaDiagramFileMakerSvek(this);
+		final CucaDiagramFileMaker maker = this.isUseJDot() ? new CucaDiagramFileMakerJDot(this,
+				fileFormatOption.getDefaultStringBounder()) : new CucaDiagramFileMakerSvek(this);
 		final ImageData result = maker.createFile(os, getDotStrings(), fileFormatOption);
 
 		if (result == null) {
@@ -347,7 +394,7 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 		if (generalWarningOrError == null) {
 			return warningOrError;
 		}
-		return generalWarningOrError + "\n" + warningOrError;
+		return generalWarningOrError + BackSlash.NEWLINE + warningOrError;
 	}
 
 	private void createFilesTxt(OutputStream os, int index, FileFormat fileFormat) throws IOException {
@@ -482,7 +529,7 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 		}
 	}
 
-	public void hideOrShow(ILeaf leaf, boolean show) {
+	public void hideOrShow(IEntity leaf, boolean show) {
 		leaf.setRemoved(!show);
 	}
 
@@ -543,8 +590,7 @@ public abstract class CucaDiagram extends UmlDiagram implements GroupHierarchy, 
 		final List<Link> links = getLinks();
 		for (int i = links.size() - 1; i >= 0; i--) {
 			final Link link = links.get(i);
-			if (link.getEntity1().getEntityType() != LeafType.NOTE
-					&& link.getEntity2().getEntityType() != LeafType.NOTE) {
+			if (link.getEntity1().getLeafType() != LeafType.NOTE && link.getEntity2().getLeafType() != LeafType.NOTE) {
 				return link;
 			}
 		}

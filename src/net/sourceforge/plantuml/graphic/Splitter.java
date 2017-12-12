@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19271 $
  *
  */
 package net.sourceforge.plantuml.graphic;
@@ -38,11 +40,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.ugraphic.sprite.SpriteUtils;
 
 public class Splitter {
@@ -66,16 +69,15 @@ public class Splitter {
 	static final String htmlTag;
 
 	static final String linkPattern = "\\[\\[([^\\[\\]]+)\\]\\]";
+	public static final String mathPattern = "\\<math\\>(.+?)\\</math\\>";
+	public static final String latexPattern = "\\<latex\\>(.+?)\\</latex\\>";
 
-	private static final Pattern tagOrText;
+	private static final Pattern2 tagOrText;
 
 	static {
 		final StringBuilder sb = new StringBuilder("(?i)");
 
 		for (FontStyle style : EnumSet.allOf(FontStyle.class)) {
-			if (style == FontStyle.PLAIN) {
-				continue;
-			}
 			sb.append(style.getActivationPattern());
 			sb.append('|');
 			sb.append(style.getDeactivationPattern());
@@ -101,8 +103,8 @@ public class Splitter {
 		sb.append('|');
 		sb.append(fontFamilyPattern);
 		sb.append('|');
-		sb.append(spritePattern);
-		sb.append('|');
+		// sb.append(spritePattern);
+		// sb.append('|');
 		sb.append(linkPattern);
 		sb.append('|');
 		sb.append(svgAttributePattern);
@@ -114,7 +116,7 @@ public class Splitter {
 	private final List<String> splitted = new ArrayList<String>();
 
 	public Splitter(String s) {
-		final Matcher matcher = tagOrText.matcher(s);
+		final Matcher2 matcher = tagOrText.matcher(s);
 		while (matcher.find()) {
 			String part = matcher.group(0);
 			part = StringUtils.showComparatorCharacters(part);
@@ -144,7 +146,7 @@ public class Splitter {
 		String s = cmd.getText();
 		final Collection<Text> result = new ArrayList<Text>();
 		while (true) {
-			final int x = s.indexOf(Text.NEWLINE.getText());
+			final int x = s.indexOf(Text.TEXT_BS_BS_N.getText());
 			if (x == -1) {
 				result.add(new Text(s));
 				return result;
@@ -152,7 +154,7 @@ public class Splitter {
 			if (x > 0) {
 				result.add(new Text(s.substring(0, x)));
 			}
-			result.add(Text.NEWLINE);
+			result.add(Text.TEXT_BS_BS_N);
 			s = s.substring(x + 2);
 		}
 	}

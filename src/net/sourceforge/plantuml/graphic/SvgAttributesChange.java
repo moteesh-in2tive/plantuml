@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,28 +28,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 3834 $
  *
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 
 class SvgAttributesChange implements FontChange {
 
-	static final Pattern pattern = MyPattern.cmpile(Splitter.svgAttributePattern);
+	static final Pattern2 pattern = MyPattern.cmpile(Splitter.svgAttributePattern);
 	private final SvgAttributes attributes;
 
 	SvgAttributesChange(String s) {
-		final Matcher m = pattern.matcher(s);
+		final Matcher2 m = pattern.matcher(s);
 		if (m.find() == false) {
 			throw new IllegalStateException();
 		}

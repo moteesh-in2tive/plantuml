@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.ugraphic;
@@ -67,6 +69,10 @@ public class UTranslate implements UChange {
 		return dy;
 	}
 
+	public boolean isAlmostSame(UTranslate other) {
+		return this.dx == other.dx || this.dy == other.dy;
+	}
+
 	public Point2D getTranslated(Point2D p) {
 		if (p == null) {
 			return null;
@@ -88,6 +94,10 @@ public class UTranslate implements UChange {
 
 	public Rectangle2D apply(Rectangle2D rect) {
 		return new Rectangle2D.Double(rect.getX() + dx, rect.getY() + dy, rect.getWidth(), rect.getHeight());
+	}
+
+	public UTranslate multiplyBy(double v) {
+		return new UTranslate(dx * v, dy * v);
 	}
 
 }

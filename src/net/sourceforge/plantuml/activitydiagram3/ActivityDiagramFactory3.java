@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3;
@@ -41,6 +43,8 @@ import net.sourceforge.plantuml.activitydiagram3.command.CommandActivityLegacy1;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandActivityLong3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandArrow3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandArrowLong3;
+import net.sourceforge.plantuml.activitydiagram3.command.CommandBackward3;
+import net.sourceforge.plantuml.activitydiagram3.command.CommandBreak;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandElse3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandElseIf2;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandElseLegacy1;
@@ -99,16 +103,17 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 		cmds.add(new CommandActivity3());
 		cmds.add(new CommandIf4());
 		cmds.add(new CommandIf2());
-		cmds.add(new CommandDecoratorMultine(new CommandIf2()));
+		cmds.add(new CommandDecoratorMultine(new CommandIf2(), 50));
 		cmds.add(new CommandIfLegacy1());
 		cmds.add(new CommandElseIf2());
 		cmds.add(new CommandElse3());
-		cmds.add(new CommandDecoratorMultine(new CommandElse3()));
+		cmds.add(new CommandDecoratorMultine(new CommandElse3(), 50));
 		cmds.add(new CommandElseLegacy1());
 		cmds.add(new CommandEndif3());
 		cmds.add(new CommandRepeat3());
 		cmds.add(new CommandRepeatWhile3());
 		cmds.add(new CommandRepeatWhile3Multilines());
+		cmds.add(new CommandBackward3());
 		cmds.add(new CommandWhile3());
 		cmds.add(new CommandWhileEnd3());
 		cmds.add(new CommandFork3());
@@ -121,6 +126,7 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 		// cmds.add(new CommandGroupEnd3());
 		cmds.add(new CommandStart3());
 		cmds.add(new CommandStop3());
+		cmds.add(new CommandBreak());
 		cmds.add(new CommandEnd3());
 		cmds.add(new CommandKill3());
 		cmds.add(new CommandLink3());
@@ -132,7 +138,7 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 
 		cmds.add(new CommandLabel());
 		cmds.add(new CommandGoto());
-		cmds.add(new CommandDecoratorMultine(new CommandElseIf2()));
+		cmds.add(new CommandDecoratorMultine(new CommandElseIf2(), 50));
 
 		return cmds;
 	}

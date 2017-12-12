@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 8218 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
@@ -87,7 +89,7 @@ public class GroupRoot implements IGroup {
 
 	}
 
-	public LeafType getEntityType() {
+	public LeafType getLeafType() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -170,7 +172,7 @@ public class GroupRoot implements IGroup {
 
 	}
 
-	public void overideImage(IEntityImage img, LeafType state) {
+	public void overrideImage(IEntityImage img, LeafType state) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -247,16 +249,11 @@ public class GroupRoot implements IGroup {
 		throw new UnsupportedOperationException();
 	}
 
-	public void applyStroke(String s) {
-		throw new UnsupportedOperationException();
-	}
-
-	public void applyStroke(Colors colors) {
-		throw new UnsupportedOperationException();
-	}
-
 	public FontConfiguration getFontConfigurationForTitle(ISkinParam skinParam) {
 		throw new UnsupportedOperationException();
 	}
 
+	public void setRemoved(boolean removed) {
+		throw new UnsupportedOperationException();
+	}
 }

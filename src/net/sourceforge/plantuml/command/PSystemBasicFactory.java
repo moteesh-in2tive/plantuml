@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 3830 $
  *
  */
 package net.sourceforge.plantuml.command;
@@ -60,15 +62,23 @@ public abstract class PSystemBasicFactory<P extends AbstractPSystem> extends PSy
 		return null;
 	}
 
+	private boolean isEmptyLine(CharSequence2 result) {
+		return result.trin().length() == 0;
+	}
 
 	final public Diagram createSystem(UmlSource source) {
 		final IteratorCounter2 it = source.iterator2();
 		final CharSequence2 startLine = it.next();
 		P system = init(startLine.toString2());
+		boolean first = true;
 		while (it.hasNext()) {
 			final CharSequence2 s = it.next();
+			if (first && s != null && isEmptyLine(s)) {
+				continue;
+			}
+			first = false;
 			if (StartUtils.isArobaseEndDiagram(s)) {
-				if (source.getTotalLineCount() == 2) {
+				if (source.getTotalLineCount() == 2 && source.isStartDef() == false) {
 					return buildEmptyError(source, s.getLocation());
 				}
 				if (system != null) {
@@ -78,8 +88,9 @@ public abstract class PSystemBasicFactory<P extends AbstractPSystem> extends PSy
 			}
 			system = executeLine(system, s.toString2());
 			if (system == null) {
-				return new PSystemError(source, new ErrorUml(ErrorUmlType.SYNTAX_ERROR, "Syntax Error?",
-						it.currentNum() - 1, s.getLocation()), null);
+				final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, "Syntax Error?",
+				/* it.currentNum() - 1, */s.getLocation());
+				return new PSystemError(source, err, null);
 			}
 		}
 		if (system != null) {
@@ -87,7 +98,5 @@ public abstract class PSystemBasicFactory<P extends AbstractPSystem> extends PSy
 		}
 		return system;
 	}
-
-
 
 }

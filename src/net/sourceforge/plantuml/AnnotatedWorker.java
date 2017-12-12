@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 18790 $
  *
  */
 package net.sourceforge.plantuml;
@@ -96,17 +98,15 @@ public class AnnotatedWorker {
 	}
 
 	private TextBlock addTitle(TextBlock original) {
-		if (DisplayPositionned.isNull(annotated.getTitle())) {
+		final DisplayPositionned title = annotated.getTitle();
+		if (DisplayPositionned.isNull(title)) {
 			return original;
 		}
-		final TextBlock text = annotated
-				.getTitle()
-				.getDisplay()
-				.create(new FontConfiguration(getSkinParam(), FontParam.TITLE, null), HorizontalAlignment.CENTER,
-						getSkinParam());
+		ISkinParam skinParam = getSkinParam();
+		final FontConfiguration fontConfiguration = new FontConfiguration(skinParam, FontParam.TITLE, null);
 
-		return DecorateEntityImage.addTop(original, text, HorizontalAlignment.CENTER);
-		// return new DecorateTextBlock(original, text, HorizontalAlignment.CENTER);
+		final TextBlock block = TextBlockUtils.title(fontConfiguration, title.getDisplay(), skinParam);
+		return DecorateEntityImage.addTop(original, block, HorizontalAlignment.CENTER);
 	}
 
 	private TextBlock addHeaderAndFooter(TextBlock original) {
@@ -124,9 +124,6 @@ public class AnnotatedWorker {
 				.create(new FontConfiguration(getSkinParam(), FontParam.HEADER, null),
 						annotated.getHeader().getHorizontalAlignment(), getSkinParam());
 
-		// return new DecorateTextBlock(original, textHeader, annotated.getHeader().getHorizontalAlignment(),
-		// textFooter,
-		// annotated.getFooter().getHorizontalAlignment());
 		return new DecorateEntityImage(original, textHeader, annotated.getHeader().getHorizontalAlignment(),
 				textFooter, annotated.getFooter().getHorizontalAlignment());
 	}

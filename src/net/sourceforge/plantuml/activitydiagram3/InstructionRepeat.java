@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,25 +28,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
 import java.util.Set;
 
+import net.sourceforge.plantuml.activitydiagram3.ftile.BoxStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileKilled;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
+import net.sourceforge.plantuml.sequencediagram.NoteType;
 
 public class InstructionRepeat implements Instruction {
 
@@ -52,14 +57,18 @@ public class InstructionRepeat implements Instruction {
 	private final HtmlColor color;
 	private boolean killed = false;
 
+	private Display backward = Display.NULL;
 	private Display test = Display.NULL;
 	private Display yes = Display.NULL;
 	private Display out = Display.NULL;
+	private final Display startLabel;
 	private boolean testCalled = false;
 	private LinkRendering endRepeatLinkRendering = LinkRendering.none();
 	private LinkRendering backRepeatLinkRendering = LinkRendering.none();
 
-	public InstructionRepeat(Swimlane swimlane, Instruction parent, LinkRendering nextLinkRenderer, HtmlColor color) {
+	public InstructionRepeat(Swimlane swimlane, Instruction parent, LinkRendering nextLinkRenderer, HtmlColor color,
+			Display startLabel) {
+		this.startLabel = startLabel;
 		this.parent = parent;
 		this.swimlane = swimlane;
 		this.nextLinkRenderer = nextLinkRenderer;
@@ -69,14 +78,27 @@ public class InstructionRepeat implements Instruction {
 		this.color = color;
 	}
 
+	private boolean isLastOfTheParent() {
+		if (parent instanceof InstructionList) {
+			return ((InstructionList) parent).getLast() == this;
+		}
+		return false;
+	}
+
+	public void setBackward(Display label) {
+		this.backward = label;
+	}
+
 	public void add(Instruction ins) {
 		repeatList.add(ins);
 	}
 
 	public Ftile createFtile(FtileFactory factory) {
-		final Ftile result = factory.repeat(swimlane, repeatList.getSwimlaneOut(),
+		final Ftile back = Display.isNull(backward) ? null : factory.activity(backward, swimlane, BoxStyle.PLAIN,
+				Colors.empty());
+		final Ftile result = factory.repeat(swimlane, repeatList.getSwimlaneOut(), startLabel,
 				factory.decorateOut(repeatList.createFtile(factory), endRepeatLinkRendering), test, yes, out, color,
-				backRepeatLinkRendering);
+				backRepeatLinkRendering, back, isLastOfTheParent());
 		if (killed) {
 			return new FtileKilled(result);
 		}
@@ -118,8 +140,8 @@ public class InstructionRepeat implements Instruction {
 		return nextLinkRenderer;
 	}
 
-	public boolean addNote(Display note, NotePosition position) {
-		return repeatList.addNote(note, position);
+	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
+		return repeatList.addNote(note, position, type, colors, swimlaneNote);
 	}
 
 	public Set<Swimlane> getSwimlanes() {
@@ -131,7 +153,7 @@ public class InstructionRepeat implements Instruction {
 	}
 
 	public Swimlane getSwimlaneOut() {
-		return repeatList.getSwimlaneOut();
+		return parent.getSwimlaneOut();
 	}
 
 }

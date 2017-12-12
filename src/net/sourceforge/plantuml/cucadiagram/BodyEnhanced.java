@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,17 +28,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 7637 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
 
 import java.awt.geom.Dimension2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,15 +52,17 @@ import net.sourceforge.plantuml.creole.CreoleParser;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
+import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockLineBefore;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.TextBlockVertical2;
-import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.svek.Ports;
+import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 
-public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
+public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPorts {
 
 	private TextBlock area2;
 	private final FontConfiguration titleConfig;
@@ -69,26 +74,27 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 	private final boolean manageHorizontalLine;
 	private final boolean manageModifier;
 	private final List<Url> urls = new ArrayList<Url>();
-	private final boolean manageUrl;
 	private final Stereotype stereotype;
+	private final ILeaf entity;
 
-	public BodyEnhanced(List<String> rawBody, FontParam fontParam, ISkinParam skinParam, boolean manageModifier, Stereotype stereotype) {
+	public BodyEnhanced(List<String> rawBody, FontParam fontParam, ISkinParam skinParam, boolean manageModifier,
+			Stereotype stereotype, ILeaf entity) {
 		this.rawBody = new ArrayList<String>(rawBody);
 		this.stereotype = stereotype;
 		this.fontParam = fontParam;
 		this.skinParam = skinParam;
-		this.manageUrl = true;
 
 		this.titleConfig = new FontConfiguration(skinParam, fontParam, stereotype);
 		this.lineFirst = true;
-		this.align = HorizontalAlignment.LEFT;
+		this.align = skinParam.getDefaultTextAlignment(HorizontalAlignment.LEFT);
 		this.manageHorizontalLine = true;
 		this.manageModifier = manageModifier;
+		this.entity = entity;
 	}
 
 	public BodyEnhanced(Display display, FontParam fontParam, ISkinParam skinParam, HorizontalAlignment align,
-			Stereotype stereotype, boolean manageHorizontalLine, boolean manageModifier, boolean manageUrl) {
-		this.manageUrl = manageUrl;
+			Stereotype stereotype, boolean manageHorizontalLine, boolean manageModifier, ILeaf entity) {
+		this.entity = entity;
 		this.stereotype = stereotype;
 		this.rawBody = new ArrayList<String>();
 		for (CharSequence s : display) {
@@ -99,7 +105,7 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 
 		this.titleConfig = new FontConfiguration(skinParam, fontParam, stereotype);
 		this.lineFirst = false;
-		this.align = align;
+		this.align = skinParam.getDefaultTextAlignment(align);
 		this.manageHorizontalLine = manageHorizontalLine;
 		this.manageModifier = manageModifier;
 
@@ -135,15 +141,15 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 		for (ListIterator<String> it = rawBody.listIterator(); it.hasNext();) {
 			final String s = it.next();
 			if (manageHorizontalLine && isBlockSeparator(s)) {
-				blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype),
-						separator, title));
+				blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align,
+						stereotype, entity), separator, title));
 				separator = s.charAt(0);
 				title = getTitle(s, skinParam);
 				members = new ArrayList<Member>();
 			} else if (CreoleParser.isTreeStart(s)) {
 				if (members.size() > 0) {
-					blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype),
-							separator, title));
+					blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align,
+							stereotype, entity), separator, title));
 				}
 				members = new ArrayList<Member>();
 				final List<String> allTree = buildAllTree(s, it);
@@ -151,15 +157,15 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 						skinParam, CreoleMode.FULL);
 				blocks.add(bloc);
 			} else {
-				final Member m = new MemberImpl(s, MemberImpl.isMethod(s), manageModifier, manageUrl);
+				final Member m = new MemberImpl(s, MemberImpl.isMethod(s), manageModifier);
 				members.add(m);
 				if (m.getUrl() != null) {
 					urls.add(m.getUrl());
 				}
 			}
 		}
-		blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype), separator,
-				title));
+		blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype,
+				entity), separator, title));
 
 		if (blocks.size() == 1) {
 			this.area2 = blocks.get(0);
@@ -210,6 +216,14 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 		return Display.getWithNewlines(s).create(titleConfig, HorizontalAlignment.LEFT, spriteContainer);
 	}
 
+	public Ports getPorts(StringBounder stringBounder) {
+		final TextBlock area = getArea(stringBounder);
+		if (area instanceof WithPorts) {
+			return ((WithPorts) area).getPorts(stringBounder);
+		}
+		return new Ports();
+	}
+
 	public void drawU(UGraphic ug) {
 		getArea(ug.getStringBounder()).drawU(ug);
 	}
@@ -217,4 +231,9 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock {
 	public List<Url> getUrls() {
 		return Collections.unmodifiableList(urls);
 	}
+
+	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+		return getArea(stringBounder).getInnerPosition(member, stringBounder, strategy);
+	}
+
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,81 +28,108 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 4041 $
  *
  */
 package net.sourceforge.plantuml.donors;
 
-import java.awt.Font;
+import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
 import net.sourceforge.plantuml.AbstractPSystem;
+import net.sourceforge.plantuml.BackSlash;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.code.CompressionBrotli;
 import net.sourceforge.plantuml.code.Transcoder;
 import net.sourceforge.plantuml.code.TranscoderImpl;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.DiagramDescriptionImpl;
 import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.graphic.UDrawable;
+import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.UAntiAliasing;
-import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UImage;
+import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.version.PSystemVersion;
 
 public class PSystemDonors extends AbstractPSystem {
 
-	public static final String DONORS = "UDfTKyjosp0ClEChUDQa7w7OhLlPJZ9Msixa1bk8H9icL99oAtrRR_snGcvbKkP96Bns5wlSPFyVENYXG4xbDh3LU81NokBZCsmuXiv3FhNY7bOkfgY7alReWqQhdhYnaDkAdLenXO76p_TtgPZAqS86aqKsm59FWJQGnz5yWRAB47fOwMp-B4CneUmyb87QXgnQCBV2Rpdj8G_hyrqhErYmqLRjkFC4HNUNpuuiHAQWrR1DKECv3MLLRkWNsahaN3HQfjReUc6wkz6sDJobwCC0pqPVf66f3oT1Vije2n_zRRHDG6HqWULmri7rQeCDLmZ5AFfRWp8-gSl8n7F9E_KYayKWTO9FS1N_mDDfnifMi_3QgMMGaRPd5_G0dsEwOjZgGqD6FQ8sVSh032aOx--X5OJsGu677nrvjUps3kMq9jB_niT0XqQj7NgCa6eInoO7_3aQJKhKcYywzStLELyZVusmIxmyhfZnF4ftcxYCJwDGZ-pGecaVr1i5vDR3JlYYgzHQZvU6JuRTAF_spszZhXw8_Z29LyLTcvkx74xYZoPevenyOfXHg1USlBFJC_YvqQf4hEI_SZMfxsHhSWzgcxz-AVFe-umjh2XLvIzt3mXu";
+	public static final String DONORS = "6w8602mIZ6r6h8Vz5iSz4U4e4OD_QwRy4VHnsX9GMiAKM7PtB6kpHqv0K9vJl6yGnOAW0UkI7k_btCRE"
+			+ "s8BWkQAuWWgGLz6DShx6dP852fGRwsVRI0vl_tyk5zYzA93UUPlo1CFZW6viQeo14x1jzwEoGVz5Tu4M"
+			+ "y3IwiuP5bpLRFaGClgArQvZPYpGGGYk_WL9IPoX6M28br2viuHIIWn7KMkTrn3FSldvIBrABZLaivJaJ"
+			+ "oArsSJJV_h6thcJxSMQ9e1_gWAm3E803vKvE64T-i57vrI11PGwwiQcIcITkY8X10xtnG-cKb9AApE78"
+			+ "H1Lm1KY4_1aZ08z7DNLoDZSDA5aoM_Gi2UhKUk1kZfTfARKl6awI0m5Ewe1M2UG_q1rwxpBxIuDdNGmn"
+			+ "Kz_9t6JpK6n4TF7zCT2db1lwv0b0xSoSTREfNKggSUcllJx6Ne0ebffzb3VzZNUsO5x_FOHql5Y0yW8w"
+			+ "rpiYviyVryb29aHpwVQ22-VYoTL5GDeu31O-n9BLr8TtCM98cgSuYt2utg3QY40dLrrS1gwkbSnNErTW"
+			+ "cgN5zLkVXjNh8DSarUPzYrRIYwNiVuHtDMiP3jhlOapN9ObmpJXPTGUBBWB3eEs1i99SIBNDzLFTl7_B"
+			+ "Flj9S6z396653P4wKDVJb6yTLX5lLBhKn02m_f2eTrH13_4WgmFeCgYymjCHTZjSBTEdZl7QQKqUmcuC"
+			+ "wgiwKxdZFZoKliCmAOzcTTNs5kS0BgDWBZ_RsBwAO_KCxx4NeNbE1iOjFUY1z1rMrhNxI-xR0c5ciHRS"
+			+ "BMI_7hxpvw6RVv_-B1gvkl-v_WzpLJn-9zIkjvJbiAJRctLPnVSYgWZGEq6xG7LcF0JiEvCJrJb2vJU3"
+			+ "6V3m98cmFhYuFh7WDX2rPMLdAJP4R4UixWCjoG-LJXfLrC2IzTxkf3mZMbIptvntOOx7Ogb2hmMKowg2"
+			+ "QpGGzff2rVGvMLHSSW00";
 
-	public ImageData exportDiagram(OutputStream os, int num, FileFormatOption fileFormat) throws IOException {
-		final GraphicStrings result = getGraphicStrings();
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, result.getBackcolor(),
+	@Override
+	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+			throws IOException {
+		final UDrawable result = getGraphicStrings();
+		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, HtmlColorUtils.WHITE,
 				getMetadata(), null, 0, 0, null, false);
 		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, os);
+		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
 	}
 
-	private GraphicStrings getGraphicStrings() throws IOException {
-		final List<String> lines = new ArrayList<String>();
-		lines.add("<b>Special thanks to our sponsors and donors !");
-		lines.add(" ");
-		int i = 0;
-		final List<String> donors = getDonors();
-		final int maxLine = (donors.size() + 1) / 2;
-		for (String d : donors) {
-			lines.add(d);
-			i++;
-			if (i == maxLine) {
-				lines.add(" ");
-				lines.add(" ");
-				i = 0;
+	private UDrawable getGraphicStrings() throws IOException {
+		final List<TextBlock> cols = getCols(getDonors(), 4, 5);
+		return new UDrawable() {
+			public void drawU(UGraphic ug) {
+				final TextBlockBackcolored header = GraphicStrings.createBlackOnWhite(Arrays
+						.asList("<b>Special thanks to our sponsors and donors !"));
+				header.drawU(ug);
+				final StringBounder stringBounder = ug.getStringBounder();
+				ug = ug.apply(new UTranslate(0, header.calculateDimension(stringBounder).getHeight()));
+				double x = 0;
+				double lastX = 0;
+				double y = 0;
+				for (TextBlock tb : cols) {
+					final Dimension2D dim = tb.calculateDimension(stringBounder);
+					tb.drawU(ug.apply(new UTranslate(x, 0)));
+					lastX = x;
+					x += dim.getWidth() + 10;
+					y = Math.max(y, dim.getHeight());
+				}
+				final UImage logo = new UImage(PSystemVersion.getPlantumlImage());
+				ug.apply(new UTranslate(lastX, y - logo.getHeight())).draw(logo);
 			}
+		};
+	}
+
+	public static List<TextBlock> getCols(List<String> lines, final int nbCol, final int reserved) throws IOException {
+		final List<TextBlock> result = new ArrayList<TextBlock>();
+		final int maxLine = (lines.size() + (nbCol - 1) + reserved) / nbCol;
+		for (int i = 0; i < lines.size(); i += maxLine) {
+			final List<String> current = lines.subList(i, Math.min(lines.size(), i + maxLine));
+			result.add(GraphicStrings.createBlackOnWhite(current));
 		}
-		lines.add(" ");
-		final UFont font = new UFont("SansSerif", Font.PLAIN, 12);
-		final GraphicStrings graphicStrings = new GraphicStrings(lines, font, HtmlColorUtils.BLACK,
-				HtmlColorUtils.WHITE, UAntiAliasing.ANTI_ALIASING_ON, PSystemVersion.getPlantumlImage(),
-				GraphicPosition.BACKGROUND_CORNER_BOTTOM_RIGHT);
-		graphicStrings.setMaxLine(maxLine + 2);
-		return graphicStrings;
+		return result;
 	}
 
 	private List<String> getDonors() throws IOException {
 		final List<String> lines = new ArrayList<String>();
-		final Transcoder t = new TranscoderImpl();
+		final Transcoder t = new TranscoderImpl(new CompressionBrotli());
 		final String s = t.decode(DONORS).replace('*', '.');
-		final StringTokenizer st = new StringTokenizer(s, "\n");
+		final StringTokenizer st = new StringTokenizer(s, BackSlash.NEWLINE);
 		while (st.hasMoreTokens()) {
 			lines.add(st.nextToken());
 		}
@@ -105,7 +137,7 @@ public class PSystemDonors extends AbstractPSystem {
 	}
 
 	public DiagramDescription getDescription() {
-		return new DiagramDescriptionImpl("(Donors)", getClass());
+		return new DiagramDescription("(Donors)");
 	}
 
 	public static PSystemDonors create() {

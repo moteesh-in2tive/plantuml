@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.graphic;
@@ -66,9 +68,9 @@ public class TextBlockSimple extends AbstractTextBlock implements TextBlock {
 		this(texts, fontConfiguration, horizontalAlignment, spriteContainer, maxMessageSize, null, null);
 	}
 
-	public TextBlockSimple(Display texts, FontConfiguration fontConfiguration,
-			HorizontalAlignment horizontalAlignment, SpriteContainer spriteContainer, double maxMessageSize,
-			UFont fontForStereotype, HtmlColor htmlColorForStereotype) {
+	public TextBlockSimple(Display texts, FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
+			SpriteContainer spriteContainer, double maxMessageSize, UFont fontForStereotype,
+			HtmlColor htmlColorForStereotype) {
 		this.texts = texts;
 		this.fontConfiguration = fontConfiguration;
 		this.horizontalAlignment = horizontalAlignment;
@@ -159,7 +161,6 @@ public class TextBlockSimple extends AbstractTextBlock implements TextBlock {
 		assert s.getLabel(false) != null;
 		final List<SingleLine> result = new ArrayList<SingleLine>();
 		for (String st : s.getLabels(spriteContainer.useGuillemet())) {
-//			st = Stereotype.manageGuillemet(st);
 			result.add(new SingleLine(st, fontConfiguration, horizontalAlignment, spriteContainer));
 		}
 		return Collections.unmodifiableList(result);

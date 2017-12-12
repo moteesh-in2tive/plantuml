@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,33 +28,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
+import java.util.Collection;
 import java.util.List;
 
-import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.activitydiagram3.Branch;
+import net.sourceforge.plantuml.activitydiagram3.ForkStyle;
+import net.sourceforge.plantuml.activitydiagram3.Instruction;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
+import net.sourceforge.plantuml.activitydiagram3.PositionedNote;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.Colors;
-import net.sourceforge.plantuml.sequencediagram.NotePosition;
 
-public interface FtileFactory extends ISkinSimple {
+public interface FtileFactory {
 
 	public StringBounder getStringBounder();
 
-	public boolean shadowing();
+	public ISkinParam skinParam();
 
 	public Ftile start(Swimlane swimlane);
 
@@ -59,7 +64,7 @@ public interface FtileFactory extends ISkinSimple {
 
 	public Ftile activity(Display label, Swimlane swimlane, BoxStyle style, Colors colors);
 
-	public Ftile addNote(Ftile ftile, Display note, NotePosition notePosition);
+	public Ftile addNote(Ftile ftile, Swimlane swimlane, Collection<PositionedNote> notes);
 
 	public Ftile addUrl(Ftile ftile, Url url);
 
@@ -69,20 +74,18 @@ public interface FtileFactory extends ISkinSimple {
 
 	public Ftile assembly(Ftile tile1, Ftile tile2);
 
-	public Ftile repeat(Swimlane swimlane, Swimlane swimlaneOut, Ftile repeat, Display test, Display yes, Display out,
-			HtmlColor color, LinkRendering backRepeatLinkRendering);
+	public Ftile repeat(Swimlane swimlane, Swimlane swimlaneOut, Display startLabel, Ftile repeat, Display test, Display yes,
+			Display out, HtmlColor color, LinkRendering backRepeatLinkRendering, Ftile backward, boolean noOut);
 
 	public Ftile createWhile(Swimlane swimlane, Ftile whileBlock, Display test, Display yes, Display out,
-			LinkRendering afterEndwhile, HtmlColor color);
+			LinkRendering afterEndwhile, HtmlColor color, Instruction specialOut);
 
 	public Ftile createIf(Swimlane swimlane, List<Branch> thens, Branch elseBranch, LinkRendering afterEndwhile,
 			LinkRendering topInlinkRendering);
 
-	public Ftile createFork(Swimlane swimlane, List<Ftile> all);
+	public Ftile createParallel(Swimlane swimlane, List<Ftile> all, ForkStyle style, String label);
 
-	public Ftile createSplit(List<Ftile> all);
-
-	public Ftile createGroup(Ftile list, Display name, HtmlColor backColor, HtmlColor titleColor, Display headerNote,
+	public Ftile createGroup(Ftile list, Display name, HtmlColor backColor, HtmlColor titleColor, PositionedNote note,
 			HtmlColor borderColor);
 
 }

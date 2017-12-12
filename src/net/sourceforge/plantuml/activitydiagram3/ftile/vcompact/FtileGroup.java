@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,20 +28,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.Font;
 import java.awt.geom.Dimension2D;
 import java.util.Set;
 
+import net.sourceforge.plantuml.AlignParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
@@ -44,7 +46,6 @@ import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
-import net.sourceforge.plantuml.activitydiagram3.ftile.FtileMarged;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileUtils;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -73,23 +74,18 @@ public class FtileGroup extends AbstractFtile {
 	private final Ftile inner;
 	private final TextBlock name;
 	private final TextBlock headerNote;
-	private final HtmlColor arrowColor;
 	private final HtmlColor borderColor;
 	private final HtmlColor backColor;
-	private final HtmlColor titleColor;
 	private final UStroke stroke;
 
 	public FtileGroup(Ftile inner, Display title, Display displayNote, HtmlColor arrowColor, HtmlColor backColor,
 			HtmlColor titleColor, ISkinParam skinParam, HtmlColor borderColor) {
-		super(inner.shadowing());
+		super(inner.skinParam());
 		this.backColor = backColor == null ? HtmlColorUtils.WHITE : backColor;
 		this.inner = FtileUtils.addHorizontalMargin(inner, 10);
-		this.arrowColor = arrowColor;
-		this.titleColor = titleColor;
-		this.borderColor = backColor == null ? HtmlColorUtils.BLACK : borderColor;
+		this.borderColor = borderColor == null ? HtmlColorUtils.BLACK : borderColor;
 		final UFont font = skinParam.getFont(null, false, FontParam.PARTITION);
-		// final UFont font = new UFont("Serif", Font.PLAIN, 14);
-		// final HtmlColor fontColor = HtmlColorUtils.BLACK;
+
 		final HtmlColor fontColor = skinParam.getFontHtmlColor(null, FontParam.PARTITION);
 		final FontConfiguration fc = new FontConfiguration(font, fontColor, skinParam.getHyperlinkColor(),
 				skinParam.useUnderlineForHyperlink(), skinParam.getTabSize());
@@ -135,12 +131,12 @@ public class FtileGroup extends AbstractFtile {
 		return new UTranslate(suppWidth / 2, diffHeightTitle(stringBounder) + headerNoteHeight(stringBounder));
 	}
 
-	private static MinMax getMinMax(TextBlock tb, StringBounder stringBounder) {
+	private MinMax getInnerMinMax(StringBounder stringBounder) {
 		final LimitFinder limitFinder = new LimitFinder(stringBounder, false);
 		final UGraphicForSnake interceptor = new UGraphicForSnake(limitFinder);
 		final UGraphicInterceptorUDrawable interceptor2 = new UGraphicInterceptorUDrawable(interceptor);
 
-		tb.drawU(interceptor2);
+		inner.drawU(interceptor2);
 		interceptor2.flushUg();
 		return limitFinder.getMinMax();
 	}
@@ -154,9 +150,19 @@ public class FtileGroup extends AbstractFtile {
 		return suppWidth;
 	}
 
+	private FtileGeometry cachedInnerDimension;
+
 	private FtileGeometry getInnerDimension(StringBounder stringBounder) {
+		if (cachedInnerDimension == null) {
+			cachedInnerDimension = getInnerDimensionSlow(stringBounder);
+		}
+		return cachedInnerDimension;
+
+	}
+
+	private FtileGeometry getInnerDimensionSlow(StringBounder stringBounder) {
 		final FtileGeometry orig = inner.calculateDimension(stringBounder);
-		final MinMax minMax = getMinMax(inner, stringBounder);
+		final MinMax minMax = getInnerMinMax(stringBounder);
 		final double missingWidth = minMax.getMaxX() - orig.getWidth();
 		if (missingWidth > 0) {
 			return orig.addDim(missingWidth + 5, 0);
@@ -164,7 +170,8 @@ public class FtileGroup extends AbstractFtile {
 		return orig;
 	}
 
-	public FtileGeometry calculateDimension(StringBounder stringBounder) {
+	@Override
+	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		final FtileGeometry orig = getInnerDimension(stringBounder);
 		final double suppWidth = suppWidth(stringBounder);
 		final double width = orig.getWidth() + suppWidth;
@@ -187,10 +194,10 @@ public class FtileGroup extends AbstractFtile {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final Dimension2D dimTotal = calculateDimension(stringBounder);
 
-		final SymbolContext symbolContext = new SymbolContext(backColor, borderColor).withShadow(shadowing())
-				.withStroke(stroke);
-		USymbol.FRAME.asBig(name, TextBlockUtils.empty(0, 0), dimTotal.getWidth(), dimTotal.getHeight(), symbolContext)
-				.drawU(ug);
+		final SymbolContext symbolContext = new SymbolContext(backColor, borderColor).withShadow(
+				skinParam().shadowing()).withStroke(stroke);
+		USymbol.FRAME.asBig(name, inner.skinParam().getHorizontalAlignment(AlignParam.PACKAGE_TITLE_ALIGNMENT, null),
+				TextBlockUtils.empty(0, 0), dimTotal.getWidth(), dimTotal.getHeight(), symbolContext).drawU(ug);
 
 		final Dimension2D dimHeaderNote = headerNote.calculateDimension(stringBounder);
 		headerNote.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimHeaderNote.getWidth() - 10,

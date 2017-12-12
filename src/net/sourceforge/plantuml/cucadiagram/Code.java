@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 8770 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
@@ -50,9 +52,25 @@ public class Code implements Comparable<Code> {
 		this.separator = separator;
 	}
 
-//	public String getNamespaceSeparator() {
-//		return separator;
-//	}
+	public Code removeMemberPart() {
+		final int x = fullName.lastIndexOf("::");
+		if (x == -1) {
+			return null;
+		}
+		return new Code(fullName.substring(0, x), separator);
+	}
+
+	public String getPortMember() {
+		final int x = fullName.lastIndexOf("::");
+		if (x == -1) {
+			return null;
+		}
+		return fullName.substring(x + 2);
+	}
+
+	// public String getNamespaceSeparator() {
+	// return separator;
+	// }
 
 	public Code withSeparator(String separator) {
 		if (separator == null) {

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 8218 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
@@ -39,19 +41,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import net.sourceforge.plantuml.BackSlash;
 import net.sourceforge.plantuml.CharSequence2;
 import net.sourceforge.plantuml.CharSequence2Impl;
 import net.sourceforge.plantuml.EmbededDiagram;
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.LineLocationImpl;
 import net.sourceforge.plantuml.SpriteContainer;
 import net.sourceforge.plantuml.StringUtils;
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.command.regex.Matcher2;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.creole.CreoleParser;
 import net.sourceforge.plantuml.creole.Sheet;
@@ -63,12 +66,13 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockSimple;
-import net.sourceforge.plantuml.graphic.TextBlockSpotted;
+import net.sourceforge.plantuml.graphic.TextBlockSprited;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.sequencediagram.MessageNumber;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
+import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class Display implements Iterable<CharSequence> {
 
@@ -76,16 +80,6 @@ public class Display implements Iterable<CharSequence> {
 	private final HorizontalAlignment naturalHorizontalAlignment;
 	private final boolean isNull;
 	private final CreoleMode defaultCreoleMode;
-
-	// public void setDefaultCreoleMode(CreoleMode defaultCreoleMode) {
-	// this.defaultCreoleMode = defaultCreoleMode;
-	// }
-
-	public Display removeUrlHiddenNewLineUrl() {
-		final String full = UrlBuilder.purgeUrl(asStringWithHiddenNewLine());
-		return new Display(StringUtils.splitHiddenNewLine(full), this.naturalHorizontalAlignment, this.isNull,
-				this.defaultCreoleMode);
-	}
 
 	public final static Display NULL = new Display(null, null, true, CreoleMode.FULL);
 
@@ -117,9 +111,16 @@ public class Display implements Iterable<CharSequence> {
 		final List<String> result = new ArrayList<String>();
 		final StringBuilder current = new StringBuilder();
 		HorizontalAlignment naturalHorizontalAlignment = null;
+		boolean rawMode = false;
 		for (int i = 0; i < s.length(); i++) {
 			final char c = s.charAt(i);
-			if (c == '\\' && i < s.length() - 1) {
+			final String sub = s.substring(i);
+			if (sub.startsWith("<math>") || sub.startsWith("<latex>") || sub.startsWith("[[")) {
+				rawMode = true;
+			} else if (sub.startsWith("</math>") || sub.startsWith("</latex>") || sub.startsWith("]]")) {
+				rawMode = false;
+			}
+			if (rawMode == false && c == '\\' && i < s.length() - 1) {
 				final char c2 = s.charAt(i + 1);
 				i++;
 				if (c2 == 'n' || c2 == 'r' || c2 == 'l') {
@@ -138,7 +139,7 @@ public class Display implements Iterable<CharSequence> {
 					current.append(c);
 					current.append(c2);
 				}
-			} else if (c == StringUtils.hiddenNewLine()) {
+			} else if (c == BackSlash.hiddenNewLine()) {
 				result.add(current.toString());
 				current.setLength(0);
 			} else {
@@ -192,6 +193,32 @@ public class Display implements Iterable<CharSequence> {
 		return result;
 	}
 
+	public Display manageGuillemet() {
+		final List<CharSequence> result = new ArrayList<CharSequence>();
+		for (CharSequence line : display) {
+			final String withGuillement = StringUtils.manageGuillemet(line.toString());
+			if (withGuillement.equals(line.toString())) {
+				result.add(line);
+			} else {
+				result.add(withGuillement);
+			}
+		}
+		return new Display(result, this.naturalHorizontalAlignment, this.isNull, this.defaultCreoleMode);
+	}
+
+	public Display withPage(int page, int lastpage) {
+		if (display == null) {
+			return this;
+		}
+		final List<CharSequence> result = new ArrayList<CharSequence>();
+		for (CharSequence line : display) {
+			line = line.toString().replace("%page%", "" + page);
+			line = line.toString().replace("%lastpage%", "" + lastpage);
+			result.add(line);
+		}
+		return new Display(result, this.naturalHorizontalAlignment, this.isNull, this.defaultCreoleMode);
+	}
+
 	public Display underlined() {
 		final List<CharSequence> result = new ArrayList<CharSequence>();
 		for (CharSequence line : display) {
@@ -207,16 +234,16 @@ public class Display implements Iterable<CharSequence> {
 		return new Display(this, mode);
 	}
 
-	public String asStringWithHiddenNewLine() {
-		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < display.size(); i++) {
-			sb.append(display.get(i));
-			if (i < display.size() - 1) {
-				sb.append(StringUtils.hiddenNewLine());
-			}
-		}
-		return sb.toString();
-	}
+	// private String asStringWithHiddenNewLine() {
+	// final StringBuilder sb = new StringBuilder();
+	// for (int i = 0; i < display.size(); i++) {
+	// sb.append(display.get(i));
+	// if (i < display.size() - 1) {
+	// sb.append(BackSlash.hiddenNewLine());
+	// }
+	// }
+	// return sb.toString();
+	// }
 
 	@Override
 	public String toString() {
@@ -254,6 +281,17 @@ public class Display implements Iterable<CharSequence> {
 		return result;
 	}
 
+	public Display addGeneric(CharSequence s) {
+		final Display result = new Display(this, this.defaultCreoleMode);
+		final int size = display.size();
+		if (size == 0) {
+			result.display.add("<" + s + ">");
+		} else {
+			result.display.set(size - 1, display.get(size - 1) + "<" + s + ">");
+		}
+		return result;
+	}
+
 	public int size() {
 		if (isNull) {
 			return 0;
@@ -288,27 +326,6 @@ public class Display implements Iterable<CharSequence> {
 		return Collections.unmodifiableList(result);
 	}
 
-	public Url initUrl() {
-		if (this.size() == 0) {
-			return null;
-		}
-		final UrlBuilder urlBuilder = new UrlBuilder(null, ModeUrl.AT_START);
-		return urlBuilder.getUrl(StringUtils.trin(this.get(0).toString()));
-	}
-
-	public Display removeHeadingUrl(Url url) {
-		if (url == null) {
-			return this;
-		}
-		final Display result = new Display(this.naturalHorizontalAlignment, this.isNull, this.defaultCreoleMode);
-		result.display.add(UrlBuilder.purgeUrl(this.get(0).toString()));
-		result.display.addAll(this.subList(1, this.size()).display);
-		if (result.isWhite() && url.getLabel() != null) {
-			return Display.getWithNewlines(url.getLabel());
-		}
-		return result;
-	}
-
 	public boolean hasUrl() {
 		final UrlBuilder urlBuilder = new UrlBuilder(null, ModeUrl.ANYWHERE);
 		for (CharSequence s : this) {
@@ -323,12 +340,12 @@ public class Display implements Iterable<CharSequence> {
 		return naturalHorizontalAlignment;
 	}
 
-	public List<Display> splitMultiline(Pattern separator) {
+	public List<Display> splitMultiline(Pattern2 separator) {
 		final List<Display> result = new ArrayList<Display>();
 		Display pending = new Display(this.naturalHorizontalAlignment, this.isNull, this.defaultCreoleMode);
 		result.add(pending);
 		for (CharSequence line : display) {
-			final Matcher m = separator.matcher(line);
+			final Matcher2 m = separator.matcher(line);
 			if (m.find()) {
 				final CharSequence s1 = line.subSequence(0, m.start());
 				pending.display.add(s1);
@@ -364,12 +381,22 @@ public class Display implements Iterable<CharSequence> {
 
 	public TextBlock create(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
 			ISkinSimple spriteContainer, CreoleMode modeSimpleLine) {
-		return create(fontConfiguration, horizontalAlignment, spriteContainer, 0, modeSimpleLine, null, null);
+		return create(fontConfiguration, horizontalAlignment, spriteContainer, LineBreakStrategy.NONE, modeSimpleLine,
+				null, null);
 	}
 
 	public TextBlock create(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
-			ISkinSimple spriteContainer, double maxMessageSize, CreoleMode modeSimpleLine, UFont fontForStereotype,
-			HtmlColor htmlColorForStereotype) {
+			ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize) {
+		return create(fontConfiguration, horizontalAlignment, spriteContainer, maxMessageSize, defaultCreoleMode, null,
+				null);
+	}
+
+	public TextBlock create(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
+			ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize, CreoleMode modeSimpleLine,
+			UFont fontForStereotype, HtmlColor htmlColorForStereotype) {
+		if (maxMessageSize == null) {
+			throw new IllegalArgumentException();
+		}
 		if (getNaturalHorizontalAlignment() != null) {
 			horizontalAlignment = getNaturalHorizontalAlignment();
 		}
@@ -391,7 +418,7 @@ public class Display implements Iterable<CharSequence> {
 	}
 
 	private TextBlock getCreole(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
-			ISkinSimple spriteContainer, double maxMessageSize, CreoleMode modeSimpleLine) {
+			ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize, CreoleMode modeSimpleLine) {
 		final Sheet sheet = new CreoleParser(fontConfiguration, horizontalAlignment, spriteContainer, modeSimpleLine)
 				.createSheet(this);
 		final SheetBlock1 sheetBlock1 = new SheetBlock1(sheet, maxMessageSize, spriteContainer == null ? 0
@@ -400,7 +427,7 @@ public class Display implements Iterable<CharSequence> {
 	}
 
 	private TextBlock createMessageNumber(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
-			ISkinSimple spriteContainer, double maxMessageSize) {
+			ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize) {
 		TextBlock tb1 = subList(0, 1).getCreole(fontConfiguration, horizontalAlignment, spriteContainer,
 				maxMessageSize, CreoleMode.FULL);
 		tb1 = TextBlockUtils.withMargin(tb1, 0, 4, 0, 0);
@@ -413,15 +440,22 @@ public class Display implements Iterable<CharSequence> {
 	private TextBlock createStereotype(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
 			SpriteContainer spriteContainer, int position, UFont fontForStereotype, HtmlColor htmlColorForStereotype) {
 		final Stereotype stereotype = (Stereotype) get(position);
+		TextBlock circledCharacter = null;
 		if (stereotype.isSpotted()) {
-			final CircledCharacter circledCharacter = new CircledCharacter(stereotype.getCharacter(),
-					stereotype.getRadius(), stereotype.getCircledFont(), stereotype.getHtmlColor(), null,
-					fontConfiguration.getColor());
+			circledCharacter = new CircledCharacter(stereotype.getCharacter(), stereotype.getRadius(),
+					stereotype.getCircledFont(), stereotype.getHtmlColor(), null, fontConfiguration.getColor());
+		} else if (stereotype.getSprite() != null) {
+			final Sprite tmp = spriteContainer.getSprite(stereotype.getSprite());
+			if (tmp != null) {
+				circledCharacter = tmp.asTextBlock(stereotype.getHtmlColor(), 1);
+			}
+		}
+		if (circledCharacter != null) {
 			if (stereotype.getLabel(false) == null) {
-				return new TextBlockSpotted(circledCharacter, this.subList(1, this.size()), fontConfiguration,
+				return new TextBlockSprited(circledCharacter, this.subList(1, this.size()), fontConfiguration,
 						horizontalAlignment, spriteContainer);
 			}
-			return new TextBlockSpotted(circledCharacter, this, fontConfiguration, horizontalAlignment, spriteContainer);
+			return new TextBlockSprited(circledCharacter, this, fontConfiguration, horizontalAlignment, spriteContainer);
 		}
 		return new TextBlockSimple(this, fontConfiguration, horizontalAlignment, spriteContainer, 0, fontForStereotype,
 				htmlColorForStereotype);

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3;
@@ -37,33 +39,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.FtileWithNoteOpale;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
+import net.sourceforge.plantuml.sequencediagram.NoteType;
 
-public class InstructionFork implements Instruction {
+public class InstructionFork extends WithNote implements Instruction {
 
 	private final List<InstructionList> forks = new ArrayList<InstructionList>();
 	private final Instruction parent;
 	private final LinkRendering inlinkRendering;
+	private final ISkinParam skinParam;
+	private ForkStyle style = ForkStyle.FORK;
+	private String label;
+	boolean finished = false;
 
-	public InstructionFork(Instruction parent, LinkRendering inlinkRendering) {
+	public InstructionFork(Instruction parent, LinkRendering inlinkRendering, ISkinParam skinParam) {
 		this.parent = parent;
 		this.inlinkRendering = inlinkRendering;
+		this.skinParam = skinParam;
 		this.forks.add(new InstructionList());
 		if (inlinkRendering == null) {
 			throw new IllegalArgumentException();
 		}
 	}
 
-	private InstructionList getLast() {
+	private InstructionList getLastList() {
 		return forks.get(forks.size() - 1);
 	}
 
 	public void add(Instruction ins) {
-		getLast().add(ins);
+		getLastList().add(ins);
 	}
 
 	public Ftile createFtile(FtileFactory factory) {
@@ -71,7 +82,11 @@ public class InstructionFork implements Instruction {
 		for (InstructionList list : forks) {
 			all.add(list.createFtile(factory));
 		}
-		return factory.createFork(getSwimlaneIn(), all);
+		Ftile result = factory.createParallel(getSwimlaneIn(), all, style, label);
+		if (getPositionedNotes().size() > 0) {
+			result = FtileWithNoteOpale.create(result, getPositionedNotes(), skinParam, false);
+		}
+		return result;
 	}
 
 	public Instruction getParent() {
@@ -83,15 +98,22 @@ public class InstructionFork implements Instruction {
 	}
 
 	final public boolean kill() {
-		return getLast().kill();
+		return getLastList().kill();
 	}
 
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
 	}
 
-	public boolean addNote(Display note, NotePosition position) {
-		return getLast().addNote(note, position);
+	@Override
+	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
+		if (finished) {
+			return super.addNote(note, position, type, colors, swimlaneNote);
+		}
+		if (getLastList().getLast() == null) {
+			return getLastList().addNote(note, position, type, colors, swimlaneNote);
+		}
+		return getLastList().addNote(note, position, type, colors, swimlaneNote);
 	}
 
 	public Set<Swimlane> getSwimlanes() {
@@ -104,14 +126,23 @@ public class InstructionFork implements Instruction {
 	}
 
 	public Swimlane getSwimlaneOut() {
-		return getLast().getSwimlaneOut();
+		return forks.get(0).getSwimlaneOut();
+		// return getLastList().getSwimlaneOut();
 	}
 
-	public void manageOutRendering(LinkRendering nextLinkRenderer) {
+	public void manageOutRendering(LinkRendering nextLinkRenderer, boolean endFork) {
+		if (endFork) {
+			this.finished = true;
+		}
 		if (nextLinkRenderer == null) {
 			return;
 		}
-		getLast().setOutRendering(nextLinkRenderer);
+		getLastList().setOutRendering(nextLinkRenderer);
+	}
+
+	public void setStyle(ForkStyle style, String label) {
+		this.style = style;
+		this.label = label;
 	}
 
 }

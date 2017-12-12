@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,44 +28,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.skin;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
 import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public abstract class AbstractComponent implements Component {
 
-	final protected void stroke(Graphics2D g2d, float dash, float thickness) {
-		final float[] style = { dash, dash };
-		g2d.setStroke(new BasicStroke(thickness, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, style, 0));
-	}
-
-	final protected UGraphic stroke(UGraphic ug, double dashVisible, double dashSpace, double thickness) {
-		return ug.apply(new UStroke(dashVisible, dashSpace, thickness));
-	}
-
-	final protected void stroke(Graphics2D g2d, float dash) {
-		stroke(g2d, dash, 1);
-	}
-
-	final protected UGraphic stroke(UGraphic ug, double dashVisible, double dashSpace) {
-		return stroke(ug, dashVisible, dashSpace, 1);
-	}
+//	final protected void stroke(Graphics2D g2d, float dash, float thickness) {
+//		final float[] style = { dash, dash };
+//		g2d.setStroke(new BasicStroke(thickness, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, style, 0));
+//	}
+//
+//	final protected UGraphic stroke(UGraphic ug, double dashVisible, double dashSpace, double thickness) {
+//		return ug.apply(new UStroke(dashVisible, dashSpace, thickness));
+//	}
+//
+//	final protected void stroke(Graphics2D g2d, float dash) {
+//		stroke(g2d, dash, 1);
+//	}
+//
+//	final protected UGraphic stroke(UGraphic ug, double dashVisible, double dashSpace) {
+//		return stroke(ug, dashVisible, dashSpace, 1);
+//	}
 
 	abstract protected void drawInternalU(UGraphic ug, Area area);
 

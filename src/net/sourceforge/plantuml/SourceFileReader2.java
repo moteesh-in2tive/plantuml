@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4771 $
  *
  */
 package net.sourceforge.plantuml;
@@ -45,8 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import net.sourceforge.plantuml.code.Transcoder;
-import net.sourceforge.plantuml.code.TranscoderUtil;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
@@ -88,14 +88,14 @@ public class SourceFileReader2 implements ISourceFileReader {
 		final List<GeneratedImage> result = new ArrayList<GeneratedImage>();
 
 		for (BlockUml blockUml : builder.getBlockUmls()) {
-			final File suggested = outputFile;
+			final SuggestedFile suggested = SuggestedFile.fromOutputFile(outputFile, fileFormatOption.getFileFormat());
 
 			final Diagram system = blockUml.getDiagram();
 			OptionFlags.getInstance().logData(file, system);
 
-			for (File f : PSystemUtils.exportDiagrams(system, suggested, fileFormatOption)) {
+			for (FileImageData fdata : PSystemUtils.exportDiagrams(system, suggested, fileFormatOption)) {
 				final String desc = "[" + file.getName() + "] " + system.getDescription();
-				final GeneratedImage generatedImage = new GeneratedImageImpl(f, desc, blockUml);
+				final GeneratedImage generatedImage = new GeneratedImageImpl(fdata.getFile(), desc, blockUml);
 				result.add(generatedImage);
 			}
 
@@ -103,17 +103,6 @@ public class SourceFileReader2 implements ISourceFileReader {
 
 		Log.info("Number of image(s): " + result.size());
 
-		return Collections.unmodifiableList(result);
-	}
-
-	public List<String> getEncodedUrl() throws IOException {
-		final List<String> result = new ArrayList<String>();
-		final Transcoder transcoder = TranscoderUtil.getDefaultTranscoder();
-		for (BlockUml blockUml : builder.getBlockUmls()) {
-			final String source = blockUml.getDiagram().getSource().getPlainString();
-			final String encoded = transcoder.encode(source);
-			result.add(encoded);
-		}
 		return Collections.unmodifiableList(result);
 	}
 
@@ -132,6 +121,10 @@ public class SourceFileReader2 implements ISourceFileReader {
 
 	public final Set<FileWithSuffix> getIncludedFiles2() {
 		return builder.getIncludedFiles();
+	}
+
+	public List<BlockUml> getBlocks() {
+		return builder.getBlockUmls();
 	}
 
 }

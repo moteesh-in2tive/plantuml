@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,19 +28,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
-import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.activitydiagram3.Instruction;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
@@ -50,31 +52,31 @@ import net.sourceforge.plantuml.svek.ConditionStyle;
 
 public class FtileFactoryDelegatorWhile extends FtileFactoryDelegator {
 
-	public FtileFactoryDelegatorWhile(FtileFactory factory, ISkinParam skinParam) {
-		super(factory, skinParam);
+	public FtileFactoryDelegatorWhile(FtileFactory factory) {
+		super(factory);
 	}
 
 	@Override
 	public Ftile createWhile(Swimlane swimlane, Ftile whileBlock, Display test, Display yes, Display out,
-			LinkRendering afterEndwhile, HtmlColor color) {
-		final HtmlColor borderColor = getRose().getHtmlColor(getSkinParam(), ColorParam.activityBorder);
-		final HtmlColor backColor = color == null ? getRose().getHtmlColor(getSkinParam(),
-				ColorParam.activityBackground) : color;
-		final Rainbow arrowColor = HtmlColorAndStyle.build(getSkinParam());
+			LinkRendering afterEndwhile, HtmlColor color, Instruction specialOut) {
+		final HtmlColor borderColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBorder);
+		final HtmlColor backColor = color == null ? getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBackground)
+				: color;
+		final Rainbow arrowColor = HtmlColorAndStyle.build(skinParam());
 
-		final ConditionStyle conditionStyle = getSkinParam().getConditionStyle();
+		final ConditionStyle conditionStyle = skinParam().getConditionStyle();
 		final FontParam testParam = conditionStyle == ConditionStyle.INSIDE ? FontParam.ACTIVITY_DIAMOND
-				: FontParam.ACTIVITY_ARROW;
-		final FontConfiguration fcTest = new FontConfiguration(getSkinParam(), testParam, null);
+				: FontParam.ARROW;
+		final FontConfiguration fcTest = new FontConfiguration(skinParam(), testParam, null);
 
 		final LinkRendering endInlinkRendering = whileBlock.getOutLinkRendering();
 		final Rainbow endInlinkColor = endInlinkRendering == null || endInlinkRendering.getRainbow().size() == 0 ? arrowColor
 				: endInlinkRendering.getRainbow();
 
-		final FontConfiguration fontArrow = new FontConfiguration(getSkinParam(), FontParam.ACTIVITY_ARROW, null);
+		final FontConfiguration fontArrow = new FontConfiguration(skinParam(), FontParam.ARROW, null);
 
 		return FtileWhile.create(swimlane, whileBlock, test, borderColor, backColor, arrowColor, yes, out,
-				endInlinkColor, afterEndwhile, fontArrow, getFactory(), conditionStyle, fcTest);
+				endInlinkColor, afterEndwhile, fontArrow, getFactory(), conditionStyle, fcTest, specialOut);
 	}
 
 }

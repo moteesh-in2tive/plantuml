@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml;
@@ -37,10 +39,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 
 public class FileGroup {
 
@@ -49,7 +51,7 @@ public class FileGroup {
 	private final List<String> excluded;
 	private final Option option;
 
-	private final static Pattern predirPath = MyPattern.cmpile("^([^*?]*[/\\\\])?(.*)$");
+	private final static Pattern2 predirPath = MyPattern.cmpile("^([^*?]*[/\\\\])?(.*)$");
 
 	public FileGroup(String pattern, List<String> excluded, Option option) {
 		this.pattern = pattern;
@@ -67,7 +69,7 @@ public class FileGroup {
 	}
 
 	private void recurse() {
-		final Matcher m = predirPath.matcher(pattern);
+		final Matcher2 m = predirPath.matcher(pattern);
 		final boolean ok = m.find();
 		if (ok == false) {
 			throw new IllegalArgumentException();
@@ -123,11 +125,11 @@ public class FileGroup {
 		return f.getPath().replace('\\', '/');
 	}
 
-	private final static Pattern noStarInDirectory = MyPattern.cmpile("^(?:([^*?]*)[/\\\\])?([^/\\\\]*)$");
+	private final static Pattern2 noStarInDirectory = MyPattern.cmpile("^(?:([^*?]*)[/\\\\])?([^/\\\\]*)$");
 
 	private void initWithSimpleStar() {
 		assert pattern.indexOf("**") == -1;
-		final Matcher m = noStarInDirectory.matcher(pattern);
+		final Matcher2 m = noStarInDirectory.matcher(pattern);
 		if (m.find()) {
 			File dir = new File(".");
 			if (m.group(1) != null) {

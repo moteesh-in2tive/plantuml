@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4771 $
  *
  */
 package net.sourceforge.plantuml;
@@ -49,8 +51,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import net.sourceforge.plantuml.code.Transcoder;
-import net.sourceforge.plantuml.code.TranscoderUtil;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
@@ -68,18 +68,19 @@ public class SourceFileReader implements ISourceFileReader {
 	}
 
 	public SourceFileReader(File file, File outputDirectory, String charset) throws IOException {
-		this(new Defines(), file, outputDirectory, Collections.<String> emptyList(), charset, new FileFormatOption(
-				FileFormat.PNG));
+		this(Defines.createWithFileName(file), file, outputDirectory, Collections.<String> emptyList(), charset,
+				new FileFormatOption(FileFormat.PNG));
 	}
 
 	public SourceFileReader(final File file, File outputDirectory) throws IOException {
-		this(new Defines(), file, outputDirectory, Collections.<String> emptyList(), null, new FileFormatOption(
-				FileFormat.PNG));
+		this(Defines.createWithFileName(file), file, outputDirectory, Collections.<String> emptyList(), null,
+				new FileFormatOption(FileFormat.PNG));
 	}
 
 	public SourceFileReader(final File file, File outputDirectory, FileFormatOption fileFormatOption)
 			throws IOException {
-		this(new Defines(), file, outputDirectory, Collections.<String> emptyList(), null, fileFormatOption);
+		this(Defines.createWithFileName(file), file, outputDirectory, Collections.<String> emptyList(), null,
+				fileFormatOption);
 	}
 
 	public SourceFileReader(Defines defines, final File file, File outputDirectory, List<String> config,
@@ -167,24 +168,25 @@ public class SourceFileReader implements ISourceFileReader {
 		final List<GeneratedImage> result = new ArrayList<GeneratedImage>();
 
 		for (BlockUml blockUml : builder.getBlockUmls()) {
-			String newName = blockUml.getFileOrDirname();
-			Log.info("name from block=" + newName);
-			File suggested = null;
+			final String newName = blockUml.getFileOrDirname();
+			SuggestedFile suggested = null;
 			if (newName != null) {
+				Log.info("name from block=" + newName);
 				final File dir = getDirIfDirectory(newName);
 				if (dir == null) {
 					Log.info(newName + " is not taken as a directory");
-					suggested = new File(outputDirectory, newName);
+					suggested = SuggestedFile.fromOutputFile(new File(outputDirectory, newName),
+							fileFormatOption.getFileFormat(), 0);
 				} else {
 					Log.info("We are going to create files in directory " + dir);
-					newName = fileFormatOption.getFileFormat().changeName(file.getName(), cpt++);
-					suggested = new File(dir, newName);
+					suggested = SuggestedFile.fromOutputFile(new File(dir, file.getName()),
+							fileFormatOption.getFileFormat(), 0);
 				}
 				Log.info("We are going to put data in " + suggested);
 			}
 			if (suggested == null) {
-				newName = fileFormatOption.getFileFormat().changeName(file.getName(), cpt++);
-				suggested = new File(outputDirectory, newName);
+				suggested = SuggestedFile.fromOutputFile(new File(outputDirectory, file.getName()),
+						fileFormatOption.getFileFormat(), cpt++);
 			}
 			suggested.getParentFile().mkdirs();
 
@@ -192,12 +194,12 @@ public class SourceFileReader implements ISourceFileReader {
 			try {
 				system = blockUml.getDiagram();
 			} catch (Throwable t) {
-				final GeneratedImage image = new GeneratedImageImpl(suggested, "Crash Error", blockUml);
+				final GeneratedImage image = new GeneratedImageImpl(suggested.getFile(0), "Crash Error", blockUml);
 				OutputStream os = null;
 				try {
-					os = new BufferedOutputStream(new FileOutputStream(suggested));
-					UmlDiagram.exportDiagramError(os, t, fileFormatOption, null, blockUml.getFlashData(),
-							UmlDiagram.getFailureText2(t));
+					os = new BufferedOutputStream(new FileOutputStream(suggested.getFile(0)));
+					UmlDiagram.exportDiagramError(os, t, fileFormatOption, 42, null, blockUml.getFlashData(),
+							UmlDiagram.getFailureText2(t, blockUml.getFlashData()));
 				} finally {
 					if (os != null) {
 						os.close();
@@ -207,11 +209,15 @@ public class SourceFileReader implements ISourceFileReader {
 				return Collections.singletonList(image);
 			}
 
-			final List<File> exportDiagrams = PSystemUtils.exportDiagrams(system, suggested, fileFormatOption);
+			final List<FileImageData> exportDiagrams = PSystemUtils.exportDiagrams(system, suggested, fileFormatOption);
+			if (exportDiagrams.size() > 1) {
+				cpt += exportDiagrams.size() - 1;
+			}
 			OptionFlags.getInstance().logData(file, system);
 
-			for (File f : exportDiagrams) {
+			for (FileImageData fdata : exportDiagrams) {
 				final String desc = "[" + file.getName() + "] " + system.getDescription();
+				final File f = fdata.getFile();
 				if (OptionFlags.getInstance().isWord()) {
 					final String warnOrError = system.getWarningOrError();
 					if (warnOrError != null) {
@@ -237,15 +243,8 @@ public class SourceFileReader implements ISourceFileReader {
 		return newName.endsWith("/") || newName.endsWith("\\");
 	}
 
-	public List<String> getEncodedUrl() throws IOException {
-		final List<String> result = new ArrayList<String>();
-		final Transcoder transcoder = TranscoderUtil.getDefaultTranscoder();
-		for (BlockUml blockUml : builder.getBlockUmls()) {
-			final String source = blockUml.getDiagram().getSource().getPlainString();
-			final String encoded = transcoder.encode(source);
-			result.add(encoded);
-		}
-		return Collections.unmodifiableList(result);
+	public List<BlockUml> getBlocks() {
+		return builder.getBlockUmls();
 	}
 
 	private Reader getReader(String charset) throws FileNotFoundException, UnsupportedEncodingException {

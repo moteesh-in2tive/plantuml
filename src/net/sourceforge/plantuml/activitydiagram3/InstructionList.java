@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3;
@@ -40,24 +42,20 @@ import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
+import net.sourceforge.plantuml.activitydiagram3.ftile.FtileDecorateWelding;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileEmpty;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.ftile.WeldingPoint;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
+import net.sourceforge.plantuml.sequencediagram.NoteType;
 
-public class InstructionList implements Instruction, InstructionCollection {
+public class InstructionList extends WithNote implements Instruction, InstructionCollection {
 
 	private final List<Instruction> all = new ArrayList<Instruction>();
 	private final Swimlane defaultSwimlane;
-
-	public boolean isOnlySingleStop() {
-		if (all.size() == 1) {
-			final Instruction last = getLast();
-			return last instanceof InstructionStop;
-		}
-		return false;
-	}
 
 	public InstructionList() {
 		this(null);
@@ -65,6 +63,11 @@ public class InstructionList implements Instruction, InstructionCollection {
 
 	public boolean isEmpty() {
 		return all.isEmpty();
+	}
+
+	public boolean isOnlySingleStop() {
+		return all.size() == 1 && getLast() instanceof InstructionStop
+				&& ((InstructionStop) getLast()).hasNotes() == false;
 	}
 
 	public InstructionList(Swimlane defaultSwimlane) {
@@ -77,11 +80,13 @@ public class InstructionList implements Instruction, InstructionCollection {
 
 	public Ftile createFtile(FtileFactory factory) {
 		if (all.size() == 0) {
-			return new FtileEmpty(factory.shadowing(), defaultSwimlane);
+			return new FtileEmpty(factory.skinParam(), defaultSwimlane);
 		}
-		Ftile result = null;
+		final List<WeldingPoint> breaks = new ArrayList<WeldingPoint>();
+		Ftile result = eventuallyAddNote(factory, null, getSwimlaneIn());
 		for (Instruction ins : all) {
 			Ftile cur = ins.createFtile(factory);
+			breaks.addAll(cur.getWeldingPoints());
 			if (ins.getInLinkRendering().isNone() == false) {
 				cur = factory.decorateIn(cur, ins.getInLinkRendering());
 			}
@@ -95,6 +100,10 @@ public class InstructionList implements Instruction, InstructionCollection {
 		if (outlinkRendering != null) {
 			result = factory.decorateOut(result, outlinkRendering);
 		}
+		if (breaks.size() > 0) {
+			result = new FtileDecorateWelding(result, breaks);
+		}
+
 		// if (killed) {
 		// result = new FtileKilled(result);
 		// }
@@ -119,11 +128,11 @@ public class InstructionList implements Instruction, InstructionCollection {
 		return all.get(all.size() - 1);
 	}
 
-	public boolean addNote(Display note, NotePosition position) {
+	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
 		if (getLast() == null) {
-			return false;
+			return super.addNote(note, position, type, colors, swimlaneNote);
 		}
-		return getLast().addNote(note, position);
+		return getLast().addNote(note, position, type, colors, swimlaneNote);
 	}
 
 	public Set<Swimlane> getSwimlanes() {
@@ -131,15 +140,25 @@ public class InstructionList implements Instruction, InstructionCollection {
 	}
 
 	public Swimlane getSwimlaneIn() {
-		if (getSwimlanes().size() == 0) {
-			return null;
-		}
-		return all.get(0).getSwimlaneIn();
+		return defaultSwimlane;
+		// final Set<Swimlane> swimlanes = getSwimlanes();
+		// if (swimlanes.size() == 0) {
+		// return null;
+		// }
+		// if (swimlanes.size() == 1) {
+		// return swimlanes.iterator().next();
+		// }
+		// System.err.println("foo1="+getClass());
+		// return all.get(0).getSwimlaneIn();
 	}
 
 	public Swimlane getSwimlaneOut() {
-		if (getSwimlanes().size() == 0) {
+		final Set<Swimlane> swimlanes = getSwimlanes();
+		if (swimlanes.size() == 0) {
 			return null;
+		}
+		if (swimlanes.size() == 1) {
+			return swimlanes.iterator().next();
 		}
 		return getLast().getSwimlaneOut();
 	}

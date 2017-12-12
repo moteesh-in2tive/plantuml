@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
@@ -88,7 +90,7 @@ public enum BoxStyle {
 			ug.apply(new UTranslate(width - PADDING, 0)).draw(vline);
 		}
 	},
-	SDL_SAVE('/') {
+	SDL_SAVE('\\') {
 		@Override
 		protected Shadowable getShape(double width, double height) {
 			final UPolygon result = new UPolygon();
@@ -96,6 +98,17 @@ public enum BoxStyle {
 			result.addPoint(width - DELTA_INPUT_OUTPUT, 0.0);
 			result.addPoint(width, height);
 			result.addPoint(DELTA_INPUT_OUTPUT, height);
+			return result;
+		}
+	},
+	SDL_ANTISAVE('/') {
+		@Override
+		protected Shadowable getShape(double width, double height) {
+			final UPolygon result = new UPolygon();
+			result.addPoint(DELTA_INPUT_OUTPUT, 0.0);
+			result.addPoint(width, 0.0);
+			result.addPoint(width - DELTA_INPUT_OUTPUT, height);
+			result.addPoint(0, height);
 			return result;
 		}
 	},

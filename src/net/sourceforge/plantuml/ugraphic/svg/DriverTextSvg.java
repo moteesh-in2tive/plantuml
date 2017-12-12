@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,20 +28,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
-import java.awt.Color;
 import java.awt.geom.Dimension2D;
-import java.awt.geom.Rectangle2D;
 
+import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.FontStyle;
+import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.graphic.HtmlColorGradient;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.ClipContainer;
@@ -48,7 +52,6 @@ import net.sourceforge.plantuml.ugraphic.UFontContext;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UText;
-import net.sourceforge.plantuml.StringUtils;
 
 public class DriverTextSvg implements UDriver<SvgGraphics> {
 
@@ -85,12 +88,6 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 			textDecoration = "line-through";
 		}
 
-		String backColor = null;
-		if (fontConfiguration.containsStyle(FontStyle.BACKCOLOR)) {
-			backColor = StringUtils.getAsHtml(mapper.getMappedColor(fontConfiguration.getExtendedColor()));
-		}
-
-		svg.setFillColor(StringUtils.getAsHtml(mapper.getMappedColor(fontConfiguration.getColor())));
 		String text = shape.getText();
 		if (text.startsWith(" ")) {
 			final double space = stringBounder.calculateDimension(font, " ").getWidth();
@@ -101,7 +98,28 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 		}
 		text = StringUtils.trin(text);
 		final Dimension2D dim = stringBounder.calculateDimension(font, text);
+
+		String backColor = null;
+		final double width = dim.getWidth();
+		final double height = dim.getHeight();
+		if (fontConfiguration.containsStyle(FontStyle.BACKCOLOR)) {
+			final HtmlColor back = fontConfiguration.getExtendedColor();
+			if (back instanceof HtmlColorGradient) {
+				final HtmlColorGradient gr = (HtmlColorGradient) back;
+				final String id = svg.createSvgGradient(StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor1())),
+						StringUtils.getAsHtml(mapper.getMappedColor(gr.getColor2())), gr.getPolicy());
+				svg.setFillColor("url(#" + id + ")");
+				svg.setStrokeColor(null);
+				final double deltaPatch = 2;
+				svg.svgRectangle(x, y - height + deltaPatch, width, height, 0, 0, 0, null);
+
+			} else {
+				backColor = StringUtils.getAsHtml(mapper.getMappedColor(back));
+			}
+		}
+
+		svg.setFillColor(StringUtils.getAsHtml(mapper.getMappedColor(fontConfiguration.getColor())));
 		svg.text(text, x, y, font.getFamily(UFontContext.SVG), font.getSize(), fontWeight, fontStyle, textDecoration,
-				dim.getWidth(), fontConfiguration.getAttributes(), backColor);
+				width, fontConfiguration.getAttributes(), backColor);
 	}
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 6109 $
  *
  */
 package net.sourceforge.plantuml.sequencediagram.command;
@@ -62,8 +64,8 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 	}
 
 	static IRegex getRegexType() {
-		return new RegexOr(new RegexLeaf("TYPE", "(participant|actor|create|boundary|control|entity|database)"), //
-				new RegexLeaf("CREATE", "create[%s](participant|actor|boundary|control|entity|database)"));
+		return new RegexOr(new RegexLeaf("TYPE", "(participant|actor|create|boundary|control|entity|queue|database|collections)"), //
+				new RegexLeaf("CREATE", "create[%s](participant|actor|boundary|control|entity|queue|database|collections)"));
 	}
 
 	@Override

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 7800 $
  *
  */
 package net.sourceforge.plantuml.command;
@@ -60,7 +62,10 @@ public class CommandPackage extends SingleLineCommand2<AbstractEntityDiagram> {
 	}
 
 	private static RegexConcat getRegexConcat() {
-		return new RegexConcat(new RegexLeaf("^package[%s]+"), //
+		return new RegexConcat(//
+				new RegexLeaf("^"), //
+				new RegexLeaf("TYPE", "(package|together)"), //
+				new RegexLeaf("[%s]+"), //
 				new RegexLeaf("NAME", "([%g][^%g]+[%g]|[^#%s{}]*)"), //
 				new RegexLeaf("AS", "(?:[%s]+as[%s]+([\\p{L}0-9_.]+))?"), //
 				new RegexLeaf("[%s]*"), //
@@ -71,7 +76,7 @@ public class CommandPackage extends SingleLineCommand2<AbstractEntityDiagram> {
 				color().getRegex(), //
 				new RegexLeaf("[%s]*\\{$"));
 	}
-	
+
 	private static ColorParser color() {
 		return ColorParser.simpleColor(ColorType.BACK);
 	}
@@ -97,7 +102,10 @@ public class CommandPackage extends SingleLineCommand2<AbstractEntityDiagram> {
 		final IEntity p = diagram.getOrCreateGroup(code, Display.getWithNewlines(display), GroupType.PACKAGE,
 				currentPackage);
 		final String stereotype = arg.get("STEREOTYPE", 0);
-		if (stereotype != null) {
+		final USymbol type = USymbol.getFromString(arg.get("TYPE", 0));
+		if (type == USymbol.TOGETHER) {
+			p.setUSymbol(type);
+		} else if (stereotype != null) {
 			final USymbol usymbol = USymbol.getFromString(stereotype);
 			if (usymbol == null) {
 				p.setStereotype(new Stereotype(stereotype));
@@ -116,10 +124,6 @@ public class CommandPackage extends SingleLineCommand2<AbstractEntityDiagram> {
 		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
 		p.setColors(colors);
 
-//		final String color = arg.get("COLOR", 0);
-//		if (color != null) {
-//			p.setSpecificColorTOBEREMOVED(ColorType.BACK, diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(color));
-//		}
 		return CommandExecutionResult.ok();
 	}
 

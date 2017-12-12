@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 8475 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
@@ -42,7 +44,7 @@ public class Arrows {
 	final static private double delta2 = 4;
 
 	public static UPolygon asToUp() {
-		final UPolygon polygon = new UPolygon();
+		final UPolygon polygon = new UPolygon("asToUp");
 		polygon.addPoint(-delta2, delta1);
 		polygon.addPoint(0, 0);
 		polygon.addPoint(delta2, delta1);
@@ -51,7 +53,7 @@ public class Arrows {
 	}
 
 	public static UPolygon asToDown() {
-		final UPolygon polygon = new UPolygon();
+		final UPolygon polygon = new UPolygon("asToDown");
 		polygon.addPoint(-delta2, -delta1);
 		polygon.addPoint(0, 0);
 		polygon.addPoint(delta2, -delta1);
@@ -60,7 +62,7 @@ public class Arrows {
 	}
 
 	public static UPolygon asToRight() {
-		final UPolygon polygon = new UPolygon();
+		final UPolygon polygon = new UPolygon("asToRight");
 		polygon.addPoint(-delta1, -delta2);
 		polygon.addPoint(0, 0);
 		polygon.addPoint(-delta1, delta2);
@@ -69,7 +71,7 @@ public class Arrows {
 	}
 
 	public static UPolygon asToLeft() {
-		final UPolygon polygon = new UPolygon();
+		final UPolygon polygon = new UPolygon("asToLeft");
 		polygon.addPoint(delta1, -delta2);
 		polygon.addPoint(0, 0);
 		polygon.addPoint(delta1, delta2);
@@ -83,6 +85,12 @@ public class Arrows {
 		}
 		if (direction == Direction.DOWN) {
 			return asToDown();
+		}
+		if (direction == Direction.LEFT) {
+			return asToLeft();
+		}
+		if (direction == Direction.RIGHT) {
+			return asToRight();
 		}
 		throw new IllegalArgumentException();
 	}

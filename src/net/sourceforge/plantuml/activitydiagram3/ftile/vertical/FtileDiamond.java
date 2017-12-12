@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,21 +28,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5183 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
 import java.awt.geom.Dimension2D;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Diamond;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
@@ -50,7 +54,6 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class FtileDiamond extends AbstractFtile {
@@ -63,36 +66,41 @@ public class FtileDiamond extends AbstractFtile {
 	private final TextBlock west1;
 	private final TextBlock east1;
 
-	public FtileDiamond(boolean shadowing, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane) {
-		this(shadowing, backColor, borderColor, swimlane, TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0),
+	public FtileDiamond(ISkinParam skinParam, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane) {
+		this(skinParam, backColor, borderColor, swimlane, TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0),
 				TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0));
+	}
+	
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return Collections.emptyList();
 	}
 
 	public FtileDiamond withNorth(TextBlock north) {
-		return new FtileDiamond(shadowing(), backColor, borderColor, swimlane, north, south, east1, west1);
+		return new FtileDiamond(skinParam(), backColor, borderColor, swimlane, north, south, east1, west1);
 	}
 
 	public FtileDiamond withWest(TextBlock west1) {
 		if (west1 == null) {
 			return this;
 		}
-		return new FtileDiamond(shadowing(), backColor, borderColor, swimlane, north, south, east1, west1);
+		return new FtileDiamond(skinParam(), backColor, borderColor, swimlane, north, south, east1, west1);
 	}
 
 	public FtileDiamond withEast(TextBlock east1) {
 		if (east1 == null) {
 			return this;
 		}
-		return new FtileDiamond(shadowing(), backColor, borderColor, swimlane, north, south, east1, west1);
+		return new FtileDiamond(skinParam(), backColor, borderColor, swimlane, north, south, east1, west1);
 	}
 
 	public FtileDiamond withSouth(TextBlock south) {
-		return new FtileDiamond(shadowing(), backColor, borderColor, swimlane, north, south, east1, west1);
+		return new FtileDiamond(skinParam(), backColor, borderColor, swimlane, north, south, east1, west1);
 	}
 
-	private FtileDiamond(boolean shadowing, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
+	private FtileDiamond(ISkinParam skinParam, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
 			TextBlock north, TextBlock south, TextBlock east1, TextBlock west1) {
-		super(shadowing);
+		super(skinParam);
 		this.backColor = backColor;
 		this.swimlane = swimlane;
 		this.borderColor = borderColor;
@@ -119,15 +127,17 @@ public class FtileDiamond extends AbstractFtile {
 
 	public void drawU(UGraphic ug) {
 
-		ug.apply(new UChangeColor(borderColor)).apply(new UStroke(1.5)).apply(new UChangeBackColor(backColor))
-				.draw(Diamond.asPolygon(shadowing()));
-		final Dimension2D dimNorth = north.calculateDimension(ug.getStringBounder());
-		north.drawU(ug.apply(new UTranslate(Diamond.diamondHalfSize * 1.5, -dimNorth.getHeight()
-				- Diamond.diamondHalfSize)));
+		final double suppY1 = north.calculateDimension(ug.getStringBounder()).getHeight();
+		ug = ug.apply(new UTranslate(0, suppY1));
+		ug.apply(new UChangeColor(borderColor)).apply(getThickness()).apply(new UChangeBackColor(backColor))
+				.draw(Diamond.asPolygon(skinParam().shadowing()));
+		// final Dimension2D dimNorth = north.calculateDimension(ug.getStringBounder());
+		north.drawU(ug.apply(new UTranslate(Diamond.diamondHalfSize * 1.5, -suppY1)));
 
-		final Dimension2D dimSouth = south.calculateDimension(ug.getStringBounder());
-		south.drawU(ug.apply(new UTranslate(-(dimSouth.getWidth() - 2 * Diamond.diamondHalfSize) / 2,
-				2 * Diamond.diamondHalfSize)));
+		// final Dimension2D dimSouth = south.calculateDimension(ug.getStringBounder());
+		south.drawU(ug.apply(new UTranslate(Diamond.diamondHalfSize * 1.5, 2 * Diamond.diamondHalfSize)));
+		// south.drawU(ug.apply(new UTranslate(-(dimSouth.getWidth() - 2 * Diamond.diamondHalfSize) / 2,
+		// 2 * Diamond.diamondHalfSize)));
 
 		final Dimension2D dimWeat1 = west1.calculateDimension(ug.getStringBounder());
 		west1.drawU(ug.apply(new UTranslate(-dimWeat1.getWidth(), -dimWeat1.getHeight() + Diamond.diamondHalfSize)));
@@ -137,13 +147,26 @@ public class FtileDiamond extends AbstractFtile {
 				+ Diamond.diamondHalfSize)));
 	}
 
-	public FtileGeometry calculateDimension(StringBounder stringBounder) {
-		final Dimension2D dim = new Dimension2DDouble(Diamond.diamondHalfSize * 2, Diamond.diamondHalfSize * 2);
-		return new FtileGeometry(dim, dim.getWidth() / 2, 0, dim.getHeight());
+	@Override
+	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
+		final double suppY1 = north.calculateDimension(stringBounder).getHeight();
+		final Dimension2D dim = new Dimension2DDouble(Diamond.diamondHalfSize * 2, Diamond.diamondHalfSize * 2 + suppY1);
+		return new FtileGeometry(dim, dim.getWidth() / 2, suppY1, dim.getHeight());
 	}
 
 	public Ftile withWestAndEast(TextBlock tb1, TextBlock tb2) {
 		return withWest(tb1).withEast(tb2);
 	}
+
+	public double getEastLabelWidth(StringBounder stringBounder) {
+		final Dimension2D dimEast = east1.calculateDimension(stringBounder);
+		return dimEast.getWidth();
+	}
+	
+	public double getSouthLabelHeight(StringBounder stringBounder) {
+		final Dimension2D dimSouth = south.calculateDimension(stringBounder);
+		return dimSouth.getHeight();
+	}
+
 
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 4636 $
  *
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
@@ -109,6 +111,11 @@ public class NotesTile implements Tile {
 		return width;
 	}
 
+	private Real getXcenter(StringBounder stringBounder, Note note) {
+		final LivingSpace livingSpace1 = livingSpaces.get(note.getParticipant());
+		return livingSpace1.getPosC(stringBounder);
+	}
+
 	private Real getX(StringBounder stringBounder, Note note) {
 		final LivingSpace livingSpace1 = livingSpaces.get(note.getParticipant());
 		final NotePosition position = note.getPosition();
@@ -145,9 +152,17 @@ public class NotesTile implements Tile {
 		final List<Note> all = notes.asList();
 		for (int i = 0; i < all.size() - 1; i++) {
 			for (int j = i + 1; j < all.size(); j++) {
-				final Real point1 = getX2(stringBounder, all.get(i));
-				final Real point2 = getX(stringBounder, all.get(j));
-				point2.ensureBiggerThan(point1);
+				final double center1 = getXcenter(stringBounder, all.get(i)).getCurrentValue();
+				final double center2 = getXcenter(stringBounder, all.get(j)).getCurrentValue();
+				if (center2 > center1) {
+					final Real point1b = getX2(stringBounder, all.get(i));
+					final Real point2 = getX(stringBounder, all.get(j));
+					point2.ensureBiggerThan(point1b);
+				} else {
+					final Real point1 = getX(stringBounder, all.get(i));
+					final Real point2b = getX2(stringBounder, all.get(j));
+					point1.ensureBiggerThan(point2b);
+				}
 			}
 		}
 	}

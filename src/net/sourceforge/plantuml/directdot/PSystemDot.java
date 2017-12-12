@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,8 +28,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
@@ -41,8 +44,8 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.DiagramDescriptionImpl;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.cucadiagram.dot.ExeState;
 import net.sourceforge.plantuml.cucadiagram.dot.Graphviz;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import net.sourceforge.plantuml.cucadiagram.dot.ProcessState;
@@ -61,15 +64,19 @@ public class PSystemDot extends AbstractPSystem {
 	}
 
 	public DiagramDescription getDescription() {
-		return new DiagramDescriptionImpl("(Dot)", getClass());
+		return new DiagramDescription("(Dot)");
 	}
 
-	public ImageData exportDiagram(OutputStream os, int num, FileFormatOption fileFormat) throws IOException {
-		final Graphviz graphviz = GraphvizUtils
-				.create(null, data, StringUtils.goLowerCase(fileFormat.getFileFormat().name()));
-		if (graphviz.illegalDotExe()) {
-			final TextBlock result = GraphicStrings.createDefault(Arrays.asList("There is an issue with your Dot/Graphviz installation"), false);
-			UGraphicUtils.writeImage(os, null, fileFormat, new ColorMapperIdentity(), HtmlColorUtils.WHITE, result);
+	@Override
+	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+			throws IOException {
+		final Graphviz graphviz = GraphvizUtils.create(null, data,
+				StringUtils.goLowerCase(fileFormat.getFileFormat().name()));
+		if (graphviz.getExeState() != ExeState.OK) {
+			final TextBlock result = GraphicStrings.createForError(
+					Arrays.asList("There is an issue with your Dot/Graphviz installation"), false);
+			UGraphicUtils.writeImage(os, null, fileFormat, seed(), new ColorMapperIdentity(),
+					HtmlColorUtils.WHITE, result);
 			return new ImageDataSimple();
 		}
 		final CounterOutputStream counter = new CounterOutputStream(os);
@@ -78,8 +85,9 @@ public class PSystemDot extends AbstractPSystem {
 			throw new IllegalStateException("Timeout1 " + state);
 		}
 		if (counter.getLength() == 0) {
-			final TextBlock result = GraphicStrings.createDefault(Arrays.asList("Graphivz has crashed"), false);
-			UGraphicUtils.writeImage(os, null, fileFormat, new ColorMapperIdentity(), HtmlColorUtils.WHITE, result);
+			final TextBlock result = GraphicStrings.createForError(Arrays.asList("Graphivz has crashed"), false);
+			UGraphicUtils.writeImage(os, null, fileFormat, seed(), new ColorMapperIdentity(),
+					HtmlColorUtils.WHITE, result);
 		}
 
 		return new ImageDataSimple();

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,17 +28,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.skin.rose;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -58,12 +61,18 @@ public class ComponentRoseParticipant extends AbstractTextualComponent {
 	private final double deltaShadow;
 	private final double roundCorner;
 	private final UStroke stroke;
+	private final double minWidth;
+	private final boolean collections;
+	private final double padding;
 
 	public ComponentRoseParticipant(SymbolContext biColor, FontConfiguration font, Display stringsToDisplay,
-			ISkinSimple spriteContainer, double roundCorner, UFont fontForStereotype,
-			HtmlColor htmlColorForStereotype) {
-		super(stringsToDisplay, font, HorizontalAlignment.CENTER, 7, 7, 7, spriteContainer, 0, false,
+			ISkinSimple spriteContainer, double roundCorner, UFont fontForStereotype, HtmlColor htmlColorForStereotype,
+			double minWidth, boolean collections, double padding) {
+		super(LineBreakStrategy.NONE, stringsToDisplay, font, HorizontalAlignment.CENTER, 7, 7, 7, spriteContainer, false,
 				fontForStereotype, htmlColorForStereotype);
+		this.padding = padding;
+		this.minWidth = minWidth;
+		this.collections = collections;
 		this.back = biColor.getBackColor();
 		this.roundCorner = roundCorner;
 		this.deltaShadow = biColor.getDeltaShadow();
@@ -74,24 +83,46 @@ public class ComponentRoseParticipant extends AbstractTextualComponent {
 	@Override
 	protected void drawInternalU(UGraphic ug, Area area) {
 		final StringBounder stringBounder = ug.getStringBounder();
+		ug = ug.apply(new UTranslate(padding, 0));
 		ug = ug.apply(new UChangeBackColor(back)).apply(new UChangeColor(foregroundColor));
 		ug = ug.apply(stroke);
 		final URectangle rect = new URectangle(getTextWidth(stringBounder), getTextHeight(stringBounder), roundCorner,
 				roundCorner);
 		rect.setDeltaShadow(deltaShadow);
+		if (collections) {
+			ug.apply(new UTranslate(getDeltaCollection(), 0)).draw(rect);
+			ug = ug.apply(new UTranslate(0, getDeltaCollection()));
+		}
 		ug.draw(rect);
 		ug = ug.apply(new UStroke());
 		final TextBlock textBlock = getTextBlock();
-		textBlock.drawU(ug.apply(new UTranslate(getMarginX1(), getMarginY())));
+		textBlock.drawU(ug.apply(new UTranslate(getMarginX1() + suppWidth(stringBounder) / 2, getMarginY())));
+	}
+
+	private double getDeltaCollection() {
+		if (collections) {
+			return 4;
+		}
+		return 0;
 	}
 
 	@Override
 	public double getPreferredHeight(StringBounder stringBounder) {
-		return getTextHeight(stringBounder) + deltaShadow + 1;
+		return getTextHeight(stringBounder) + deltaShadow + 1 + getDeltaCollection();
 	}
 
 	@Override
 	public double getPreferredWidth(StringBounder stringBounder) {
-		return getTextWidth(stringBounder) + deltaShadow;
+		return getTextWidth(stringBounder) + deltaShadow + getDeltaCollection() + 2 * padding;
 	}
+
+	@Override
+	protected double getPureTextWidth(StringBounder stringBounder) {
+		return Math.max(super.getPureTextWidth(stringBounder), minWidth);
+	}
+
+	private final double suppWidth(StringBounder stringBounder) {
+		return getPureTextWidth(stringBounder) - super.getPureTextWidth(stringBounder);
+	}
+
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,24 +28,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5727 $
  *
  */
 package net.sourceforge.plantuml.command;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 
 public class CommandSkinParamMultilines extends CommandMultilinesBracket<UmlDiagram> {
 
@@ -64,7 +66,7 @@ public class CommandSkinParamMultilines extends CommandMultilinesBracket<UmlDiag
 		}
 	}
 
-	private final static Pattern p1 = MyPattern
+	private final static Pattern2 p1 = MyPattern
 			.cmpile("^([\\w.]*(?:\\<\\<.*\\>\\>)?[\\w.]*)[%s]+(?:(\\{)|(.*))$|^\\}?$");
 
 	public CommandSkinParamMultilines() {
@@ -87,7 +89,7 @@ public class CommandSkinParamMultilines extends CommandMultilinesBracket<UmlDiag
 
 	public CommandExecutionResult execute(UmlDiagram diagram, BlocLines lines) {
 		final Context context = new Context();
-		final Matcher mStart = getStartingPattern().matcher(StringUtils.trin(lines.getFirst499()));
+		final Matcher2 mStart = getStartingPattern().matcher(StringUtils.trin(lines.getFirst499()));
 		if (mStart.find() == false) {
 			throw new IllegalStateException();
 		}
@@ -108,7 +110,7 @@ public class CommandSkinParamMultilines extends CommandMultilinesBracket<UmlDiag
 				context.pop();
 				continue;
 			}
-			final Matcher m = p1.matcher(s);
+			final Matcher2 m = p1.matcher(s);
 			if (m.find() == false) {
 				throw new IllegalStateException();
 			}

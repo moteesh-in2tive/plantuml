@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,19 +28,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
+import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.xml.transform.TransformerException;
 
+import net.sourceforge.plantuml.FileFormat;
+import net.sourceforge.plantuml.TikzFontDistortion;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.HtmlColorGradient;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -47,6 +53,7 @@ import net.sourceforge.plantuml.ugraphic.AbstractUGraphic;
 import net.sourceforge.plantuml.ugraphic.ClipContainer;
 import net.sourceforge.plantuml.ugraphic.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.UCenteredCharacter;
+import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic2;
 import net.sourceforge.plantuml.ugraphic.UImage;
@@ -76,16 +83,19 @@ public class UGraphicSvg extends AbstractUGraphic<SvgGraphics> implements ClipCo
 		register();
 	}
 
-	public UGraphicSvg(ColorMapper colorMapper, String backcolor, boolean textAsPath, double scale, String linkTarget) {
-		this(colorMapper, new SvgGraphics(backcolor, scale), textAsPath, linkTarget);
+	public UGraphicSvg(Dimension2D minDim, ColorMapper colorMapper, String backcolor, boolean textAsPath, double scale,
+			String linkTarget, String hover, long seed) {
+		this(minDim, colorMapper, new SvgGraphics(minDim, backcolor, scale, hover, seed), textAsPath, linkTarget);
 	}
 
-	public UGraphicSvg(ColorMapper colorMapper, boolean textAsPath, double scale, String linkTarget) {
-		this(colorMapper, new SvgGraphics(scale), textAsPath, linkTarget);
+	public UGraphicSvg(Dimension2D minDim, ColorMapper colorMapper, boolean textAsPath, double scale,
+			String linkTarget, String hover, long seed) {
+		this(minDim, colorMapper, new SvgGraphics(minDim, scale, hover, seed), textAsPath, linkTarget);
 	}
 
-	public UGraphicSvg(ColorMapper mapper, HtmlColorGradient gr, boolean textAsPath, double scale, String linkTarget) {
-		this(mapper, new SvgGraphics(scale), textAsPath, linkTarget);
+	public UGraphicSvg(Dimension2D minDim, ColorMapper mapper, HtmlColorGradient gr, boolean textAsPath, double scale,
+			String linkTarget, String hover, long seed) {
+		this(minDim, mapper, new SvgGraphics(minDim, scale, hover, seed), textAsPath, linkTarget);
 
 		final SvgGraphics svg = getGraphicObject();
 		svg.paintBackcolorGradient(mapper, gr);
@@ -106,9 +116,10 @@ public class UGraphicSvg extends AbstractUGraphic<SvgGraphics> implements ClipCo
 		getGraphicObject().setHidden(false);
 	}
 
-	private UGraphicSvg(ColorMapper colorMapper, SvgGraphics svg, boolean textAsPath, String linkTarget) {
+	private UGraphicSvg(Dimension2D minDim, ColorMapper colorMapper, SvgGraphics svg, boolean textAsPath,
+			String linkTarget) {
 		super(colorMapper, svg);
-		this.stringBounder = TextBlockUtils.getDummyStringBounder();
+		this.stringBounder = FileFormat.PNG.getDefaultStringBounder(TikzFontDistortion.getDefault());
 		this.textAsPath2 = textAsPath;
 		this.target = linkTarget;
 		register();
@@ -139,8 +150,11 @@ public class UGraphicSvg extends AbstractUGraphic<SvgGraphics> implements ClipCo
 		return stringBounder;
 	}
 
-	public void createXml(OutputStream os) throws IOException {
+	public void createXml(OutputStream os, String metadata) throws IOException {
 		try {
+			if (metadata != null) {
+				getGraphicObject().addComment("\n" + metadata);
+			}
 			getGraphicObject().createXml(os);
 		} catch (TransformerException e) {
 			throw new IOException(e.toString());
@@ -156,7 +170,20 @@ public class UGraphicSvg extends AbstractUGraphic<SvgGraphics> implements ClipCo
 	}
 
 	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {
-		createXml(os);
+		createXml(os, metadata);
+	}
+
+	@Override
+	protected void drawComment(UComment comment) {
+		getGraphicObject().addComment(comment.getComment());
+	}
+
+	@Override
+	public boolean matchesProperty(String propertyName) {
+		if (propertyName.equalsIgnoreCase("SVG")) {
+			return true;
+		}
+		return super.matchesProperty(propertyName);
 	}
 
 	// @Override

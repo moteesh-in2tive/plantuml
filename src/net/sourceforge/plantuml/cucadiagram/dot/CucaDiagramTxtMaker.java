@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5079 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram.dot;
@@ -45,7 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.plantuml.BackSlash;
 import net.sourceforge.plantuml.FileFormat;
+import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
@@ -57,7 +61,6 @@ import net.sourceforge.plantuml.posimo.GraphvizSolverB;
 import net.sourceforge.plantuml.posimo.Path;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
-import net.sourceforge.plantuml.StringUtils;
 
 public final class CucaDiagramTxtMaker {
 
@@ -124,14 +127,14 @@ public final class CucaDiagramTxtMaker {
 		ug.getCharArea().drawHLine('-', y, 1, w - 1);
 		y++;
 		for (Member att : ent.getBodier().getFieldsToDisplay()) {
-			final List<String> disp = StringUtils.getWithNewlines(att.getDisplay(true));
+			final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
 			ug.getCharArea().drawStringsLR(disp, 1, y);
 			y += StringUtils.getHeight(disp);
 		}
 		ug.getCharArea().drawHLine('-', y, 1, w - 1);
 		y++;
 		for (Member att : ent.getBodier().getMethodsToDisplay()) {
-			final List<String> disp = StringUtils.getWithNewlines(att.getDisplay(true));
+			final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
 			ug.getCharArea().drawStringsLR(disp, 1, y);
 			y += StringUtils.getHeight(disp);
 		}
@@ -158,15 +161,15 @@ public final class CucaDiagramTxtMaker {
 	}
 
 	private int getWidth(IEntity entity) {
-		int result = StringUtils.getWidth(entity.getDisplay());
+		int result = StringUtils.getWcWidth(entity.getDisplay());
 		for (Member att : entity.getBodier().getMethodsToDisplay()) {
-			final int w = StringUtils.getWidth(Display.getWithNewlines(att.getDisplay(true)));
+			final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
 			if (w > result) {
 				result = w;
 			}
 		}
 		for (Member att : entity.getBodier().getFieldsToDisplay()) {
-			final int w = StringUtils.getWidth(Display.getWithNewlines(att.getDisplay(true)));
+			final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
 			if (w > result) {
 				result = w;
 			}

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,18 +28,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 8066 $
  *
  */
 package net.sourceforge.plantuml.graphic;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.LineParam;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.ugraphic.UStroke;
 
 public class SkinParameter {
 
@@ -56,6 +62,9 @@ public class SkinParameter {
 	public static final SkinParameter QUEUE = new SkinParameter("QUEUE", ColorParam.queueBackground,
 			ColorParam.queueBorder, FontParam.QUEUE, FontParam.QUEUE_STEREOTYPE);
 
+	public static final SkinParameter STACK = new SkinParameter("STACK", ColorParam.stackBackground,
+			ColorParam.stackBorder, FontParam.STACK, FontParam.STACK_STEREOTYPE);
+
 	public static final SkinParameter CLOUD = new SkinParameter("CLOUD", ColorParam.cloudBackground,
 			ColorParam.cloudBorder, FontParam.CLOUD, FontParam.CLOUD_STEREOTYPE);
 
@@ -71,11 +80,20 @@ public class SkinParameter {
 	public static final SkinParameter FOLDER = new SkinParameter("FOLDER", ColorParam.folderBackground,
 			ColorParam.folderBorder, FontParam.FOLDER, FontParam.FOLDER_STEREOTYPE);
 
+	public static final SkinParameter FILE = new SkinParameter("FILE", ColorParam.fileBackground,
+			ColorParam.fileBorder, FontParam.FILE, FontParam.FILE_STEREOTYPE);
+
 	public static final SkinParameter PACKAGE = new SkinParameter("PACKAGE", ColorParam.packageBackground,
 			ColorParam.packageBorder, FontParam.FOLDER, FontParam.FOLDER_STEREOTYPE);
 
 	public static final SkinParameter CARD = new SkinParameter("CARD", ColorParam.rectangleBackground,
 			ColorParam.rectangleBorder, FontParam.RECTANGLE, FontParam.RECTANGLE_STEREOTYPE);
+
+	public static final SkinParameter RECTANGLE = new SkinParameter("RECTANGLE", ColorParam.rectangleBackground,
+			ColorParam.rectangleBorder, FontParam.RECTANGLE, FontParam.RECTANGLE_STEREOTYPE);
+
+	public static final SkinParameter COLLECTIONS = new SkinParameter("COLLECTIONS", ColorParam.collectionsBackground,
+			ColorParam.collectionsBorder, FontParam.RECTANGLE, FontParam.RECTANGLE_STEREOTYPE);
 
 	public static final SkinParameter ACTOR = new SkinParameter("ACTOR", ColorParam.actorBackground,
 			ColorParam.actorBorder, FontParam.ACTOR, FontParam.ACTOR_STEREOTYPE);
@@ -106,8 +124,11 @@ public class SkinParameter {
 		this.fontParam = fontParam;
 		this.fontParamStereotype = fontParamStereotype;
 	}
-	
+
 	public String getUpperCaseName() {
+		if (name.endsWith("1") || name.endsWith("2")) {
+			return name.substring(0, name.length() - 1);
+		}
 		return name;
 	}
 
@@ -125,6 +146,21 @@ public class SkinParameter {
 
 	public FontParam getFontParamStereotype() {
 		return fontParamStereotype;
+	}
+
+	public double getRoundCorner(ISkinParam skinParam, Stereotype stereotype) {
+		return skinParam.getRoundCorner(name.toLowerCase(), stereotype);
+	}
+
+	public UStroke getStroke(ISkinParam skinParam, Stereotype stereotype) {
+		UStroke result = null;
+		if (name.equals("RECTANGLE")) {
+			result = skinParam.getThickness(LineParam.rectangleBorder, stereotype);
+		}
+		if (result == null) {
+			result = new UStroke(1.5);
+		}
+		return result;
 	}
 
 }

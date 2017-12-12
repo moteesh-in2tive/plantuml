@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.skin.rose;
@@ -37,6 +39,7 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -62,8 +65,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 	private final boolean niceArrow;
 
 	public ComponentRoseSelfArrow(HtmlColor foregroundColor, FontConfiguration font, Display stringsToDisplay,
-			ArrowConfiguration arrowConfiguration, ISkinSimple spriteContainer, double maxMessageSize,
-			boolean niceArrow) {
+			ArrowConfiguration arrowConfiguration, ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize, boolean niceArrow) {
 		super(foregroundColor, font, stringsToDisplay, arrowConfiguration, spriteContainer, HorizontalAlignment.LEFT,
 				maxMessageSize);
 		this.niceArrow = niceArrow;
@@ -71,15 +73,16 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 
 	@Override
 	protected void drawInternalU(UGraphic ug, Area area) {
+		if (getArrowConfiguration().isHidden()) {
+			return;
+		}
 		final StringBounder stringBounder = ug.getStringBounder();
 		final double textHeight = getTextHeight(stringBounder);
 
 		ug = ug.apply(new UChangeColor(getForegroundColor()));
 		final double xRight = arrowWidth - 3;
 
-		if (getArrowConfiguration().isDotted()) {
-			ug = stroke(ug, 2, 2);
-		}
+		final UGraphic ug2 = getArrowConfiguration().applyStroke(ug);
 
 		double x1 = area.getDeltaX1() < 0 ? area.getDeltaX1() : 0;
 		double x2 = area.getDeltaX1() > 0 ? -area.getDeltaX1() : 0 + 1;
@@ -87,7 +90,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 		final double textAndArrowHeight = textHeight + getArrowOnlyHeight(stringBounder);
 		final UEllipse circle = new UEllipse(ComponentRoseArrow.diamCircle, ComponentRoseArrow.diamCircle);
 		if (getArrowConfiguration().getDecoration1() == ArrowDecoration.CIRCLE) {
-			ug.apply(new UStroke(ComponentRoseArrow.thinCircle))
+			ug2.apply(new UStroke(ComponentRoseArrow.thinCircle))
 					.apply(new UChangeColor(getForegroundColor()))
 					.apply(new UTranslate(x1 + 1 - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle,
 							textHeight - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle / 2))
@@ -95,7 +98,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 			x1 += ComponentRoseArrow.diamCircle / 2;
 		}
 		if (getArrowConfiguration().getDecoration2() == ArrowDecoration.CIRCLE) {
-			ug.apply(new UStroke(ComponentRoseArrow.thinCircle))
+			ug2.apply(new UStroke(ComponentRoseArrow.thinCircle))
 					.apply(new UChangeColor(getForegroundColor()))
 					.apply(new UTranslate(x2 - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle,
 							textAndArrowHeight - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle / 2))
@@ -108,20 +111,18 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 		}
 
 		final double arrowHeight = textAndArrowHeight - textHeight;
-		ug.apply(new UTranslate(x1, textHeight)).draw(new ULine(xRight - x1, 0));
-		ug.apply(new UTranslate(xRight, textHeight)).draw(new ULine(0, arrowHeight));
-		ug.apply(new UTranslate(x2, textAndArrowHeight)).draw(new ULine(xRight - x2, 0));
-
-		if (getArrowConfiguration().isDotted()) {
-			ug = ug.apply(new UStroke());
-		}
+		ug2.apply(new UTranslate(x1, textHeight)).draw(new ULine(xRight - x1, 0));
+		ug2.apply(new UTranslate(xRight, textHeight)).draw(new ULine(0, arrowHeight));
+		ug2.apply(new UTranslate(x2, textAndArrowHeight)).draw(new ULine(xRight - x2, 0));
 
 		if (getArrowConfiguration().isAsync()) {
 			if (getArrowConfiguration().getPart() != ArrowPart.BOTTOM_PART) {
-				ug.apply(new UTranslate(x2, textAndArrowHeight)).draw(new ULine(getArrowDeltaX(), -getArrowDeltaY()));
+				getArrowConfiguration().applyThicknessOnly(ug).apply(new UTranslate(x2, textAndArrowHeight))
+						.draw(new ULine(getArrowDeltaX(), -getArrowDeltaY()));
 			}
 			if (getArrowConfiguration().getPart() != ArrowPart.TOP_PART) {
-				ug.apply(new UTranslate(x2, textAndArrowHeight)).draw(new ULine(getArrowDeltaX(), getArrowDeltaY()));
+				getArrowConfiguration().applyThicknessOnly(ug).apply(new UTranslate(x2, textAndArrowHeight))
+						.draw(new ULine(getArrowDeltaX(), getArrowDeltaY()));
 			}
 		} else if (hasFinalCrossX) {
 			ug = ug.apply(new UStroke(2));

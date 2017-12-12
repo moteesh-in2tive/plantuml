@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,52 +28,91 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 6110 $
  *
  */
 package net.sourceforge.plantuml.utils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import net.sourceforge.plantuml.CharSequence2;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
+import net.sourceforge.plantuml.core.DiagramType;
 
 public class StartUtils {
 
-	public static final String PAUSE_PATTERN = "(?i)((?:\\W|\\<[^<>]*\\>)*)@unpause";
-	public static final String START_PATTERN = "(?i)((?:[^\\w~]|\\<[^<>]*\\>)*)@start";
-	
+	public static final Pattern2 patternFilename = MyPattern
+			.cmpile("^[@\\\\]start[^%s{}%g]+[%s{][%s%g]*([^%g]*?)[%s}%g]*$");
+
+	public static final String PAUSE_PATTERN = "(?i)((?:\\W|\\<[^<>]*\\>)*)[@\\\\]unpause";
+	public static final String START_PATTERN = "(?i)((?:[^\\w~]|\\<[^<>]*\\>)*)[@\\\\]start";
+
+	public static String beforeStartUml(final CharSequence2 result) {
+		boolean inside = false;
+		for (int i = 0; i < result.length(); i++) {
+			final CharSequence2 tmp = result.subSequence(i, result.length());
+			if (startsWithSymbolAnd("start", tmp)) {
+				return result.subSequence(0, i).toString();
+			}
+			final String single = result.subSequence(i, i + 1).toString();
+			if (inside) {
+				if (single.equals(">")) {
+					inside = false;
+				}
+				continue;
+			}
+			if (single.equals("<")) {
+				inside = true;
+			} else if (single.matches("[\\w~]")) {
+				return null;
+			}
+		}
+		return null;
+		// final Matcher m = MyPattern.cmpile(START_PATTERN).matcher(result);
+		// if (m.find()) {
+		// return m.group(1);
+		// }
+		// return null;
+	}
 
 	public static boolean isArobaseStartDiagram(CharSequence s) {
-		return StringUtils.trinNoTrace(s).startsWith("@start");
+		final String s2 = StringUtils.trinNoTrace(s);
+		return DiagramType.getTypeFromArobaseStart(s2) != DiagramType.UNKNOWN;
+	}
+
+	public static boolean startsWithSymbolAnd(String value, final CharSequence2 tmp) {
+		return tmp.startsWith("@" + value) || tmp.startsWith("\\" + value);
+	}
+
+	public static boolean startsWithSymbolAnd(String value, final String tmp) {
+		return tmp.startsWith("@" + value) || tmp.startsWith("\\" + value);
 	}
 
 	public static boolean isArobaseEndDiagram(CharSequence s) {
-		return StringUtils.trinNoTrace(s).startsWith("@end");
+		final String s2 = StringUtils.trinNoTrace(s);
+		return startsWithSymbolAnd("end", s2);
 	}
 
 	public static boolean isArobasePauseDiagram(CharSequence s) {
-		return StringUtils.trinNoTrace(s).startsWith("@pause");
+		final String s2 = StringUtils.trinNoTrace(s);
+		return startsWithSymbolAnd("pause", s2);
 	}
 
 	public static boolean isArobaseUnpauseDiagram(CharSequence s) {
-		return StringUtils.trinNoTrace(s).startsWith("@unpause");
+		final String s2 = StringUtils.trinNoTrace(s);
+		return startsWithSymbolAnd("unpause", s2);
 	}
 
-	private static final Pattern append = MyPattern.cmpile("^\\W*@append");
+	private static final Pattern2 append = MyPattern.cmpile("^\\W*[@\\\\]append");
 
 	public static CharSequence2 getPossibleAppend(CharSequence2 s) {
-		final Matcher m = append.matcher(s);
+		final Matcher2 m = append.matcher(s);
 		if (m.find()) {
 			return s.subSequence(m.group(0).length(), s.length()).trin();
-			//return StringUtils.trin(s.toString().substring(m.group(0).length()));
+			// return StringUtils.trin(s.toString().substring(m.group(0).length()));
 		}
 		return null;
 	}

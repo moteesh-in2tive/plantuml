@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,24 +28,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 4749 $
  *
  */
 package net.sourceforge.plantuml.cucadiagram;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 
 public class MemberImpl implements Member {
@@ -53,56 +54,37 @@ public class MemberImpl implements Member {
 
 	private final VisibilityModifier visibilityModifier;
 
-	public MemberImpl(String tmpDisplay, boolean isMethod, boolean manageModifier, boolean manageUrl) {
+	public MemberImpl(String tmpDisplay, boolean isMethod, boolean manageModifier) {
 		tmpDisplay = tmpDisplay.replaceAll("(?i)\\{(method|field)\\}\\s*", "");
 		if (manageModifier) {
-			this.hasUrl = new UrlBuilder(null, ModeUrl.ANYWHERE).getUrl(tmpDisplay) != null;
-			final Pattern pstart = MyPattern.cmpile("^(" + UrlBuilder.getRegexp() + ")([^\\[\\]]+)$");
-			final Matcher mstart = pstart.matcher(tmpDisplay);
-
-			if (mstart.matches()) {
-				if (mstart.groupCount() != 4) {
-					throw new IllegalStateException();
-				}
-				final UrlBuilder urlBuilder = new UrlBuilder(null, ModeUrl.AT_START);
-				this.url = urlBuilder.getUrl(mstart.group(1));
-				this.url.setMember(true);
-				tmpDisplay = /* mstart.group(1).trim() + */StringUtils.trin(mstart.group(mstart.groupCount()));
+			final Pattern2 finalUrl = MyPattern.cmpile("^(.*?)(?:\\[(" + UrlBuilder.getRegexp() + ")\\])?$");
+			final Matcher2 matcher = finalUrl.matcher(tmpDisplay);
+			if (matcher.matches() == false) {
+				throw new IllegalStateException();
+			}
+			tmpDisplay = matcher.group(1);
+			final String urlString = matcher.group(2);
+			if (urlString == null) {
+				this.url = null;
 			} else {
-				final Pattern pend = MyPattern.cmpile("^((?:[^\\[\\]]|\\[[^\\[\\]]*\\])+)(" + UrlBuilder.getRegexp()
-						+ ")$");
-				final Matcher mend = pend.matcher(tmpDisplay);
-
-				if (mend.matches()) {
-					if (mend.groupCount() != 4) {
-						throw new IllegalStateException();
-					}
-					final UrlBuilder urlBuilder = new UrlBuilder(null, ModeUrl.AT_END);
-					this.url = urlBuilder.getUrl(mend.group(2));
-					this.url.setMember(true);
-					tmpDisplay = StringUtils.trin(mend.group(1));
-				} else {
-					this.url = null;
-				}
+				this.url = new UrlBuilder(null, ModeUrl.STRICT).getUrl(urlString);
 			}
 		} else {
 			this.url = null;
-			this.hasUrl = false;
 		}
-
+		this.hasUrl = this.url != null;
 		final String lower = StringUtils.goLowerCase(tmpDisplay);
 
 		if (manageModifier) {
 			this.staticModifier = lower.contains("{static}") || lower.contains("{classifier}");
 			this.abstractModifier = lower.contains("{abstract}");
-			String displayClean = tmpDisplay.replaceAll("(?i)\\{(static|classifier|abstract)\\}\\s*", "");
+			String displayClean = tmpDisplay.replaceAll("(?i)\\{(static|classifier|abstract)\\}\\s*", "").trim();
 			if (displayClean.length() == 0) {
 				displayClean = " ";
 			}
 
-			if (VisibilityModifier.isVisibilityCharacter(displayClean.charAt(0))) {
-				visibilityModifier = VisibilityModifier
-						.getVisibilityModifier(displayClean.charAt(0), isMethod == false);
+			if (VisibilityModifier.isVisibilityCharacter(displayClean)) {
+				visibilityModifier = VisibilityModifier.getVisibilityModifier(displayClean, isMethod == false);
 				this.display = StringUtils.trin(StringUtils.manageGuillemet(displayClean.substring(1)));
 			} else {
 				this.display = StringUtils.manageGuillemet(displayClean);
@@ -129,7 +111,7 @@ public class MemberImpl implements Member {
 		return display;
 	}
 
-	public String getDisplayWithVisibilityChar() {
+	private String getDisplayWithVisibilityChar() {
 		if (isPrivate()) {
 			return "-" + display;
 		}
@@ -141,6 +123,9 @@ public class MemberImpl implements Member {
 		}
 		if (isProtected()) {
 			return "#" + display;
+		}
+		if (isIEMandatory()) {
+			return "*" + display;
 		}
 		return display;
 	}
@@ -184,6 +169,10 @@ public class MemberImpl implements Member {
 				|| visibilityModifier == VisibilityModifier.PACKAGE_PRIVATE_METHOD;
 	}
 
+	private boolean isIEMandatory() {
+		return visibilityModifier == VisibilityModifier.IE_MANDATORY;
+	}
+
 	public final VisibilityModifier getVisibilityModifier() {
 		return visibilityModifier;
 	}
@@ -197,6 +186,7 @@ public class MemberImpl implements Member {
 	}
 
 	public static boolean isMethod(String s) {
+		// s = UrlBuilder.purgeUrl(s);
 		if (s.contains("{method}")) {
 			return true;
 		}
@@ -205,5 +195,4 @@ public class MemberImpl implements Member {
 		}
 		return s.contains("(") || s.contains(")");
 	}
-
 }

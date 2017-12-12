@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 10006 $
  *
  */
 package net.sourceforge.plantuml.classdiagram;
@@ -36,8 +38,6 @@ package net.sourceforge.plantuml.classdiagram;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.NewpagedDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.classdiagram.command.CommandAddMethod;
 import net.sourceforge.plantuml.classdiagram.command.CommandAllowMixing;
@@ -69,9 +69,9 @@ import net.sourceforge.plantuml.command.note.FactoryNoteOnEntityCommand;
 import net.sourceforge.plantuml.command.note.FactoryNoteOnLinkCommand;
 import net.sourceforge.plantuml.command.note.FactoryTipOnEntityCommand;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.core.Diagram;
-import net.sourceforge.plantuml.cucadiagram.Link;
+import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementMultilines;
 import net.sourceforge.plantuml.descdiagram.command.CommandNewpage;
+import net.sourceforge.plantuml.descdiagram.command.CommandPackageWithUSymbol;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObjectMultilines;
 
@@ -109,6 +109,7 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandPackage());
 		cmds.add(new CommandEndPackage());
 		cmds.add(new CommandPackageEmpty());
+		cmds.add(new CommandPackageWithUSymbol());
 
 		cmds.add(new CommandNamespace());
 		cmds.add(new CommandStereotype());
@@ -119,7 +120,7 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandImport());
 
 		final FactoryTipOnEntityCommand factoryTipOnEntityCommand = new FactoryTipOnEntityCommand(new RegexLeaf(
-				"ENTITY", "(" + CommandCreateClass.CODE_NO_DOTDOT + "|[%g][^%g]+[%g])::([^%s]+)"));
+				"ENTITY", "(" + CommandCreateClass.CODE_NO_DOTDOT + "|[%g][^%g]+[%g])::([%g][^%g]+[%g]|[^%s]+)"));
 		cmds.add(factoryTipOnEntityCommand.createMultiLine(true));
 		cmds.add(factoryTipOnEntityCommand.createMultiLine(false));
 
@@ -145,34 +146,9 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandNamespaceSeparator());
 
+		cmds.add(new CommandCreateElementMultilines(0));
+		cmds.add(new CommandCreateElementMultilines(1));
+
 		return cmds;
 	}
-
-	@Override
-	public String checkFinalError(AbstractPSystem sys) {
-		if (sys instanceof NewpagedDiagram) {
-			for (Diagram p : ((NewpagedDiagram) sys).getDiagrams()) {
-				checkFinal((ClassDiagram) p);
-			}
-		} else {
-			final ClassDiagram system = (ClassDiagram) sys;
-			checkFinal(system);
-		}
-		return super.checkFinalError(sys);
-	}
-
-	private void checkFinal(final ClassDiagram system) {
-		for (Link link : system.getLinks()) {
-			final int len = link.getLength();
-			if (len == 1) {
-				for (Link link2 : system.getLinks()) {
-					if (link2.sameConnections(link) && link2.getLength() != 1) {
-						link2.setLength(1);
-					}
-				}
-			}
-		}
-		system.applySingleStrategy();
-	}
-
 }

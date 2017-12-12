@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,20 +28,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 11025 $
  *
  */
 package net.sourceforge.plantuml.creole;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.graphic.AddStyle;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.FontStyle;
@@ -44,7 +45,7 @@ import net.sourceforge.plantuml.graphic.HtmlColor;
 
 public class CommandCreoleStyle implements Command {
 
-	private final Pattern p;
+	private final Pattern2 p;
 	private final FontStyle style;
 	private final boolean tryExtendedColor;
 
@@ -69,7 +70,7 @@ public class CommandCreoleStyle implements Command {
 		this.tryExtendedColor = tryExtendedColor;
 	}
 
-	private HtmlColor getExtendedColor(Matcher m) {
+	private HtmlColor getExtendedColor(Matcher2 m) {
 		if (tryExtendedColor) {
 			return style.getExtendedColor(m.group(2));
 		}
@@ -77,7 +78,7 @@ public class CommandCreoleStyle implements Command {
 	}
 
 	public String executeAndGetRemaining(final String line, StripeSimple stripe) {
-		final Matcher m = p.matcher(line);
+		final Matcher2 m = p.matcher(line);
 		if (m.find() == false) {
 			throw new IllegalStateException();
 		}
@@ -91,7 +92,7 @@ public class CommandCreoleStyle implements Command {
 	}
 
 	public int matchingSize(String line) {
-		final Matcher m = p.matcher(line);
+		final Matcher2 m = p.matcher(line);
 		if (m.find() == false) {
 			return 0;
 		}

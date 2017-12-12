@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 4762 $
  *
  */
 package net.sourceforge.plantuml.command.regex;
@@ -38,24 +40,24 @@ import java.util.regex.Pattern;
 // Splitter.java to be finished
 public abstract class MyPattern {
 
-	public static Pattern cmpile(String p) {
+	public static Pattern2 cmpile(String p) {
 		p = transformAndCheck(p);
-		return Pattern.compile(p);
+		return new Pattern2(Pattern.compile(p));
 	}
 
-	public static Pattern cmpileNockeck(String p) {
+	public static Pattern2 cmpileNockeck(String p) {
 		p = transform(p);
-		return Pattern.compile(p);
+		return new Pattern2(Pattern.compile(p));
 	}
 
-	public static Pattern cmpile(String p, int type) {
+	public static Pattern2 cmpile(String p, int type) {
 		p = transformAndCheck(p);
-		return Pattern.compile(p, type);
+		return new Pattern2(Pattern.compile(p, type));
 	}
 
-	public static Pattern cmpileNockeck(String p, int type) {
+	public static Pattern2 cmpileNockeck(String p, int type) {
 		p = transform(p);
-		return Pattern.compile(p, type);
+		return new Pattern2(Pattern.compile(p, type));
 	}
 
 	private static String transformAndCheck(String p) {

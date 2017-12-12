@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4236 $
  *
  */
 package net.sourceforge.plantuml;
@@ -40,6 +42,7 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.skin.ArrowDirection;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
 import net.sourceforge.plantuml.ugraphic.ColorMapper;
@@ -64,9 +67,9 @@ public interface ISkinParam extends ISkinSimple {
 
 	public UFont getFont(Stereotype stereotype, boolean inPackageTitle, FontParam... fontParam);
 
-	public HorizontalAlignment getHorizontalAlignment(AlignParam param);
+	public HorizontalAlignment getHorizontalAlignment(AlignParam param, ArrowDirection arrowDirection);
 
-	public HorizontalAlignment getDefaultTextAlignment();
+	public HorizontalAlignment getDefaultTextAlignment(HorizontalAlignment defaultValue);
 
 	public int getCircledCharacterRadius();
 
@@ -74,14 +77,12 @@ public interface ISkinParam extends ISkinSimple {
 
 	public ColorMapper getColorMapper();
 
-	public int getDpi();
-
 	public DotSplines getDotSplines();
 
 	public String getDotExecutable();
 
 	public boolean shadowing();
-	
+
 	public boolean shadowingForNote(Stereotype stereotype);
 
 	public boolean shadowing2(SkinParameter skinParameter);
@@ -98,9 +99,9 @@ public interface ISkinParam extends ISkinSimple {
 
 	public double getRanksep();
 
-	public double getRoundCorner();
+	public double getRoundCorner(String param, Stereotype stereotype);
 
-	public double maxMessageSize();
+	public LineBreakStrategy maxMessageSize();
 
 	public boolean strictUmlStyle();
 
@@ -123,12 +124,27 @@ public interface ISkinParam extends ISkinSimple {
 	public boolean handwritten();
 
 	public String getSvgLinkTarget();
-	
+
 	public int getTabSize();
-	
+
 	public int maxAsciiMessageLength();
-	
+
 	public int colorArrowSeparationSpace();
 
+	public SplitParam getSplitParam();
+
+	public int swimlaneWidth();
+
+	public UmlDiagramType getUmlDiagramType();
+
+	public HtmlColor getHoverPathColor();
+
+	public TikzFontDistortion getTikzFontDistortion();
+
+	public double getPadding(PaddingParam param);
+
+	public boolean useRankSame();
+
+	public boolean displayGenericWithOldFashion();
 
 }

@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.classdiagram.command;
@@ -40,19 +42,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 
 class JavaFile {
 
-	private static final Pattern classDefinition = MyPattern
+	private static final Pattern2 classDefinition = MyPattern
 			.cmpile("^(?:public[%s]+|abstract[%s]+|final[%s]+)*(class|interface|enum|annotation)[%s]+(\\w+)(?:.*\\b(extends|implements)[%s]+([\\w%s,]+))?");
 
-	private static final Pattern packageDefinition = MyPattern.cmpile("^package[%s]+([\\w+.]+)[%s]*;");
+	private static final Pattern2 packageDefinition = MyPattern.cmpile("^package[%s]+([\\w+.]+)[%s]*;");
 
 	private final List<JavaClass> all = new ArrayList<JavaClass>();
 
@@ -73,11 +75,11 @@ class JavaFile {
 		String s;
 		while ((s = br.readLine()) != null) {
 			s = StringUtils.trin(s);
-			final Matcher matchPackage = packageDefinition.matcher(s);
+			final Matcher2 matchPackage = packageDefinition.matcher(s);
 			if (matchPackage.find()) {
 				javaPackage = matchPackage.group(1);
 			} else {
-				final Matcher matchClassDefinition = classDefinition.matcher(s);
+				final Matcher2 matchClassDefinition = classDefinition.matcher(s);
 				if (matchClassDefinition.find()) {
 					final String n = matchClassDefinition.group(2);
 					final String p = matchClassDefinition.group(4);

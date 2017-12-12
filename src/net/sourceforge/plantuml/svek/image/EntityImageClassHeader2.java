@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5183 $
  *
  */
 package net.sourceforge.plantuml.svek.image;
@@ -39,7 +41,6 @@ import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
-import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -54,6 +55,9 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockGeneric;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.skin.VisibilityModifier;
+import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.HeaderLayout;
 import net.sourceforge.plantuml.svek.ShapeType;
@@ -67,19 +71,33 @@ public class EntityImageClassHeader2 extends AbstractEntityImage {
 	public EntityImageClassHeader2(ILeaf entity, ISkinParam skinParam, PortionShower portionShower) {
 		super(entity, skinParam);
 
-		final boolean italic = entity.getEntityType() == LeafType.ABSTRACT_CLASS
-				|| entity.getEntityType() == LeafType.INTERFACE;
+		final boolean italic = entity.getLeafType() == LeafType.ABSTRACT_CLASS
+				|| entity.getLeafType() == LeafType.INTERFACE;
 
-		final HtmlColor color = SkinParamUtils.getFontColor(getSkinParam(), FontParam.CLASS, getStereo());
 		final Stereotype stereotype = entity.getStereotype();
-		final String generic = entity.getGeneric();
+		final boolean displayGenericWithOldFashion = skinParam.displayGenericWithOldFashion();
+		final String generic = displayGenericWithOldFashion ? null : entity.getGeneric();
 		FontConfiguration fontConfigurationName = new FontConfiguration(getSkinParam(), FontParam.CLASS, stereotype);
 		if (italic) {
 			fontConfigurationName = fontConfigurationName.italic();
 		}
-		final TextBlock name = TextBlockUtils.withMargin(
-				entity.getDisplay().createWithNiceCreoleMode(fontConfigurationName, HorizontalAlignment.CENTER,
-						skinParam), 3, 3, 0, 0);
+		Display display = entity.getDisplay();
+		if (displayGenericWithOldFashion && entity.getGeneric() != null) {
+			display = display.addGeneric(entity.getGeneric());
+		}
+		TextBlock name = display.createWithNiceCreoleMode(fontConfigurationName, HorizontalAlignment.CENTER, skinParam);
+		final VisibilityModifier modifier = entity.getVisibilityModifier();
+		if (modifier == null) {
+			name = TextBlockUtils.withMargin(name, 3, 3, 0, 0);
+		} else {
+			final Rose rose = new Rose();
+			final HtmlColor back = rose.getHtmlColor(skinParam, modifier.getBackground());
+			final HtmlColor fore = rose.getHtmlColor(skinParam, modifier.getForeground());
+
+			final TextBlock uBlock = modifier.getUBlock(skinParam.classAttributeIconSize(), fore, back, false);
+			name = TextBlockUtils.mergeLR(uBlock, name, VerticalAlignment.CENTER);
+			name = TextBlockUtils.withMargin(name, 3, 3, 0, 0);
+		}
 
 		final TextBlock stereo;
 		if (stereotype == null || stereotype.getLabel(false) == null
@@ -102,7 +120,7 @@ public class EntityImageClassHeader2 extends AbstractEntityImage {
 			genericBlock = TextBlockUtils.withMargin(genericBlock, 1, 1);
 			final HtmlColor classBackground = SkinParamUtils
 					.getColor(getSkinParam(), ColorParam.background, stereotype);
-			// final HtmlColor classBorder = getColor(ColorParam.classBorder, stereotype);
+
 			final HtmlColor classBorder = SkinParamUtils.getFontColor(getSkinParam(), FontParam.CLASS_STEREOTYPE,
 					stereotype);
 			genericBlock = new TextBlockGeneric(genericBlock, classBackground, classBorder);
@@ -130,29 +148,34 @@ public class EntityImageClassHeader2 extends AbstractEntityImage {
 					stereotype.getHtmlColor(), classBorder, SkinParamUtils.getFontColor(getSkinParam(),
 							FontParam.CIRCLED_CHARACTER, null));
 		}
-		if (entity.getEntityType() == LeafType.ANNOTATION) {
+		if (entity.getLeafType() == LeafType.ANNOTATION) {
 			return new CircledCharacter('@', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
-					getSkinParam(), ColorParam.stereotypeABackground, stereotype), classBorder,
+					getSkinParam(), ColorParam.stereotypeNBackground, stereotype), classBorder,
 					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
 		}
-		if (entity.getEntityType() == LeafType.ABSTRACT_CLASS) {
+		if (entity.getLeafType() == LeafType.ABSTRACT_CLASS) {
 			return new CircledCharacter('A', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
 					getSkinParam(), ColorParam.stereotypeABackground, stereotype), classBorder,
 					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
 		}
-		if (entity.getEntityType() == LeafType.CLASS) {
+		if (entity.getLeafType() == LeafType.CLASS) {
 			return new CircledCharacter('C', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
 					getSkinParam(), ColorParam.stereotypeCBackground, stereotype), classBorder,
 					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
 		}
-		if (entity.getEntityType() == LeafType.INTERFACE) {
+		if (entity.getLeafType() == LeafType.INTERFACE) {
 			return new CircledCharacter('I', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
 					getSkinParam(), ColorParam.stereotypeIBackground, stereotype), classBorder,
 					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
 		}
-		if (entity.getEntityType() == LeafType.ENUM) {
+		if (entity.getLeafType() == LeafType.ENUM) {
 			return new CircledCharacter('E', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
 					getSkinParam(), ColorParam.stereotypeEBackground, stereotype), classBorder,
+					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
+		}
+		if (entity.getLeafType() == LeafType.ENTITY) {
+			return new CircledCharacter('E', getSkinParam().getCircledCharacterRadius(), font, SkinParamUtils.getColor(
+					getSkinParam(), ColorParam.stereotypeCBackground, stereotype), classBorder,
 					SkinParamUtils.getFontColor(getSkinParam(), FontParam.CIRCLED_CHARACTER, null));
 		}
 		assert false;
@@ -173,10 +196,6 @@ public class EntityImageClassHeader2 extends AbstractEntityImage {
 
 	public ShapeType getShapeType() {
 		return ShapeType.RECTANGLE;
-	}
-
-	public int getShield() {
-		return 0;
 	}
 
 }

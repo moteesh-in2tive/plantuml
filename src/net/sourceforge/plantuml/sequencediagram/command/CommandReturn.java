@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 7272 $
  *
  */
 package net.sourceforge.plantuml.sequencediagram.command;
@@ -38,11 +40,11 @@ import java.util.List;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.sequencediagram.AbstractMessage;
 import net.sourceforge.plantuml.sequencediagram.EventWithDeactivate;
 import net.sourceforge.plantuml.sequencediagram.LifeEventType;
 import net.sourceforge.plantuml.sequencediagram.Message;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
+import net.sourceforge.plantuml.skin.ArrowBody;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
 
 public class CommandReturn extends SingleLineCommand<SequenceDiagram> {
@@ -65,7 +67,7 @@ public class CommandReturn extends SingleLineCommand<SequenceDiagram> {
 			doDeactivation = false;
 		}
 
-		final ArrowConfiguration arrow = message.getArrowConfiguration().withDotted();
+		final ArrowConfiguration arrow = message.getArrowConfiguration().withBody(ArrowBody.DOTTED);
 
 		sequenceDiagram.addMessage(
 				new Message(message.getParticipant2(), message.getParticipant1(), Display.getWithNewlines(arg

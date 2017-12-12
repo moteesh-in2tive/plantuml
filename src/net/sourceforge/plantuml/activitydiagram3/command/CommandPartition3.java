@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 12235 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.command;
@@ -40,10 +42,14 @@ import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
+import net.sourceforge.plantuml.graphic.color.ColorParser;
+import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 
@@ -55,10 +61,17 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 		return new RegexConcat(new RegexLeaf("^"), //
 				new RegexLeaf("partition"), //
 				new RegexLeaf("[%s]+"), //
-				new RegexLeaf("BACKCOLOR", "(?:(#\\w+)[%s]+)?"), //
+				new RegexOptional(//
+						new RegexConcat( //
+								color().getRegex(),//
+								new RegexLeaf("[%s]+"))), //
 				new RegexLeaf("TITLECOLOR", "(?:(#\\w+)[%s]+)?"), //
 				new RegexLeaf("NAME", "([%g][^%g]+[%g]|\\S+)"), //
 				new RegexLeaf("[%s]*\\{?$"));
+	}
+
+	private static ColorParser color() {
+		return ColorParser.simpleColor(ColorType.BACK);
 	}
 
 	@Override
@@ -67,11 +80,13 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 		final HtmlColor titleColor = diagram.getSkinParam().getIHtmlColorSet()
 				.getColorIfValid(arg.get("TITLECOLOR", 0));
 
+		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+
 		final HtmlColor backColorInSkinparam = diagram.getSkinParam().getHtmlColor(ColorParam.partitionBackground,
 				null, false);
 		final HtmlColor backColor;
 		if (backColorInSkinparam == null) {
-			backColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("BACKCOLOR", 0));
+			backColor = colors.getColor(ColorType.BACK);
 		} else {
 			backColor = backColorInSkinparam;
 

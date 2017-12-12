@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,19 +28,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 4236 $
  * 
  */
 package net.sourceforge.plantuml.svek.extremity;
 
 import java.awt.geom.Point2D;
 
-import net.sourceforge.plantuml.graphic.HtmlColorUtils;
+import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -45,23 +47,24 @@ class ExtremityDiamond extends Extremity {
 	private UPolygon polygon = new UPolygon();
 	private final boolean fill;
 	private final Point2D contact;
-	
+	private final HtmlColor backgroundColor;
+
 	@Override
 	public Point2D somePoint() {
 		return contact;
 	}
 
-
-	public ExtremityDiamond(Point2D p1, double angle, boolean fill) {
+	public ExtremityDiamond(Point2D p1, double angle, boolean fill, HtmlColor backgroundColor) {
 		this.fill = fill;
+		this.backgroundColor = backgroundColor;
 		this.contact = new Point2D.Double(p1.getX(), p1.getY());
 		angle = manageround(angle);
 		polygon.addPoint(0, 0);
-		final int xAile = 6;
-		final int yOuverture = 4;
-		polygon.addPoint(-xAile, -yOuverture);
-		polygon.addPoint(-xAile * 2, 0);
-		polygon.addPoint(-xAile, yOuverture);
+		final int xWing = 6;
+		final int yAperture = 4;
+		polygon.addPoint(-xWing, -yAperture);
+		polygon.addPoint(-xWing * 2, 0);
+		polygon.addPoint(-xWing, yAperture);
 		polygon.addPoint(0, 0);
 		polygon.rotate(angle + Math.PI / 2);
 		polygon = polygon.translate(p1.getX(), p1.getY());
@@ -71,7 +74,7 @@ class ExtremityDiamond extends Extremity {
 		if (fill) {
 			ug = ug.apply(new UChangeBackColor(ug.getParam().getColor()));
 		} else {
-			ug = ug.apply(new UChangeBackColor(HtmlColorUtils.WHITE));
+			ug = ug.apply(new UChangeBackColor(backgroundColor));
 		}
 		ug.draw(polygon);
 	}

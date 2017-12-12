@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 6577 $
  *
  */
 package net.sourceforge.plantuml.graphic;
@@ -37,10 +39,12 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.svek.Ports;
+import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-class TextBlockMarged extends AbstractTextBlock implements TextBlock {
+class TextBlockMarged extends AbstractTextBlock implements TextBlock, WithPorts {
 
 	private final TextBlock textBlock;
 	private final double x1;
@@ -48,7 +52,7 @@ class TextBlockMarged extends AbstractTextBlock implements TextBlock {
 	private final double y1;
 	private final double y2;
 
-	public TextBlockMarged(TextBlock textBlock, double x1, double x2, double y1, double y2) {
+	TextBlockMarged(TextBlock textBlock, double x1, double x2, double y1, double y2) {
 		this.textBlock = textBlock;
 		this.x1 = x1;
 		this.x2 = x2;
@@ -67,13 +71,17 @@ class TextBlockMarged extends AbstractTextBlock implements TextBlock {
 	}
 
 	@Override
-	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder) {
-		final Rectangle2D parent = textBlock.getInnerPosition(member, stringBounder);
+	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+		final Rectangle2D parent = textBlock.getInnerPosition(member, stringBounder, strategy);
 		if (parent == null) {
 			return null;
 		}
 		final UTranslate translate = new UTranslate(x1, y1);
 		return translate.apply(parent);
+	}
+
+	public Ports getPorts(StringBounder stringBounder) {
+		return ((WithPorts) textBlock).getPorts(stringBounder).translateY(y1);
 	}
 
 }

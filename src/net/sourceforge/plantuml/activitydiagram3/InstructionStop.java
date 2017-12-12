@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
- * Revision $Revision: 9786 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3;
@@ -36,14 +38,10 @@ package net.sourceforge.plantuml.activitydiagram3;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
-import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.sequencediagram.NotePosition;
 
 public class InstructionStop extends MonoSwimable implements Instruction {
 
 	private final LinkRendering inlinkRendering;
-	private Display note;
-	private NotePosition notePosition;
 
 	public InstructionStop(Swimlane swimlane, LinkRendering inlinkRendering) {
 		super(swimlane);
@@ -55,9 +53,7 @@ public class InstructionStop extends MonoSwimable implements Instruction {
 
 	public Ftile createFtile(FtileFactory factory) {
 		Ftile result = factory.stop(getSwimlaneIn());
-		if (note != null) {
-			result = factory.addNote(result, note, notePosition);
-		}
+		result = eventuallyAddNote(factory, result, result.getSwimlaneIn());
 		return result;
 	}
 
@@ -71,12 +67,6 @@ public class InstructionStop extends MonoSwimable implements Instruction {
 
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
-	}
-
-	public boolean addNote(Display note, NotePosition position) {
-		this.note = note;
-		this.notePosition = position;
-		return true;
 	}
 
 }

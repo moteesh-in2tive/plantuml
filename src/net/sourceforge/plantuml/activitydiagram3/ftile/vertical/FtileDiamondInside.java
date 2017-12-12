@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,21 +28,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5183 $
  *
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
 import java.awt.geom.Dimension2D;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Diamond;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
@@ -50,7 +54,6 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class FtileDiamondInside extends AbstractFtile {
@@ -64,22 +67,27 @@ public class FtileDiamondInside extends AbstractFtile {
 	private final TextBlock north;
 	private final TextBlock south;
 
-	public FtileDiamondInside(boolean shadowing, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return Collections.emptyList();
+	}
+
+	public FtileDiamondInside(ISkinParam skinParam, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
 			TextBlock label) {
-		this(shadowing, backColor, borderColor, swimlane, label, TextBlockUtils.empty(0, 0),
+		this(skinParam, backColor, borderColor, swimlane, label, TextBlockUtils.empty(0, 0),
 				TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0), TextBlockUtils.empty(0, 0));
 	}
 
 	public FtileDiamondInside withNorth(TextBlock north) {
-		return new FtileDiamondInside(shadowing(), backColor, borderColor, swimlane, label, north, south, west, east);
+		return new FtileDiamondInside(skinParam(), backColor, borderColor, swimlane, label, north, south, west, east);
 	}
 
 	public FtileDiamondInside withWest(TextBlock west) {
-		return new FtileDiamondInside(shadowing(), backColor, borderColor, swimlane, label, north, south, west, east);
+		return new FtileDiamondInside(skinParam(), backColor, borderColor, swimlane, label, north, south, west, east);
 	}
 
 	public FtileDiamondInside withEast(TextBlock east) {
-		return new FtileDiamondInside(shadowing(), backColor, borderColor, swimlane, label, north, south, west, east);
+		return new FtileDiamondInside(skinParam(), backColor, borderColor, swimlane, label, north, south, west, east);
 	}
 
 	public Ftile withWestAndEast(TextBlock tb1, TextBlock tb2) {
@@ -87,12 +95,12 @@ public class FtileDiamondInside extends AbstractFtile {
 	}
 
 	public FtileDiamondInside withSouth(TextBlock south) {
-		return new FtileDiamondInside(shadowing(), backColor, borderColor, swimlane, label, north, south, west, east);
+		return new FtileDiamondInside(skinParam(), backColor, borderColor, swimlane, label, north, south, west, east);
 	}
 
-	private FtileDiamondInside(boolean shadowing, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
+	private FtileDiamondInside(ISkinParam skinParam, HtmlColor backColor, HtmlColor borderColor, Swimlane swimlane,
 			TextBlock label, TextBlock north, TextBlock south, TextBlock west, TextBlock east) {
-		super(shadowing);
+		super(skinParam);
 		this.backColor = backColor;
 		this.swimlane = swimlane;
 		this.borderColor = borderColor;
@@ -122,8 +130,8 @@ public class FtileDiamondInside extends AbstractFtile {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final Dimension2D dimLabel = label.calculateDimension(stringBounder);
 		final Dimension2D dimTotal = calculateDimensionAlone(stringBounder);
-		ug = ug.apply(new UChangeColor(borderColor)).apply(new UStroke(1.5)).apply(new UChangeBackColor(backColor));
-		ug.draw(Diamond.asPolygon(shadowing(), dimTotal.getWidth(), dimTotal.getHeight()));
+		ug = ug.apply(new UChangeColor(borderColor)).apply(getThickness()).apply(new UChangeBackColor(backColor));
+		ug.draw(Diamond.asPolygon(skinParam().shadowing(), dimTotal.getWidth(), dimTotal.getHeight()));
 
 		north.drawU(ug.apply(new UTranslate(4 + dimTotal.getWidth() / 2, dimTotal.getHeight())));
 		south.drawU(ug.apply(new UTranslate(4 + dimTotal.getWidth() / 2, dimTotal.getHeight())));
@@ -153,13 +161,24 @@ public class FtileDiamondInside extends AbstractFtile {
 		return new FtileGeometry(dim, dim.getWidth() / 2, 0, dim.getHeight());
 	}
 
-	public FtileGeometry calculateDimension(StringBounder stringBounder) {
+	@Override
+	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		final FtileGeometry dimDiamonAlone = calculateDimensionAlone(stringBounder);
 		final Dimension2D dimWest = west.calculateDimension(stringBounder);
 		final Dimension2D dimEast = east.calculateDimension(stringBounder);
 		final double northHeight = north.calculateDimension(stringBounder).getHeight();
 		return dimDiamonAlone.incHeight(northHeight);
 		// return dimDiamonAlone.incHeight(northHeight).addMarginX(dimWest.getWidth(), dimEast.getWidth());
+	}
+
+	public double getEastLabelWidth(StringBounder stringBounder) {
+		final Dimension2D dimEast = east.calculateDimension(stringBounder);
+		return dimEast.getWidth();
+	}
+
+	public double getSouthLabelHeight(StringBounder stringBounder) {
+		final Dimension2D dimSouth = south.calculateDimension(stringBounder);
+		return dimSouth.getHeight();
 	}
 
 }

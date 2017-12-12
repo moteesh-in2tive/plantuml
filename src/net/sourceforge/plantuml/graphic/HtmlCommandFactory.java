@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 19109 $
  *
  */
 package net.sourceforge.plantuml.graphic;
@@ -40,20 +42,18 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 
 class HtmlCommandFactory {
 
-	static final Pattern addStyle;
-	static final Pattern removeStyle;
+	static final Pattern2 addStyle;
+	static final Pattern2 removeStyle;
 
 	static {
 		final StringBuilder sbAddStyle = new StringBuilder();
 		final StringBuilder sbRemoveStyle = new StringBuilder();
 
 		for (FontStyle style : EnumSet.allOf(FontStyle.class)) {
-			if (style == FontStyle.PLAIN) {
-				continue;
-			}
 			if (sbAddStyle.length() > 0) {
 				sbAddStyle.append('|');
 				sbRemoveStyle.append('|');
@@ -66,7 +66,7 @@ class HtmlCommandFactory {
 		removeStyle = MyPattern.cmpile(sbRemoveStyle.toString(), Pattern.CASE_INSENSITIVE);
 	}
 
-	private Pattern htmlTag = MyPattern.cmpile(Splitter.htmlTag, Pattern.CASE_INSENSITIVE);
+	private Pattern2 htmlTag = MyPattern.cmpile(Splitter.htmlTag, Pattern.CASE_INSENSITIVE);
 
 	HtmlCommand getHtmlCommand(String s) {
 		if (htmlTag.matcher(s).matches() == false) {

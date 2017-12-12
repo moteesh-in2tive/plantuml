@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,16 +28,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  *
  */
 package net.sourceforge.plantuml.descdiagram.command;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Direction;
@@ -40,7 +40,9 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.classdiagram.command.CommandLinkClass;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
+import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
@@ -61,25 +63,27 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 
+	static private final String KEY1 = "dotted|dashed|plain|bold|hidden|norank|thickness=\\d+";
+	static private final String KEY2 = ",dotted|,dashed|,plain|,bold|,hidden|,norank|,thickness=\\d+";
+	static public final String LINE_STYLE = "(?:#\\w+|" + CommandLinkElement.KEY1 + ")(?:,#\\w+|"
+			+ CommandLinkElement.KEY2 + ")*";
+
 	public CommandLinkElement() {
 		super(getRegexConcat());
 	}
 
 	static RegexConcat getRegexConcat() {
-		return new RegexConcat(
-				new RegexLeaf("^"), //
+		return new RegexConcat(new RegexLeaf("^"), //
 				getGroup("ENT1"), //
 				new RegexLeaf("[%s]*"), //
 				new RegexLeaf("LABEL1", "(?:[%g]([^%g]+)[%g])?"), //
 				new RegexLeaf("[%s]*"), //
 				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0)]|<\\||[%s]+o)?"), //
 				new RegexLeaf("BODY1", "([-=.~]+)"), //
-				new RegexLeaf("ARROW_STYLE1",
-						"(?:\\[((?:#\\w+|dotted|dashed|plain|bold|hidden|norank)(?:,#\\w+|,dotted|,dashed|,plain|,bold|,hidden|,norank)*)\\])?"),
+				new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("DIRECTION", "(?:(left|right|up|down|le?|ri?|up?|do?)(?=[-=.~0()]))?"), //
 				new RegexLeaf("INSIDE", "(?:(0|\\(0\\)|\\(0|0\\))(?=[-=.~]))?"), //
-				new RegexLeaf("ARROW_STYLE2",
-						"(?:\\[((?:#\\w+|dotted|dashed|plain|bold|hidden|norank)(?:,#\\w+|,dotted|,dashed|,plain|,bold|,hidden|,norank)*)\\])?"),
+				new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + CommandLinkElement.LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("BODY2", "([-=.~]*)"), //
 				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0(]|\\|>|o[%s]+)?"), //
 				new RegexLeaf("[%s]*"), //
@@ -107,7 +111,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		if (head1.equals("(0")) {
 			d1 = LinkDecor.CIRCLE_CONNECT;
 		} else if (head1.equals("#")) {
-			d1 = LinkDecor.SQUARRE;
+			d1 = LinkDecor.SQUARE;
 		} else if (head1.equals("0")) {
 			d1 = LinkDecor.CIRCLE;
 		} else if (head1.equals("(")) {
@@ -131,7 +135,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		if (head2.equals("0)")) {
 			d2 = LinkDecor.CIRCLE_CONNECT;
 		} else if (head2.equals("#")) {
-			d2 = LinkDecor.SQUARRE;
+			d2 = LinkDecor.SQUARE;
 		} else if (head2.equals("0")) {
 			d2 = LinkDecor.CIRCLE;
 		} else if (head2.equals(")")) {
@@ -155,11 +159,11 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		LinkType result = new LinkType(d1, d2);
 		final String queue = getQueue(arg);
 		if (queue.contains(".")) {
-			result = result.getDashed();
+			result = result.goDashed();
 		} else if (queue.contains("~")) {
-			result = result.getDotted();
+			result = result.goDotted();
 		} else if (queue.contains("=")) {
-			result = result.getBold();
+			result = result.goBold();
 		}
 
 		final String middle = arg.get("INSIDE", 0);
@@ -221,8 +225,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		}
 
 		private void init() {
-			final Pattern p1 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)[%g]([^%g]+)[%g]$");
-			final Matcher m1 = p1.matcher(labelLink);
+			final Pattern2 p1 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)[%g]([^%g]+)[%g]$");
+			final Matcher2 m1 = p1.matcher(labelLink);
 			if (m1.matches()) {
 				firstLabel = m1.group(1);
 				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
@@ -230,8 +234,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				secondLabel = m1.group(3);
 				return;
 			}
-			final Pattern p2 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)$");
-			final Matcher m2 = p2.matcher(labelLink);
+			final Pattern2 p2 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)$");
+			final Matcher2 m2 = p2.matcher(labelLink);
 			if (m2.matches()) {
 				firstLabel = m2.group(1);
 				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
@@ -239,8 +243,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				secondLabel = null;
 				return;
 			}
-			final Pattern p3 = MyPattern.cmpile("^([^%g]+)[%g]([^%g]+)[%g]$");
-			final Matcher m3 = p3.matcher(labelLink);
+			final Pattern2 p3 = MyPattern.cmpile("^([^%g]+)[%g]([^%g]+)[%g]$");
+			final Matcher2 m3 = p3.matcher(labelLink);
 			if (m3.matches()) {
 				firstLabel = null;
 				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
@@ -293,7 +297,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		colors = CommandLinkClass.applyStyle(arg.getLazzy("ARROW_STYLE", 0), link, colors);
 		if (arg.get("STEREOTYPE", 0) != null) {
 			final Stereotype stereotype = new Stereotype(arg.get("STEREOTYPE", 0));
-			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.componentArrow);
+			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.arrow);
 		}
 
 		link.setColors(colors);

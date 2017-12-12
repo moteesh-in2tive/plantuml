@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -23,12 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
  * USA.
  *
- * [Java is a trademark or registered trademark of Sun Microsystems, Inc.
- * in the United States and other countries.]
  *
  * Original Author:  Arnaud Roques
  * 
- * Revision $Revision: 5183 $
  *
  */
 package net.sourceforge.plantuml.svek;
@@ -37,12 +39,10 @@ import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -74,12 +74,12 @@ public class Control extends AbstractTextBlock implements TextBlock {
 		ug = ug.apply(new UChangeBackColor(symbolContext.getForeColor()));
 		final UPolygon polygon = new UPolygon();
 		polygon.addPoint(0, 0);
-		final int xAile = 6;
-		final int yOuverture = 5;
-		polygon.addPoint(xAile, -yOuverture);
+		final int xWing = 6;
+		final int yAperture = 5;
+		polygon.addPoint(xWing, -yAperture);
 		final int xContact = 4;
 		polygon.addPoint(xContact, 0);
-		polygon.addPoint(xAile, yOuverture);
+		polygon.addPoint(xWing, yAperture);
 		polygon.addPoint(0, 0);
 		
 		ug.apply(new UTranslate(x + radius - xContact, y)).draw(polygon);
