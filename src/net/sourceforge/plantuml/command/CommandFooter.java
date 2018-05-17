@@ -39,7 +39,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 
@@ -52,8 +52,8 @@ public class CommandFooter extends SingleLineCommand<UmlDiagram> {
 	@Override
 	protected CommandExecutionResult executeArg(UmlDiagram diagram, List<String> arg) {
 		final String align = arg.get(0);
-		diagram.setFooter(new DisplayPositionned(Display.getWithNewlines(arg.get(1)), HorizontalAlignment.fromString(
-				align, HorizontalAlignment.CENTER), VerticalAlignment.BOTTOM));
+		diagram.getFooter().put(Display.getWithNewlines(arg.get(1)),
+				HorizontalAlignment.fromString(align, HorizontalAlignment.CENTER));
 		return CommandExecutionResult.ok();
 	}
 }

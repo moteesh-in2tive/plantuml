@@ -177,7 +177,6 @@ public class QuoteUtils {
 					"Fbzrgvzrf jr pbzr ynfg ohg jr qvq bhe orfg",
 					"Vs lbh frr fbzrguvat, fnl fbzrguvat",
 					"Va gurbel gurer vf ab qvssrerapr orgjrra gurbel naq cenpgvpr. Ohg, va cenpgvpr, gurer vf.",
-					"Qnlyvtug, V zhfg jnvg sbe gur fhaevfr. V zhfg guvax bs n arj yvsr. Naq V zhfga'g tvir va.",
 					"Vs V pnaabg oevat lbh pbzsbeg gura ng yrnfg V oevat lbh ubcr",
 					"Jr nyy zhfg yrnea sebz fznyy zvfsbeghar, pbhag gur oyrffvatf gung ner erny",
 					"Cercner Guerr Frnyrq Rairybcrf...",
@@ -246,7 +245,19 @@ public class QuoteUtils {
 					"Ab jnl gb cerirag guvf, fnlf bayl angvba jurer guvf erthyneyl unccraf",
 					"L'n dhrydhrf dhrfgvbaf dhv erfgrag fbhf fvyrapr...",
 					"Vs gurer vf ab fbyhgvba, gurer vf ab ceboyrz",
-					"V unir zrzbevrf, ohg V pna'g gryy vs gurl'er erny.");
+					"V unir zrzbevrf, ohg V pna'g gryy vs gurl'er erny.", "L n pbzzr ha tbhg nzre ra abhf",
+					"L n qrf fvyraprf dhv qvfrag ornhpbhc", "V frr lbh'ir unq fbzr qvfpvcyvanel ceboyrzf va gur cnfg.",
+					"Cercnengvba vf gur xrl gb fhpprffshy, vapbafcvphbhf gvzr geniry.",
+					"Vg'f arire gbb yngr gb or jub lbh zvtug unir orra.",
+					"Rg cbhe nyyre purm Zvpxrl vyf ibag fherzrag cnf pbafgehver har tner gbhf yrf 100 zrgerf",
+					"Nyy lbhe onfr ner orybat gb hf", "Znqr ba Rnegu ol uhznaf", "Jvaaref Qba'g Hfr Qehtf",
+					"Lbh xabj jung fhecevfrq zr gur zbfg? Vg jnfa'g zrrgvat gurz. Vg jnf zrrgvat lbh.",
+					"Va jne gurer ner ab jvaaref, bayl jvqbjf",
+					"Vs lbh guvax guvf Havirefr vf onq, lbh fubhyq frr fbzr bs gur bguref", "Cnp-Zna'f n onq thl?",
+					"Zl ernyvgl vf whfg qvssrerag guna lbhef",
+					"Uvfgbel vf n avtugzner sebz juvpu V nz gelvat gb njnxr",
+					"L'ra n dh'bag rffnlr, vyf bag rh qrf ceboyrzrf",
+					"Gb ree vf uhzna, ohg gb ernyyl sbhy guvatf hc erdhverf n pbzchgre.");
 
 	private QuoteUtils() {
 	}

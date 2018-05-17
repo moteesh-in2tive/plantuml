@@ -41,6 +41,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.command.Position;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -64,10 +65,12 @@ public class Ribbon implements TimeDrawing {
 	private final TimingRuler ruler;
 	private String initialState;
 	private Colors initialColors;
+	private final List<TimingNote> notes;
 
-	public Ribbon(TimingRuler ruler, ISkinParam skinParam) {
+	public Ribbon(TimingRuler ruler, ISkinParam skinParam, List<TimingNote> notes) {
 		this.ruler = ruler;
 		this.skinParam = skinParam;
+		this.notes = notes;
 	}
 
 	public IntricatedPoint getTimeProjection(StringBounder stringBounder, TimeTick tick) {
@@ -93,24 +96,31 @@ public class Ribbon implements TimeDrawing {
 		return new FontConfiguration(skinParam, FontParam.ACTIVITY, null);
 	}
 
-	private TextBlock getTextBlock(String value) {
+	private TextBlock createTextBlock(String value) {
 		final Display display = Display.getWithNewlines(value);
 		return display.create(getFontConfiguration(), HorizontalAlignment.LEFT, skinParam);
 	}
 
 	public void drawU(UGraphic ug) {
 
-		UGraphic ugDown = ug.apply(new UTranslate(0, getHeightForConstraints()));
+		final StringBounder stringBounder = ug.getStringBounder();
+		final double halfDelta = delta / 2;
+		drawNotes(ug.apply(new UTranslate(0, -delta)), Position.TOP);
 
-		final TextBlock inital;
-		final StringBounder stringBounder = ugDown.getStringBounder();
+		final double ribbonHeight = getRibbonHeight();
+		UGraphic ugDown = ug.apply(new UTranslate(0, getHeightForConstraints()
+				+ getHeightForNotes(stringBounder, Position.TOP)));
+
+		final TextBlock initial;
 		if (initialState == null) {
-			inital = null;
+			initial = null;
 		} else {
-			inital = getTextBlock(initialState);
-			final double a = getPosInPixel(changes.get(0));
-			drawPentaA(ugDown.apply(new UTranslate(-getInitialWidth(stringBounder), -delta / 2)),
-					getInitialWidth(stringBounder) + a, changes.get(0));
+			initial = createTextBlock(initialState);
+			if (changes.size() > 0) {
+				final double a = getPosInPixel(changes.get(0));
+				drawPentaA(ugDown.apply(new UTranslate(-getInitialWidth(stringBounder), -halfDelta)),
+						getInitialWidth(stringBounder) + a, changes.get(0));
+			}
 		}
 
 		for (int i = 0; i < changes.size() - 1; i++) {
@@ -118,28 +128,28 @@ public class Ribbon implements TimeDrawing {
 			final double b = getPosInPixel(changes.get(i + 1));
 			assert b > a;
 			if (changes.get(i).isCompletelyHidden() == false) {
-				drawHexa(ugDown.apply(new UTranslate(a, -delta / 2)), b - a, changes.get(i));
+				drawHexa(ugDown.apply(new UTranslate(a, -halfDelta)), b - a, changes.get(i));
 			}
 		}
 		if (changes.size() >= 1) {
 			final ChangeState last = changes.get(changes.size() - 1);
 			final double a = getPosInPixel(last);
 			if (last.isCompletelyHidden() == false) {
-				drawPentaB(ugDown.apply(new UTranslate(a, -delta / 2)), ruler.getWidth() - a, last);
+				drawPentaB(ugDown.apply(new UTranslate(a, -halfDelta)), ruler.getWidth() - a, last);
 			}
 		}
 
-		ugDown = ugDown.apply(new UTranslate(0, delta / 2));
+		ugDown = ugDown.apply(new UTranslate(0, halfDelta));
 
-		if (inital != null) {
-			final Dimension2D dimInital = inital.calculateDimension(stringBounder);
-			inital.drawU(ugDown.apply(new UTranslate(-getDelta() - dimInital.getWidth(), -dimInital.getHeight() / 2)));
+		if (initial != null) {
+			final Dimension2D dimInital = initial.calculateDimension(stringBounder);
+			initial.drawU(ugDown.apply(new UTranslate(-getDelta() - dimInital.getWidth(), -dimInital.getHeight() / 2)));
 		}
 		for (int i = 0; i < changes.size(); i++) {
 			final ChangeState change = changes.get(i);
 			final double x = ruler.getPosInPixel(change.getWhen());
 			if (change.isBlank() == false && change.isCompletelyHidden() == false) {
-				final TextBlock state = getTextBlock(change.getState());
+				final TextBlock state = createTextBlock(change.getState());
 				final Dimension2D dim = state.calculateDimension(stringBounder);
 				final double xtext;
 				if (i == changes.size() - 1) {
@@ -152,29 +162,46 @@ public class Ribbon implements TimeDrawing {
 			}
 			final String commentString = change.getComment();
 			if (commentString != null) {
-				final TextBlock comment = getTextBlock(commentString);
+				final TextBlock comment = createTextBlock(commentString);
 				final Dimension2D dimComment = comment.calculateDimension(stringBounder);
 				comment.drawU(ugDown.apply(new UTranslate(x + getDelta(), -delta - dimComment.getHeight())));
 			}
 		}
 
 		for (TimeConstraint constraint : constraints) {
-			constraint.drawU(ug.apply(new UTranslate(0, 15)), ruler, skinParam);
+			constraint.drawU(ug.apply(new UTranslate(0, getHeightForConstraints() / 2)), ruler, skinParam);
 		}
 
+		drawNotes(
+				ug.apply(new UTranslate(0, getHeightForConstraints() + getHeightForNotes(stringBounder, Position.TOP)
+						+ ribbonHeight)), Position.BOTTOM);
+
+	}
+
+	private void drawNotes(UGraphic ug, final Position position) {
+		for (TimingNote note : notes) {
+			if (note.getPosition() == position) {
+				final double x = ruler.getPosInPixel(note.getWhen());
+				note.drawU(ug.apply(new UTranslate(x, 0)));
+			}
+		}
 	}
 
 	private double getInitialWidth(final StringBounder stringBounder) {
-		return getTextBlock(initialState).calculateDimension(stringBounder).getWidth() + 2 * delta;
+		return createTextBlock(initialState).calculateDimension(stringBounder).getWidth() + getRibbonHeight();
 	}
 
 	private void drawHexa(UGraphic ug, double len, ChangeState change) {
-		final HexaShape shape = HexaShape.create(len, 2 * delta, change.getContext());
+		final HexaShape shape = HexaShape.create(len, getRibbonHeight(), change.getContext());
 		shape.drawU(ug);
 	}
 
+	private double getRibbonHeight() {
+		return 2 * delta;
+	}
+
 	private void drawPentaB(UGraphic ug, double len, ChangeState change) {
-		final PentaBShape shape = PentaBShape.create(len, 2 * delta, change.getContext());
+		final PentaBShape shape = PentaBShape.create(len, getRibbonHeight(), change.getContext());
 		shape.drawU(ug);
 	}
 
@@ -184,7 +211,7 @@ public class Ribbon implements TimeDrawing {
 		if (back != null) {
 			context = context.withBackColor(back);
 		}
-		final PentaAShape shape = PentaAShape.create(len, 2 * delta, context);
+		final PentaAShape shape = PentaAShape.create(len, getRibbonHeight(), context);
 		shape.drawU(ug);
 	}
 
@@ -195,8 +222,19 @@ public class Ribbon implements TimeDrawing {
 		return 30;
 	}
 
-	public double getHeight() {
-		return 3 * delta + getHeightForConstraints();
+	public double getHeight(StringBounder stringBounder) {
+		return 3 * delta + getHeightForConstraints() + getHeightForNotes(stringBounder, Position.TOP)
+				+ getHeightForNotes(stringBounder, Position.BOTTOM);
+	}
+
+	private double getHeightForNotes(StringBounder stringBounder, Position position) {
+		double height = 0;
+		for (TimingNote note : notes) {
+			if (note.getPosition() == position) {
+				height = Math.max(height, note.getHeight(stringBounder));
+			}
+		}
+		return height;
 	}
 
 	public double getDelta() {
@@ -205,7 +243,7 @@ public class Ribbon implements TimeDrawing {
 
 	public TextBlock getWidthHeader(StringBounder stringBounder) {
 		if (initialState != null) {
-			return TextBlockUtils.empty(getInitialWidth(stringBounder), 2 * delta);
+			return TextBlockUtils.empty(getInitialWidth(stringBounder), getRibbonHeight());
 		}
 		return TextBlockUtils.empty(0, 0);
 	}

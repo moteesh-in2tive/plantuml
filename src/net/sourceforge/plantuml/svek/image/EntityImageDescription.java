@@ -38,6 +38,8 @@ package net.sourceforge.plantuml.svek.image;
 
 import java.awt.geom.Dimension2D;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
@@ -46,6 +48,7 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.BodyEnhanced;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
+import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.PortionShower;
@@ -91,10 +94,18 @@ public class EntityImageDescription extends AbstractEntityImage {
 			Collection<Link> links) {
 		super(entity, entity.getColors(skinParam).mute(skinParam));
 		this.useRankSame = skinParam.useRankSame();
+
 		this.links = links;
 		final Stereotype stereotype = entity.getStereotype();
 		USymbol symbol = getUSymbol(entity);
-		this.shapeType = symbol == USymbol.FOLDER ? ShapeType.FOLDER : ShapeType.RECTANGLE;
+		if (symbol == USymbol.FOLDER) {
+			this.shapeType = ShapeType.FOLDER;
+		} else if (symbol == USymbol.INTERFACE) {
+			this.shapeType = ShapeType.RECTANGLE;
+			// this.shapeType = ShapeType.RECTANGLE_WITH_CIRCLE_INSIDE;
+		} else {
+			this.shapeType = ShapeType.RECTANGLE;
+		}
 		this.hideText = symbol == USymbol.INTERFACE;
 
 		final Display codeDisplay = Display.getWithNewlines(entity.getCode());
@@ -114,10 +125,12 @@ public class EntityImageDescription extends AbstractEntityImage {
 		assert getStereo() == stereotype;
 		final HtmlColor forecolor = SkinParamUtils.getColor(getSkinParam(), symbol.getColorParamBorder(), stereotype);
 		final double roundCorner = symbol.getSkinParameter().getRoundCorner(getSkinParam(), stereotype);
+		final double diagonalCorner = symbol.getSkinParameter().getDiagonalCorner(getSkinParam(), stereotype);
 		final UStroke stroke = colors.muteStroke(symbol.getSkinParameter().getStroke(getSkinParam(), stereotype));
 
 		final SymbolContext ctx = new SymbolContext(backcolor, forecolor).withStroke(stroke)
-				.withShadow(getSkinParam().shadowing2(symbol.getSkinParameter())).withRoundCorner(roundCorner);
+				.withShadow(getSkinParam().shadowing2(symbol.getSkinParameter()))
+				.withCorner(roundCorner, diagonalCorner);
 
 		stereo = TextBlockUtils.empty(0, 0);
 
@@ -168,7 +181,13 @@ public class EntityImageDescription extends AbstractEntityImage {
 		if (hideText == false) {
 			return Margins.NONE;
 		}
-		if (useRankSame && hasSomeHorizontalLink((ILeaf) getEntity(), links)) {
+		// if (useRankSame && hasSomeHorizontalLink((ILeaf) getEntity(), links)) {
+		// return Margins.NONE;
+		// }
+		if (isThereADoubleLink((ILeaf) getEntity(), links)) {
+			return Margins.NONE;
+		}
+		if (hasSomeHorizontalLinkVisible((ILeaf) getEntity(), links)) {
 			return Margins.NONE;
 		}
 		if (hasSomeHorizontalLinkDoubleDecorated((ILeaf) getEntity(), links)) {
@@ -186,10 +205,24 @@ public class EntityImageDescription extends AbstractEntityImage {
 		return new Margins(suppX / 2, suppX / 2, y, y);
 	}
 
-	private boolean hasSomeHorizontalLink(ILeaf leaf, Collection<Link> links) {
+	private boolean hasSomeHorizontalLinkVisible(ILeaf leaf, Collection<Link> links) {
 		for (Link link : links) {
-			if (link.getLength() == 1 && link.contains(leaf)) {
+			if (link.getLength() == 1 && link.contains(leaf) && link.isInvis() == false) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isThereADoubleLink(ILeaf leaf, Collection<Link> links) {
+		final Set<IEntity> others = new HashSet<IEntity>();
+		for (Link link : links) {
+			if (link.contains(leaf)) {
+				final IEntity other = link.getOther(leaf);
+				final boolean changed = others.add(other);
+				if (changed == false) {
+					return true;
+				}
 			}
 		}
 		return false;

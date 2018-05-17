@@ -37,6 +37,7 @@ package net.sourceforge.plantuml;
 
 import net.sourceforge.plantuml.activitydiagram3.ftile.EntityImageLegend;
 import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -64,13 +65,13 @@ public class AnnotatedWorker {
 	}
 
 	private TextBlock addLegend(TextBlock original) {
-		if (DisplayPositionned.isNull(annotated.getLegend())) {
+		final DisplayPositionned legend = annotated.getLegend();
+		if (legend.isNull()) {
 			return original;
 		}
-		final TextBlock text = EntityImageLegend.create(annotated.getLegend().getDisplay(), getSkinParam());
+		final TextBlock text = EntityImageLegend.create(legend.getDisplay(), getSkinParam());
 
-		return DecorateEntityImage.add(original, text, annotated.getLegend().getHorizontalAlignment(), annotated
-				.getLegend().getVerticalAlignment());
+		return DecorateEntityImage.add(original, text, legend.getHorizontalAlignment(), legend.getVerticalAlignment());
 	}
 
 	private ISkinParam getSkinParam() {
@@ -78,7 +79,8 @@ public class AnnotatedWorker {
 	}
 
 	private TextBlock addCaption(TextBlock original) {
-		if (DisplayPositionned.isNull(annotated.getCaption())) {
+		final DisplayPositionned caption = annotated.getCaption();
+		if (caption.isNull()) {
 			return original;
 		}
 		final TextBlock text = getCaption();
@@ -87,19 +89,17 @@ public class AnnotatedWorker {
 	}
 
 	public TextBlock getCaption() {
-		if (DisplayPositionned.isNull(annotated.getCaption())) {
+		final DisplayPositionned caption = annotated.getCaption();
+		if (caption.isNull()) {
 			return TextBlockUtils.empty(0, 0);
 		}
-		return annotated
-				.getCaption()
-				.getDisplay()
-				.create(new FontConfiguration(getSkinParam(), FontParam.CAPTION, null), HorizontalAlignment.CENTER,
-						getSkinParam());
+		return caption.getDisplay().create(new FontConfiguration(getSkinParam(), FontParam.CAPTION, null),
+				HorizontalAlignment.CENTER, getSkinParam());
 	}
 
 	private TextBlock addTitle(TextBlock original) {
 		final DisplayPositionned title = annotated.getTitle();
-		if (DisplayPositionned.isNull(title)) {
+		if (title.isNull()) {
 			return original;
 		}
 		ISkinParam skinParam = getSkinParam();
@@ -110,22 +110,21 @@ public class AnnotatedWorker {
 	}
 
 	private TextBlock addHeaderAndFooter(TextBlock original) {
-		if (DisplayPositionned.isNull(annotated.getFooter()) && DisplayPositionned.isNull(annotated.getHeader())) {
+		final DisplaySection footer = annotated.getFooter();
+		final DisplaySection header = annotated.getHeader();
+		if (footer.isNull() && header.isNull()) {
 			return original;
 		}
-		final TextBlock textFooter = DisplayPositionned.isNull(annotated.getFooter()) ? null : annotated
-				.getFooter()
-				.getDisplay()
-				.create(new FontConfiguration(getSkinParam(), FontParam.FOOTER, null),
-						annotated.getFooter().getHorizontalAlignment(), getSkinParam());
-		final TextBlock textHeader = DisplayPositionned.isNull(annotated.getHeader()) ? null : annotated
-				.getHeader()
-				.getDisplay()
-				.create(new FontConfiguration(getSkinParam(), FontParam.HEADER, null),
-						annotated.getHeader().getHorizontalAlignment(), getSkinParam());
+		TextBlock textFooter = null;
+		if (footer.isNull() == false) {
+			textFooter = footer.createRibbon(new FontConfiguration(getSkinParam(), FontParam.FOOTER, null), getSkinParam());
+		}
+		TextBlock textHeader = null;
+		if (header.isNull() == false) {
+			textHeader = header.createRibbon(new FontConfiguration(getSkinParam(), FontParam.HEADER, null), getSkinParam());
+		}
 
-		return new DecorateEntityImage(original, textHeader, annotated.getHeader().getHorizontalAlignment(),
-				textFooter, annotated.getFooter().getHorizontalAlignment());
+		return DecorateEntityImage.addTopAndBottom(original, textHeader, header.getHorizontalAlignment(), textFooter,
+				footer.getHorizontalAlignment());
 	}
-
 }

@@ -37,13 +37,16 @@ package net.sourceforge.plantuml.timingdiagram;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.command.Position;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -70,6 +73,8 @@ public class Player implements TextBlock, TimeProjected {
 
 	private final Set<ChangeState> changes = new TreeSet<ChangeState>();
 	private final List<TimeConstraint> constraints = new ArrayList<TimeConstraint>();
+	private final List<TimingNote> notes = new ArrayList<TimingNote>();
+	private final Map<String, String> statesLabel = new LinkedHashMap<String, String>();
 
 	public Player(String code, String full, TimingStyle type, ISkinParam skinParam, TimingRuler ruler) {
 		this.code = code;
@@ -139,9 +144,9 @@ public class Player implements TextBlock, TimeProjected {
 	private TimeDrawing computeTimeDrawing() {
 		final TimeDrawing result;
 		if (type == TimingStyle.CONCISE) {
-			result = new Ribbon(ruler, skinParam);
+			result = new Ribbon(ruler, skinParam, notes);
 		} else if (type == TimingStyle.ROBUST) {
-			result = new Histogram(ruler, skinParam);
+			result = new Histogram(ruler, skinParam, statesLabel.values());
 		} else {
 			throw new IllegalStateException();
 		}
@@ -158,17 +163,16 @@ public class Player implements TextBlock, TimeProjected {
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
 		final TextBlock title = getTitle();
 		final double width = ruler.getWidth();
-		final double zoneHeight = getZoneHeight();
+		final double zoneHeight = getZoneHeight(stringBounder);
 		return new Dimension2DDouble(width, title.calculateDimension(stringBounder).getHeight() * 2 + zoneHeight);
 	}
-	
+
 	public MinMax getMinMax(StringBounder stringBounder) {
 		throw new UnsupportedOperationException();
 	}
 
-
-	private double getZoneHeight() {
-		return getTimeDrawing().getHeight();
+	private double getZoneHeight(StringBounder stringBounder) {
+		return getTimeDrawing().getHeight(stringBounder);
 	}
 
 	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
@@ -176,6 +180,7 @@ public class Player implements TextBlock, TimeProjected {
 	}
 
 	public void setState(TimeTick now, String state, String comment, Colors color) {
+		state = decodeState(state);
 		if (now == null) {
 			this.initialState = state;
 			this.initialColors = color;
@@ -186,6 +191,14 @@ public class Player implements TextBlock, TimeProjected {
 			this.changes.add(new ChangeState(now, state, comment, color));
 		}
 
+	}
+
+	private String decodeState(String code) {
+		final String label = statesLabel.get(code);
+		if (label == null) {
+			return code;
+		}
+		return label;
 	}
 
 	public IntricatedPoint getTimeProjection(StringBounder stringBounder, TimeTick tick) {
@@ -199,6 +212,14 @@ public class Player implements TextBlock, TimeProjected {
 
 	public void createConstraint(TimeTick tick1, TimeTick tick2, String message) {
 		this.constraints.add(new TimeConstraint(tick1, tick2, message));
+	}
+
+	public void addNote(TimeTick now, Display note, Position position) {
+		this.notes.add(new TimingNote(now, this, note, position, skinParam));
+	}
+
+	public void defineState(String stateCode, String label) {
+		statesLabel.put(stateCode, label);
 	}
 
 }

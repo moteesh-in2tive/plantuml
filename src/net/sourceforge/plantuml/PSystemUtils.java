@@ -49,14 +49,39 @@ import net.sourceforge.plantuml.activitydiagram3.ActivityDiagram3;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
+import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.html.CucaDiagramHtmlMaker;
+import net.sourceforge.plantuml.png.MetadataTag;
 import net.sourceforge.plantuml.png.PngSplitter;
+import net.sourceforge.plantuml.project3.GanttDiagram;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 
 public class PSystemUtils {
 
-	public static List<FileImageData> exportDiagrams(Diagram system, SuggestedFile suggestedFile,
+	public static List<FileImageData> exportDiagrams(Diagram system, SuggestedFile suggested,
 			FileFormatOption fileFormatOption) throws IOException {
+		return exportDiagrams(system, suggested, fileFormatOption, false);
+	}
+
+	public static List<FileImageData> exportDiagrams(Diagram system, SuggestedFile suggestedFile,
+			FileFormatOption fileFormatOption, boolean checkMetadata) throws IOException {
+
+		final File existing = suggestedFile.getFile(0);
+		if (checkMetadata && existing.exists() && system.getNbImages() == 1) {
+			final MetadataTag tag = new MetadataTag(existing, "plantuml");
+			final String previousMetadata = tag.getData();
+			// final String version = Version.versionString();
+			// System.out.println(system.getMetadata());
+			// System.out.println(data);
+			// System.out.println(version);
+			// System.out.println(data.contains(version));
+			final boolean sameMetadata = system.getMetadata().equals(previousMetadata);
+			if (sameMetadata) {
+				Log.info("Skipping " + existing.getAbsolutePath() + " because metadata has not changed.");
+				return Arrays.asList(new FileImageData(existing, null));
+			}
+		}
+
 		if (system instanceof NewpagedDiagram) {
 			return exportDiagramsNewpaged((NewpagedDiagram) system, suggestedFile, fileFormatOption);
 		}
@@ -65,6 +90,9 @@ public class PSystemUtils {
 		}
 		if (system instanceof CucaDiagram) {
 			return exportDiagramsCuca((CucaDiagram) system, suggestedFile, fileFormatOption);
+		}
+		if (system instanceof GanttDiagram) {
+			return exportDiagramsGantt2((GanttDiagram) system, suggestedFile, fileFormatOption);
 		}
 		if (system instanceof ActivityDiagram3) {
 			return exportDiagramsActivityDiagram3((ActivityDiagram3) system, suggestedFile, fileFormatOption);
@@ -221,6 +249,62 @@ public class PSystemUtils {
 			result = new PngSplitter(suggestedFile, system.getHorizontalPages(), system.getVerticalPages(),
 					system.getMetadata(), system.getDpi(fileFormat), fileFormat.isWithMetadata(), system.getSkinParam()
 							.getSplitParam()).getFiles();
+		}
+		final List<FileImageData> result2 = new ArrayList<FileImageData>();
+		for (File f : result) {
+			result2.add(new FileImageData(f, cmap));
+		}
+		return result2;
+
+	}
+
+	// static private List<FileImageData> exportDiagramsGantt1(GanttDiagram system, SuggestedFile suggestedFile,
+	// FileFormatOption fileFormat) throws IOException {
+	// if (suggestedFile.getFile(0).exists() && suggestedFile.getFile(0).isDirectory()) {
+	// throw new IllegalArgumentException("File is a directory " + suggestedFile);
+	// }
+	// OutputStream os = null;
+	// ImageData imageData = null;
+	// try {
+	// if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(0)) == false) {
+	// return Collections.emptyList();
+	// }
+	// os = new BufferedOutputStream(new FileOutputStream(suggestedFile.getFile(0)));
+	// imageData = system.exportDiagram(os, 0, fileFormat);
+	// } finally {
+	// if (os != null) {
+	// os.close();
+	// }
+	// }
+	// return Arrays.asList(new FileImageData(suggestedFile.getFile(0), imageData));
+	// }
+
+	static private List<FileImageData> exportDiagramsGantt2(GanttDiagram system, SuggestedFile suggestedFile,
+			FileFormatOption fileFormat) throws IOException {
+		if (suggestedFile.getFile(0).exists() && suggestedFile.getFile(0).isDirectory()) {
+			throw new IllegalArgumentException("File is a directory " + suggestedFile);
+		}
+
+		ImageData cmap = null;
+		OutputStream os = null;
+		try {
+			if (PSystemUtils.canFileBeWritten(suggestedFile.getFile(0)) == false) {
+				return Collections.emptyList();
+			}
+			os = new NamedOutputStream(suggestedFile.getFile(0));
+			cmap = system.exportDiagram(os, 0, fileFormat);
+		} finally {
+			if (os != null) {
+				os.close();
+			}
+		}
+		List<File> result = Arrays.asList(suggestedFile.getFile(0));
+
+		if (fileFormat.getFileFormat() == FileFormat.PNG) {
+			final SplitParam splitParam = new SplitParam(HtmlColorUtils.BLACK, null, 5);
+			result = new PngSplitter(suggestedFile, system.getHorizontalPages(), system.getVerticalPages(),
+					system.getMetadata(), system.getDpi(fileFormat), fileFormat.isWithMetadata(), splitParam)
+					.getFiles();
 		}
 		final List<FileImageData> result2 = new ArrayList<FileImageData>();
 		for (File f : result) {

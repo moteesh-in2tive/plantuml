@@ -42,16 +42,16 @@ import java.util.Collections;
 import java.util.List;
 
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.CommandComment;
-import net.sourceforge.plantuml.command.CommandMultilinesComment;
 import net.sourceforge.plantuml.command.CommandNope;
+import net.sourceforge.plantuml.command.CommandScale;
 import net.sourceforge.plantuml.command.UmlDiagramFactory;
 import net.sourceforge.plantuml.core.DiagramType;
 
 public class GanttDiagramFactory extends UmlDiagramFactory {
 
 	private List<SubjectPattern> subjects() {
-		return Arrays.<SubjectPattern> asList(new SubjectTask(), new SubjectProject(), new SubjectDayOfWeek());
+		return Arrays.<SubjectPattern> asList(new SubjectTask(), new SubjectProject(), new SubjectDayOfWeek(),
+				new SubjectDayAsDate(), new SubjectDaysAsDates(), new SubjectResource());
 	}
 
 	public GanttDiagramFactory(DiagramType type) {
@@ -61,14 +61,25 @@ public class GanttDiagramFactory extends UmlDiagramFactory {
 	@Override
 	protected List<Command> createCommands() {
 		final List<Command> cmds = new ArrayList<Command>();
-		//addCommonCommands(cmds);
+		// addCommonCommands(cmds);
 		cmds.add(new CommandNope());
-//		cmds.add(new CommandComment());
-//		cmds.add(new CommandMultilinesComment());
+		// cmds.add(new CommandComment());
+		// cmds.add(new CommandMultilinesComment());
 		for (Command cmd : getLanguageCommands()) {
 			cmds.add(cmd);
 		}
 		cmds.add(new CommandGanttArrow());
+		cmds.add(new CommandGanttArrow2());
+		cmds.add(new CommandSeparator());
+
+		cmds.add(new CommandScale());
+		cmds.add(new CommandPage());
+		// cmds.add(new CommandScaleWidthAndHeight());
+		// cmds.add(new CommandScaleWidthOrHeight());
+		// cmds.add(new CommandScaleMaxWidth());
+		// cmds.add(new CommandScaleMaxHeight());
+		// cmds.add(new CommandScaleMaxWidthAndHeight());
+
 		return cmds;
 	}
 

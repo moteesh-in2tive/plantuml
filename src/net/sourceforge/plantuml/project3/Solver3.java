@@ -40,12 +40,24 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Solver {
+public class Solver3 {
 
 	private final Map<TaskAttribute, Value> values = new LinkedHashMap<TaskAttribute, Value>();
 
+	private final LoadPlanable loadPlanable;
+
+	public Solver3(LoadPlanable loadPlanable) {
+		this.loadPlanable = loadPlanable;
+	}
+
 	public void setData(TaskAttribute attribute, Value value) {
-		values.remove(attribute);
+		final Value previous = values.remove(attribute);
+		if (previous != null && attribute == TaskAttribute.START) {
+			final Instant previousInstant = (Instant) previous;
+			if (previousInstant.compareTo((Instant) value) > 0) {
+				value = previous;
+			}
+		}
 		values.put(attribute, value);
 		if (values.size() > 2) {
 			removeFirstElement();
@@ -69,23 +81,30 @@ public class Solver {
 			if (attribute == TaskAttribute.START) {
 				return computeStart();
 			}
-			throw new UnsupportedOperationException(attribute.toString());
+			return LoadInDays.inDay(1);
+			// throw new UnsupportedOperationException(attribute.toString());
 		}
 		return result;
 	}
 
-	private Instant computeStart() {
-		final Instant end = (Instant) values.get(TaskAttribute.END);
-		final Duration duration = (Duration) values.get(TaskAttribute.DURATION);
-		assert end != null && duration != null;
-		return end.sub(duration).increment();
+	private Instant computeEnd() {
+		Instant current = (Instant) values.get(TaskAttribute.START);
+		int fullLoad = ((Load) values.get(TaskAttribute.LOAD)).getFullLoad();
+		while (fullLoad > 0) {
+			fullLoad -= loadPlanable.getLoadAt(current);
+			current = current.increment();
+		}
+		return current.decrement();
 	}
 
-	private Instant computeEnd() {
-		final Instant start = (Instant) values.get(TaskAttribute.START);
-		final Duration duration = (Duration) values.get(TaskAttribute.DURATION);
-		assert start != null && duration != null;
-		return start.add(duration).decrement();
+	private Instant computeStart() {
+		Instant current = (Instant) values.get(TaskAttribute.END);
+		int fullLoad = ((Load) values.get(TaskAttribute.LOAD)).getFullLoad();
+		while (fullLoad > 0) {
+			fullLoad -= loadPlanable.getLoadAt(current);
+			current = current.decrement();
+		}
+		return current.increment();
 	}
 
 }

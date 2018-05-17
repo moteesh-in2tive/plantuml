@@ -5,12 +5,12 @@
  * (C) Copyright 2009-2017, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
- * 
+ *
  * http://plantuml.com/patreon (only 1$ per month!)
  * http://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@ import java.awt.geom.Point2D.Double;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,16 +67,18 @@ public class Histogram implements TimeDrawing {
 	private final List<ChangeState> changes = new ArrayList<ChangeState>();
 	private final List<TimeConstraint> constraints = new ArrayList<TimeConstraint>();
 
-	private List<String> allStates = new ArrayList<String>();
+	private List<String> allStates;
 	private final double stepHeight = 20;
 
 	private final ISkinParam skinParam;
 	private final TimingRuler ruler;
 	private String initialState;
 
-	public Histogram(TimingRuler ruler, ISkinParam skinParam) {
+	public Histogram(TimingRuler ruler, ISkinParam skinParam, Collection<String> someStates) {
 		this.ruler = ruler;
 		this.skinParam = skinParam;
+		this.allStates = new ArrayList<String>(someStates);
+		Collections.reverse(allStates);
 	}
 
 	public IntricatedPoint getTimeProjection(StringBounder stringBounder, TimeTick tick) {
@@ -104,7 +107,8 @@ public class Histogram implements TimeDrawing {
 			return Collections.emptyList();
 		}
 		for (int i = 0; i < changes.size(); i++) {
-			if (changes.get(i).getWhen().compareTo(tick) == 0) {
+			final int tickWithCurrentChangeTimeComparisonResult = changes.get(i).getWhen().compareTo(tick);
+			if (tickWithCurrentChangeTimeComparisonResult == 0) {
 				if (i == 0 && initialState == null) {
 					return Arrays.asList(changes.get(i).getState());
 				}
@@ -113,8 +117,16 @@ public class Histogram implements TimeDrawing {
 				}
 				return Arrays.asList(changes.get(i - 1).getState(), changes.get(i).getState());
 			}
-			if (changes.get(i).getWhen().compareTo(tick) > 0) {
-				return Collections.singletonList(changes.get(i - 1).getState());
+			if (tickWithCurrentChangeTimeComparisonResult > 0) {
+				final int changeIndex;
+				if (i == 0) {
+					// if this time tick was not yet defined in any place, and is less then the first one,
+					// assume it's the leftmost
+					changeIndex = 0;
+				} else {
+					changeIndex = i - 1;
+				}
+				return Collections.singletonList(changes.get(changeIndex).getState());
 			}
 		}
 		return Collections.singletonList(changes.get(changes.size() - 1).getState());
@@ -227,7 +239,7 @@ public class Histogram implements TimeDrawing {
 		return display.create(getFontConfiguration(), HorizontalAlignment.LEFT, skinParam);
 	}
 
-	public double getHeight() {
+	public double getHeight(StringBounder stringBounder) {
 		return stepHeight * allStates.size() + 10;
 	}
 
@@ -254,7 +266,7 @@ public class Histogram implements TimeDrawing {
 				}
 				return new Dimension2DDouble(width, getFullDeltaY());
 			}
-			
+
 			public MinMax getMinMax(StringBounder stringBounder) {
 				throw new UnsupportedOperationException();
 			}

@@ -118,9 +118,21 @@ public class StatsUtilsIncrement {
 		if (type == PSystemSalt.class) {
 			return "Salt";
 		}
+//		if (type == PSystemSudoku.class) {
+//			return "Sudoku";
+//		}
 		if (type == PSystemDot.class) {
 			return "Dot";
 		}
+//		if (type == PSystemWelcome.class) {
+//			return "Welcome";
+//		}
+//		if (type == PSystemDitaa.class) {
+//			return "Ditaa";
+//		}
+//		if (type == PSystemJcckit.class) {
+//			return "Jcckit";
+//		}
 		if (type == PSystemMath.class) {
 			return "Math";
 		}

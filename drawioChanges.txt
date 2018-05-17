@@ -1,0 +1,9 @@
+May 17, 2018
+- Added back most recent PlantUML project source (1.2018.5). Note: Deleted files in PlantUML are not deleted
+- Added class PSystemBuilderStripped where only needed factories are used. This required changing getAllFactories method from private to public
+- Changed back License to MIT in License.java
+- Changed StatsUtilsIncrement class by removing "Sudoku", "Welcome", "Ditaa", and "Jcckit" as before 
+- Changed back build.xml to keep dist folder after build as before
+
+TODO:
+- Remove code removed from PlantUML

@@ -216,6 +216,17 @@ public class SkinParam implements ISkinParam {
 		return getIHtmlColorSet().getColorIfValid(value, acceptTransparent);
 	}
 
+	public char getCircledCharacter(Stereotype stereotype) {
+		if (stereotype == null) {
+			throw new IllegalArgumentException();
+		}
+		final String value2 = getValue("spotchar" + stereotype.getLabel(false));
+		if (value2 != null && value2.length() > 0) {
+			return value2.charAt(0);
+		}
+		return 0;
+	}
+
 	public Colors getColors(ColorParam param, Stereotype stereotype) {
 		if (stereotype != null) {
 			checkStereotype(stereotype);
@@ -409,6 +420,15 @@ public class SkinParam implements ISkinParam {
 		result.add("TabSize");
 		result.add("MaxAsciiMessageLength");
 		result.add("ColorArrowSeparationSpace");
+		result.add("ResponseMessageBelowArrow");
+		result.add("GenericDisplay");
+		result.add("PathHoverColor");
+		result.add("SwimlaneWidth");
+		result.add("PageBorderColor");
+		result.add("PageExternalColor");
+		result.add("PageMargin");
+
+		
 		for (FontParam p : EnumSet.allOf(FontParam.class)) {
 			final String h = humanName(p.name());
 			result.add(h + "FontStyle");
@@ -642,8 +662,39 @@ public class SkinParam implements ISkinParam {
 		return 0;
 	}
 
-	public double getRoundCorner(String param, Stereotype stereotype) {
-		String key = param + "roundcorner";
+	public double getDiagonalCorner(CornerParam param, Stereotype stereotype) {
+		final String key = param.getDiagonalKey();
+		Double result = getCornerInternal(key, param, stereotype);
+		if (result != null) {
+			return result;
+		}
+		result = getCornerInternal(key, param, null);
+		if (result != null) {
+			return result;
+		}
+		if (param == CornerParam.DEFAULT) {
+			return 0;
+		}
+		return getDiagonalCorner(CornerParam.DEFAULT, stereotype);
+	}
+
+	public double getRoundCorner(CornerParam param, Stereotype stereotype) {
+		final String key = param.getRoundKey();
+		Double result = getCornerInternal(key, param, stereotype);
+		if (result != null) {
+			return result;
+		}
+		result = getCornerInternal(key, param, null);
+		if (result != null) {
+			return result;
+		}
+		if (param == CornerParam.DEFAULT) {
+			return 0;
+		}
+		return getRoundCorner(CornerParam.DEFAULT, stereotype);
+	}
+
+	private Double getCornerInternal(String key, CornerParam param, Stereotype stereotype) {
 		if (stereotype != null) {
 			key += stereotype.getLabel(false);
 		}
@@ -651,7 +702,7 @@ public class SkinParam implements ISkinParam {
 		if (value != null && value.matches("\\d+")) {
 			return Double.parseDouble(value);
 		}
-		return 0;
+		return null;
 	}
 
 	public UStroke getThickness(LineParam param, Stereotype stereotype) {
@@ -692,7 +743,16 @@ public class SkinParam implements ISkinParam {
 	}
 
 	public LineBreakStrategy maxMessageSize() {
-		return new LineBreakStrategy(getValue("maxmessagesize"));
+		String value = getValue("wrapmessagewidth");
+		if (value == null) {
+			value = getValue("maxmessagesize");
+		}
+		return new LineBreakStrategy(value);
+	}
+
+	public LineBreakStrategy wrapWidth() {
+		final String value = getValue("wrapwidth");
+		return new LineBreakStrategy(value);
 	}
 
 	public boolean strictUmlStyle() {
@@ -905,9 +965,25 @@ public class SkinParam implements ISkinParam {
 		return false;
 	}
 
+	public boolean responseMessageBelowArrow() {
+		final String value = getValue("responsemessagebelowarrow");
+		if ("true".equalsIgnoreCase(value)) {
+			return true;
+		}
+		return false;
+	}
+
 	public TikzFontDistortion getTikzFontDistortion() {
 		final String value = getValue("tikzFont");
 		return TikzFontDistortion.fromValue(value);
+	}
+
+	public boolean svgDimensionStyle() {
+		final String value = getValue("svgdimensionstyle");
+		if ("false".equalsIgnoreCase(value)) {
+			return false;
+		}
+		return true;
 	}
 
 }

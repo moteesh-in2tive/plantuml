@@ -62,7 +62,7 @@ import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.ftp.FtpServer;
 import net.sourceforge.plantuml.objectdiagram.ObjectDiagramFactory;
 import net.sourceforge.plantuml.png.MetadataTag;
-import net.sourceforge.plantuml.preproc.Stdlib;
+import net.sourceforge.plantuml.preproc.StdlibOld;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtils;
@@ -79,7 +79,7 @@ public class Run {
 		final Option option = new Option(argsArray);
 		ProgressBar.setEnable(option.isTextProgressBar());
 		if (OptionFlags.getInstance().getExtractStdLib()) {
-			Stdlib.extractStdLib();
+			StdlibOld.extractStdLib();
 			return;
 		}
 		if (OptionFlags.getInstance().isDumpStats()) {
@@ -406,6 +406,7 @@ public class Run {
 			sourceFileReader = new SourceFileReader2(option.getDefaultDefines(f), f, option.getOutputFile(),
 					option.getConfig(), option.getCharset(), option.getFileFormatOption());
 		}
+		sourceFileReader.setCheckMetadata(option.isCheckMetadata());
 		if (option.isComputeurl()) {
 			for (BlockUml s : sourceFileReader.getBlocks()) {
 				System.out.println(s.getEncodedUrl());

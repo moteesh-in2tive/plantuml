@@ -132,7 +132,7 @@ public class BlockUml {
 
 	public Diagram getDiagram() {
 		if (system == null) {
-			system = new PSystemBuilder().createPSystem(data, startLine);
+			system = new PSystemBuilderStripped().createPSystem(data, startLine);
 		}
 		return system;
 	}
