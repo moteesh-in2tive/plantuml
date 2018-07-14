@@ -75,4 +75,25 @@
 		<delete dir="build" />
 	</target>
 
+	<condition property="isWindows">
+	    <os family="windows" />
+	</condition>
+
+	<condition property="isUnix">
+	    <os family="unix" />
+	</condition>
+
+	<target name="mvn-deploy-jar" depends="dist, mvn_windows, mvn_unix"/>
+
+	<target name="mvn_windows" if="isWindows">
+	    <exec dir="." executable="cmd">
+	        <arg line="/c mvn install:install-file -Dfile=dist/plantuml.jar -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dpackaging=jar -Dversion=1-DRAWIO" />
+	    </exec>
+	</target>
+
+	<target name="mvn_unix" if="isUnix">
+	    <exec dir="." executable="sh">
+	        <arg line="-c 'mvn install:install-file -Dfile=dist/plantuml.jar -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dpackaging=jar -Dversion=1-DRAWIO'" />
+	    </exec>
+	</target>
 </project>
