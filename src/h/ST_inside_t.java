@@ -46,10 +46,8 @@
 package h;
 
 import smetana.core.MutableDoublePtr;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
-import smetana.core.amiga.StarArrayOfStruct;
 import smetana.core.amiga.StarStruct;
 
 public class ST_inside_t extends UnsupportedStructAndPtr {
@@ -69,16 +67,16 @@ public class ST_inside_t extends UnsupportedStructAndPtr {
 	// "struct",
 	// "{",
 	// "pointf* p",
-	private StarArrayOfStruct p;
-	private MutableDoublePtr r;
+	public ST_pointf.Array a_p;
+	public MutableDoublePtr a_r;
 	// "double* r",
 	// "}",
 	// "a",
 	// "struct",
 	// "{",
 	// "node_t* n",
-	private ST_Agnode_s n;
-	private ST_boxf bp;
+	public ST_Agnode_s s_n;
+	public ST_boxf s_bp;
 
 	// "boxf*    bp",
 	// "}",
@@ -86,55 +84,28 @@ public class ST_inside_t extends UnsupportedStructAndPtr {
 	// "}",
 	// "inside_t");
 
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			return ST_inside_t.this.getPtr(fieldName);
-		}
-	}
 
 	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
 		if (fieldName.equals("s.n")) {
-			this.n = (ST_Agnode_s) newData;
-			return this.n;
+			this.s_n = (ST_Agnode_s) newData;
+			return this.s_n;
 		}
 		if (fieldName.equals("s.bp")) {
-			this.bp = (ST_boxf) newData;
-			return this.bp;
+			this.s_bp = (ST_boxf) newData;
+			return this.s_bp;
 		}
 		if (fieldName.equals("a.p")) {
-			this.p = (StarArrayOfStruct) newData;
-			return this.p;
+			this.a_p = (ST_pointf.Array) newData;
+			return this.a_p;
 		}
 		if (fieldName.equals("a.r")) {
-			this.r = (MutableDoublePtr) newData;
-			return this.r;
+			this.a_r = (MutableDoublePtr) newData;
+			return this.a_r;
 		}
 		return super.setPtr(fieldName, newData);
 	}
 
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("s.n")) {
-			return this.n;
-		}
-		if (fieldName.equals("s.bp")) {
-			return this.bp;
-		}
-		if (fieldName.equals("a.p")) {
-			return this.p;
-		}
-		if (fieldName.equals("a.r")) {
-			return this.r;
-		}
-		return super.getPtr(fieldName);
-	}
 
 }
 

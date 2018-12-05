@@ -140,13 +140,17 @@ public abstract class SourceFileReaderAbstract {
 		final List<GeneratedImage> result = new ArrayList<GeneratedImage>();
 
 		for (BlockUml blockUml : builder.getBlockUmls()) {
-			SuggestedFile suggested = getSuggestedFile(blockUml);
+			final SuggestedFile suggested = getSuggestedFile(blockUml);
 
 			final Diagram system;
 			try {
 				system = blockUml.getDiagram();
 			} catch (Throwable t) {
 				return getCrashedImage(blockUml, t, suggested.getFile(0));
+			}
+
+			if (OptionFlags.getInstance().isSilentlyCompletelyIgnoreErrors() && system instanceof PSystemError) {
+				continue;
 			}
 
 			OptionFlags.getInstance().logData(file, system);

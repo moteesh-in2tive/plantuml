@@ -105,59 +105,11 @@ public class UnsupportedArrayOfPtr implements __array_of_ptr__ {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
-	public void setBoolean(String fieldName, boolean data) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
 	public void setDouble(String fieldName, double data) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
-	public int getInt(String fieldName) {
-		throw new UnsupportedOperationException(fieldName + " " + getClass().toString());
-	}
-
-	public double getDouble(String fieldName) {
-		throw new UnsupportedOperationException(fieldName + " " + getClass().toString());
-	}
-
-	public boolean getBoolean(String fieldName) {
-		throw new UnsupportedOperationException(fieldName + " " + getClass().toString());
-	}
-
-	public CString getCString(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_struct__ getArrayOfStruct(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_ptr__ getArrayOfPtr(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_cstring__ getArrayOfCString(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_integer__ getArrayOfInteger(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __struct__ getStruct(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __ptr__ getPtr(String fieldName) {
-		throw new UnsupportedOperationException(fieldName + " " + getClass().toString());
-	}
-
 	public void setStruct(String fieldName, __struct__ newData) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public void setCString(String fieldName, CString newData) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
@@ -179,10 +131,6 @@ public class UnsupportedArrayOfPtr implements __array_of_ptr__ {
 
 	public void copyDataFrom(__ptr__ arg) {
 		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public Object call(String fieldName, Object... args) {
-		throw new UnsupportedOperationException(fieldName + " " + getClass().toString());
 	}
 
 	public __ptr__ castTo(Class dest) {
@@ -222,14 +170,6 @@ public class UnsupportedArrayOfPtr implements __array_of_ptr__ {
 	}
 
 	public void setInternalByIndex(int idx, Area value) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public CString getCString() {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public void setCString(CString value) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 

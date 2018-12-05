@@ -45,8 +45,10 @@ import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
+import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
@@ -59,7 +61,7 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 
 	static RegexConcat getRegexConcat() {
 		return new RegexConcat(new RegexLeaf("^"), //
-				new RegexLeaf("partition"), //
+				new RegexLeaf("TYPE", "(partition|package|rectangle|card)"), //
 				new RegexLeaf("[%s]+"), //
 				new RegexOptional(//
 						new RegexConcat( //
@@ -70,7 +72,37 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 						new RegexConcat( //
 								new RegexLeaf("[%s]+"), //
 								color("BACK2").getRegex())), //
-				new RegexLeaf("[%s]*\\{?$"));
+				new RegexLeaf("[%s]*"), //
+				new RegexLeaf("STEREO", "(\\<{2}.*\\>{2})?"), //
+				new RegexLeaf("[%s]*"), //
+				new RegexLeaf("\\{?$"));
+	}
+
+	private USymbol getUSymbol(String type) {
+		if ("card".equalsIgnoreCase(type)) {
+			return USymbol.CARD;
+		}
+		if ("package".equalsIgnoreCase(type)) {
+			return USymbol.PACKAGE;
+		}
+		if ("rectangle".equalsIgnoreCase(type)) {
+			return USymbol.RECTANGLE;
+		}
+		return USymbol.FRAME;
+	}
+
+	private ColorParam getColorParamBorder(final USymbol symbol) {
+		if (symbol == USymbol.FRAME) {
+			return ColorParam.partitionBorder;
+		}
+		return symbol.getColorParamBorder();
+	}
+
+	private ColorParam getColorParamBack(final USymbol symbol) {
+		if (symbol == USymbol.FRAME) {
+			return ColorParam.partitionBackground;
+		}
+		return symbol.getColorParamBack();
 	}
 
 	private static ColorParser color(String id) {
@@ -85,8 +117,12 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 		final Colors colors = color(b1 == null ? "BACK2" : "BACK1").getColor(arg,
 				diagram.getSkinParam().getIHtmlColorSet());
 
-		final HtmlColor backColorInSkinparam = diagram.getSkinParam().getHtmlColor(ColorParam.partitionBackground,
-				null, false);
+		final USymbol symbol = getUSymbol(arg.get("TYPE", 0));
+		final String stereo = arg.get("STEREO", 0);
+		final Stereotype stereotype = stereo == null ? null : new Stereotype(stereo);
+
+		final HtmlColor backColorInSkinparam = diagram.getSkinParam().getHtmlColor(getColorParamBack(symbol),
+				stereotype, false);
 		final HtmlColor backColor;
 		if (backColorInSkinparam == null) {
 			backColor = colors.getColor(ColorType.BACK);
@@ -96,13 +132,16 @@ public class CommandPartition3 extends SingleLineCommand2<ActivityDiagram3> {
 		final HtmlColor titleColor = colors.getColor(ColorType.HEADER);
 
 		// Warning : titleColor unused in FTileGroupW
-		HtmlColor borderColor = diagram.getSkinParam().getHtmlColor(ColorParam.partitionBorder, null, false);
+		HtmlColor borderColor = diagram.getSkinParam().getHtmlColor(getColorParamBorder(symbol), stereotype, false);
 		if (borderColor == null) {
 			borderColor = HtmlColorUtils.BLACK;
 		}
+		final double roundCorner = symbol.getSkinParameter().getRoundCorner(diagram.getSkinParam(), stereotype);
 
-		diagram.startGroup(Display.getWithNewlines(partitionTitle), backColor, titleColor, borderColor);
+		diagram.startGroup(Display.getWithNewlines(partitionTitle), backColor, titleColor, borderColor, symbol,
+				roundCorner);
 
 		return CommandExecutionResult.ok();
 	}
+
 }

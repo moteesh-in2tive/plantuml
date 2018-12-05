@@ -45,7 +45,6 @@
  */
 package h;
 
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
@@ -63,29 +62,29 @@ public class ST_Agedgeinfo_t extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	private final ST_Agrec_s hdr = new ST_Agrec_s(this);
+	public final ST_Agrec_s hdr = new ST_Agrec_s(this);
 
-	private ST_splines spl;
-	private final ST_port tail_port = new ST_port(this), head_port = new ST_port(this);
-	private ST_textlabel_t label, head_label, tail_label, xlabel;
-	private int edge_type;
-	private int adjacent;
-	private boolean label_ontop;
+	public ST_splines spl;
+	public final ST_port tail_port = new ST_port(this), head_port = new ST_port(this);
+	public ST_textlabel_t label, head_label, tail_label, xlabel;
+	public int edge_type;
+	public int adjacent;
+	public boolean label_ontop;
 	// "unsigned char gui_state",
-	private ST_Agedge_s to_orig;
+	public ST_Agedge_s to_orig;
 	// "void *alg",
 	// "double factor",
-	private double dist;
+	public double dist;
 	// "Ppolyline_t path",
-	private int showboxes;
-	private boolean conc_opp_flag;
-	private int xpenalty;
-	private int weight;
-	private int cutvalue, tree_index;
-	private int count;
-	private int minlen;
+	public int showboxes;
+	public boolean conc_opp_flag;
+	public int xpenalty;
+	public int weight;
+	public int cutvalue, tree_index;
+	public int count;
+	public int minlen;
 
-	private ST_Agedge_s to_virt;
+	public ST_Agedge_s to_virt;
 
 	@Override
 	public void copyDataFrom(__struct__ other) {
@@ -115,24 +114,11 @@ public class ST_Agedgeinfo_t extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-		@Override
-		public __ptr__ castTo(Class dest) {
-			return ST_Agedgeinfo_t.this.castTo(dest);
-		}
-
-	}
-
-	@Override
 	public __ptr__ castTo(Class dest) {
-		if (dest == Agrec_s.class) {
+		if (dest == ST_Agrec_s.class) {
 			return hdr;
 		}
-		if (dest == Agedgeinfo_t.class) {
+		if (dest == ST_Agedgeinfo_t.class) {
 			return this;
 		}
 		return super.castTo(dest);
@@ -149,15 +135,6 @@ public class ST_Agedgeinfo_t extends UnsupportedStructAndPtr {
 			return;
 		}
 		super.setStruct(fieldName, newData);
-	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("label_ontop")) {
-			this.label_ontop = data;
-			return;
-		}
-		super.setBoolean(fieldName, data);
 	}
 
 	@Override
@@ -210,110 +187,15 @@ public class ST_Agedgeinfo_t extends UnsupportedStructAndPtr {
 		super.setInt(fieldName, data);
 	}
 
-	@Override
-	public double getDouble(String fieldName) {
-		if (fieldName.equals("dist")) {
-			return this.dist;
-		}
-		return super.getDouble(fieldName);
-	}
-
-	@Override
-	public boolean getBoolean(String fieldName) {
-		if (fieldName.equals("conc_opp_flag")) {
-			return this.conc_opp_flag;
-		}
-		if (fieldName.equals("label_ontop")) {
-			return this.label_ontop;
-		}
-		return super.getBoolean(fieldName);
-	}
-
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("minlen")) {
-			return this.minlen;
-		}
-		if (fieldName.equals("weight")) {
-			return this.weight;
-		}
-		if (fieldName.equals("cutvalue")) {
-			return this.cutvalue;
-		}
-		if (fieldName.equals("tree_index")) {
-			return this.tree_index;
-		}
-		if (fieldName.equals("count")) {
-			return this.count;
-		}
-		if (fieldName.equals("xpenalty")) {
-			return this.xpenalty;
-		}
-		if (fieldName.equals("showboxes")) {
-			return this.showboxes;
-		}
-		if (fieldName.equals("edge_type")) {
-			return this.edge_type;
-		}
-		if (fieldName.equals("adjacent")) {
-			return this.adjacent;
-		}
-		return super.getInt(fieldName);
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("to_virt")) {
-			return this.to_virt;
-		}
-		if (fieldName.equals("to_orig")) {
-			return this.to_orig;
-		}
-		if (fieldName.equals("label")) {
-			return this.label;
-		}
-		if (fieldName.equals("spl")) {
-			return this.spl;
-		}
-		if (fieldName.equals("xlabel")) {
-			return this.xlabel;
-		}
-		if (fieldName.equals("head_label")) {
-			return this.head_label;
-		}
-		if (fieldName.equals("tail_label")) {
-			return this.tail_label;
-		}
-		return super.getPtr(fieldName);
-	}
-
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("tail_port")) {
-			return this.tail_port;
-		}
-		if (fieldName.equals("head_port")) {
-			return this.head_port;
-		}
-		return super.getStruct(fieldName);
-	}
 
 	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
 		if (fieldName.equals("to_virt")) {
-			if (newData instanceof ST_Agedge_s.Amp) {
-				this.to_virt = ((ST_Agedge_s.Amp) newData).getObject();
-			} else {
 				this.to_virt = (ST_Agedge_s) newData;
-			}
 			return this.to_virt;
 		}
 		if (fieldName.equals("to_orig")) {
-			if (newData instanceof ST_Agedge_s.Amp) {
-				this.to_orig = ((ST_Agedge_s.Amp) newData).getObject();
-			} else {
 				this.to_orig = (ST_Agedge_s) newData;
-			}
 			return this.to_orig;
 		}
 		if (fieldName.equals("spl")) {
@@ -327,6 +209,10 @@ public class ST_Agedgeinfo_t extends UnsupportedStructAndPtr {
 		if (fieldName.equals("head_label")) {
 			this.head_label = (ST_textlabel_t) newData;
 			return this.head_label;
+		}
+		if (fieldName.equals("tail_label")) {
+			this.tail_label = (ST_textlabel_t) newData;
+			return this.tail_label;
 		}
 		return super.setPtr(fieldName, newData);
 	}

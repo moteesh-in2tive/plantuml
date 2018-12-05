@@ -45,14 +45,15 @@
  */
 package gen.lib.gvc;
 import static gen.lib.cgraph.attr__c.agattr;
-import static gen.lib.gvc.gvconfig__c.gvconfig;
+import static gen.lib.common.textspan__c.textfont_dict_open;
 import static gen.lib.gvc.gvcontext__c.gvNEWcontext;
+import static gen.lib.gvc.gvtextlayout__c.gvtextlayout_select;
 import static smetana.core.JUtilsDebug.ENTERING;
 import static smetana.core.JUtilsDebug.LEAVING;
 import static smetana.core.Macro.AGNODE;
 import static smetana.core.Macro.NOT;
 import static smetana.core.Macro.UNSUPPORTED;
-import h.GVC_s;
+import h.ST_GVC_s;
 import smetana.core.CString;
 
 public class gvc__c {
@@ -160,14 +161,17 @@ public class gvc__c {
 
 //3 f3vdhir2c7dz3pvmx9d3m4lx1
 // GVC_t *gvContext(void) 
-public static GVC_s gvContext(Object... arg) {
+public static ST_GVC_s gvContext(Object... arg) {
 ENTERING("f3vdhir2c7dz3pvmx9d3m4lx1","gvContext");
 try {
-    GVC_s gvc;
+	ST_GVC_s gvc;
     agattr(null, AGNODE, new CString("label"), new CString("\\N"));
     /* default to no builtins, demand loading enabled */
-    gvc = (GVC_s) gvNEWcontext(null, (NOT(0)));
-    gvconfig(gvc, false); /* configure for available plugins */
+    gvc = (ST_GVC_s) gvNEWcontext(null, (NOT(0)));
+    /* builtins don't require LTDL */
+    gvc.setInt("config_found", 0);
+    gvtextlayout_select(gvc);   /* choose best available textlayout plugin immediately */
+    textfont_dict_open(gvc);    /* initialize font dict */
     return gvc;
 } finally {
 LEAVING("f3vdhir2c7dz3pvmx9d3m4lx1","gvContext");

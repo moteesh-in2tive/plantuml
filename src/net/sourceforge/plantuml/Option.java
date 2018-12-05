@@ -68,6 +68,7 @@ public class Option {
 	private boolean pipeNoStdErr = false;
 	private boolean syntax = false;
 	private boolean checkOnly = false;
+	private OptionPreprocOutputMode preprocessorOutput = null;
 	private boolean failfast = false;
 	private boolean failfast2 = false;
 	private boolean pattern = false;
@@ -108,7 +109,13 @@ public class Option {
 		}
 		for (int i = 0; i < arg.length; i++) {
 			String s = arg[i];
-			if (s.equalsIgnoreCase("-tsvg") || s.equalsIgnoreCase("-svg")) {
+			if (s.equalsIgnoreCase("-headless")) {
+				// Useless because done in Run.java
+				if (i != 0) {
+					Log.error("Warning: -headless flag must be the first one in the command line");
+				}
+				System.setProperty("java.awt.headless", "true");
+			} else if (s.equalsIgnoreCase("-tsvg") || s.equalsIgnoreCase("-svg")) {
 				setFileFormatOption(new FileFormatOption(FileFormat.SVG));
 			} else if (s.equalsIgnoreCase("-tsvg:nornd") || s.equalsIgnoreCase("-svg:nornd")) {
 				setFileFormatOption(new FileFormatOption(FileFormat.SVG));
@@ -274,6 +281,11 @@ public class Option {
 				OptionPrint.printLicense();
 			} else if (s.equalsIgnoreCase("-checkversion")) {
 				OptionPrint.checkVersion();
+			} else if (s.startsWith("-DPLANTUML_LIMIT_SIZE=")) {
+				final String v = s.substring("-DPLANTUML_LIMIT_SIZE=".length());
+				if (v.matches("\\d+")) {
+					System.setProperty("PLANTUML_LIMIT_SIZE", v);
+				}
 			} else if (s.startsWith("-D")) {
 				manageDefine(s.substring(2));
 			} else if (s.startsWith("-S")) {
@@ -306,6 +318,12 @@ public class Option {
 				OptionFlags.getInstance().setEnableStats(false);
 			} else if (s.equalsIgnoreCase("-extractstdlib")) {
 				OptionFlags.getInstance().setExtractStdLib(true);
+			} else if (s.equalsIgnoreCase("-stdlib")) {
+				OptionFlags.getInstance().setStdLib(true);
+			} else if (s.equalsIgnoreCase("-clipboard")) {
+				OptionFlags.getInstance().setClipboard(true);
+			} else if (s.equalsIgnoreCase("-clipboardloop")) {
+				OptionFlags.getInstance().setClipboardLoop(true);
 			} else if (s.equalsIgnoreCase("-htmlstats")) {
 				StatsUtils.setHtmlStats(true);
 			} else if (s.equalsIgnoreCase("-xmlstats")) {
@@ -320,6 +338,10 @@ public class Option {
 				textProgressBar = true;
 			} else if (s.equalsIgnoreCase("-nometadata")) {
 				hideMetadata = true;
+			} else if (s.equalsIgnoreCase("-preproc")) {
+				preprocessorOutput = OptionPreprocOutputMode.NORMAL;
+			} else if (s.equalsIgnoreCase("-cypher")) {
+				preprocessorOutput = OptionPreprocOutputMode.CYPHER;
 			} else if (s.equalsIgnoreCase("-checkmetadata")) {
 				checkMetadata = true;
 			} else if (s.equalsIgnoreCase("-pipeimageindex")) {
@@ -575,5 +597,13 @@ public class Option {
 	public final boolean isCheckMetadata() {
 		return checkMetadata;
 	}
+
+	public final OptionPreprocOutputMode getPreprocessorOutputMode() {
+		return preprocessorOutput;
+	}
+
+	// public final void setPreprocessorOutput(boolean preprocessorOutput) {
+	// this.preprocessorOutput = preprocessorOutput;
+	// }
 
 }

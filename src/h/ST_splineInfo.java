@@ -46,7 +46,6 @@
 package h;
 
 import smetana.core.CFunction;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -66,24 +65,6 @@ public class ST_splineInfo extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-		@Override
-		public boolean getBoolean(String fieldName) {
-			return ST_splineInfo.this.getBoolean(fieldName);
-		}
-
-		@Override
-		public Object call(String fieldName, Object... args) {
-			return ST_splineInfo.this.call(fieldName, args);
-		}
-	}
-
-	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
 		if (fieldName.equals("swapEnds")) {
 			this.swapEnds = (CFunction) newData;
@@ -94,28 +75,6 @@ public class ST_splineInfo extends UnsupportedStructAndPtr {
 			return splineMerge;
 		}
 		return super.setPtr(fieldName, newData);
-	}
-
-	@Override
-	public Object call(String fieldName, Object... args) {
-		if (fieldName.equals("swapEnds")) {
-			return swapEnds.exe(args);
-		}
-		if (fieldName.equals("splineMerge")) {
-			return splineMerge.exe(args);
-		}
-		return super.call(fieldName, args);
-	}
-
-	@Override
-	public boolean getBoolean(String fieldName) {
-		if (fieldName.equals("ignoreSwap")) {
-			return ignoreSwap;
-		}
-		if (fieldName.equals("isOrtho")) {
-			return isOrtho;
-		}
-		return super.getBoolean(fieldName);
 	}
 
 	// public interface ST_splineInfo extends __ptr__ {

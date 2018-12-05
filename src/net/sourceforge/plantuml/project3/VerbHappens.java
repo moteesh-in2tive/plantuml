@@ -46,20 +46,29 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 public class VerbHappens implements VerbPattern {
 
 	public Collection<ComplementPattern> getComplements() {
-		return Arrays.<ComplementPattern> asList(new ComplementBeforeOrAfterOrAtTaskStartOrEnd());
+		return Arrays.<ComplementPattern> asList(new ComplementBeforeOrAfterOrAtTaskStartOrEnd(), new ComplementDate());
 	}
 
 	public IRegex toRegex() {
-		return new RegexLeaf("happens");
+		return new RegexLeaf("happens[%s]*(at[%s]*|the[%s]*|on[%s]*)*");
 	}
 
-	public Verb getVerb(GanttDiagram project, RegexResult arg) {
+	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
 		return new Verb() {
 			public CommandExecutionResult execute(Subject subject, Complement complement) {
 				final Task task = (Task) subject;
-				final TaskInstant when = (TaskInstant) complement;
 				task.setLoad(LoadInDays.inDay(1));
-				task.setStart(when.getInstantTheorical());
+				if (complement instanceof DayAsDate) {
+					final DayAsDate start = (DayAsDate) complement;
+					final DayAsDate startingDate = project.getStartingDate();
+					if (startingDate == null) {
+						return CommandExecutionResult.error("No starting date for the project");
+					}
+					task.setStart(start.asInstantDay(startingDate));
+				} else {
+					final TaskInstant when = (TaskInstant) complement;
+					task.setStart(when.getInstantTheorical());
+				}
 				return CommandExecutionResult.ok();
 			}
 

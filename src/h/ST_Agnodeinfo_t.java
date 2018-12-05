@@ -45,7 +45,6 @@
  */
 package h;
 
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
@@ -63,72 +62,63 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	private final ST_Agrec_s hdr = new ST_Agrec_s(this);
+	public final ST_Agrec_s hdr = new ST_Agrec_s(this);
 
-	private ST_shape_desc shape;
-	private ST_polygon_t shape_info;
-	private final ST_pointf coord = new ST_pointf(this);
-	private double width, height;
+	public ST_shape_desc shape;
+	public ST_polygon_t shape_info;
+	public final ST_pointf coord = new ST_pointf(this);
+	public double width, height;
 
 	// "boxf bb",
-	private double ht, lw, rw;
-	private ST_textlabel_t label;
-	private ST_textlabel_t xlabel;
+	public double ht, lw, rw;
+	public ST_textlabel_t label;
+	public ST_textlabel_t xlabel;
 	// "void *alg",
-	private ST_Agedge_s alg = null;
+	public ST_Agedge_s alg = null;
 	// "char state",
 	// "unsigned char gui_state",
 	// "boolean clustnode",
 	// "unsigned char pinned",
-	private int id, heapindex, hops;
+	public int id, heapindex, hops;
 	// "double *pos, dist",
-	private int showboxes;
+	public int showboxes;
 
-	private boolean has_port;
+	public boolean has_port;
 	// "node_t* rep",
 	// "node_t *set",
-	private int node_type, mark, onstack;
-	private int ranktype, weight_class;
-	private ST_Agnode_s next;
-	private ST_Agnode_s prev;
+	public int node_type, mark, onstack;
+	public int ranktype, weight_class;
+	public ST_Agnode_s next;
+	public ST_Agnode_s prev;
 	// "elist in, out, flat_out, flat_in, other",
-	private final ST_elist in = new ST_elist(this);
-	private final ST_elist out = new ST_elist(this);
-	private final ST_elist flat_out = new ST_elist(this);
-	private final ST_elist flat_in = new ST_elist(this);
-	private final ST_elist other = new ST_elist(this);
-	private ST_Agraph_s.Amp clust;
-	private int UF_size;
+	public final ST_elist in = new ST_elist(this);
+	public final ST_elist out = new ST_elist(this);
+	public final ST_elist flat_out = new ST_elist(this);
+	public final ST_elist flat_in = new ST_elist(this);
+	public final ST_elist other = new ST_elist(this);
+	public ST_Agraph_s clust;
+	public int UF_size;
 
-	private ST_Agnode_s UF_parent;
+	public ST_Agnode_s UF_parent;
 
-	private ST_Agnode_s inleaf, outleaf;
-	private int rank, order;
-	private double mval;
-	private final ST_elist save_in = new ST_elist(this);
-	private final ST_elist save_out = new ST_elist(this);
-	private final ST_elist tree_in = new ST_elist(this);
-	private final ST_elist tree_out = new ST_elist(this);
-	private ST_Agedge_s par;
-	private int low, lim;
-	private int priority;
+	public ST_Agnode_s inleaf, outleaf;
+	public int rank, order;
+	public double mval;
+	public final ST_elist save_in = new ST_elist(this);
+	public final ST_elist save_out = new ST_elist(this);
+	public final ST_elist tree_in = new ST_elist(this);
+	public final ST_elist tree_out = new ST_elist(this);
+	public ST_Agedge_s par;
+	public int low, lim;
+	public int priority;
 
 	// "double pad[1]",
 	// "}",
 	// "Agnodeinfo_t");
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
-
-	@Override
 	public __ptr__ castTo(Class dest) {
-		if (dest == Agrec_s.class) {
+		if (dest == ST_Agrec_s.class) {
 			return hdr;
 		}
 		return super.castTo(dest);
@@ -161,42 +151,6 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 			return;
 		}
 		super.setDouble(fieldName, data);
-	}
-
-	@Override
-	public double getDouble(String fieldName) {
-		if (fieldName.equals("width")) {
-			return this.width;
-		}
-		if (fieldName.equals("height")) {
-			return this.height;
-		}
-		if (fieldName.equals("ht")) {
-			return this.ht;
-		}
-		if (fieldName.equals("lw")) {
-			return this.lw;
-		}
-		if (fieldName.equals("rw")) {
-			return this.rw;
-		}
-		if (fieldName.equals("mval")) {
-			return this.mval;
-		}
-		return super.getDouble(fieldName);
-	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("mark")) {
-			this.mark = data ? 1 : 0;
-			return;
-		}
-		if (fieldName.equals("onstack")) {
-			this.onstack = data ? 1 : 0;
-			return;
-		}
-		super.setBoolean(fieldName, data);
 	}
 
 	@Override
@@ -253,67 +207,6 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("UF_size")) {
-			return this.UF_size;
-		}
-		if (fieldName.equals("ranktype")) {
-			return this.ranktype;
-		}
-		if (fieldName.equals("mark")) {
-			return this.mark;
-		}
-		if (fieldName.equals("onstack")) {
-			return this.onstack;
-		}
-		if (fieldName.equals("priority")) {
-			return this.priority;
-		}
-		if (fieldName.equals("node_type")) {
-			return this.node_type;
-		}
-		if (fieldName.equals("rank")) {
-			return this.rank;
-		}
-		if (fieldName.equals("order")) {
-			return this.order;
-		}
-		if (fieldName.equals("ranktype")) {
-			return this.ranktype;
-		}
-		if (fieldName.equals("low")) {
-			return this.low;
-		}
-		if (fieldName.equals("lim")) {
-			return this.lim;
-		}
-		if (fieldName.equals("weight_class")) {
-			return this.weight_class;
-		}
-		if (fieldName.equals("id")) {
-			return this.id;
-		}
-		if (fieldName.equals("heapindex")) {
-			return this.heapindex;
-		}
-		if (fieldName.equals("hops")) {
-			return this.hops;
-		}
-		return super.getInt(fieldName);
-	}
-
-	@Override
-	public boolean getBoolean(String fieldName) {
-		if (fieldName.equals("onstack")) {
-			return this.onstack != 0;
-		}
-		if (fieldName.equals("has_port")) {
-			return this.has_port;
-		}
-		return super.getBoolean(fieldName);
-	}
-
-	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
 		if (fieldName.equals("shape")) {
 			this.shape = (ST_shape_desc) newData;
@@ -328,11 +221,7 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 			return label;
 		}
 		if (fieldName.equals("clust")) {
-			if (newData instanceof ST_Agraph_s) {
-				this.clust = (h.ST_Agraph_s.Amp) ((ST_Agraph_s) newData).amp();
-			} else {
-				this.clust = (ST_Agraph_s.Amp) newData;
-			}
+				this.clust = (ST_Agraph_s) newData;
 			return clust;
 		}
 		if (fieldName.equals("next")) {
@@ -340,11 +229,7 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 			return next;
 		}
 		if (fieldName.equals("prev")) {
-			if (newData instanceof ST_Agnode_s.Amp) {
-				this.prev = ((ST_Agnode_s.Amp) newData).getObject();
-			} else {
 				this.prev = (ST_Agnode_s) newData;
-			}
 			return prev;
 		}
 		if (fieldName.equals("UF_parent")) {
@@ -352,11 +237,7 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 			return UF_parent;
 		}
 		if (fieldName.equals("par")) {
-			if (newData instanceof ST_Agedge_s.Amp) {
-				this.par = ((ST_Agedge_s.Amp) newData).getObject();
-			} else {
-				this.par = (ST_Agedge_s) newData;
-			}
+			this.par = (ST_Agedge_s) newData;
 			return par;
 		}
 		if (fieldName.equals("alg")) {
@@ -366,81 +247,7 @@ public class ST_Agnodeinfo_t extends UnsupportedStructAndPtr {
 		return super.setPtr(fieldName, newData);
 	}
 
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("shape")) {
-			return shape;
-		}
-		if (fieldName.equals("label")) {
-			return label;
-		}
-		if (fieldName.equals("UF_parent")) {
-			return UF_parent;
-		}
-		if (fieldName.equals("next")) {
-			return next;
-		}
-		if (fieldName.equals("prev")) {
-			return prev;
-		}
-		if (fieldName.equals("clust")) {
-			return clust;
-		}
-		if (fieldName.equals("inleaf")) {
-			return inleaf;
-		}
-		if (fieldName.equals("outleaf")) {
-			return outleaf;
-		}
-		if (fieldName.equals("alg")) {
-			return alg;
-		}
-		if (fieldName.equals("par")) {
-			return par;
-		}
-		if (fieldName.equals("xlabel")) {
-			return xlabel;
-		}
-		if (fieldName.equals("shape_info")) {
-			return shape_info;
-		}
-		return super.getPtr(fieldName);
-	}
 
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("in")) {
-			return in;
-		}
-		if (fieldName.equals("out")) {
-			return out;
-		}
-		if (fieldName.equals("flat_out")) {
-			return flat_out;
-		}
-		if (fieldName.equals("flat_in")) {
-			return flat_in;
-		}
-		if (fieldName.equals("other")) {
-			return other;
-		}
-		if (fieldName.equals("save_in")) {
-			return save_in;
-		}
-		if (fieldName.equals("save_out")) {
-			return save_out;
-		}
-		if (fieldName.equals("tree_in")) {
-			return tree_in;
-		}
-		if (fieldName.equals("tree_out")) {
-			return tree_out;
-		}
-		if (fieldName.equals("coord")) {
-			return coord;
-		}
-		return super.getStruct(fieldName);
-	}
 
 	@Override
 	public void setStruct(String fieldName, __struct__ newData) {

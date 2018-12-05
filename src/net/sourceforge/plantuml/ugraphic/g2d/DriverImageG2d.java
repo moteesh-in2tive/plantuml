@@ -49,18 +49,25 @@ public class DriverImageG2d implements UDriver<Graphics2D> {
 
 	private final EnsureVisible visible;
 
-	public DriverImageG2d(EnsureVisible visible) {
+	// private final double dpiFactor;
+
+	public DriverImageG2d(double dpiFactor, EnsureVisible visible) {
 		this.visible = visible;
+		// this.dpiFactor = dpiFactor;
 	}
 
 	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, Graphics2D g2d) {
 		if (ushape instanceof UImageSvg) {
 			return;
 		}
-		final UImage shape = (UImage) ushape;
+		final UImage shape = ((UImage) ushape);
 		visible.ensureVisible(x, y);
 		visible.ensureVisible(x + shape.getWidth(), y + shape.getHeight());
-		g2d.drawImage(shape.getImage(), (int) x, (int) y, null);
+		// final AffineTransform back = g2d.getTransform();
+		// System.err.println("dpiFactor=" + dpiFactor);
+		// g2d.scale(1 / dpiFactor, 1 / dpiFactor);
+		g2d.drawImage(shape.getImage(), (int) (x), (int) (y), null);
+		// g2d.setTransform(back);
 	}
 
 }

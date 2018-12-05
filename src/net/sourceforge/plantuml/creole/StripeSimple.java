@@ -113,6 +113,7 @@ public class StripeSimple implements Stripe {
 		this.commands.add(CommandCreoleExposantChange.create(FontPosition.EXPOSANT));
 		this.commands.add(CommandCreoleExposantChange.create(FontPosition.INDICE));
 		this.commands.add(CommandCreoleImg.create());
+		this.commands.add(CommandCreoleQrcode.create());
 		this.commands.add(CommandCreoleOpenIcon.create());
 		final double scale = skinParam.getDpi() / 96.0;
 		this.commands.add(CommandCreoleMath.create(scale));
@@ -168,30 +169,35 @@ public class StripeSimple implements Stripe {
 		atoms.add(AtomImg.create(src, ImgValign.TOP, 0, scale));
 	}
 
+	public void addQrcode(String src, double scale) {
+		atoms.add(AtomImg.createQrcode(src, scale));
+	}
+
 	public void addSpace(int size) {
 		atoms.add(AtomSpace.create(size));
 	}
 
 	public void addUrl(Url url) {
-		atoms.add(AtomText.createUrl(url, fontConfiguration));
+		atoms.add(AtomText.createUrl(url, fontConfiguration, skinParam));
 	}
 
 	public void addSprite(String src, double scale) {
 		final Sprite sprite = skinParam.getSprite(src);
 		if (sprite != null) {
-			atoms.add(new AtomSprite(sprite.asTextBlock(fontConfiguration.getColor(), scale), fontConfiguration));
+			atoms.add(new AtomSprite(scale, fontConfiguration, sprite, null));
 		}
 	}
 
 	public void addOpenIcon(String src) {
 		final OpenIcon openIcon = OpenIcon.retrieve(src);
 		if (openIcon != null) {
-			atoms.add(new AtomOpenIcon(openIcon, fontConfiguration));
+			atoms.add(new AtomOpenIcon(openIcon, fontConfiguration, null));
 		}
 	}
 
 	public void addMath(ScientificEquationSafe math, double scale) {
-		atoms.add(new AtomMath(math, fontConfiguration.getColor(), fontConfiguration.getExtendedColor(), scale));
+		atoms.add(new AtomMath(math, fontConfiguration.getColor(), fontConfiguration.getExtendedColor(), scale,
+				skinParam.getColorMapper()));
 	}
 
 	private void modifyStripe(String line) {

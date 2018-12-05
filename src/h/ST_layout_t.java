@@ -45,10 +45,8 @@
  */
 package h;
 
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
-import smetana.core.__struct__;
 import smetana.core.amiga.StarStruct;
 
 public class ST_layout_t extends UnsupportedStructAndPtr {
@@ -63,29 +61,21 @@ public class ST_layout_t extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
+	public double quantum;
+	public double scale;
+	public double ratio;
+	public double dpi;
 
-	public class Amp extends UnsupportedStarStruct {
-	}
+	public ST_pointf margin = new ST_pointf(this);
+	public ST_pointf page = new ST_pointf(this);
+	public ST_pointf size = new ST_pointf(this);
 
-	private double quantum;
-	private double scale;
-	private double ratio;
-	private double dpi;
-
-	private ST_pointf margin = new ST_pointf(this);
-	private ST_pointf page = new ST_pointf(this);
-	private ST_pointf size = new ST_pointf(this);
-
-	private boolean filled;
-	private boolean landscape;
-	private boolean centered;
+	public boolean filled;
+	public boolean landscape;
+	public boolean centered;
 
 	// "ratio_t ratio_kind",
-	private int ratio_kind;
+	public int ratio_kind;
 	// "void* xdots",
 	// "char* id",
 
@@ -95,54 +85,6 @@ public class ST_layout_t extends UnsupportedStructAndPtr {
 			return null;
 		}
 		return super.setPtr(fieldName, newData);
-	}
-
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("margin")) {
-			return margin;
-		}
-		if (fieldName.equals("page")) {
-			return page;
-		}
-		if (fieldName.equals("size")) {
-			return size;
-		}
-		return super.getStruct(fieldName);
-	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("filled")) {
-			this.filled = data;
-			return;
-		}
-		if (fieldName.equals("landscape")) {
-			this.landscape = data;
-			return;
-		}
-		if (fieldName.equals("centered")) {
-			this.centered = data;
-			return;
-		}
-		super.setBoolean(fieldName, data);
-	}
-
-	@Override
-	public double getDouble(String fieldName) {
-		if (fieldName.equals("quantum")) {
-			return this.quantum;
-		}
-		if (fieldName.equals("scale")) {
-			return this.scale;
-		}
-		if (fieldName.equals("ratio")) {
-			return this.ratio;
-		}
-		if (fieldName.equals("dpi")) {
-			return this.dpi;
-		}
-		return super.getDouble(fieldName);
 	}
 
 	@Override
@@ -166,13 +108,6 @@ public class ST_layout_t extends UnsupportedStructAndPtr {
 		super.setDouble(fieldName, data);
 	}
 	
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("ratio_kind")) {
-			return this.ratio_kind;
-		}
-		return super.getInt(fieldName);
-	}
 }
 
 // typedef struct layout_t {

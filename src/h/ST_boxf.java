@@ -46,12 +46,8 @@
 package h;
 
 import smetana.core.HardcodedStruct;
-import smetana.core.UnsupportedSize_t;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__struct__;
-import smetana.core.size_t;
-import smetana.core.amiga.StarArrayOfPtr;
 import smetana.core.amiga.StarStruct;
 
 public class ST_boxf extends UnsupportedStructAndPtr implements HardcodedStruct {
@@ -72,6 +68,14 @@ public class ST_boxf extends UnsupportedStructAndPtr implements HardcodedStruct 
 	// this.UR.setStruct(other.UR);
 	// }
 
+	public static ST_boxf[] malloc(int nb) {
+		final ST_boxf result[] = new ST_boxf[nb];
+		for (int i = 0; i < nb; i++) {
+			result[i] = new ST_boxf();
+		}
+		return result;
+	}
+
 	@Override
 	public __struct__ getStruct() {
 		return this;
@@ -80,17 +84,6 @@ public class ST_boxf extends UnsupportedStructAndPtr implements HardcodedStruct 
 	@Override
 	public void setStruct(__struct__ value) {
 		copyDataFrom(value);
-	}
-
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("LL")) {
-			return LL;
-		}
-		if (fieldName.equals("UR")) {
-			return UR;
-		}
-		return super.getStruct(fieldName);
 	}
 
 	public __struct__ getStructInternal(String fieldName) {
@@ -131,13 +124,6 @@ public class ST_boxf extends UnsupportedStructAndPtr implements HardcodedStruct 
 		this.UR.setStruct(other.UR);
 	}
 
-	// @Override
-	// public void copyDataFrom(__ptr__ value) {
-	// final ST_boxf other = (ST_boxf) value;
-	// this.LL.setStruct(other.LL);
-	// this.UR.setStruct(other.UR);
-	// }
-
 	@Override
 	public void ___(__struct__ value) {
 		final ST_boxf other = (ST_boxf) value;
@@ -145,39 +131,7 @@ public class ST_boxf extends UnsupportedStructAndPtr implements HardcodedStruct 
 		this.UR.setStruct(other.UR);
 	}
 
-	class Amp extends UnsupportedStarStruct {
 
-		@Override
-		public __struct__ getStruct(String fieldName) {
-			if (fieldName.equals("LL")) {
-				return LL;
-			}
-			if (fieldName.equals("UR")) {
-				return UR;
-			}
-			return super.getStruct(fieldName);
-		}
-
-		@Override
-		public __struct__ getStruct() {
-			return ST_boxf.this;
-		}
-
-	}
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public static size_t sizeof(final int nb) {
-		return new UnsupportedSize_t(nb) {
-			@Override
-			public Object malloc() {
-				return new StarArrayOfPtr(new STArray<ST_boxf>(nb, 0, ST_boxf.class));
-			}
-		};
-	}
 
 	// public interface ST_boxf extends __ptr__ {
 	// public static List<String> DEFINITION = Arrays.asList(

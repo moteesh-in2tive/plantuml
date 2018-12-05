@@ -39,6 +39,9 @@ import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.UrlBuilder;
+import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -89,6 +92,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					new RegexLeaf("[%s]*"), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					new RegexLeaf("[%s]*"), //
+					new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
+					new RegexLeaf("[%s]*"), //
 					ColorParser.exp1(), //
 					new RegexLeaf("[%s]*"), //
 					new RegexLeaf("DESC", "as[%s]*[%g]([^%g]*)$"));
@@ -100,6 +105,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					new RegexLeaf("[%s]*"), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					new RegexLeaf("[%s]*"), //
+					new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
+					new RegexLeaf("[%s]*"), //
 					ColorParser.exp1(), //
 					new RegexLeaf("[%s]*"), //
 					new RegexLeaf("DESC", "\\[(.*)$"));
@@ -107,7 +114,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		throw new IllegalArgumentException();
 	}
 
-	public CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
+	@Override
+	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
 		lines = lines.trim(false);
 		final RegexResult line0 = getStartingPattern().matcher(StringUtils.trin(lines.getFirst499()));
 		final String symbol = StringUtils.goUpperCase(line0.get("TYPE", 0));
@@ -154,6 +162,14 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()
 					.getIHtmlColorSet()));
 		}
+		
+		final String urlString = line0.get("URL", 0);
+		if (urlString != null) {
+			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
+			final Url url = urlBuilder.getUrl(urlString);
+			result.addUrl(url);
+		}
+
 
 		result.setSpecificColorTOBEREMOVED(ColorType.BACK,
 				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR", 0)));

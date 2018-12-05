@@ -57,20 +57,15 @@ import static smetana.core.Macro.DIST2;
 import static smetana.core.Macro.ED_conc_opp_flag;
 import static smetana.core.Macro.NOT;
 import static smetana.core.Macro.UNSUPPORTED;
-import h.Agedge_s;
-import h.arrowdir_t;
-import h.bezier;
-import h.boxf;
-import h.inside_t;
-import h.pointf;
+import h.ST_Agedge_s;
+import h.ST_arrowdir_t;
+import h.ST_arrowname_t;
+import h.ST_bezier;
+import h.ST_inside_t;
+import h.ST_pointf;
 import smetana.core.CString;
-import smetana.core.JUtils;
 import smetana.core.MutableDouble;
 import smetana.core.Z;
-import smetana.core.__array_of_struct__;
-import smetana.core.__array_of_struct_impl__;
-import smetana.core.__ptr__;
-import smetana.core.__struct__;
 
 public class arrows__c {
 //1 2digov3edok6d5srhgtlmrycs
@@ -330,14 +325,14 @@ throw new UnsupportedOperationException();
 
 //3 c1s4k85p1cdfn176o3uryeros
 // static inline pointf pointfof(double x, double y) 
-public static __struct__<pointf> pointfof(double x, double y) {
+public static ST_pointf pointfof(double x, double y) {
 // WARNING!! STRUCT
 return pointfof_w_(x, y).copy();
 }
-private static __struct__<pointf> pointfof_w_(double x, double y) {
+private static ST_pointf pointfof_w_(double x, double y) {
 ENTERING("c1s4k85p1cdfn176o3uryeros","pointfof");
 try {
-    final __struct__<pointf> r = JUtils.from(pointf.class);
+    final ST_pointf r = new ST_pointf();
     r.setDouble("x", x);
     r.setDouble("y", y);
     return r;
@@ -366,25 +361,6 @@ throw new UnsupportedOperationException();
 
 
 
-//3 1vvsta5i8of59frav6uymguav
-// static inline boxf boxfof(double llx, double lly, double urx, double ury) 
-public static __struct__<boxf> boxfof(double llx, double lly, double urx, double ury) {
-// WARNING!! STRUCT
-return boxfof_w_(llx, lly, urx, ury).copy();
-}
-private static __struct__<boxf> boxfof_w_(double llx, double lly, double urx, double ury) {
-ENTERING("1vvsta5i8of59frav6uymguav","boxfof");
-try {
-    final __struct__<boxf> b = JUtils.from(boxf.class);
-    b.getStruct("LL").setDouble("x", llx);
-    b.getStruct("LL").setDouble("y", lly);
-    b.getStruct("UR").setDouble("x", urx);
-    b.getStruct("UR").setDouble("y", ury);
-    return b;
-} finally {
-LEAVING("1vvsta5i8of59frav6uymguav","boxfof");
-}
-}
 
 
 
@@ -408,16 +384,16 @@ throw new UnsupportedOperationException();
 
 //3 arrsbik9b5tnfcbzsm8gr2chx
 // static inline pointf add_pointf(pointf p, pointf q) 
-public static __struct__<pointf> add_pointf(final __struct__<pointf> p, final __struct__<pointf> q) {
+public static ST_pointf add_pointf(final ST_pointf p, final ST_pointf q) {
 // WARNING!! STRUCT
 return add_pointf_w_(p.copy(), q.copy()).copy();
 }
-private static __struct__<pointf> add_pointf_w_(final __struct__<pointf> p, final __struct__<pointf> q) {
+private static ST_pointf add_pointf_w_(final ST_pointf p, final ST_pointf q) {
 ENTERING("arrsbik9b5tnfcbzsm8gr2chx","add_pointf");
 try {
-    final __struct__<pointf> r = JUtils.from(pointf.class);
-    r.setDouble("x", p.getDouble("x") + q.getDouble("x"));
-    r.setDouble("y", p.getDouble("y") + q.getDouble("y"));
+    final ST_pointf r = new ST_pointf();
+    r.setDouble("x", p.x + q.x);
+    r.setDouble("y", p.y + q.y);
     return r;
 } finally {
 LEAVING("arrsbik9b5tnfcbzsm8gr2chx","add_pointf");
@@ -767,7 +743,7 @@ private final static __struct__ createArrowtypes(int type, double lenfact, CFunc
 
 //3 3apnay8wumntfkvud64ov7fcf
 // static char *arrow_match_name_frag(char *name, arrowname_t * arrownames, int *flag) 
-public static CString arrow_match_name_frag(CString name, __array_of_struct__ arrownames, int flag[]) {
+public static CString arrow_match_name_frag(CString name, ST_arrowname_t[] arrowsynonyms, int flag[]) {
 ENTERING("3apnay8wumntfkvud64ov7fcf","arrow_match_name_frag");
 try {
  UNSUPPORTED("cw8t22aa6zs16jqowqjjkzywg"); // static char *arrow_match_name_frag(char *name, arrowname_t * arrownames, int *flag)
@@ -845,11 +821,11 @@ LEAVING("2pveqb5qcgfxcqp410ub942eg","arrow_match_name");
 
 //3 2szgwtfieaw58pea2ohjyu8ea
 // void arrow_flags(Agedge_t * e, int *sflag, int *eflag) 
-public static void arrow_flags(Agedge_s e, int sflag[], int eflag[]) {
+public static void arrow_flags(ST_Agedge_s e, int sflag[], int eflag[]) {
 ENTERING("2szgwtfieaw58pea2ohjyu8ea","arrow_flags");
 try {
     CString attr;
-    arrowdir_t arrowdir;
+    ST_arrowdir_t arrowdir;
     sflag[0] = (0);
     eflag[0] = agisdirected(agraphof(e)) ? 1 : (0);
     if (Z.z().E_dir!=null && ((attr = agxget(e, Z.z().E_dir))).charAt(0)!='\0') {
@@ -884,18 +860,17 @@ LEAVING("2szgwtfieaw58pea2ohjyu8ea","arrow_flags");
 
 //3 1yk5wl46i7rlzcern0tefd24s
 // double arrow_length(edge_t * e, int flag) 
-public static double arrow_length(Agedge_s e, int flag) {
+public static double arrow_length(ST_Agedge_s e, int flag) {
 ENTERING("1yk5wl46i7rlzcern0tefd24s","arrow_length");
 try {
-    __ptr__ arrowtype;
     double lenfact = 0.0;
     int f, i;
     for (i = 0; i < 4; i++) {
         /* we don't simply index with flag because arrowtypes are not necessarily sorted */
         f = (flag >> (i * 8)) & ((1 << 4) - 1);
-        for (arrowtype = Z.z().Arrowtypes.asPtr(); arrowtype.getPtr("gen")!=null; arrowtype=arrowtype.plus(1)) {
-	    if (f == arrowtype.getInt("type")) {
-	        lenfact += arrowtype.getDouble("lenfact");
+        for (int arrowtype = 0; Z.z().Arrowtypes[arrowtype].gen!=null; arrowtype++) {
+	    if (f == Z.z().Arrowtypes[arrowtype].type) {
+	        lenfact += Z.z().Arrowtypes[arrowtype].lenfact;
 	        break;
 	    }
         }
@@ -913,14 +888,14 @@ LEAVING("1yk5wl46i7rlzcern0tefd24s","arrow_length");
 
 //3 7ymcsnwqkr1crisrga0kezh1f
 // static boolean inside(inside_t * inside_context, pointf p) 
-public static boolean inside(inside_t inside_context, final __struct__<pointf> p) {
+public static boolean inside(ST_inside_t inside_context, final ST_pointf p) {
 // WARNING!! STRUCT
 return inside_w_(inside_context, p.copy());
 }
-private static boolean inside_w_(inside_t inside_context, final __struct__<pointf> p) {
+private static boolean inside_w_(ST_inside_t inside_context, final ST_pointf p) {
 ENTERING("7ymcsnwqkr1crisrga0kezh1f","inside");
 try {
-    return DIST2(p, inside_context.getPtr("a.p").plus(0).getPtr()) <= inside_context.getPtr("a.r").getDouble();
+    return DIST2(p, inside_context.a_p.get(0)) <= inside_context.a_r.getDouble();
 } finally {
 LEAVING("7ymcsnwqkr1crisrga0kezh1f","inside");
 }
@@ -931,28 +906,28 @@ LEAVING("7ymcsnwqkr1crisrga0kezh1f","inside");
 
 //3 9eellwhg4gsa2pdszpeqihs2d
 // int arrowEndClip(edge_t* e, pointf * ps, int startp, 		 int endp, bezier * spl, int eflag) 
-public static int arrowEndClip(Agedge_s e, __ptr__ ps, int startp, int endp, bezier spl, int eflag) {
+public static int arrowEndClip(ST_Agedge_s e, ST_pointf.Array ps, int startp, int endp, ST_bezier spl, int eflag) {
 ENTERING("9eellwhg4gsa2pdszpeqihs2d","arrowEndClip");
 try {
-    final __struct__<inside_t> inside_context = JUtils.from(inside_t.class);
-    final __array_of_struct__ sp = __array_of_struct_impl__.malloc(pointf.class, 4);
+    final ST_inside_t inside_context = new ST_inside_t();
+    final ST_pointf.Array sp = new ST_pointf.Array( 4);
     double elen;
     MutableDouble elen2 = new MutableDouble(0);
     elen = arrow_length(e, eflag);
     elen2.setValue(elen * elen);
     spl.setInt("eflag", eflag);
     spl.setStruct("ep", ps.plus(endp + 3).getStruct());
-    if (endp > startp && DIST2(ps.plus(endp).getPtr(), ps.plus(endp + 3).getPtr()) < elen2.getValue()) {
+    if (endp > startp && DIST2(ps.get(endp), ps.get(endp + 3)) < elen2.getValue()) {
 	endp -= 3;
     }
     sp.plus(3).setStruct(ps.plus(endp).getStruct());
     sp.plus(2).setStruct(ps.plus(endp+1).getStruct());
     sp.plus(1).setStruct(ps.plus(endp+2).getStruct());
-    sp.plus(0).setStruct(spl.getStruct("ep"));
+    sp.plus(0).setStruct(spl.ep);
     /* ensure endpoint starts inside */
     inside_context.setPtr("a.p", sp.plus(0).asPtr());
     inside_context.setPtr("a.r", elen2.amp());
-    bezier_clip(inside_context.amp(), function(arrows__c.class, "inside"), sp, NOT(false));
+    bezier_clip(inside_context, function(arrows__c.class, "inside"), sp, NOT(false));
     ps.plus(endp).setStruct(sp.plus(3).getStruct());
     ps.plus(endp+1).setStruct(sp.plus(2).getStruct());
     ps.plus(endp+2).setStruct(sp.plus(1).getStruct());
@@ -968,28 +943,28 @@ LEAVING("9eellwhg4gsa2pdszpeqihs2d","arrowEndClip");
 
 //3 q7y4oxn0paexbgynmtg2zmiv
 // int arrowStartClip(edge_t* e, pointf * ps, int startp, 		   int endp, bezier * spl, int sflag) 
-public static int arrowStartClip(Agedge_s e, __ptr__ ps, int startp, int endp, bezier spl, int sflag) {
+public static int arrowStartClip(ST_Agedge_s e, ST_pointf.Array ps, int startp, int endp, ST_bezier spl, int sflag) {
 ENTERING("q7y4oxn0paexbgynmtg2zmiv","arrowStartClip");
 try {
-    final __struct__<inside_t> inside_context = JUtils.from(inside_t.class);
-    final __array_of_struct__ sp = __array_of_struct_impl__.malloc(pointf.class, 4);
+    final ST_inside_t inside_context = new ST_inside_t();
+    final ST_pointf.Array sp = new ST_pointf.Array( 4);
     double slen;
     MutableDouble slen2 = new MutableDouble(0);
     slen = arrow_length(e, sflag);
     slen2.setValue(slen * slen);
     spl.setInt("sflag", sflag);
     spl.setStruct("sp", ps.plus(startp).getStruct());
-    if (endp > startp && DIST2(ps.plus(startp).getPtr(), ps.plus(startp + 3).getPtr()) < slen2.getValue()) {
+    if (endp > startp && DIST2(ps.get(startp), ps.get(startp + 3)) < slen2.getValue()) {
     	startp += 3;
     }
     sp.plus(0).setStruct(ps.plus(startp+3).getStruct());
     sp.plus(1).setStruct(ps.plus(startp+2).getStruct());
     sp.plus(2).setStruct(ps.plus(startp+1).getStruct());
-    sp.plus(3).setStruct(spl.getStruct("sp"));
+    sp.plus(3).setStruct(spl.sp);
     /* ensure endpoint starts inside */
     inside_context.setPtr("a.p", sp.plus(3).asPtr());
     inside_context.setPtr("a.r", slen2.amp());
-    bezier_clip(inside_context.amp(), function(arrows__c.class, "inside"), sp, false);
+    bezier_clip(inside_context, function(arrows__c.class, "inside"), sp, false);
     ps.plus(startp).setStruct(sp.plus(3).getStruct());
     ps.plus(startp+1).setStruct(sp.plus(2).getStruct());
     ps.plus(startp+2).setStruct(sp.plus(1).getStruct());

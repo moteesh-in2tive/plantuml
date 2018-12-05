@@ -103,20 +103,20 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getDotExecutable();
 	}
 
-	public HorizontalAlignment getHorizontalAlignment(AlignParam param, ArrowDirection arrowDirection) {
-		return skinParam.getHorizontalAlignment(param, arrowDirection);
+	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection, boolean isReverseDefine) {
+		return skinParam.getHorizontalAlignment(param, arrowDirection, isReverseDefine);
 	}
 
 	public ColorMapper getColorMapper() {
 		return skinParam.getColorMapper();
 	}
 
-	public boolean shadowing() {
-		return skinParam.shadowing();
+	public boolean shadowing(Stereotype stereotype) {
+		return skinParam.shadowing(stereotype);
 	}
 
-	public boolean shadowing2(SkinParameter skinParameter) {
-		return skinParam.shadowing2(skinParameter);
+	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter) {
+		return skinParam.shadowing2(stereotype, skinParameter);
 	}
 
 	public PackageStyle getPackageStyle() {
@@ -293,6 +293,14 @@ public class SkinParamDelegator implements ISkinParam {
 
 	public char getCircledCharacter(Stereotype stereotype) {
 		return skinParam.getCircledCharacter(stereotype);
+	}
+
+	public LineBreakStrategy swimlaneWrapTitleWidth() {
+		return skinParam.swimlaneWrapTitleWidth();
+	}
+
+	public boolean fixCircleLabelOverlapping() {
+		return skinParam.fixCircleLabelOverlapping();
 	}
 
 }

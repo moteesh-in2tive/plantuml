@@ -41,15 +41,21 @@ import java.util.Collection;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexOr;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 
 public class SubjectDaysAsDates implements SubjectPattern {
 
 	public Collection<VerbPattern> getVerbs() {
-		return Arrays.<VerbPattern> asList(new VerbIs());
+		return Arrays.<VerbPattern> asList(new VerbIsOrAre(), new VerbIsOrAreNamed());
 	}
 
 	public IRegex toRegex() {
+		return new RegexOr(regexTo(), regexAnd(), regexThen());
+
+	}
+
+	private IRegex regexTo() {
 		return new RegexConcat( //
 				new RegexLeaf("YEAR1", "([\\d]{4})"), //
 				new RegexLeaf("\\D"), //
@@ -62,11 +68,45 @@ public class SubjectDaysAsDates implements SubjectPattern {
 				new RegexLeaf("MONTH2", "([\\d]{1,2})"), //
 				new RegexLeaf("\\D"), //
 				new RegexLeaf("DAY2", "([\\d]{1,2})") //
+		);
+	}
+
+	private IRegex regexAnd() {
+		return new RegexConcat( //
+				new RegexLeaf("YEAR3", "([\\d]{4})"), //
+				new RegexLeaf("\\D"), //
+				new RegexLeaf("MONTH3", "([\\d]{1,2})"), //
+				new RegexLeaf("\\D"), //
+				new RegexLeaf("DAY3", "([\\d]{1,2})"), //
+				new RegexLeaf("[%s]+and[%s]+"), //
+				new RegexLeaf("COUNT_AND", "([\\d]+)"), //
+				new RegexLeaf("[%s]+days?") //
+
+		);
+	}
+
+	private IRegex regexThen() {
+		return new RegexConcat( //
+				new RegexLeaf("then[%s]+"), //
+				new RegexLeaf("COUNT_THEN", "([\\d]+)"), //
+				new RegexLeaf("[%s]+days?") //
 
 		);
 	}
 
 	public Subject getSubject(GanttDiagram project, RegexResult arg) {
+		final String countAnd = arg.get("COUNT_AND", 0);
+		if (countAnd != null) {
+			final DayAsDate date3 = getDate(arg, "3");
+			final int nb = Integer.parseInt(countAnd);
+			return new DaysAsDates(project, date3, nb);
+		}
+		final String countThen = arg.get("COUNT_THEN", 0);
+		if (countThen != null) {
+			final DayAsDate date3 = project.getThenDate();
+			final int nb = Integer.parseInt(countThen);
+			return new DaysAsDates(project, date3, nb);			
+		}
 		final DayAsDate date1 = getDate(arg, "1");
 		final DayAsDate date2 = getDate(arg, "2");
 		return new DaysAsDates(date1, date2);

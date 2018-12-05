@@ -123,9 +123,6 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 			throws IOException {
 		final double margin = 10;
 
-		// public ImageBuilder(ColorMapper colorMapper, double dpiFactor, HtmlColor mybackcolor, String metadata,
-		// String warningOrError, double margin1, double margin2, Animation animation, boolean useHandwritten) {
-
 		sortTasks();
 		final Scale scale = getScale();
 
@@ -176,7 +173,7 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 		return (GCalendarSimple) calendar;
 	}
 
-	public LoadPlanable getDefaultPlan() {
+	public final LoadPlanable getDefaultPlan() {
 		return new LoadPlanable() {
 			public int getLoadAt(Instant instant) {
 				if (calendar == null) {
@@ -205,24 +202,35 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 
 		final double xmin = timeScale.getStartingPosition(min);
 		final double xmax = timeScale.getEndingPosition(max);
-		ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).draw(new ULine(xmax - xmin, 0));
-		ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).apply(new UTranslate(0, getHeaderHeight() - 3))
-				.draw(new ULine(xmax - xmin, 0));
 		if (calendar == null) {
 			drawSimpleDayCounter(ug, timeScale, yTotal);
 		} else {
 			drawCalendar(ug, timeScale, yTotal);
 		}
+		ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).draw(new ULine(xmax - xmin, 0));
+		ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).apply(new UTranslate(0, getHeaderHeight() - 3))
+				.draw(new ULine(xmax - xmin, 0));
 
 	}
 
 	private final HtmlColor veryLightGray = new HtmlColorSetSimple().getColorIfValid("#E0E8E8");
 
 	private double getHeaderHeight() {
+		return getTimeHeaderHeight() + getHeaderNameDayHeight();
+	}
+
+	private double getTimeHeaderHeight() {
 		if (calendar != null) {
 			return Y_WEEKDAY + Y_NUMDAY;
 		}
 		return 16;
+	}
+
+	private double getHeaderNameDayHeight() {
+		if (calendar != null && nameDays.size() > 0) {
+			return 16;
+		}
+		return 0;
 	}
 
 	private static final int Y_WEEKDAY = 16;
@@ -239,28 +247,33 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 			final DayOfWeek dayOfWeek = day.getDayOfWeek();
 			final boolean isWorkingDay = getDefaultPlan().getLoadAt(i) > 0;
 			final String d1 = "" + day.getDayOfMonth();
-			final TextBlock num = getTextBlock(d1, 10);
+			final TextBlock num = getTextBlock(d1, 10, false);
 			final double x1 = timeScale.getStartingPosition(i);
 			final double x2 = timeScale.getEndingPosition(i);
 			if (i.compareTo(max2.increment()) < 0) {
-				final TextBlock weekDay = getTextBlock(dayOfWeek.shortName(), 10);
+				final TextBlock weekDay = getTextBlock(dayOfWeek.shortName(), 10, false);
 
+				final URectangle rect = new URectangle(x2 - x1 - 1, yTotal - Y_WEEKDAY);
 				if (isWorkingDay) {
+					final HtmlColor back = colorDays.get(day);
+					if (back != null) {
+						ug.apply(new UChangeColor(null)).apply(new UChangeBackColor(back))
+								.apply(new UTranslate(x1 + 1, Y_WEEKDAY)).draw(rect);
+					}
 					drawCenter(ug.apply(new UTranslate(0, Y_NUMDAY)), num, x1, x2);
 					drawCenter(ug.apply(new UTranslate(0, Y_WEEKDAY)), weekDay, x1, x2);
 				} else {
-					final URectangle rect = new URectangle(x2 - x1 - 1, yTotal - Y_WEEKDAY);
 					ug.apply(new UChangeColor(null)).apply(new UChangeBackColor(veryLightGray))
 							.apply(new UTranslate(x1 + 1, Y_WEEKDAY)).draw(rect);
 				}
 				if (lastMonth != day.getMonth()) {
 					final int delta = 5;
 					if (lastMonth != null) {
-						final TextBlock lastMonthBlock = getTextBlock(lastMonth.name(), 12);
+						final TextBlock lastMonthBlock = getTextBlock(lastMonth.name(), 12, true);
 						lastMonthBlock.drawU(ug.apply(new UTranslate(x1
 								- lastMonthBlock.calculateDimension(ug.getStringBounder()).getWidth() - delta, 0)));
 					}
-					final TextBlock month = getTextBlock(day.getMonth().name(), 12);
+					final TextBlock month = getTextBlock(day.getMonth().name(), 12, true);
 					month.drawU(ug.apply(new UTranslate(x1 + delta, 0)));
 					ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).apply(new UTranslate(x1, 0))
 							.draw(new ULine(0, Y_WEEKDAY));
@@ -269,10 +282,29 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 			}
 			ug.apply(new UChangeColor(HtmlColorUtils.LIGHT_GRAY)).apply(new UTranslate(x1, Y_WEEKDAY)).draw(vbar);
 		}
+
+		if (nameDays.size() > 0) {
+			String last = null;
+			for (Instant i = min; i.compareTo(max2.increment()) <= 0; i = i.increment()) {
+				final DayAsDate day = calendarAll.toDayAsDate((InstantDay) i);
+				final String name = nameDays.get(day);
+				if (name != null && name.equals(last) == false) {
+					final double x1 = timeScale.getStartingPosition(i);
+					final double x2 = timeScale.getEndingPosition(i);
+					final TextBlock label = getTextBlock(name, 12, false);
+					final double h = label.calculateDimension(ug.getStringBounder()).getHeight();
+					double y1 = getTimeHeaderHeight();
+					double y2 = getHeaderHeight();
+					label.drawU(ug.apply(new UTranslate(x1, Y_NUMDAY + 11)));
+				}
+				last = name;
+			}
+
+		}
 	}
 
-	private TextBlock getTextBlock(final String text, int size) {
-		return Display.getWithNewlines(text).create(getFontConfiguration(size), HorizontalAlignment.LEFT,
+	private TextBlock getTextBlock(final String text, int size, boolean bold) {
+		return Display.getWithNewlines(text).create(getFontConfiguration(size, bold), HorizontalAlignment.LEFT,
 				new SpriteContainerEmpty());
 	}
 
@@ -288,7 +320,7 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 	private void drawSimpleDayCounter(final UGraphic ug, TimeScale timeScale, final double yTotal) {
 		final ULine vbar = new ULine(0, yTotal);
 		for (Instant i = min; i.compareTo(max.increment()) <= 0; i = i.increment()) {
-			final TextBlock num = Display.getWithNewlines(i.toShortString()).create(getFontConfiguration(10),
+			final TextBlock num = Display.getWithNewlines(i.toShortString()).create(getFontConfiguration(10, false),
 					HorizontalAlignment.LEFT, new SpriteContainerEmpty());
 			final double x1 = timeScale.getStartingPosition(i);
 			final double x2 = timeScale.getEndingPosition(i);
@@ -325,20 +357,53 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 
 	private void initMinMax() {
 		// min = tasks.values().iterator().next().getStart();
-		max = tasks.values().iterator().next().getEnd();
-		for (Task task : tasks.values()) {
-			if (task instanceof TaskSeparator) {
-				continue;
-			}
-			final Instant start = task.getStart();
-			final Instant end = task.getEnd();
-			// if (min.compareTo(start) > 0) {
-			// min = start;
-			// }
-			if (max.compareTo(end) < 0) {
-				max = end;
+		if (tasks.size() == 0) {
+			max = min.increment();
+		} else {
+			max = tasks.values().iterator().next().getEnd();
+			for (Task task : tasks.values()) {
+				if (task instanceof TaskSeparator) {
+					continue;
+				}
+				final Instant start = task.getStart();
+				final Instant end = task.getEnd();
+				// if (min.compareTo(start) > 0) {
+				// min = start;
+				// }
+				if (max.compareTo(end) < 0) {
+					max = end;
+				}
 			}
 		}
+		if (calendar != null) {
+			for (DayAsDate d : colorDays.keySet()) {
+				final Instant instant = calendar.fromDayAsDate(d);
+				if (instant.compareTo(max) > 0) {
+					max = instant;
+				}
+			}
+			for (DayAsDate d : nameDays.keySet()) {
+				final Instant instant = calendar.fromDayAsDate(d);
+				if (instant.compareTo(max) > 0) {
+					max = instant;
+				}
+			}
+		}
+	}
+
+	public DayAsDate getThenDate() {
+		DayAsDate result = getStartingDate();
+		for (DayAsDate d : colorDays.keySet()) {
+			if (d.compareTo(result) > 0) {
+				result = d;
+			}
+		}
+		for (DayAsDate d : nameDays.keySet()) {
+			if (d.compareTo(result) > 0) {
+				result = d;
+			}
+		}
+		return result;
 	}
 
 	private void drawTasks(final UGraphic ug, TimeScale timeScale) {
@@ -353,9 +418,9 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 		}
 	}
 
-	private FontConfiguration getFontConfiguration(int size) {
+	private FontConfiguration getFontConfiguration(int size, boolean bold) {
 		UFont font = UFont.serif(size);
-		if (size > 10) {
+		if (bold) {
 			font = font.bold();
 		}
 		return new FontConfiguration(font, HtmlColorUtils.BLACK, HtmlColorUtils.BLACK, false);
@@ -456,7 +521,14 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 	}
 
 	public DayAsDate getStartingDate() {
+		if (this.calendar == null) {
+			return null;
+		}
 		return this.calendar.getStartingDate();
+	}
+
+	public int daysInWeek() {
+		return 7 - closedDayOfWeek.size();
 	}
 
 	public void closeDayOfWeek(DayOfWeek day) {
@@ -469,6 +541,10 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 
 	public Instant convert(DayAsDate day) {
 		return calendar.fromDayAsDate(day);
+	}
+
+	public boolean isOpen(DayAsDate day) {
+		return getDefaultPlan().getLoadAt(convert(day)) > 0;
 	}
 
 	private final Map<String, Resource> resources = new LinkedHashMap<String, Resource>();
@@ -497,6 +573,56 @@ public class GanttDiagram extends AbstractPSystem implements Subject {
 			result += task2.loadForResource(res, i);
 		}
 		return result;
+	}
+
+	private final Map<DayAsDate, HtmlColor> colorDays = new HashMap<DayAsDate, HtmlColor>();
+	private final Map<DayAsDate, String> nameDays = new HashMap<DayAsDate, String>();
+
+	public Moment getExistingMoment(String id) {
+		Moment result = getExistingTask(id);
+		if (result == null) {
+			DayAsDate start = null;
+			DayAsDate end = null;
+			for (Map.Entry<DayAsDate, String> ent : nameDays.entrySet()) {
+				if (ent.getValue().equalsIgnoreCase(id) == false) {
+					continue;
+				}
+				start = min(start, ent.getKey());
+				end = max(end, ent.getKey());
+			}
+			if (start != null) {
+				result = new MomentImpl(convert(start), convert(end));
+			}
+		}
+		return result;
+	}
+
+	private DayAsDate min(DayAsDate d1, DayAsDate d2) {
+		if (d1 == null) {
+			return d2;
+		}
+		if (d1.compareTo(d2) > 0) {
+			return d2;
+		}
+		return d1;
+	}
+
+	private DayAsDate max(DayAsDate d1, DayAsDate d2) {
+		if (d1 == null) {
+			return d2;
+		}
+		if (d1.compareTo(d2) < 0) {
+			return d2;
+		}
+		return d1;
+	}
+
+	public void colorDay(DayAsDate day, HtmlColor color) {
+		colorDays.put(day, color);
+	}
+
+	public void nameDay(DayAsDate day, String name) {
+		nameDays.put(day, name);
 	}
 
 }

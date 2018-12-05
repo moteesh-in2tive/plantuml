@@ -54,12 +54,11 @@ import net.sourceforge.plantuml.version.Version;
 public class BlockUml {
 
 	private final List<CharSequence2> data;
-	private final int startLine;
 	private Diagram system;
 	private final Defines localDefines;
 
 	BlockUml(String... strings) {
-		this(convert(strings), 0, Defines.createEmpty());
+		this(convert(strings), Defines.createEmpty());
 	}
 
 	public String getEncodedUrl() throws IOException {
@@ -93,8 +92,7 @@ public class BlockUml {
 		return result;
 	}
 
-	public BlockUml(List<CharSequence2> strings, int startLine, Defines defines) {
-		this.startLine = startLine;
+	public BlockUml(List<CharSequence2> strings, Defines defines) {
 		this.localDefines = defines;
 		final CharSequence2 s0 = strings.get(0).trin();
 		if (StartUtils.startsWithSymbolAnd("start", s0) == false) {
@@ -132,13 +130,9 @@ public class BlockUml {
 
 	public Diagram getDiagram() {
 		if (system == null) {
-			system = new PSystemBuilderStripped().createPSystem(data, startLine);
+			system = new PSystemBuilderStripped().createPSystem(data);
 		}
 		return system;
-	}
-
-	public final int getStartLine() {
-		return startLine;
 	}
 
 	public final List<CharSequence2> getData() {
@@ -173,9 +167,9 @@ public class BlockUml {
 		return data.get(0).toString().equalsIgnoreCase(signature);
 	}
 
-	public List<? extends CharSequence> getDefinition() {
-		if (data.get(0).toString().startsWith("@startdef") == false) {
-			throw new IllegalStateException();
+	public List<? extends CharSequence> getDefinition(boolean withHeader) {
+		if (withHeader) {
+			return Collections.unmodifiableList(data);
 		}
 		return Collections.unmodifiableList(data.subList(1, data.size() - 1));
 	}

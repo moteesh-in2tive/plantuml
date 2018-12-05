@@ -53,11 +53,36 @@ public class PSystemVersionFactory extends PSystemSingleLineFactory {
 			if (line.matches("(?i)^version\\s*$")) {
 				return PSystemVersion.createShowVersion();
 			}
+			if (line.matches("(?i)^stdlib\\s*$")) {
+				return PSystemVersion.createStdLib();
+			}
+			if (line.matches("(?i)^path\\s*$")) {
+				return PSystemVersion.createPath();
+			}
 			if (line.matches("(?i)^testdot\\s*$")) {
 				return PSystemVersion.createTestDot();
 			}
+			if (line.matches("(?i)^dumpstacktrace\\s*$")) {
+				return PSystemVersion.createDumpStackTrace();
+			}
+			if (line.matches("(?i)^keydistributor\\s*$")) {
+				return PSystemVersion.createKeyDistributor();
+			}
 			if (line.matches("(?i)^checkversion\\s*$")) {
 				return PSystemVersion.createCheckVersions(null, null);
+			}
+			if (line.matches("(?i)^(keygen|keyimport)(\\s+[0-9a-z]+)?\\s*$")) {
+				line = line.trim();
+				final String key = line.startsWith("keygen") ? line.substring("keygen".length()).trim() : line
+						.substring("keyimport".length()).trim();
+				return new PSystemKeygen(key);
+			}
+			if (line.matches("(?i)^keycheck\\s+([0-9a-z]+)\\s+([0-9a-z]+)\\s*$")) {
+				final Pattern p = Pattern.compile("(?i)^keycheck\\s+([0-9a-z]+)\\s+([0-9a-z]+)\\s*$");
+				final Matcher m = p.matcher(line);
+				if (m.find()) {
+					return new PSystemKeycheck(m.group(1), m.group(2));
+				}
 			}
 			final Pattern p1 = Pattern.compile("(?i)^checkversion\\(proxy=([\\w.]+),port=(\\d+)\\)$");
 			final Matcher m1 = p1.matcher(line);
@@ -79,5 +104,4 @@ public class PSystemVersionFactory extends PSystemSingleLineFactory {
 		}
 		return null;
 	}
-
 }

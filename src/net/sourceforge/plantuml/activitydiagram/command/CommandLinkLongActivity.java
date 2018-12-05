@@ -108,7 +108,7 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 				new RegexLeaf("$"));
 	}
 
-	public CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(final ActivityDiagram diagram, BlocLines lines) {
 		lines = lines.trim(false);
 		final RegexResult line0 = getStartingPattern().matcher(StringUtils.trin(lines.getFirst499()));
 
@@ -217,7 +217,7 @@ public class CommandLinkLongActivity extends CommandMultilines2<ActivityDiagram>
 			link.setUrl(urlLink);
 		}
 
-		CommandLinkClass.applyStyle(line0.getLazzy("ARROW_STYLE", 0), link);
+		link.applyStyle(line0.getLazzy("ARROW_STYLE", 0));
 		diagram.addLink(link);
 
 		return CommandExecutionResult.ok();

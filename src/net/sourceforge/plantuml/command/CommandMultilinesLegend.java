@@ -65,7 +65,7 @@ public class CommandMultilinesLegend extends CommandMultilines2<UmlDiagram> {
 	}
 
 	@Override
-	public CommandExecutionResult executeNow(UmlDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(UmlDiagram diagram, BlocLines lines) {
 		lines = lines.trimSmart(1);
 		final RegexResult line0 = getStartingPattern().matcher(StringUtils.trin(lines.getFirst499()));
 		final String align = line0.get("ALIGN", 0);
@@ -79,7 +79,7 @@ public class CommandMultilinesLegend extends CommandMultilines2<UmlDiagram> {
 			if (alignment == null) {
 				alignment = HorizontalAlignment.CENTER;
 			}
-			diagram.setLegend(DisplayPositionned.single(strings, alignment, valignment));
+			diagram.setLegend(DisplayPositionned.single(strings.replaceBackslashT(), alignment, valignment));
 			return CommandExecutionResult.ok();
 		}
 		return CommandExecutionResult.error("No legend defined");

@@ -147,10 +147,14 @@ public class ScientificEquationSafe {
 			return new ImageDataSimple(image.getWidth(), image.getHeight());
 		}
 		if (fileFormat.getFileFormat() == FileFormat.SVG) {
-			os.write(getSvg(1, foregroundColor, backgroundColor).getSvg().getBytes());
+			os.write(getSvg(1, foregroundColor, backgroundColor).getSvg(true).getBytes());
 			return dimSvg;
 		}
 		return null;
+	}
+
+	public final String getFormula() {
+		return formula;
 	}
 
 }

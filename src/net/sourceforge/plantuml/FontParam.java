@@ -45,6 +45,7 @@ interface FontParamConstant {
 }
 
 public enum FontParam {
+	TIMING(12, Font.PLAIN), //
 	ACTIVITY(12, Font.PLAIN), //
 	ACTIVITY_DIAMOND(11, Font.PLAIN), //
 	// ACTIVITY_ARROW(11, Font.PLAIN), //
@@ -118,7 +119,14 @@ public enum FontParam {
 	STACK_STEREOTYPE(14, Font.ITALIC), //
 	ACTOR_STEREOTYPE(14, Font.ITALIC), //
 	SEQUENCE_STEREOTYPE(14, Font.ITALIC), //
-	PARTITION(14, Font.PLAIN); //
+	PARTITION(14, Font.PLAIN), DESIGNED_DOMAIN(12, Font.PLAIN), //
+	DESIGNED_DOMAIN_STEREOTYPE(12, Font.ITALIC), //
+	DOMAIN(12, Font.PLAIN), //
+	DOMAIN_STEREOTYPE(12, Font.ITALIC), //
+	MACHINE(12, Font.PLAIN), //
+	MACHINE_STEREOTYPE(12, Font.ITALIC), //
+	REQUIREMENT(12, Font.PLAIN), //
+	REQUIREMENT_STEREOTYPE(12, Font.ITALIC); //
 
 	private final int defaultSize;
 	private final int fontStyle;

@@ -43,28 +43,36 @@ import java.util.StringTokenizer;
 public class DefineSignature {
 
 	private final String key;
-	private final String fctName;
-	private final Variables vars = new Variables();
+	private final String fonctionName;
+	private final List<Variables> variables = new ArrayList<Variables>();
+	private final boolean isMethod;
 
-	public DefineSignature(String key) {
+	public DefineSignature(String key, String definitionQuoted) {
 		this.key = key;
+		this.isMethod = key.contains("(");
 
 		final StringTokenizer st = new StringTokenizer(key, "(),");
-		this.fctName = st.nextToken().trim();
+		this.fonctionName = st.nextToken().trim();
+		final Variables master = new Variables(fonctionName, definitionQuoted);
 
 		while (st.hasMoreTokens()) {
 			final String var1 = st.nextToken().trim();
-			this.vars.add(new DefineVariable(var1));
+			master.add(new DefineVariable(var1));
+		}
+
+		final int count = master.countDefaultValue();
+		for (int i = 0; i <= count; i++) {
+			variables.add(master.removeSomeDefaultValues(i));
 		}
 	}
 
 	@Override
 	public String toString() {
-		return key + "/" + fctName + "/" + vars;
+		return key + "/" + fonctionName;
 	}
 
 	public boolean isMethod() {
-		return key.contains("(");
+		return isMethod;
 	}
 
 	public String getKey() {
@@ -72,16 +80,11 @@ public class DefineSignature {
 	}
 
 	public List<Variables> getVariationVariables() {
-		final List<Variables> result = new ArrayList<Variables>();
-		final int count = vars.countDefaultValue();
-		for (int i = 0; i <= count; i++) {
-			result.add(vars.removeSomeDefaultValues(i));
-		}
-		return Collections.unmodifiableList(result);
+		return Collections.unmodifiableList(variables);
 	}
 
-	public String getFonctionName() {
-		return fctName;
+	public final String getFonctionName() {
+		return fonctionName;
 	}
 
 }

@@ -35,6 +35,7 @@
  */
 package net.sourceforge.plantuml.svek;
 
+import java.awt.Color;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class GraphvizCrash extends AbstractTextBlock implements IEntityImage {
 	public GraphvizCrash(String text) {
 		this.text = text;
 		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-		this.flashCode = utils.exportFlashcode(text);
+		this.flashCode = utils.exportFlashcode(text, Color.BLACK, Color.WHITE);
 		this.graphicStrings = GraphicStrings.createBlackOnWhite(init(), IconLoader.getRandom(),
 				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
 	}
@@ -150,7 +151,7 @@ public class GraphvizCrash extends AbstractTextBlock implements IEntityImage {
 
 	public static void addDecodeHint(final List<String> strings) {
 		strings.add(" ");
-		strings.add(" Diagram source: (Use http://zxing.org/w/decode.jspx to decode the flashcode)");
+		strings.add(" Diagram source: (Use http://zxing.org/w/decode.jspx to decode the qrcode)");
 	}
 
 	public static void addProperties(final List<String> strings) {
@@ -184,7 +185,7 @@ public class GraphvizCrash extends AbstractTextBlock implements IEntityImage {
 		if (flashCode != null) {
 			final double h = graphicStrings.calculateDimension(ug.getStringBounder()).getHeight();
 			ug = ug.apply(new UTranslate(0, h));
-			ug.draw(new UImage(flashCode));
+			ug.draw(new UImage(flashCode).scaleNearestNeighbor(3));
 		}
 	}
 

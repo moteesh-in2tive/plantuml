@@ -35,6 +35,7 @@
  */
 package net.sourceforge.plantuml;
 
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
@@ -59,6 +60,7 @@ import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.cucadiagram.UnparsableGraphvizException;
@@ -85,7 +87,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 import net.sourceforge.plantuml.version.Version;
 
-public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Annotated {
+public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Annotated, WithSprite {
 
 	private boolean rotation;
 	private boolean hideUnlinkedData;
@@ -97,6 +99,7 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 	private DisplayPositionned legend = DisplayPositionned.none(HorizontalAlignment.CENTER, VerticalAlignment.BOTTOM);
 	private final DisplaySection header = DisplaySection.none();
 	private final DisplaySection footer = DisplaySection.none();
+	private Display mainFrame;
 
 	private final Pragma pragma = new Pragma();
 	private Animation animation;
@@ -108,6 +111,10 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 			return;
 		}
 		this.title = title;
+	}
+
+	final public void setMainFrame(Display mainFrame) {
+		this.mainFrame = mainFrame;
 	}
 
 	final public void setCaption(DisplayPositionned caption) {
@@ -209,7 +216,9 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 			throws IOException {
 
 		final HtmlColor hover = getSkinParam().getHoverPathColor();
-		fileFormatOption = fileFormatOption.withSvgLinkTarget(getSkinParam().getSvgLinkTarget());
+		if (fileFormatOption.getSvgLinkTarget() == null || fileFormatOption.getSvgLinkTarget().equals("_top")) {
+			fileFormatOption = fileFormatOption.withSvgLinkTarget(getSkinParam().getSvgLinkTarget());
+		}
 		fileFormatOption = fileFormatOption.withTikzFontDistortion(getSkinParam().getTikzFontDistortion());
 		if (hover != null) {
 			fileFormatOption = fileFormatOption.withHoverColor(StringUtils.getAsHtml(getSkinParam().getColorMapper()
@@ -254,7 +263,7 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 				metadata, null, 0, 0, null, false);
 
 		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-		final BufferedImage im = utils.exportFlashcode(flash);
+		final BufferedImage im = utils.exportFlashcode(flash, Color.BLACK, Color.WHITE);
 		if (im != null) {
 			GraphvizCrash.addDecodeHint(strings);
 		}
@@ -270,7 +279,7 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 					graphicStrings.drawU(ug);
 					final double height = graphicStrings.calculateDimension(ug.getStringBounder()).getHeight();
 					ug = ug.apply(new UTranslate(0, height));
-					ug.draw(new UImage(im));
+					ug.draw(new UImage(im).scaleNearestNeighbor(3));
 				}
 			});
 		}
@@ -428,11 +437,19 @@ public abstract class UmlDiagram extends AbstractPSystem implements Diagram, Ann
 		this.useJDot = useJDot;
 	}
 
+	public static final boolean FORCE_JDOT = false;
+
 	public boolean isUseJDot() {
+		if (FORCE_JDOT)
+			return true;
 		return useJDot;
 	}
 
-	public void setDotExecutable(String dotExecutable) {
+	private void setDotExecutable(String dotExecutable) {
 		skinParam.setDotExecutable(dotExecutable);
+	}
+
+	public final Display getMainFrame() {
+		return mainFrame;
 	}
 }

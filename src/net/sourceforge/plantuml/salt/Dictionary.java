@@ -39,12 +39,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.SpriteContainer;
 import net.sourceforge.plantuml.creole.CommandCreoleMonospaced;
 import net.sourceforge.plantuml.graphic.HtmlColorSetSimple;
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.salt.element.Element;
 import net.sourceforge.plantuml.salt.element.WrappedElement;
+import net.sourceforge.plantuml.ugraphic.ColorMapper;
+import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class Dictionary implements SpriteContainer, ISkinSimple {
@@ -64,7 +67,7 @@ public class Dictionary implements SpriteContainer, ISkinSimple {
 	}
 
 	public Sprite getSprite(String name) {
-		return null;
+		return sprites.get(name);
 	}
 
 	public String getValue(String key) {
@@ -93,6 +96,21 @@ public class Dictionary implements SpriteContainer, ISkinSimple {
 
 	public int getDpi() {
 		return 96;
+	}
+
+	private final Map<String, Sprite> sprites = new HashMap<String, Sprite>();
+
+	public void addSprite(String name, Sprite sprite) {
+		sprites.put(name, sprite);
+
+	}
+
+	public LineBreakStrategy wrapWidth() {
+		return LineBreakStrategy.NONE;
+	}
+
+	public ColorMapper getColorMapper() {
+		return new ColorMapperIdentity();
 	}
 
 }

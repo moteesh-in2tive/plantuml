@@ -46,12 +46,9 @@
 package h;
 
 import smetana.core.CFunction;
-import smetana.core.UnsupportedStarStruct;
-import smetana.core.UnsupportedStruct;
-import smetana.core.__ptr__;
-import smetana.core.amiga.StarStruct;
+import smetana.core.UnsupportedStructAndPtr;
 
-public class ST_Agiddisc_s extends UnsupportedStruct {
+public class ST_Agiddisc_s extends UnsupportedStructAndPtr {
 
 	public CFunction open;
 	public CFunction map;
@@ -61,37 +58,6 @@ public class ST_Agiddisc_s extends UnsupportedStruct {
 	public CFunction close;
 	public CFunction idregister;
 
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-		@Override
-		public Object call(String fieldName, Object... args) {
-			if (fieldName.equals("open")) {
-				return open.exe(args);
-			}
-			if (fieldName.equals("map")) {
-				return map.exe(args);
-			}
-			if (fieldName.equals("idregister")) {
-				return idregister.exe(args);
-			}
-			if (fieldName.equals("print")) {
-				return print.exe(args);
-			}
-			return super.call(fieldName, args);
-		}
-
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			if (fieldName.equals("print")) {
-				return print;
-			}
-			return super.getPtr(fieldName);
-		}
-	}
 
 	// public static List<String> DEFINITION = Arrays.asList(
 	// "struct Agiddisc_s",

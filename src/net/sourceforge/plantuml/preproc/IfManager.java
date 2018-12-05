@@ -43,7 +43,7 @@ import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.version.Version;
 
-class IfManager implements ReadLine {
+public class IfManager extends ReadLineInstrumented implements ReadLine {
 
 	protected static final Pattern2 ifdefPattern = MyPattern.cmpile("^[%s]*!if(n)?def[%s]+(.+)$");
 	protected static final Pattern2 ifcomparePattern = MyPattern
@@ -51,17 +51,18 @@ class IfManager implements ReadLine {
 	protected static final Pattern2 elsePattern = MyPattern.cmpile("^[%s]*!else[%s]*$");
 	protected static final Pattern2 endifPattern = MyPattern.cmpile("^[%s]*!endif[%s]*$");
 
-	private final Defines defines;
+	private final DefinesGet defines;
 	private final ReadLine source;
 
 	private IfManager child;
 
-	public IfManager(ReadLine source, Defines defines) {
+	public IfManager(ReadLine source, DefinesGet defines) {
 		this.defines = defines;
 		this.source = source;
 	}
 
-	final public CharSequence2 readLine() throws IOException {
+	@Override
+	final CharSequence2 readLineInst() throws IOException {
 		if (child != null) {
 			final CharSequence2 s = child.readLine();
 			if (s != null) {
@@ -95,7 +96,7 @@ class IfManager implements ReadLine {
 
 		m = ifdefPattern.matcher(s);
 		if (m.find()) {
-			boolean ok = defines.isDefine(m.group(2));
+			boolean ok = defines.get().isDefine(m.group(2));
 			if (m.group(1) != null) {
 				ok = !ok;
 			}
@@ -117,7 +118,8 @@ class IfManager implements ReadLine {
 		return 0;
 	}
 
-	public void close() throws IOException {
+	@Override
+	void closeInst() throws IOException {
 		source.close();
 	}
 

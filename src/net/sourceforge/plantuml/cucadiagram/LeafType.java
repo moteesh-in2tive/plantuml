@@ -54,6 +54,8 @@ public enum LeafType {
 	STATE, STATE_CONCURRENT, PSEUDO_STATE, STATE_CHOICE, STATE_FORK_JOIN,
 
 	BLOCK, ENTITY,
+	
+	DOMAIN, REQUIREMENT,
 
 	STILL_UNKNOWN;
 
@@ -61,6 +63,9 @@ public enum LeafType {
 		type = StringUtils.goUpperCase(type);
 		if (type.startsWith("ABSTRACT")) {
 			return LeafType.ABSTRACT_CLASS;
+		}
+		if (type.startsWith("DIAMOND")) {
+			return LeafType.STATE_CHOICE;
 		}
 		return LeafType.valueOf(type);
 	}

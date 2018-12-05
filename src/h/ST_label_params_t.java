@@ -45,14 +45,7 @@
  */
 package h;
 
-import h.ST_label_params_t.Amp;
-
-import java.util.Arrays;
-import java.util.List;
-
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
-import smetana.core.__ptr__;
 import smetana.core.__struct__;
 import smetana.core.amiga.StarStruct;
 
@@ -70,20 +63,11 @@ public class ST_label_params_t extends UnsupportedStructAndPtr {
 
 	// "typedef struct",
 	// "{",
-	private final ST_boxf bb = new ST_boxf(this);
-	private boolean force;
+	public final ST_boxf bb = new ST_boxf(this);
+	public boolean force;
 
 	// "}",
 	// "label_params_t");
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
 
 	@Override
 	public void setStruct(String fieldName, __struct__ newData) {
@@ -93,15 +77,7 @@ public class ST_label_params_t extends UnsupportedStructAndPtr {
 		}
 		super.setStruct(fieldName, newData);
 	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("force")) {
-			this.force = data;
-			return;
-		}
-		super.setBoolean(fieldName, data);
-	}
+	
 }
 
 // typedef struct {

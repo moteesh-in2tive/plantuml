@@ -55,6 +55,7 @@ import javax.swing.ImageIcon;
 import net.sourceforge.plantuml.AnimatedGifEncoder;
 import net.sourceforge.plantuml.CMapData;
 import net.sourceforge.plantuml.ColorParam;
+import net.sourceforge.plantuml.CornerParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.EmptyImageBuilder;
 import net.sourceforge.plantuml.FileFormat;
@@ -63,7 +64,6 @@ import net.sourceforge.plantuml.FileUtils;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.OptionFlags;
-import net.sourceforge.plantuml.CornerParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.anim.AffineTransformation;
@@ -89,6 +89,7 @@ import net.sourceforge.plantuml.ugraphic.hand.UGraphicHandwritten;
 import net.sourceforge.plantuml.ugraphic.html5.UGraphicHtml5;
 import net.sourceforge.plantuml.ugraphic.svg.UGraphicSvg;
 import net.sourceforge.plantuml.ugraphic.tikz.UGraphicTikz;
+import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
 import net.sourceforge.plantuml.ugraphic.visio.UGraphicVdx;
 
 public class ImageBuilder {
@@ -110,7 +111,7 @@ public class ImageBuilder {
 	private UStroke borderStroke;
 	private HtmlColor borderColor;
 	private double borderCorner;
-	
+
 	private boolean svgDimensionStyle;
 
 	public ImageBuilder(ColorMapper colorMapper, double dpiFactor, HtmlColor mybackcolor, String metadata,
@@ -386,13 +387,15 @@ public class ImageBuilder {
 			return new UGraphicTikz(colorMapper, dpiFactor, false, fileFormatOption.getTikzFontDistortion());
 		case BRAILLE_PNG:
 			return new UGraphicBraille(colorMapper, fileFormat);
+		case ATXT:
+			return new UGraphicTxt();
 		default:
 			throw new UnsupportedOperationException(fileFormat.toString());
 		}
 	}
 
-	private UGraphic2 createUGraphicSVG(ColorMapper colorMapper, double scale,
-			Dimension2D dim, HtmlColor mybackcolor, String svgLinkTarget, String hover, long seed) {
+	private UGraphic2 createUGraphicSVG(ColorMapper colorMapper, double scale, Dimension2D dim, HtmlColor mybackcolor,
+			String svgLinkTarget, String hover, long seed) {
 		Color backColor = Color.WHITE;
 		if (mybackcolor instanceof HtmlColorSimple) {
 			backColor = colorMapper.getMappedColor(mybackcolor);
@@ -435,7 +438,8 @@ public class ImageBuilder {
 		ug.setBufferedImage(builder.getBufferedImage());
 		final BufferedImage im = ((UGraphicG2d) ug).getBufferedImage();
 		if (mybackcolor instanceof HtmlColorGradient) {
-			ug.apply(new UChangeBackColor(mybackcolor)).draw(new URectangle(im.getWidth(), im.getHeight()));
+			ug.apply(new UChangeBackColor(mybackcolor)).draw(
+					new URectangle(im.getWidth() / dpiFactor, im.getHeight() / dpiFactor));
 		}
 
 		return ug;

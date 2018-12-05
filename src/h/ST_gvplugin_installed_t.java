@@ -62,12 +62,12 @@ public class ST_gvplugin_installed_t extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	private int id;
-	private CString type;
-	private int quality;
+	public int id;
+	public CString type;
+	public int quality;
 
-	private ST_gvlayout_engine_s.Amp engine;
-	private ST_gvlayout_features_t.Amp features;
+	public ST_gvlayout_engine_s engine;
+	public ST_gvlayout_features_t features;
 
 	@Override
 	public void setInt(String fieldName, int data) {
@@ -82,13 +82,6 @@ public class ST_gvplugin_installed_t extends UnsupportedStructAndPtr {
 		super.setInt(fieldName, data);
 	}
 
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("id")) {
-			return this.id;
-		}
-		return super.getInt(fieldName);
-	}
 
 	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
@@ -97,28 +90,14 @@ public class ST_gvplugin_installed_t extends UnsupportedStructAndPtr {
 			return newData;
 		}
 		if (fieldName.equals("engine")) {
-			this.engine = (ST_gvlayout_engine_s.Amp) newData;
+			this.engine = (ST_gvlayout_engine_s) newData;
 			return newData;
 		}
 		if (fieldName.equals("features")) {
-			this.features = (ST_gvlayout_features_t.Amp) newData;
+			this.features = (ST_gvlayout_features_t) newData;
 			return newData;
 		}
 		return super.setPtr(fieldName, newData);
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("type")) {
-			return type;
-		}
-		if (fieldName.equals("engine")) {
-			return engine;
-		}
-		if (fieldName.equals("features")) {
-			return features;
-		}
-		return super.getPtr(fieldName);
 	}
 
 }

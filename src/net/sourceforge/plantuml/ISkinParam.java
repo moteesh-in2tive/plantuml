@@ -45,11 +45,12 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.skin.ArrowDirection;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
-import net.sourceforge.plantuml.ugraphic.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 
 public interface ISkinParam extends ISkinSimple {
+
+	public static final int SWIMLANE_WIDTH_SAME = -1;
 
 	public HtmlColor getHyperlinkColor();
 
@@ -67,7 +68,7 @@ public interface ISkinParam extends ISkinSimple {
 
 	public UFont getFont(Stereotype stereotype, boolean inPackageTitle, FontParam... fontParam);
 
-	public HorizontalAlignment getHorizontalAlignment(AlignParam param, ArrowDirection arrowDirection);
+	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection, boolean isReverseDefine);
 
 	public HorizontalAlignment getDefaultTextAlignment(HorizontalAlignment defaultValue);
 
@@ -77,17 +78,15 @@ public interface ISkinParam extends ISkinSimple {
 
 	public int classAttributeIconSize();
 
-	public ColorMapper getColorMapper();
-
 	public DotSplines getDotSplines();
 
 	public String getDotExecutable();
 
-	public boolean shadowing();
+	public boolean shadowing(Stereotype stereotype);
 
 	public boolean shadowingForNote(Stereotype stereotype);
 
-	public boolean shadowing2(SkinParameter skinParameter);
+	public boolean shadowing2(Stereotype stereotype, SkinParameter skinParameter);
 
 	public PackageStyle getPackageStyle();
 
@@ -108,6 +107,8 @@ public interface ISkinParam extends ISkinSimple {
 	public LineBreakStrategy maxMessageSize();
 
 	public LineBreakStrategy wrapWidth();
+
+	public LineBreakStrategy swimlaneWrapTitleWidth();
 
 	public boolean strictUmlStyle();
 
@@ -156,5 +157,7 @@ public interface ISkinParam extends ISkinSimple {
 	public boolean responseMessageBelowArrow();
 
 	public boolean svgDimensionStyle();
+	
+	public boolean fixCircleLabelOverlapping();
 
 }

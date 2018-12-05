@@ -42,15 +42,14 @@ import java.util.List;
 import smetana.core.amiga.Area;
 import smetana.core.amiga.AreaInt;
 import smetana.core.amiga.BuilderArea;
-import smetana.core.amiga.StarStruct;
-import smetana.core.amiga.StarStructImpl;
+import smetana.core.amiga.Counter;
 
 public class __array_of_double__ implements Area {
 
 	private final List<Area> data;
 	private final int currentPos;
 
-	private final int UID = StarStructImpl.CPT++;
+	private final int UID = Counter.CPT++;
 
 	public String getUID36() {
 		return Integer.toString(UID, 36);

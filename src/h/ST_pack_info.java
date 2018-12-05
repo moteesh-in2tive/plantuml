@@ -45,12 +45,6 @@
  */
 package h;
 
-import h.ST_pack_info.Amp;
-
-import java.util.Arrays;
-import java.util.List;
-
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -67,48 +61,22 @@ public class ST_pack_info extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
-
 	// "typedef struct",
 	// "{",
 	// "float aspect",
-	private int sz;
-	private int margin;
+	public int sz;
+	public int margin;
 	private int doSplines;
 	// "pack_mode mode",
-	private int mode;
+	public int mode;
 	private __ptr__ fixed;
 	// "boolean *fixed",
 	// "packval_t* vals",
-	private __ptr__ vals;
-	private int flags;
+	public __ptr__ vals;
+	public int flags;
 
 	// "}",
 	// "pack_info");
-
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("flags")) {
-			return this.flags;
-		}
-		if (fieldName.equals("mode")) {
-			return this.mode;
-		}
-		if (fieldName.equals("sz")) {
-			return this.sz;
-		}
-		if (fieldName.equals("margin")) {
-			return this.margin;
-		}
-		return super.getInt(fieldName);
-	}
 
 	@Override
 	public void setInt(String fieldName, int data) {

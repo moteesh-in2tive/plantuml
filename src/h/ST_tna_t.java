@@ -45,21 +45,15 @@
  */
 package h;
 
-import h.ST_tna_t.Amp;
-import h.ST_triangle_t.ArrayOfThree;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import smetana.core.UnsupportedArrayOfStruct;
-import smetana.core.UnsupportedSize_t;
-import smetana.core.UnsupportedStarStruct;
+import smetana.core.UnsupportedArrayOfStruct2;
 import smetana.core.UnsupportedStructAndPtr;
-import smetana.core.__array_of_struct__;
+import smetana.core.__array_of_ptr__;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
 import smetana.core.size_t;
-import smetana.core.amiga.StarArrayOfPtr;
 import smetana.core.amiga.StarStruct;
 
 public class ST_tna_t extends UnsupportedStructAndPtr {
@@ -74,68 +68,84 @@ public class ST_tna_t extends UnsupportedStructAndPtr {
 		this.parent = parent;
 	}
 
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
-
 	// "typedef struct tna_t",
 	// "{",
 	// "Ppoint_t a[2]",
 	// "}",
 	// "tna_t");
-	private double t;
-	private final ST_pointf a[] = new ST_pointf[] { new ST_pointf(), new ST_pointf() };
+	public double t;
+	public final ST_pointf a[] = new ST_pointf[] { new ST_pointf(), new ST_pointf() };
+	
+	public static class Array extends UnsupportedArrayOfStruct2 implements __ptr__, __array_of_ptr__{
 
-	class ArrayOfTwo extends UnsupportedArrayOfStruct {
+		private final List<ST_tna_t> data;
+		private final int pos;
+		
+		
+		@Override
+		public Array asPtr() {
+			return this;
+		}
+		
+		@Override
+		public ST_tna_t getStruct() {
+			return data.get(pos);
+		}
+		
+		public Array(int size) {
+			this.data = new ArrayList<ST_tna_t>();
+			this.pos = 0;
+			for (int i = 0; i < size; i++) {
+				data.add(new ST_tna_t());
+			}
+		}
 
-		final private int pos;
+		public Array reallocJ(int newsize) {
+			while (data.size() < newsize) {
+				data.add(new ST_tna_t());
+			}
+			return this;
+		}
+		
+		public Array plus(int delta) {
+			return plusJ(delta);
+		}
 
-		public ArrayOfTwo(int pos) {
+		private Array(List<ST_tna_t> data, int pos) {
+			this.data = data;
 			this.pos = pos;
 		}
 
-		@Override
-		public __array_of_struct__ plus(int delta) {
-			return new ArrayOfTwo(pos + delta);
+		public ST_tna_t get(int i) {
+			return this.data.get(pos + i);
 		}
 
-		@Override
-		public __struct__ getStruct() {
-			return a[pos];
+		public Array plusJ(int i) {
+			return new Array(data, pos + i);
 		}
 
-		@Override
-		public void setStruct(__struct__ value) {
-			a[pos].copyDataFrom(value);
+		public int minus(Array other) {
+			if (this.data != other.data) {
+				throw new IllegalArgumentException();
+			}
+			return this.pos - other.pos;
 		}
 
-		@Override
-		public double getDouble(String fieldName) {
-			return getStruct().getDouble(fieldName);
+		public Array move(int delta) {
+			throw new UnsupportedOperationException(getClass().toString());
 		}
+
+		public void realloc(size_t nb) {
+			throw new UnsupportedOperationException(getClass().toString());
+		}
+
+		public int comparePointerInternal(__array_of_ptr__ other) {
+			throw new UnsupportedOperationException(getClass().toString());
+		}
+
 
 	}
 
-	@Override
-	public __array_of_struct__ getArrayOfStruct(String fieldName) {
-		if (fieldName.equals("a")) {
-			return new ArrayOfTwo(0);
-		}
-		return super.getArrayOfStruct(fieldName);
-	}
-
-	@Override
-	public double getDouble(String fieldName) {
-		if (fieldName.equals("t")) {
-			return this.t;
-		}
-		return super.getDouble(fieldName);
-	}
 
 	@Override
 	public void setDouble(String fieldName, double data) {
@@ -149,27 +159,6 @@ public class ST_tna_t extends UnsupportedStructAndPtr {
 	@Override
 	public __struct__ getStruct() {
 		return this;
-	}
-
-	public static size_t sizeof(final int nb) {
-		return new UnsupportedSize_t(nb) {
-			@Override
-			public Object malloc() {
-				return new StarArrayOfPtr(new STArray<ST_tna_t>(nb, 0, ST_tna_t.class));
-			}
-
-			@Override
-			public int getInternalNb() {
-				return nb;
-			}
-
-			@Override
-			public Object realloc(Object old) {
-				StarArrayOfPtr old2 = (StarArrayOfPtr) old;
-				old2.realloc(nb);
-				return old2;
-			}
-		};
 	}
 
 }

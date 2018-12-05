@@ -56,9 +56,9 @@ public class FileSystem {
 	}
 
 	public void setCurrentDir(File dir) {
-		if (dir == null) {
-			throw new IllegalArgumentException();
-		}
+		// if (dir == null) {
+		// throw new IllegalArgumentException();
+		// }
 		Log.info("Setting current dir: " + dir);
 		this.currentDir.set(dir);
 	}
@@ -76,22 +76,26 @@ public class FileSystem {
 		if (filecurrent.exists()) {
 			return filecurrent.getCanonicalFile();
 		}
-		for (File d : getPath("plantuml.include.path")) {
-			final File file = new File(d, nameOrPath);
-			if (file.exists()) {
-				return file.getCanonicalFile();
+		for (File d : getPath("plantuml.include.path", true)) {
+			if (d.isDirectory()) {
+				final File file = new File(d, nameOrPath);
+				if (file.exists()) {
+					return file.getCanonicalFile();
+				}
 			}
 		}
-		for (File d : getPath("java.class.path")) {
-			final File file = new File(d, nameOrPath);
-			if (file.exists()) {
-				return file.getCanonicalFile();
+		for (File d : getPath("java.class.path", true)) {
+			if (d.isDirectory()) {
+				final File file = new File(d, nameOrPath);
+				if (file.exists()) {
+					return file.getCanonicalFile();
+				}
 			}
 		}
 		return filecurrent;
 	}
 
-	private List<File> getPath(String prop) {
+	public static List<File> getPath(String prop, boolean onlyDir) {
 		final List<File> result = new ArrayList<File>();
 		String paths = System.getProperty(prop);
 		if (paths == null) {
@@ -101,7 +105,7 @@ public class FileSystem {
 		final StringTokenizer st = new StringTokenizer(paths, System.getProperty("path.separator"));
 		while (st.hasMoreTokens()) {
 			final File f = new File(st.nextToken());
-			if (f.exists() && f.isDirectory()) {
+			if (f.exists() && (onlyDir == false || f.isDirectory())) {
 				result.add(f);
 			}
 		}

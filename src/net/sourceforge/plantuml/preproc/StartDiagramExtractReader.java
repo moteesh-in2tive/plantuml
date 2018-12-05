@@ -35,12 +35,10 @@
  */
 package net.sourceforge.plantuml.preproc;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 
 import net.sourceforge.plantuml.CharSequence2;
@@ -52,16 +50,16 @@ public class StartDiagramExtractReader implements ReadLine {
 	private final ReadLine raw;
 	private boolean finished = false;
 
-	public StartDiagramExtractReader(CharSequence2 s, File f, String uid, String charset) {
-		this(getReadLine(s, f, charset), uid);
+	public static StartDiagramExtractReader build(FileWithSuffix f2, CharSequence2 s, String charset) {
+		return new StartDiagramExtractReader(getReadLine(f2, s, charset), f2.getSuffix());
 	}
 
-	public StartDiagramExtractReader(CharSequence2 s, URL url, String uid, String charset) {
-		this(getReadLine(s, url, charset), uid);
+	public static StartDiagramExtractReader build(URL url, CharSequence2 s, String uid, String charset) {
+		return new StartDiagramExtractReader(getReadLine(url, s, charset), uid);
 	}
 
-	public StartDiagramExtractReader(CharSequence2 s, InputStream is) {
-		this(getReadLine(s, is), null);
+	public static StartDiagramExtractReader build(InputStream is, CharSequence2 s, String desc) {
+		return new StartDiagramExtractReader(getReadLine(is, s, desc), null);
 	}
 
 	private StartDiagramExtractReader(ReadLine raw, String suf) {
@@ -103,51 +101,49 @@ public class StartDiagramExtractReader implements ReadLine {
 		return false;
 	}
 
-	private static ReadLine getReadLine(CharSequence2 s, File f, String charset) {
+	private static ReadLine getReadLine(FileWithSuffix f2, CharSequence2 s, String charset) {
 		try {
-			if (charset == null) {
-				Log.info("Using default charset");
-				return new UncommentReadLine(new ReadLineReader(new FileReader(f), f.getAbsolutePath()));
+			final Reader tmp1 = f2.getReader(charset);
+			if (tmp1 == null) {
+				return new ReadLineSimple(s, "Cannot open " + f2.getDescription());
 			}
-			Log.info("Using charset " + charset);
-			return new UncommentReadLine(new ReadLineReader(new InputStreamReader(new FileInputStream(f), charset),
-					f.getAbsolutePath()));
+			return new UncommentReadLine(ReadLineReader.create(tmp1, f2.getDescription()));
 		} catch (IOException e) {
 			return new ReadLineSimple(s, e.toString());
 		}
 	}
 
-	private static ReadLine getReadLine(CharSequence2 s, InputStream is) {
-		return new UncommentReadLine(new ReadLineReader(new InputStreamReader(is), null));
+	private static ReadLine getReadLine(InputStream is, CharSequence2 s, String description) {
+		return new UncommentReadLine(ReadLineReader.create(new InputStreamReader(is), description));
 	}
 
-	private static ReadLine getReadLine(CharSequence2 s, URL url, String charset) {
+	private static ReadLine getReadLine(URL url, CharSequence2 s, String charset) {
 		try {
 			if (charset == null) {
 				Log.info("Using default charset");
-				return new UncommentReadLine(
-						new ReadLineReader(new InputStreamReader(url.openStream()), url.toString()));
+				return new UncommentReadLine(ReadLineReader.create(new InputStreamReader(url.openStream()),
+						url.toString()));
 			}
 			Log.info("Using charset " + charset);
-			return new UncommentReadLine(new ReadLineReader(new InputStreamReader(url.openStream(), charset),
+			return new UncommentReadLine(ReadLineReader.create(new InputStreamReader(url.openStream(), charset),
 					url.toString()));
 		} catch (IOException e) {
 			return new ReadLineSimple(s, e.toString());
 		}
 	}
 
-	static public boolean containsStartDiagram(CharSequence2 s, File f, String charset) throws IOException {
-		final ReadLine r = getReadLine(s, f, charset);
+	static public boolean containsStartDiagram(FileWithSuffix f2, CharSequence2 s, String charset) throws IOException {
+		final ReadLine r = getReadLine(f2, s, charset);
 		return containsStartDiagram(r);
 	}
 
-	static public boolean containsStartDiagram(CharSequence2 s, URL url, String charset) throws IOException {
-		final ReadLine r = getReadLine(s, url, charset);
+	static public boolean containsStartDiagram(URL url, CharSequence2 s, String charset) throws IOException {
+		final ReadLine r = getReadLine(url, s, charset);
 		return containsStartDiagram(r);
 	}
 
-	static public boolean containsStartDiagram(CharSequence2 s, InputStream is) throws IOException {
-		final ReadLine r = getReadLine(s, is);
+	static public boolean containsStartDiagram(InputStream is, CharSequence2 s, String description) throws IOException {
+		final ReadLine r = getReadLine(is, s, description);
 		return containsStartDiagram(r);
 	}
 

@@ -58,6 +58,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import net.sourceforge.plantuml.Log;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.SvgString;
 import net.sourceforge.plantuml.code.Base64Coder;
@@ -314,6 +315,9 @@ public class SvgGraphics {
 	public void openLink(String url, String title, String target) {
 		if (url == null) {
 			throw new IllegalArgumentException();
+		}
+		if (OptionFlags.ALLOW_INCLUDE == false && url.toLowerCase().startsWith("javascript")) {
+			return;
 		}
 
 		if (pendingAction.size() > 0) {
@@ -743,11 +747,11 @@ public class SvgGraphics {
 	private String manageScale(SvgString svg) {
 		final double svgScale = svg.getScale();
 		if (svgScale * scale == 1) {
-			return svg.getSvg();
+			return svg.getSvg(false);
 		}
 		final String s1 = "\\<g\\b";
 		final String s2 = "<g transform=\"scale(" + format(svgScale) + "," + format(svgScale) + ")\" ";
-		return svg.getSvg().replaceFirst(s1, s2);
+		return svg.getSvg(false).replaceFirst(s1, s2);
 	}
 
 	private String toBase64(BufferedImage image) throws IOException {

@@ -45,7 +45,6 @@
  */
 package h;
 
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -64,39 +63,52 @@ public class ST_XLabels_t extends UnsupportedStructAndPtr {
 
 	// "typedef struct XLabels_s",
 	// "{",
-	// "object_t *objs",
-	// "int n_objs",
-	// "xlabel_t *lbls",
-	// "int n_lbls",
-	// "label_params_t *params",
-	private ST_dt_s hdx;
-
-	// "RTree_t *spdx",
+	public ST_object_t.Array /*ST_object_t*/ objs;
+	public int n_objs;
+	public ST_xlabel_t.Array /*ST_xlabel_t*/ lbls;
+	public int n_lbls;
+	public ST_label_params_t /*ST_label_params_t*/ params;
+	public ST_dt_s hdx;
+	public ST_RTree spdx;
 	// "}",
 	// "XLabels_t");
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("hdx")) {
-			return this.hdx;
+	public void setInt(String fieldName, int data) {
+		if (fieldName.equals("n_objs")) {
+			this.n_objs = data;
+			return;
 		}
-		return super.getPtr(fieldName);
+		if (fieldName.equals("n_lbls")) {
+			this.n_lbls = data;
+			return;
+		}
+		super.setInt(fieldName, data);
 	}
+
+
 	
 	@Override
 	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
 		if (fieldName.equals("hdx")) {
 			this.hdx = (ST_dt_s) newData;
 			return this.hdx;
+		}
+		if (fieldName.equals("spdx")) {
+			this.spdx = (ST_RTree) newData;
+			return this.spdx;
+		}
+//		if (fieldName.equals("objs")) {
+//			this.objs = newData;
+//			return this.objs;
+//		}
+//		if (fieldName.equals("lbls")) {
+//			this.lbls = newData;
+//			return this.lbls;
+//		}
+		if (fieldName.equals("params")) {
+			this.params = (ST_label_params_t) newData;
+			return this.params;
 		}
 		return super.setPtr(fieldName, newData);
 	}

@@ -45,9 +45,7 @@
  */
 package h;
 
-import h.ST_dtmethod_s.Amp;
 import smetana.core.CFunction;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -72,63 +70,14 @@ public class ST_dtdisc_s extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public StarStruct amp() {
-		return new Amp(this);
+	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
+		if (fieldName.equals("memoryf")) {
+			memoryf = (CFunction) newData;
+			return newData;
+		}
+		return super.setPtr(fieldName, newData);
 	}
 
-	public class Amp extends UnsupportedStarStruct {
-		private final ST_dtdisc_s parent;
-
-		public Amp(ST_dtdisc_s me) {
-			parent = me;
-		}
-
-		@Override
-		public boolean isSameThan(StarStruct other) {
-			final Amp other2 = (Amp) other;
-			return parent == other2.parent;
-		}
-
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			if (fieldName.equals("memoryf")) {
-				return memoryf;
-			}
-			if (fieldName.equals("eventf")) {
-				return eventf;
-			}
-			if (fieldName.equals("comparf")) {
-				return comparf;
-			}
-			if (fieldName.equals("makef")) {
-				return makef;
-			}
-			return super.getPtr(fieldName);
-		}
-
-		@Override
-		public int getInt(String fieldName) {
-			if (fieldName.equals("key")) {
-				return key;
-			}
-			if (fieldName.equals("size")) {
-				return size;
-			}
-			if (fieldName.equals("link")) {
-				return link;
-			}
-			return super.getInt(fieldName);
-		}
-
-		@Override
-		public __ptr__ setPtr(String fieldName, __ptr__ newData) {
-			if (fieldName.equals("memoryf")) {
-				memoryf = (CFunction) newData;
-				return newData;
-			}
-			return super.setPtr(fieldName, newData);
-		}
-	}
 
 }
 

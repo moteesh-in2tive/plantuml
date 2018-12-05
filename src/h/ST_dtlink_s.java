@@ -46,8 +46,6 @@
 package h;
 
 import smetana.core.OFFSET;
-import smetana.core.UnsupportedC;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
@@ -55,10 +53,10 @@ import smetana.core.amiga.StarStruct;
 
 public class ST_dtlink_s extends UnsupportedStructAndPtr implements WithParent {
 
-	public ST_dtlink_s.Amp right;
-	public ST_dtlink_s.Amp _left;
+	public ST_dtlink_s right;
+	public ST_dtlink_s _left;
 	private final StarStruct parent;
-	
+
 	@Override
 	public void copyDataFrom(__struct__ other) {
 		ST_dtlink_s this2 = (ST_dtlink_s) other;
@@ -78,27 +76,44 @@ public class ST_dtlink_s extends UnsupportedStructAndPtr implements WithParent {
 		return parent;
 	}
 
+	// @Override
+	// public __ptr__ castTo(Class dest) {
+	// if (dest == ST_dtlink_s.class) {
+	// // return amp();
+	// return this;
+	// }
+	// if (dest == _dthold_s.class) {
+	// return new LinkTo_dthold_s();
+	// }
+	// return super.castTo(dest);
+	// }
+
 	@Override
 	public __ptr__ castTo(Class dest) {
-		if (dest == _dtlink_s.class) {
-			return amp();
-			// return this;
+		if (dest == ST_dtlink_s.class) {
+			return this;
 		}
-		if (dest == _dthold_s.class) {
-			return new LinkTo_dthold_s();
+		// if (dest == refstr_t.class && getParent() instanceof ST_refstr_t) {
+		// return (ST_refstr_t) getParent();
+		// }
+		if (dest == ST_dthold_s.class && getParent() instanceof ST_dthold_s) {
+			// System.err.println("ITSME");
+			// System.err.println("getParent()=" + getParent());
+			return (ST_dthold_s) getParent();
+
 		}
+		System.err.println("dest=" + dest);
 		return super.castTo(dest);
 	}
 
-	class LinkTo_dthold_s extends UnsupportedStructAndPtr {
-
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			if (fieldName.equals("obj")) {
-				return new LinkTo_Obj();
-			}
-			return super.getPtr(fieldName);
+	public ST_dthold_s castTo_ST_dthold_s() {
+		if (getParent() instanceof ST_dthold_s) {
+			return (ST_dthold_s) getParent();
 		}
+		throw new UnsupportedOperationException();
+	}
+
+	class LinkTo_dthold_s extends UnsupportedStructAndPtr {
 
 	}
 
@@ -107,102 +122,67 @@ public class ST_dtlink_s extends UnsupportedStructAndPtr implements WithParent {
 	}
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-		@Override
-		public __ptr__ castTo(Class dest) {
-			if (dest == _dtlink_s.class) {
-				return this;
-			}
-			if (dest == refstr_t.class && getParent() instanceof ST_refstr_t) {
-				return (ST_refstr_t) getParent();
-			}
-			if (dest == _dthold_s.class && getParent() instanceof ST_dthold_s) {
-				// System.err.println("ITSME");
-				// System.err.println("getParent()=" + getParent());
-				return (ST_dthold_s) getParent();
-
-			}
-			System.err.println("dest=" + dest);
-			return super.castTo(dest);
+	public Object addVirtualBytes(int virtualBytes) {
+		if (virtualBytes == 0) {
+			return this;
 		}
-
-		@Override
-		public Object addVirtualBytes(int virtualBytes) {
-			if (virtualBytes == 0) {
-				return this;
+		if (virtualBytes < 0) {
+			final OFFSET offset = OFFSET.fromInt(-virtualBytes);
+			if (offset.toString().equals("h.ST_Agsubnode_s::id_link")) {
+				return ((ST_Agsubnode_s) parent).from_id_link(ST_dtlink_s.this);
 			}
-			if (virtualBytes < 0) {
-				final OFFSET offset = OFFSET.fromInt(-virtualBytes);
-				if (offset.toString().equals("h.Agsubnode_s::id_link")) {
-					return ((ST_Agsubnode_s) parent).from_id_link(ST_dtlink_s.this);
-				}
-				if (offset.toString().equals("h.Agsubnode_s::seq_link")) {
-					return ((ST_Agsubnode_s) parent).from_seq_link(ST_dtlink_s.this);
-				}
-				if (offset.toString().equals("h.Agsym_s::link")) {
-					return ((ST_Agsym_s) parent).from_link(ST_dtlink_s.this);
-				}
-				if (offset.toString().equals("h.Agedge_s::seq_link")) {
-					return ((ST_Agedge_s) parent).from_seq_link(ST_dtlink_s.this);
-				}
-				if (offset.toString().equals("h.Agedge_s::id_link")) {
-					return ((ST_Agedge_s) parent).from_id_link(ST_dtlink_s.this);
-				}
-				if (offset.toString().equals("h.Agraph_s::link")) {
-					return ((ST_Agraph_s) parent).from_link(ST_dtlink_s.this);
-				}
-				System.err.println("virtualBytes=" + virtualBytes);
-				System.err.println("offset=" + offset);
-				return super.addVirtualBytes(virtualBytes);
+			if (offset.toString().equals("h.ST_Agsubnode_s::seq_link")) {
+				return ((ST_Agsubnode_s) parent).from_seq_link(ST_dtlink_s.this);
 			}
-			final OFFSET offset = OFFSET.fromInt(virtualBytes);
-			if (offset.toString().equals("h.refstr_t::s") && parent instanceof ST_refstr_t) {
-				return ((ST_refstr_t) parent).to_s(ST_dtlink_s.this);
-
+			if (offset.toString().equals("h.ST_Agsym_s::link")) {
+				return ((ST_Agsym_s) parent).from_link(ST_dtlink_s.this);
+			}
+			if (offset.toString().equals("h.ST_Agedge_s::seq_link")) {
+				return ((ST_Agedge_s) parent).from_seq_link(ST_dtlink_s.this);
+			}
+			if (offset.toString().equals("h.ST_Agedge_s::id_link")) {
+				return ((ST_Agedge_s) parent).from_id_link(ST_dtlink_s.this);
+			}
+			if (offset.toString().equals("h.ST_Agraph_s::link")) {
+				return ((ST_Agraph_s) parent).from_link(ST_dtlink_s.this);
 			}
 			System.err.println("virtualBytes=" + virtualBytes);
 			System.err.println("offset=" + offset);
 			return super.addVirtualBytes(virtualBytes);
 		}
+		final OFFSET offset = OFFSET.fromInt(virtualBytes);
+		if (offset.toString().equals("h.ST_refstr_t::s") && parent instanceof ST_refstr_t) {
+			return ((ST_refstr_t) parent).to_s(ST_dtlink_s.this);
 
-		@Override
-		public __ptr__ setPtr(String fieldName, __ptr__ newData) {
-			return ST_dtlink_s.this.setPtr(fieldName, newData);
 		}
-
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			return ST_dtlink_s.this.getPtr(fieldName);
-		}
+		System.err.println("virtualBytes=" + virtualBytes);
+		System.err.println("offset=" + offset);
+		return super.addVirtualBytes(virtualBytes);
 	}
 
-	@Override
-	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
-		if (fieldName.equals("hl._left")) {
-			this._left = (ST_dtlink_s.Amp) newData;
-			return _left;
-		}
-		if (fieldName.equals("right")) {
-			this.right = (ST_dtlink_s.Amp) newData;
-			return right;
-		}
-		return super.setPtr(fieldName, newData);
-	}
+	// @Override
+	// public __ptr__ setPtr(String fieldName, __ptr__ newData) {
+	// if (fieldName.equals("hl._left")) {
+	// this._left = (ST_dtlink_s) newData;
+	// return _left;
+	// }
+	// if (fieldName.equals("right")) {
+	// this.right = (ST_dtlink_s) newData;
+	// return right;
+	// }
+	// return super.setPtr(fieldName, newData);
+	// }
 
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("hl._left")) {
-			return _left;
-		}
-		if (fieldName.equals("right")) {
-			return right;
-		}
-		return super.getPtr(fieldName);
-	}
+	// @Override
+	// public __ptr__ getPtr(String fieldName) {
+	// // if (fieldName.equals("hl._left")) {
+	// // return _left;
+	// // }
+	// if (fieldName.equals("right")) {
+	// return right;
+	// }
+	// return super.getPtr(fieldName);
+	// }
 
 	// public interface ST_dtlink_s extends __ptr__ {
 	// public static List<String> DEFINITION = Arrays.asList(

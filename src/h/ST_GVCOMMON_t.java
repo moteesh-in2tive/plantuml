@@ -47,7 +47,6 @@ package h;
 
 import smetana.core.CFunction;
 import smetana.core.HardcodedStruct;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -56,18 +55,18 @@ public class ST_GVCOMMON_t extends UnsupportedStructAndPtr implements HardcodedS
 
 	// "typedef struct GVCOMMON_s",
 	// "{",
-	private __ptr__ info;
+	public __ptr__ info;
 	// "char *cmdname",
 	// "int verbose",
 	// "boolean config, auto_outfile_names",
 	// "void (*errorfn) (const char *fmt, ...)",
-	private CFunction errorfn;
+	public CFunction errorfn;
 	// "const char **show_boxes",
 	// "const char **lib",
 	// "int viewNum",
 	// "const lt_symlist_t *builtins",
-	private __ptr__ builtins;
-	private boolean demand_loading;
+	public __ptr__ builtins;
+	public boolean demand_loading;
 	// "}",
 	// "GVCOMMON_t");
 
@@ -79,14 +78,6 @@ public class ST_GVCOMMON_t extends UnsupportedStructAndPtr implements HardcodedS
 
 	public ST_GVCOMMON_t(StarStruct parent) {
 		this.parent = parent;
-	}
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
 	}
 
 	@Override
@@ -104,23 +95,6 @@ public class ST_GVCOMMON_t extends UnsupportedStructAndPtr implements HardcodedS
 			return newData;
 		}
 		return super.setPtr(fieldName, newData);
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("builtins") && builtins == null) {
-			return builtins;
-		}
-		return super.getPtr(fieldName);
-	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("demand_loading")) {
-			this.demand_loading = data;
-			return;
-		}
-		super.setBoolean(fieldName, data);
 	}
 
 }

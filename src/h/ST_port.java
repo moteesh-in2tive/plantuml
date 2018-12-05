@@ -47,7 +47,6 @@ package h;
 
 import smetana.core.CString;
 import smetana.core.HardcodedStruct;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
@@ -58,7 +57,7 @@ public class ST_port extends UnsupportedStructAndPtr implements HardcodedStruct 
 
 	public final ST_pointf p = new ST_pointf(this);
 	public double theta;
-	public ST_boxf.Amp bp;
+	public ST_boxf bp;
 	public int defined;
 	public int constrained;
 	public int clip;
@@ -135,40 +134,12 @@ public class ST_port extends UnsupportedStructAndPtr implements HardcodedStruct 
 	}
 
 	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("p")) {
-			return p;
-		}
-		return super.getStruct(fieldName);
-	}
-
-	@Override
 	public void setStruct(String fieldName, __struct__ newData) {
 		if (fieldName.equals("p")) {
 			p.copyDataFrom(newData);
 			return;
 		}
 		super.setStruct(fieldName, newData);
-	}
-
-	@Override
-	public boolean getBoolean(String fieldName) {
-		if (fieldName.equals("constrained")) {
-			return constrained != 0;
-		}
-		if (fieldName.equals("dyna")) {
-			return dyna != 0;
-		}
-		return super.getBoolean(fieldName);
-	}
-
-	@Override
-	public void setBoolean(String fieldName, boolean data) {
-		if (fieldName.equals("constrained")) {
-			constrained = data ? 1 : 0;
-			return;
-		}
-		super.setBoolean(fieldName, data);
 	}
 
 	@Override
@@ -180,35 +151,6 @@ public class ST_port extends UnsupportedStructAndPtr implements HardcodedStruct 
 		super.setInt(fieldName, data);
 	}
 
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("clip")) {
-			return clip;
-		}
-		if (fieldName.equals("order")) {
-			return order;
-		}
-		if (fieldName.equals("side")) {
-			return side;
-		}
-		return super.getInt(fieldName);
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-	}
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("bp")) {
-			return bp;
-		}
-		return super.getPtr(fieldName);
-	}
 
 	@Override
 	public void setDouble(String fieldName, double data) {
@@ -217,14 +159,6 @@ public class ST_port extends UnsupportedStructAndPtr implements HardcodedStruct 
 			return;
 		}
 		super.setDouble(fieldName, data);
-	}
-
-	@Override
-	public double getDouble(String fieldName) {
-		if (fieldName.equals("theta")) {
-			return theta;
-		}
-		return super.getDouble(fieldName);
 	}
 
 	// "typedef struct port",

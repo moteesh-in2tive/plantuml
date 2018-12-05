@@ -51,6 +51,11 @@ public class UGraphicForSnake extends UGraphicDelegator {
 	private final double dy;
 	private final List<PendingSnake> snakes;
 
+	@Override
+	public String toString() {
+		return super.toString() + " " + getUg();
+	}
+
 	public UTranslate getTranslation() {
 		return new UTranslate(dx, dy);
 	}
@@ -68,11 +73,11 @@ public class UGraphicForSnake extends UGraphicDelegator {
 			this.dy = dy;
 		}
 
-		public void drawInternal() {
+		void drawInternal() {
 			snake.drawInternal(ug);
 		}
 
-		public void removeEndDecorationIfTouches(List<PendingSnake> snakes) {
+		void removeEndDecorationIfTouches(List<PendingSnake> snakes) {
 			for (PendingSnake other : snakes) {
 				if (moved().touches(other.moved())) {
 					this.snake.removeEndDecoration();
@@ -80,7 +85,7 @@ public class UGraphicForSnake extends UGraphicDelegator {
 				}
 			}
 		}
-		
+
 		private Snake moved() {
 			return snake.move(dx, dy);
 		}

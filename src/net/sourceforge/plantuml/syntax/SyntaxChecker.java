@@ -68,10 +68,10 @@ public class SyntaxChecker {
 
 		if (source.startsWith("@startuml\n") == false) {
 			result.setError(true);
-			result.setLineLocation(new LineLocationImpl(null, null).oneLineRead());
+			result.setLineLocation(new LineLocationImpl("", null).oneLineRead());
 			// result.setErrorLinePosition(0);
 			result.addErrorText("No @startuml found");
-			result.setSuggest(Arrays.asList("Did you mean:", "@startuml"));
+			// result.setSuggest(Arrays.asList("Did you mean:", "@startuml"));
 			return result;
 		}
 		if (source.endsWith("@enduml\n") == false && source.endsWith("@enduml") == false) {
@@ -79,7 +79,7 @@ public class SyntaxChecker {
 			result.setLineLocation(lastLineNumber2(source));
 			// result.setErrorLinePosition(lastLineNumber(source));
 			result.addErrorText("No @enduml found");
-			result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
+			// result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
 			return result;
 		}
 		final SourceStringReader sourceStringReader = new SourceStringReader(Defines.createEmpty(), source,
@@ -91,7 +91,7 @@ public class SyntaxChecker {
 			result.setLineLocation(lastLineNumber2(source));
 			// result.setErrorLinePosition(lastLineNumber(source));
 			result.addErrorText("No @enduml found");
-			result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
+			// result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
 			return result;
 		}
 		final Diagram system = blocks.get(0).getDiagram();
@@ -108,7 +108,7 @@ public class SyntaxChecker {
 			for (ErrorUml er : sys.getErrorsUml()) {
 				result.addErrorText(er.getError());
 			}
-			result.setSuggest(sys.getSuggest());
+			// result.setSuggest(sys.getSuggest());
 		} else {
 			result.setDescription(system.getDescription().getDescription());
 		}
@@ -125,7 +125,7 @@ public class SyntaxChecker {
 			result.setError(true);
 			result.setLineLocation(lastLineNumber2(source));
 			result.addErrorText("No @enduml found");
-			result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
+			// result.setSuggest(Arrays.asList("Did you mean:", "@enduml"));
 			return result;
 		}
 
@@ -143,7 +143,7 @@ public class SyntaxChecker {
 				result.addErrorText(er.getError());
 			}
 			result.setSystemError(sys);
-			result.setSuggest(sys.getSuggest());
+			// result.setSuggest(sys.getSuggest());
 		} else {
 			result.setDescription(system.getDescription().getDescription());
 		}
@@ -161,7 +161,7 @@ public class SyntaxChecker {
 	}
 
 	private static LineLocation lastLineNumber2(String source) {
-		LineLocationImpl result = new LineLocationImpl(null, null).oneLineRead();
+		LineLocationImpl result = new LineLocationImpl("", null).oneLineRead();
 		for (int i = 0; i < source.length(); i++) {
 			if (source.charAt(i) == '\n') {
 				result = result.oneLineRead();

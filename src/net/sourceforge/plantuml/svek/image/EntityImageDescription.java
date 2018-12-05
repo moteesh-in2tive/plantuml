@@ -56,6 +56,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -89,11 +90,13 @@ public class EntityImageDescription extends AbstractEntityImage {
 	private final boolean hideText;
 	private final Collection<Link> links;
 	private final boolean useRankSame;
+	private final boolean fixCircleLabelOverlapping;
 
 	public EntityImageDescription(ILeaf entity, ISkinParam skinParam, PortionShower portionShower,
 			Collection<Link> links) {
 		super(entity, entity.getColors(skinParam).mute(skinParam));
 		this.useRankSame = skinParam.useRankSame();
+		this.fixCircleLabelOverlapping = skinParam.fixCircleLabelOverlapping();
 
 		this.links = links;
 		final Stereotype stereotype = entity.getStereotype();
@@ -101,15 +104,15 @@ public class EntityImageDescription extends AbstractEntityImage {
 		if (symbol == USymbol.FOLDER) {
 			this.shapeType = ShapeType.FOLDER;
 		} else if (symbol == USymbol.INTERFACE) {
-			this.shapeType = ShapeType.RECTANGLE;
-			// this.shapeType = ShapeType.RECTANGLE_WITH_CIRCLE_INSIDE;
+			this.shapeType = skinParam.fixCircleLabelOverlapping() ? ShapeType.RECTANGLE_WITH_CIRCLE_INSIDE
+					: ShapeType.RECTANGLE;
 		} else {
 			this.shapeType = ShapeType.RECTANGLE;
 		}
 		this.hideText = symbol == USymbol.INTERFACE;
 
 		final Display codeDisplay = Display.getWithNewlines(entity.getCode());
-		desc = (entity.getDisplay().equals(codeDisplay) && symbol instanceof USymbolFolder)
+		desc = (entity.getDisplay().equals(codeDisplay) && symbol.getSkinParameter() == SkinParameter.PACKAGE)
 				|| entity.getDisplay().isWhite() ? TextBlockUtils.empty(0, 0) : new BodyEnhanced(entity.getDisplay(),
 				symbol.getFontParam(), getSkinParam(), HorizontalAlignment.LEFT, stereotype,
 				symbol.manageHorizontalLine(), false, entity);
@@ -129,7 +132,7 @@ public class EntityImageDescription extends AbstractEntityImage {
 		final UStroke stroke = colors.muteStroke(symbol.getSkinParameter().getStroke(getSkinParam(), stereotype));
 
 		final SymbolContext ctx = new SymbolContext(backcolor, forecolor).withStroke(stroke)
-				.withShadow(getSkinParam().shadowing2(symbol.getSkinParameter()))
+				.withShadow(getSkinParam().shadowing2(getEntity().getStereotype(), symbol.getSkinParameter()))
 				.withCorner(roundCorner, diagonalCorner);
 
 		stereo = TextBlockUtils.empty(0, 0);
@@ -187,7 +190,7 @@ public class EntityImageDescription extends AbstractEntityImage {
 		if (isThereADoubleLink((ILeaf) getEntity(), links)) {
 			return Margins.NONE;
 		}
-		if (hasSomeHorizontalLinkVisible((ILeaf) getEntity(), links)) {
+		if (fixCircleLabelOverlapping == false && hasSomeHorizontalLinkVisible((ILeaf) getEntity(), links)) {
 			return Margins.NONE;
 		}
 		if (hasSomeHorizontalLinkDoubleDecorated((ILeaf) getEntity(), links)) {

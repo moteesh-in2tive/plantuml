@@ -37,7 +37,7 @@ package net.sourceforge.plantuml.svek.image;
 
 import java.awt.geom.Dimension2D;
 
-import net.sourceforge.plantuml.AlignParam;
+import net.sourceforge.plantuml.AlignmentParam;
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
@@ -129,8 +129,8 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				stereoBlock, 0, 0, widthTotal, heightTotal, getStroke());
 
 		decoration.drawU(ug, back, SkinParamUtils.getColor(getSkinParam(), ColorParam.packageBorder, getStereo()),
-				getSkinParam().shadowing(), roundCorner,
-				getSkinParam().getHorizontalAlignment(AlignParam.PACKAGE_TITLE_ALIGNMENT, null));
+				getSkinParam().shadowing(getEntity().getStereotype()), roundCorner,
+				getSkinParam().getHorizontalAlignment(AlignmentParam.packageTitleAlignment, null, false));
 
 		if (url != null) {
 			ug.closeAction();

@@ -41,35 +41,7 @@ import smetana.core.amiga.StarStruct;
 
 public class UnsupportedStruct implements __struct__ {
 
-	public __ptr__ getPtr(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __struct__ getStruct(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public boolean getBoolean(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public double getDouble(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public CString getCString(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public int getInt(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
 	public __ptr__ setPtr(String fieldName, __ptr__ value) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public void setCString(String fieldName, CString value) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
@@ -81,27 +53,7 @@ public class UnsupportedStruct implements __struct__ {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
-	public void setBoolean(String fieldName, boolean value) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
 	public void setDouble(String fieldName, double value) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_integer__ getArrayOfInteger(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_struct__ getArrayOfStruct(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_ptr__ getArrayOfPtr(String fieldName) {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public __array_of_cstring__ getArrayOfCString(String fieldName) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 
@@ -126,10 +78,6 @@ public class UnsupportedStruct implements __struct__ {
 	}
 
 	public StarStruct getInternalData() {
-		throw new UnsupportedOperationException(getClass().toString());
-	}
-
-	public Object call(String name, Object... args) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}
 

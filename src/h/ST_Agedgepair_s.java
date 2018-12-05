@@ -46,9 +46,7 @@
 package h;
 
 import smetana.core.HardcodedStruct;
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
-import smetana.core.__struct__;
 import smetana.core.amiga.StarStruct;
 
 public class ST_Agedgepair_s extends UnsupportedStructAndPtr implements HardcodedStruct {
@@ -64,25 +62,6 @@ public class ST_Agedgepair_s extends UnsupportedStructAndPtr implements Hardcode
 
 	public ST_Agedgepair_s(StarStruct parent) {
 		this.parent = parent;
-	}
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-	}
-
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("out")) {
-			return out;
-		}
-		if (fieldName.equals("in")) {
-			return in;
-		}
-		return super.getStruct(fieldName);
 	}
 
 	// public static List<String> DEFINITION = Arrays.asList(

@@ -37,31 +37,42 @@ package net.sourceforge.plantuml.creole;
 
 import java.awt.geom.Dimension2D;
 
+import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class AtomSprite implements Atom {
 
-	private final TextBlock sprite;
 	private final FontConfiguration fontConfiguration;
+	private final Sprite sprite;
+	private final double scale;
+	private final Url url;
 
-	public AtomSprite(TextBlock sprite, FontConfiguration fontConfiguration) {
-		this.sprite = sprite;
+	public AtomSprite(double scale, FontConfiguration fontConfiguration, Sprite sprite, Url url) {
+		this.scale = scale;
 		this.fontConfiguration = fontConfiguration;
+		this.sprite = sprite;
+		this.url = url;
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		return sprite.calculateDimension(stringBounder);
+		return sprite.asTextBlock(fontConfiguration.getColor(), scale).calculateDimension(stringBounder);
 	}
 
 	public double getStartingAltitude(StringBounder stringBounder) {
-		return -3;
+		return 0;
 	}
 
 	public void drawU(UGraphic ug) {
-		sprite.drawU(ug);
+		if (url != null) {
+			ug.startUrl(url);
+		}
+		sprite.asTextBlock(fontConfiguration.getColor(), scale).drawU(ug);
+		if (url != null) {
+			ug.closeAction();
+		}
 	}
-	
+
 }

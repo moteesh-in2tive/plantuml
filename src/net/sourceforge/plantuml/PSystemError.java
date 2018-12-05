@@ -37,6 +37,7 @@ package net.sourceforge.plantuml;
 import java.awt.Color;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -53,24 +54,33 @@ import net.sourceforge.plantuml.asciiart.UmlCharArea;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.eggs.PSystemWelcome;
+import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
+import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.graphic.HtmlColorSetSimple;
 import net.sourceforge.plantuml.graphic.HtmlColorSimple;
+import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
+import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
+import net.sourceforge.plantuml.version.LicenseInfo;
 import net.sourceforge.plantuml.version.PSystemVersion;
 
 public class PSystemError extends AbstractPSystem {
@@ -145,8 +155,14 @@ public class PSystemError extends AbstractPSystem {
 			udrawable = result;
 		}
 		final int min = (int) (System.currentTimeMillis() / 60000L) % 60;
-		if (min == 0) {
-			udrawable = addMessage(udrawable);
+		if (min == 1 && LicenseInfo.retrieveNamedOrDistributorQuickIsValid() == false) {
+			udrawable = addMessagePatreon(udrawable);
+		} else if (min == 15 && LicenseInfo.retrieveNamedOrDistributorQuickIsValid() == false) {
+			udrawable = addMessageLiberapay(udrawable);
+		} else if (min == 30 && LicenseInfo.retrieveNamedOrDistributorQuickIsValid() == false) {
+			udrawable = addMessageDedication(udrawable);
+		} else if (getSource().containsIgnoreCase("arecibo")) {
+			udrawable = addMessageArecibo(udrawable);
 		}
 		imageBuilder.setUDrawable(udrawable);
 		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormat, seed(), os);
@@ -163,22 +179,80 @@ public class PSystemError extends AbstractPSystem {
 		return TextBlockUtils.mergeTB(welcome, result, HorizontalAlignment.LEFT);
 	}
 
-	private TextBlock addMessage(final TextBlock source) throws IOException {
-		final TextBlock message = getMessage();
+	private TextBlock addMessageLiberapay(final TextBlock source) throws IOException {
+		final TextBlock message = getMessageLiberapay();
 		TextBlock result = TextBlockUtils.mergeTB(message, source, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.mergeTB(result, message, HorizontalAlignment.LEFT);
 		return result;
 	}
 
-	private TextBlockBackcolored getMessage() {
-		final UImage message = new UImage(PSystemVersion.getTime());
-		final HtmlColor backImage = new HtmlColorSimple(new Color(message.getImage().getRGB(0, 0)), false);
-		final double imWidth = message.getWidth();
-		final double imHeight = message.getHeight();
+	private TextBlock addMessagePatreon(final TextBlock source) throws IOException {
+		final TextBlock message = getMessagePatreon();
+		TextBlock result = TextBlockUtils.mergeTB(message, source, HorizontalAlignment.LEFT);
+		result = TextBlockUtils.mergeTB(result, message, HorizontalAlignment.LEFT);
+		return result;
+	}
+
+	private TextBlock addMessageDedication(final TextBlock source) throws IOException {
+		final TextBlock message = getMessageDedication();
+		TextBlock result = TextBlockUtils.mergeTB(message, source, HorizontalAlignment.LEFT);
+		return result;
+	}
+
+	private TextBlock addMessageArecibo(final TextBlock source) throws IOException {
+		final UImage message = new UImage(PSystemVersion.getArecibo());
+		TextBlock result = TextBlockUtils.mergeLR(source, TextBlockUtils.fromUImage(message), VerticalAlignment.TOP);
+		return result;
+	}
+
+	private TextBlockBackcolored getMessageDedication() {
+		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
+		final HtmlColorSimple backColor = (HtmlColorSimple) new HtmlColorSetSimple().getColorIfValid("#DFDCD3");
+
+		final BufferedImage qrcode = smaller(utils.exportFlashcode("http://plantuml.com/dedication", Color.BLACK,
+				backColor.getColor999()));
+		final Display disp = Display.create("<b>Add your own dedication into PlantUML", " ", "For just $5 per month!",
+				"Details on <i>[[http://plantuml.com/dedication]]");
+
+		final UFont font = UFont.sansSerif(14);
+		final FontConfiguration fc = new FontConfiguration(font, HtmlColorUtils.BLACK, HtmlColorUtils.BLACK, false);
+		final TextBlock text = TextBlockUtils.withMargin(
+				disp.create(fc, HorizontalAlignment.LEFT, new SpriteContainerEmpty()), 10, 0);
+		final TextBlock result;
+		if (qrcode == null) {
+			result = text;
+		} else {
+			final UImage qr = new UImage(qrcode).scaleNearestNeighbor(3);
+			result = TextBlockUtils.mergeLR(text, TextBlockUtils.fromUImage(qr), VerticalAlignment.CENTER);
+		}
+		return TextBlockUtils.addBackcolor(result, backColor);
+
+	}
+
+	private TextBlockBackcolored getMessagePatreon() {
+		final UImage message = new UImage(PSystemVersion.getTime01());
+		final Color back = new Color(message.getImage().getRGB(0, 0));
+		final HtmlColor backColor = new HtmlColorSimple(back, false);
+
+		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
+		final BufferedImage qrcode = smaller(utils.exportFlashcode("http://plantuml.com/patreon", Color.BLACK,
+				Color.WHITE));
+
+		final int scale = 2;
+
+		final double imWidth = message.getWidth() + (qrcode == null ? 0 : qrcode.getWidth() * scale + 20);
+		final double imHeight = qrcode == null ? message.getHeight() : Math.max(message.getHeight(), qrcode.getHeight()
+				* scale + 10);
 		return new TextBlockBackcolored() {
 
 			public void drawU(UGraphic ug) {
-				ug.apply(new UTranslate(1, 1)).draw(message);
+				if (qrcode == null) {
+					ug.apply(new UTranslate(1, 1)).draw(message);
+				} else {
+					final UImage qr = new UImage(qrcode).scaleNearestNeighbor(scale);
+					ug.apply(new UTranslate(1, (imHeight - message.getHeight()) / 2)).draw(message);
+					ug.apply(new UTranslate(1 + message.getWidth(), (imHeight - qr.getHeight()) / 2)).draw(qr);
+				}
 			}
 
 			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
@@ -194,10 +268,62 @@ public class PSystemError extends AbstractPSystem {
 			}
 
 			public HtmlColor getBackcolor() {
-				return backImage;
+				return backColor;
 			}
 		};
 
+	}
+
+	private TextBlockBackcolored getMessageLiberapay() {
+		final UImage message = new UImage(PSystemVersion.getTime15());
+		final Color back = new Color(message.getImage().getRGB(0, 0));
+		final HtmlColor backColor = new HtmlColorSimple(back, false);
+
+		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
+		final BufferedImage qrcode = smaller(utils.exportFlashcode("http://plantuml.com/lp", Color.BLACK, Color.WHITE));
+
+		final int scale = 2;
+
+		final double imWidth = message.getWidth() + (qrcode == null ? 0 : qrcode.getWidth() * scale + 20);
+		final double imHeight = qrcode == null ? message.getHeight() : Math.max(message.getHeight(), qrcode.getHeight()
+				* scale + 10);
+		return new TextBlockBackcolored() {
+
+			public void drawU(UGraphic ug) {
+				if (qrcode == null) {
+					ug.apply(new UTranslate(1, 1)).draw(message);
+				} else {
+					final UImage qr = new UImage(qrcode).scaleNearestNeighbor(scale);
+					ug.apply(new UTranslate(1, (imHeight - message.getHeight()) / 2)).draw(message);
+					ug.apply(new UTranslate(1 + message.getWidth(), (imHeight - qr.getHeight()) / 2)).draw(qr);
+				}
+			}
+
+			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+				return null;
+			}
+
+			public Dimension2D calculateDimension(StringBounder stringBounder) {
+				return new Dimension2DDouble(imWidth + 1, imHeight + 1);
+			}
+
+			public MinMax getMinMax(StringBounder stringBounder) {
+				return MinMax.fromMax(imWidth + 1, imHeight + 1);
+			}
+
+			public HtmlColor getBackcolor() {
+				return backColor;
+			}
+		};
+
+	}
+
+	private BufferedImage smaller(BufferedImage im) {
+		if (im == null) {
+			return null;
+		}
+		final int nb = 1;
+		return im.getSubimage(nb, nb, im.getWidth() - 2 * nb, im.getHeight() - 2 * nb);
 	}
 
 	private List<String> getTextStrings() {
@@ -206,22 +332,6 @@ public class PSystemError extends AbstractPSystem {
 			result.add(" ");
 		}
 
-		// final int limit = 4;
-		// int start;
-		// final int skip = higherErrorPosition - limit + 1;
-		// if (skip <= 0) {
-		// start = 0;
-		// } else {
-		// if (skip == 1) {
-		// result.add("... (skipping 1 line) ...");
-		// } else {
-		// result.add("... (skipping " + skip + " lines) ...");
-		// }
-		// start = higherErrorPosition - limit + 1;
-		// }
-		// for (int i = start; i < higherErrorPosition; i++) {
-		// result.add(getSource().getLine(i));
-		// }
 		for (String s : getPartialCode()) {
 			result.add(s);
 		}
@@ -288,11 +398,13 @@ public class PSystemError extends AbstractPSystem {
 		List<String> result = new ArrayList<String>();
 		for (Iterator<CharSequence2> it = getSource().iterator2(); it.hasNext();) {
 			final CharSequence2 s = it.next();
-			if (s.getLocation().compareTo(higherErrorPosition) < 0) {
-				result.add(s.toString());
+			result.add(s.toString());
+			if (s.getLocation().getDescription().equals(higherErrorPosition.getDescription())
+					&& s.getLocation().compareTo(higherErrorPosition) >= 0) {
+				break;
 			}
 		}
-		final int limit = 4;
+		final int limit = 5;
 		if (result.size() > limit) {
 			final int skip = result.size() - limit + 1;
 			final String skipMessage;
@@ -314,30 +426,20 @@ public class PSystemError extends AbstractPSystem {
 			htmlStrings.add("----");
 		}
 
-		// final int limit = 4;
-		// int start;
-		// final int skip = higherErrorPosition - limit + 1;
-		// if (skip <= 0) {
-		// start = 0;
-		// } else {
-		// if (skip == 1) {
-		// htmlStrings.add("... (skipping 1 line) ...");
-		// } else {
-		// htmlStrings.add("... (skipping " + skip + " lines) ...");
-		// }
-		// start = higherErrorPosition - limit + 1;
-		// }
-		// for (int i = start; i < higherErrorPosition; i++) {
-		// htmlStrings.add(StringUtils.hideComparatorCharacters(getSource().getLine(i)));
-		// }
-		for (String s : getPartialCode()) {
+		final List<String> partialCode = getPartialCode();
+		for (String s : partialCode) {
 			htmlStrings.add(StringUtils.hideComparatorCharacters(s));
 		}
-		final String errorLine = getSource().getLine(higherErrorPosition);
-		final String err = StringUtils.hideComparatorCharacters(errorLine);
-		if (StringUtils.isNotEmpty(err)) {
-			htmlStrings.add("<w:" + getRed(useRed) + ">" + err + "</w>");
+		if (partialCode.size() > 0) {
+			final int idx = htmlStrings.size() - 1;
+			final String last = htmlStrings.get(idx);
+			htmlStrings.set(idx, "<w:" + getRed(useRed) + ">" + last + "</w>");
 		}
+		// final String errorLine = getSource().getLine(higherErrorPosition);
+		// final String err = StringUtils.hideComparatorCharacters(errorLine);
+		// if (StringUtils.isNotEmpty(err)) {
+		// htmlStrings.add("<w:" + getRed(useRed) + ">" + err + "</w>");
+		// }
 		final Collection<String> textErrors = new LinkedHashSet<String>();
 		for (ErrorUml er : printedErrors) {
 			textErrors.add(er.getError());
@@ -360,7 +462,7 @@ public class PSystemError extends AbstractPSystem {
 		return htmlStrings;
 	}
 
-	public List<String> getSuggest() {
+	private List<String> getSuggest() {
 		boolean suggested = false;
 		for (ErrorUml er : printedErrors) {
 			if (er.hasSuggest()) {
@@ -391,16 +493,6 @@ public class PSystemError extends AbstractPSystem {
 		return result;
 	}
 
-	// private int getHigherErrorPosition(ErrorUmlType type, List<ErrorUml> all) {
-	// int max = Integer.MIN_VALUE;
-	// for (ErrorUml error : getErrors(type, all)) {
-	// if (error.getPosition() > max) {
-	// max = error.getPosition();
-	// }
-	// }
-	// return max;
-	// }
-
 	private LineLocation getHigherErrorPosition2(ErrorUmlType type, List<ErrorUml> all) {
 		LineLocation max = null;
 		for (ErrorUml error : getErrors(type, all)) {
@@ -410,16 +502,6 @@ public class PSystemError extends AbstractPSystem {
 		}
 		return max;
 	}
-
-	// private List<ErrorUml> getErrorsAt(int position, ErrorUmlType type, List<ErrorUml> all) {
-	// final List<ErrorUml> result = new ArrayList<ErrorUml>();
-	// for (ErrorUml error : getErrors(type, all)) {
-	// if (error.getPosition() == position && StringUtils.isNotEmpty(error.getError())) {
-	// result.add(error);
-	// }
-	// }
-	// return result;
-	// }
 
 	private List<ErrorUml> getErrorsAt2(LineLocation position, ErrorUmlType type, List<ErrorUml> all) {
 		final List<ErrorUml> result = new ArrayList<ErrorUml>();

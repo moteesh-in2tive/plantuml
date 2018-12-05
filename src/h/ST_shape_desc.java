@@ -61,8 +61,8 @@ public class ST_shape_desc extends UnsupportedStructAndPtr implements HardcodedS
 	}
 
 	public CString name;
-	public ST_shape_functions.Amp fns;
-	public ST_polygon_t.Amp polygon;
+	public ST_shape_functions fns;
+	public ST_polygon_t polygon;
 	public boolean usershape;
 
 	@Override
@@ -72,41 +72,14 @@ public class ST_shape_desc extends UnsupportedStructAndPtr implements HardcodedS
 			return newData;
 		}
 		if (fieldName.equals("fns")) {
-			this.fns = (ST_shape_functions.Amp) newData;
+			this.fns = (ST_shape_functions) newData;
 			return newData;
 		}
 		if (fieldName.equals("polygon")) {
-			this.polygon = (ST_polygon_t.Amp) newData;
+			this.polygon = (ST_polygon_t) newData;
 			return newData;
 		}
 		return super.setPtr(fieldName, newData);
-	}
-
-	@Override
-	public CString getCString(String fieldName) {
-		if (fieldName.equals("name")) {
-			return name;
-		}
-		return super.getCString(fieldName);
-	}
-
-	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("fns")) {
-			return fns;
-		}
-		if (fieldName.equals("polygon")) {
-			return polygon;
-		}
-		return super.getPtr(fieldName);
-	}
-
-	@Override
-	public boolean getBoolean(String fieldName) {
-		if (fieldName.equals("usershape")) {
-			return usershape;
-		}
-		return super.getBoolean(fieldName);
 	}
 
 	// public static List<String> DEFINITION = Arrays.asList(

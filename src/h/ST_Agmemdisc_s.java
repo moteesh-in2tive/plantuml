@@ -46,35 +46,15 @@
 package h;
 
 import smetana.core.CFunction;
-import smetana.core.UnsupportedStarStruct;
-import smetana.core.UnsupportedStruct;
-import smetana.core.amiga.StarStruct;
+import smetana.core.UnsupportedStructAndPtr;
 
-public class ST_Agmemdisc_s extends UnsupportedStruct {
+public class ST_Agmemdisc_s extends UnsupportedStructAndPtr {
 
 	public CFunction open;
 	public CFunction alloc;
 	public CFunction resize;
 	public CFunction free;
 	public CFunction close;
-
-	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-		@Override
-		public Object call(String fieldName, Object... args) {
-			if (fieldName.equals("open")) {
-				return open.exe(args);
-			}
-			if (fieldName.equals("alloc")) {
-				return alloc.exe(args);
-			}
-			return super.call(fieldName, args);
-		}
-	}
 
 	// public static List<String> DEFINITION = Arrays.asList(
 	// "struct Agmemdisc_s",

@@ -42,28 +42,36 @@ import java.awt.image.BufferedImage;
 public class UImage implements UShape {
 
 	private final BufferedImage image;
+	private final String formula;
 
 	public UImage(BufferedImage image) {
-		this.image = image;
+		this(image, null);
 	}
 
-	public UImage(BufferedImage before, double scale) {
-		if (scale == 1) {
-			this.image = before;
-			return;
-		}
-
-		final int w = (int) Math.round(before.getWidth() * scale);
-		final int h = (int) Math.round(before.getHeight() * scale);
-		final BufferedImage after = new BufferedImage(w, h, before.getType());
-		final AffineTransform at = new AffineTransform();
-		at.scale(scale, scale);
-		final AffineTransformOp scaleOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-		this.image = scaleOp.filter(before, after);
+	public UImage(BufferedImage image, String formula) {
+		this.image = image;
+		this.formula = formula;
 	}
 
 	public UImage scale(double scale) {
-		return new UImage(image, scale);
+		return scale(scale, AffineTransformOp.TYPE_BILINEAR);
+	}
+
+	public UImage scaleNearestNeighbor(double scale) {
+		return scale(scale, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+	}
+
+	private UImage scale(double scale, final int type) {
+		if (scale == 1) {
+			return this;
+		}
+		final int w = (int) Math.round(image.getWidth() * scale);
+		final int h = (int) Math.round(image.getHeight() * scale);
+		final BufferedImage after = new BufferedImage(w, h, image.getType());
+		final AffineTransform at = new AffineTransform();
+		at.scale(scale, scale);
+		final AffineTransformOp scaleOp = new AffineTransformOp(at, type);
+		return new UImage(scaleOp.filter(image, after), formula);
 	}
 
 	public final BufferedImage getImage() {
@@ -71,11 +79,14 @@ public class UImage implements UShape {
 	}
 
 	public double getWidth() {
-		return image.getWidth()-1;
+		return image.getWidth() - 1;
 	}
 
 	public double getHeight() {
-		return image.getHeight()-1;
+		return image.getHeight() - 1;
 	}
 
+	public final String getFormula() {
+		return formula;
+	}
 }

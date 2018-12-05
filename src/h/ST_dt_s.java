@@ -55,10 +55,10 @@ public class ST_dt_s extends UnsupportedStructAndPtr implements HardcodedStruct 
 
 	public CFunction searchf;/* search function */
 
-	public ST_dtdisc_s.Amp disc; /* method to manipulate objs */
+	public ST_dtdisc_s disc; /* method to manipulate objs */
 	public ST_dtdata_s data; /* sharable data */
 	public CFunction memoryf;/* function to alloc/free memory */
-	public ST_dtmethod_s.Amp meth; /* dictionary method */
+	public ST_dtmethod_s meth; /* dictionary method */
 
 	public int type; /* type information */
 	public int nview; /* number of parent view dictionaries */
@@ -80,11 +80,11 @@ public class ST_dt_s extends UnsupportedStructAndPtr implements HardcodedStruct 
 			return searchf;
 		}
 		if (fieldName.equals("meth")) {
-			this.meth = (ST_dtmethod_s.Amp) newData;
+			this.meth = (ST_dtmethod_s) newData;
 			return meth;
 		}
 		if (fieldName.equals("disc")) {
-			this.disc = (ST_dtdisc_s.Amp) newData;
+			this.disc = (ST_dtdisc_s) newData;
 			return disc;
 		}
 		if (fieldName.equals("memoryf")) {
@@ -111,42 +111,6 @@ public class ST_dt_s extends UnsupportedStructAndPtr implements HardcodedStruct 
 	}
 
 	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("disc")) {
-			return disc;
-		}
-		if (fieldName.equals("data")) {
-			return data;
-		}
-		if (fieldName.equals("meth")) {
-			return meth;
-		}
-		if (fieldName.equals("view")) {
-			return view;
-		}
-		return super.getPtr(fieldName);
-	}
-
-	@Override
-	public Object call(String fieldName, Object... args) {
-		if (fieldName.equals("memoryf")) {
-			return this.memoryf.exe(args);
-		}
-		if (fieldName.equals("searchf")) {
-			return this.searchf.exe(args);
-		}
-		return super.call(fieldName, args);
-	}
-
-	@Override
-	public __ptr__ castTo(Class dest) {
-		if (dest == _dt_s.class) {
-			return this;
-		}
-		return super.castTo(dest);
-	}
-
-	@Override
 	public void setInt(String fieldName, int data) {
 		if (fieldName.equals("type")) {
 			this.type = data;
@@ -159,17 +123,6 @@ public class ST_dt_s extends UnsupportedStructAndPtr implements HardcodedStruct 
 		super.setInt(fieldName, data);
 	}
 
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("type")) {
-			return type;
-		}
-		if (fieldName.equals("nview")) {
-			return nview;
-		}
-		return super.getInt(fieldName);
-	}
-	
 	@Override
 	public boolean isSameThan(StarStruct other) {
 		ST_dt_s other2 = (ST_dt_s) other;

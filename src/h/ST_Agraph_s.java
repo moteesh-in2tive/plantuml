@@ -45,14 +45,16 @@
  */
 package h;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import smetana.core.OFFSET;
-import smetana.core.UnsupportedSize_t;
-import smetana.core.UnsupportedStarStruct;
+import smetana.core.UnsupportedArrayOfStruct2;
 import smetana.core.UnsupportedStructAndPtr;
+import smetana.core.__array_of_ptr__;
 import smetana.core.__ptr__;
 import smetana.core.__struct__;
 import smetana.core.size_t;
-import smetana.core.amiga.StarArrayOfPtr;
 import smetana.core.amiga.StarStruct;
 
 public class ST_Agraph_s extends UnsupportedStructAndPtr {
@@ -84,9 +86,9 @@ public class ST_Agraph_s extends UnsupportedStructAndPtr {
 	public StarStruct getParent() {
 		return _parent;
 	}
-	
+
 	@Override
-	public __struct__ getStruct() {
+	public ST_Agraph_s getStruct() {
 		return this;
 	}
 
@@ -100,76 +102,94 @@ public class ST_Agraph_s extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public StarStruct amp() {
-		return new Amp(this);
+	public ST_Agraph_s getPtr() {
+		return this;
 	}
 
-	public class Amp extends UnsupportedStarStruct {
+	public static class Array extends UnsupportedArrayOfStruct2 implements __ptr__, __array_of_ptr__ {
 
-		private final ST_Agraph_s me;
-
-		public Amp(ST_Agraph_s me) {
-			this.me = me;
-		}
-		
-		@Override
-		public __ptr__ getPtr(String fieldName) {
-			return ST_Agraph_s.this.getPtr(fieldName);
-		}
-		
-		@Override
-		public __struct__ getStruct() {
-			return ST_Agraph_s.this.getStruct();
-		}
-		
-		@Override
-		public __struct__ getStruct(String fieldName) {
-			return ST_Agraph_s.this.getStruct(fieldName);
-		}
+		private final List<ST_Agraph_s> data;
+		private final int pos;
 
 		@Override
-		public boolean isSameThan(StarStruct other) {
-			if (other instanceof Amp) {
-				Amp other2 = (Amp) other;
-				return this.me == other2.me;
-			}
-			if (other instanceof ST_Agraph_s) {
-				ST_Agraph_s other2 = (ST_Agraph_s) other;
-				return this.me == other2;
-			}
-			return super.isSameThan(other);
+		public void setStruct(String fieldName, __struct__ data) {
+			getStruct().setStruct(fieldName, data);
 		}
 
 		@Override
 		public __ptr__ castTo(Class dest) {
-			if (dest == Agobj_s.class) {
-				return base.amp();
-			}
-			if (dest == Agraph_s.class) {
-				return ST_Agraph_s.this;
-			}
-
-			return super.castTo(dest);
+			return getStruct().castTo(dest);
 		}
 
 		@Override
-		public Object addVirtualBytes(int virtualBytes) {
-			if (virtualBytes == 0) {
-				return this;
-			}
-			OFFSET offset = OFFSET.fromInt(virtualBytes);
-			// if (offset.toString().equals("h.Agedge_s::seq_link")) {
-			// return seq_link;
-			// }
-			if (offset.toString().equals("h.Agraph_s::link")) {
-				return link;
-			}
-			System.err.println("offset176=" + offset);
-			return super.addVirtualBytes(virtualBytes);
+		public void setPtr(__ptr__ value) {
+			this.data.set(pos, (ST_Agraph_s) value);
 		}
 
-		public ST_Agraph_s getObject() {
-			return me;
+		@Override
+		public ST_Agraph_s getPtr() {
+			return this.data.get(pos);
+		}
+
+		@Override
+		public Array asPtr() {
+			return this;
+		}
+
+		@Override
+		public ST_Agraph_s getStruct() {
+			return data.get(pos);
+		}
+
+		public Array(int size) {
+			this.data = new ArrayList<ST_Agraph_s>();
+			this.pos = 0;
+			for (int i = 0; i < size; i++) {
+				data.add(null);
+			}
+		}
+
+		public Array reallocJ(int newsize) {
+			while (data.size() < newsize) {
+				data.add(null);
+			}
+			return this;
+		}
+
+		public Array plus(int delta) {
+			return plusJ(delta);
+		}
+
+		private Array(List<ST_Agraph_s> data, int pos) {
+			this.data = data;
+			this.pos = pos;
+		}
+
+		public ST_Agraph_s get(int i) {
+			return this.data.get(pos + i);
+		}
+
+		public Array plusJ(int i) {
+			return new Array(data, pos + i);
+		}
+
+		public int minus(Array other) {
+			if (this.data != other.data) {
+				throw new IllegalArgumentException();
+			}
+			return this.pos - other.pos;
+		}
+
+		public Array move(int delta) {
+			throw new UnsupportedOperationException(getClass().toString());
+		}
+
+		public void realloc(size_t nb) {
+			throw new UnsupportedOperationException(getClass().toString());
+		}
+
+		public int comparePointerInternal(__array_of_ptr__ other) {
+			throw new UnsupportedOperationException(getClass().toString());
 		}
 
 	}
@@ -183,19 +203,11 @@ public class ST_Agraph_s extends UnsupportedStructAndPtr {
 		// if (offset.toString().equals("h.Agedge_s::seq_link")) {
 		// return seq_link;
 		// }
-		if (offset.toString().equals("h.Agraph_s::link")) {
+		if (offset.toString().equals("h.ST_Agraph_s::link")) {
 			return link;
 		}
 		System.err.println("offset156=" + offset);
 		return super.addVirtualBytes(virtualBytes);
-	}
-
-	@Override
-	public __struct__ getStruct(String fieldName) {
-		if (fieldName.equals("desc")) {
-			return desc;
-		}
-		return super.getStruct(fieldName);
 	}
 
 	@Override
@@ -236,43 +248,18 @@ public class ST_Agraph_s extends UnsupportedStructAndPtr {
 	}
 
 	@Override
-	public __ptr__ getPtr(String fieldName) {
-		if (fieldName.equals("clos")) {
-			return clos;
-		}
-		if (fieldName.equals("root")) {
-			return root;
-		}
-		if (fieldName.equals("parent")) {
-			return parent;
-		}
-		if (fieldName.equals("n_id")) {
-			return n_id;
-		}
-		if (fieldName.equals("n_seq")) {
-			return n_seq;
-		}
-		if (fieldName.equals("e_id")) {
-			return e_id;
-		}
-		if (fieldName.equals("e_seq")) {
-			return e_seq;
-		}
-		if (fieldName.equals("g_dict")) {
-			return g_dict;
-		}
-		return super.getPtr(fieldName);
-	}
-
-	@Override
 	public __ptr__ castTo(Class dest) {
-		if (dest == Agobj_s.class) {
+		if (dest == ST_Agobj_s.class) {
 			return base;
 		}
-		if (dest == Agraph_s.class) {
+		if (dest == ST_Agraph_s.class) {
 			return this;
 		}
 		return super.castTo(dest);
+	}
+
+	public ST_Agobj_s castTo_ST_Agobj_s() {
+		return base;
 	}
 
 	@Override
@@ -283,33 +270,10 @@ public class ST_Agraph_s extends UnsupportedStructAndPtr {
 
 	public StarStruct from_link(ST_dtlink_s from) {
 		if (from == link) {
-			return amp();
+			return this;
 		}
 		throw new IllegalArgumentException();
 	}
-	
-	
-	public static size_t sizeof(final int nb) {
-		return new UnsupportedSize_t(nb) {
-			@Override
-			public Object malloc() {
-				return new StarArrayOfPtr(new STArray<ST_Agraph_s>(nb, 0, ST_Agraph_s.class));
-			}
-
-			@Override
-			public int getInternalNb() {
-				return nb;
-			}
-
-			@Override
-			public Object realloc(Object old) {
-				StarArrayOfPtr old2 = (StarArrayOfPtr) old;
-				old2.realloc(nb);
-				return old2;
-			}
-		};
-	}
-
 
 	//
 	// public interface ST_Agraph_s extends __ptr__ {

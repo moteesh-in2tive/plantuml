@@ -70,6 +70,7 @@ import net.sourceforge.plantuml.graphic.TextBlockSprited;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.sequencediagram.MessageNumber;
+import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
@@ -83,6 +84,17 @@ public class Display implements Iterable<CharSequence> {
 
 	public final static Display NULL = new Display(null, null, true, CreoleMode.FULL);
 
+	public Display replaceBackslashT() {
+		final Display result = new Display(this, defaultCreoleMode);
+		for (int i = 0; i < result.display.size(); i++) {
+			final CharSequence s = display.get(i);
+			if (s.toString().contains("\\t")) {
+				result.display.set(i, s.toString().replace("\\t", "\t"));
+			}
+		}
+		return result;
+	}
+
 	public Display replace(String src, String dest) {
 		final List<CharSequence> newDisplay = new ArrayList<CharSequence>();
 		for (CharSequence cs : display) {
@@ -95,7 +107,8 @@ public class Display implements Iterable<CharSequence> {
 	}
 
 	public boolean isWhite() {
-		return display.size() == 0 || (display.size() == 1 && display.get(0).toString().matches("\\s*"));
+		return display == null || display.size() == 0
+				|| (display.size() == 1 && display.get(0).toString().matches("\\s*"));
 	}
 
 	public static Display empty() {
@@ -206,13 +219,19 @@ public class Display implements Iterable<CharSequence> {
 
 	public Display manageGuillemet() {
 		final List<CharSequence> result = new ArrayList<CharSequence>();
+		boolean first = true;
 		for (CharSequence line : display) {
-			final String withGuillement = StringUtils.manageGuillemet(line.toString());
-			if (withGuillement.equals(line.toString())) {
-				result.add(line);
-			} else {
-				result.add(withGuillement);
+			String lineString = line.toString();
+			if (first && VisibilityModifier.isVisibilityCharacter(line)) {
+				lineString = lineString.substring(1).trim();
 			}
+			final String withGuillement = StringUtils.manageGuillemet(lineString);
+			// if (withGuillement.equals(lineString)) {
+			// result.add(lineString);
+			// } else {
+			result.add(withGuillement);
+			// }
+			first = false;
 		}
 		return new Display(result, this.naturalHorizontalAlignment, this.isNull, this.defaultCreoleMode);
 	}
@@ -398,8 +417,8 @@ public class Display implements Iterable<CharSequence> {
 
 	public TextBlock create(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,
 			ISkinSimple spriteContainer, CreoleMode modeSimpleLine, LineBreakStrategy maxMessageSize) {
-		return create(fontConfiguration, horizontalAlignment, spriteContainer, maxMessageSize, modeSimpleLine,
-				null, null);
+		return create(fontConfiguration, horizontalAlignment, spriteContainer, maxMessageSize, modeSimpleLine, null,
+				null);
 	}
 
 	public TextBlock create(FontConfiguration fontConfiguration, HorizontalAlignment horizontalAlignment,

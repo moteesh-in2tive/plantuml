@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 public class SubjectDayAsDate implements SubjectPattern {
 
 	public Collection<VerbPattern> getVerbs() {
-		return Arrays.<VerbPattern> asList(new VerbIs());
+		return Arrays.<VerbPattern> asList(new VerbIsOrAre());
 	}
 
 	public IRegex toRegex() {

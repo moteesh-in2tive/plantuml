@@ -45,12 +45,6 @@
  */
 package h;
 
-import h.ST_RTree.Amp;
-
-import java.util.Arrays;
-import java.util.List;
-
-import smetana.core.UnsupportedStarStruct;
 import smetana.core.UnsupportedStructAndPtr;
 import smetana.core.__ptr__;
 import smetana.core.amiga.StarStruct;
@@ -69,54 +63,68 @@ public class ST_RTree extends UnsupportedStructAndPtr {
 
 	// "struct RTree",
 	// "{",
+	public ST_Node_t___ root;
 	// "Node_t *root",
-	// "SplitQ_t split",
-	// "int MinFill",
+	public final ST_SplitQ_t split = new ST_SplitQ_t(this);
+	public int MinFill;
 	// "long ElapsedTime",
 	// "float UserTime, SystemTime",
-	// "int Deleting",
-	// "int StatFlag",
+	public int Deleting;
+	public int StatFlag;
 	// "int InsertCount",
 	// "int DeleteCount",
 	// "int ReInsertCount",
 	// "int InSplitCount",
 	// "int DeSplitCount",
-	// "int ElimCount",
+	public int ElimCount;
 	// "int EvalCount",
 	// "int InTouchCount",
 	// "int DeTouchCount",
-	// "int SeTouchCount",
+	public int SeTouchCount;
 	// "int CallCount",
 	// "float SplitMeritSum",
-	// "int RectCount",
-	private int NodeCount;
-	// "int LeafCount, NonLeafCount",
-	// "int EntryCount",
+	public int RectCount;
+	public int NodeCount;
+	public int LeafCount, NonLeafCount;
+
+	public int EntryCount;
 	// "int SearchCount",
 	// "int HitCount",
 	// "}");
 
 	@Override
-	public StarStruct amp() {
-		return new Amp();
-	}
-
-	public class Amp extends UnsupportedStarStruct {
-
-	}
-	
-	@Override
-	public int getInt(String fieldName) {
-		if (fieldName.equals("NodeCount")) {
-			return NodeCount;
+	public __ptr__ setPtr(String fieldName, __ptr__ newData) {
+		if (fieldName.equals("root")) {
+			this.root = (ST_Node_t___) newData;
+			return root;
 		}
-		return super.getInt(fieldName);
+		return super.setPtr(fieldName, newData);
 	}
-	
+
 	@Override
 	public void setInt(String fieldName, int data) {
 		if (fieldName.equals("NodeCount")) {
 			this.NodeCount = data;
+			return;
+		}
+		if (fieldName.equals("LeafCount")) {
+			this.LeafCount = data;
+			return;
+		}
+		if (fieldName.equals("RectCount")) {
+			this.RectCount = data;
+			return;
+		}
+		if (fieldName.equals("EntryCount")) {
+			this.EntryCount = data;
+			return;
+		}
+		if (fieldName.equals("SeTouchCount")) {
+			this.SeTouchCount = data;
+			return;
+		}
+		if (fieldName.equals("NonLeafCount")) {
+			this.NonLeafCount = data;
 			return;
 		}
 		super.setInt(fieldName, data);

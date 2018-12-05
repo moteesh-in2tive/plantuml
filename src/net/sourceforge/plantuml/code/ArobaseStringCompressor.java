@@ -52,7 +52,7 @@ public class ArobaseStringCompressor implements StringCompressor {
 	private final static Pattern2 p = MyPattern.cmpile("(?s)(?i)^[%s]*(@startuml[^\\n\\r]*)?[%s]*(.*?)[%s]*(@enduml)?[%s]*$");
 
 	public String compress(final String data) throws IOException {
-		final ReadLine r = new UncommentReadLine(new ReadLineReader(new StringReader(data), "COMPRESS"));
+		final ReadLine r = new UncommentReadLine(ReadLineReader.create(new StringReader(data), "COMPRESS"));
 		final StringBuilder sb = new StringBuilder();
 		final StringBuilder full = new StringBuilder();
 		CharSequence2 s = null;
@@ -102,7 +102,7 @@ public class ArobaseStringCompressor implements StringCompressor {
 	}
 
 	private String clean(String s) {
-		s = s.replace("\0", "");
+		// s = s.replace("\0", "");
 		s = StringUtils.trin(s);
 		s = clean1(s);
 		s = s.replaceAll("@enduml[^\\n\\r]*", "");
