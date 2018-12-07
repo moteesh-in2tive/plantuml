@@ -47,7 +47,6 @@ import net.sourceforge.plantuml.asciiart.UmlCharArea;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
-import net.sourceforge.plantuml.eggs.PSystemWelcome;
 import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -124,25 +123,11 @@ public class PSystemError extends AbstractPSystem {
 		TextBlock udrawable;
 		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, result.getBackcolor(),
 				getMetadata(), null, 0, 0, null, false);
-		if (getSource().getTotalLineCount() < 5) {
-			udrawable = addWelcome(result);
-		} else {
-			udrawable = result;
-		}
-
+		udrawable = result;
 		imageBuilder.setUDrawable(udrawable);
 		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormat, seed(), os);
 		((ImageDataAbstract) imageData).setStatus(FileImageData.ERROR);
 		return imageData;
-	}
-
-	private TextBlockBackcolored getWelcome() throws IOException {
-		return new PSystemWelcome(GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT).getGraphicStrings();
-	}
-
-	private TextBlock addWelcome(final TextBlockBackcolored result) throws IOException {
-		final TextBlockBackcolored welcome = getWelcome();
-		return TextBlockUtils.mergeTB(welcome, result, HorizontalAlignment.LEFT);
 	}
 
 	private List<String> getTextStrings() {
