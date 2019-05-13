@@ -137,7 +137,7 @@ public class GraphvizUtils {
 		if (StringUtils.isNotEmpty(getenv) && getenv.matches("\\d+")) {
 			return Integer.parseInt(getenv);
 		}
-		return 4096;
+		return 8192;
 	}
 
 	public static String getenvLogData() {
