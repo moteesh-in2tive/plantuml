@@ -46,7 +46,7 @@ public class Rainbow {
 	private Rainbow(int colorArrowSeparationSpace) {
 		this.colorArrowSeparationSpace = colorArrowSeparationSpace;
 	}
-	
+
 	@Override
 	public String toString() {
 		return colors.toString();
@@ -71,7 +71,7 @@ public class Rainbow {
 		result.colors.add(color);
 		return result;
 	}
-	
+
 	public static Rainbow build(ISkinParam skinParam, String colorString, int colorArrowSeparationSpace) {
 		if (colorString == null) {
 			return Rainbow.none();
@@ -81,6 +81,15 @@ public class Rainbow {
 			result.colors.add(HtmlColorAndStyle.build(skinParam, s));
 		}
 		return result;
+	}
+
+	public boolean isInvisible() {
+		for (HtmlColorAndStyle style : colors) {
+			if (style.getStyle().isInvisible()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<HtmlColorAndStyle> getColors() {

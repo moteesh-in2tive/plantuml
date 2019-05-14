@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.plantuml.AParentFolder;
 import net.sourceforge.plantuml.BackSlash;
 
 public class Define {
@@ -46,8 +47,10 @@ public class Define {
 	private final String definitionQuoted;
 	private final boolean emptyParentheses;
 	private Pattern pattern;
+	private final AParentFolder currentDir;
 
-	public Define(String key, List<String> lines, boolean emptyParentheses) {
+	public Define(String key, List<String> lines, boolean emptyParentheses, AParentFolder currentDir) {
+		this.currentDir = currentDir;
 		this.emptyParentheses = emptyParentheses;
 		if (lines == null) {
 			this.definition = null;

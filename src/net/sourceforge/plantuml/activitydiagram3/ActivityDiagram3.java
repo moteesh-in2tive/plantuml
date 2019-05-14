@@ -137,7 +137,8 @@ public class ActivityDiagram3 extends UmlDiagram {
 
 	public void start() {
 		manageSwimlaneStrategy();
-		current().add(new InstructionStart(swinlanes.getCurrentSwimlane()));
+		current().add(new InstructionStart(swinlanes.getCurrentSwimlane(), nextLinkRenderer()));
+		setNextLinkRendererInternal(LinkRendering.none());
 	}
 
 	public void stop() {

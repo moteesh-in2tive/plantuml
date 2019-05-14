@@ -94,5 +94,10 @@ public final class InnerActivity extends AbstractTextBlock implements IEntityIma
 	public boolean isHidden() {
 		return im.isHidden();
 	}
+	
+	public double getOverscanX(StringBounder stringBounder) {
+		return 0;
+	}
+
 
 }

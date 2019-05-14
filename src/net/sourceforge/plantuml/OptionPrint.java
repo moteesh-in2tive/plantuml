@@ -157,7 +157,7 @@ public class OptionPrint {
 	}
 
 	public static void printLicense() throws InterruptedException {
-		for (String s : License.getCurrent().getText(false)) {
+		for (String s : License.getCurrent().getTextFull()) {
 			System.out.println(s);
 		}
 		exit();

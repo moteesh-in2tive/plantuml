@@ -84,15 +84,13 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 	protected List<Command> createCommands() {
 		final List<Command> cmds = new ArrayList<Command>();
 		cmds.add(new CommandFootboxIgnored());
-		addCommonCommands(cmds);
 
 		cmds.add(new CommandRankDir());
 		cmds.add(new CommandNewpage(this));
-//		cmds.add(new CommandHideShowSpecificStereotype());
+
 		cmds.add(new CommandPage());
 		cmds.add(new CommandAddMethod());
 
-		cmds.add(new CommandHideShow2());
 		cmds.add(new CommandRemoveRestore());
 		cmds.add(new CommandCreateClassMultilines());
 		cmds.add(new CommandCreateEntityObjectMultilines());
@@ -140,12 +138,12 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandDiamondAssociation());
 
-//		cmds.add(new CommandHideShowSpecificClass());
-
 		cmds.add(new CommandNamespaceSeparator());
 
 		cmds.add(new CommandCreateElementMultilines(0));
 		cmds.add(new CommandCreateElementMultilines(1));
+		addCommonCommands(cmds);
+		cmds.add(new CommandHideShow2());
 
 		return cmds;
 	}

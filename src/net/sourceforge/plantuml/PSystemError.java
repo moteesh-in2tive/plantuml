@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -47,11 +50,8 @@ import net.sourceforge.plantuml.asciiart.UmlCharArea;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
-import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
-import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
@@ -123,7 +123,9 @@ public class PSystemError extends AbstractPSystem {
 		TextBlock udrawable;
 		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, result.getBackcolor(),
 				getMetadata(), null, 0, 0, null, false);
+		
 		udrawable = result;
+		// udrawable = addMessageAdopt(udrawable);
 		imageBuilder.setUDrawable(udrawable);
 		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormat, seed(), os);
 		((ImageDataAbstract) imageData).setStatus(FileImageData.ERROR);

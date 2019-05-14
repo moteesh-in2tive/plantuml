@@ -38,8 +38,14 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 
 public class InstructionStart extends MonoSwimable implements Instruction {
 
-	public InstructionStart(Swimlane swimlane) {
+	private final LinkRendering inlinkRendering;
+
+	public InstructionStart(Swimlane swimlane, LinkRendering inlinkRendering) {
 		super(swimlane);
+		this.inlinkRendering = inlinkRendering;
+		if (inlinkRendering == null) {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	public Ftile createFtile(FtileFactory factory) {
@@ -57,7 +63,7 @@ public class InstructionStart extends MonoSwimable implements Instruction {
 	}
 
 	public LinkRendering getInLinkRendering() {
-		return LinkRendering.none();
+		return inlinkRendering;
 	}
 
 }

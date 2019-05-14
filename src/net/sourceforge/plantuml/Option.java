@@ -77,6 +77,7 @@ public class Option {
 	private int ftpPort = -1;
 	private boolean hideMetadata = false;
 	private boolean checkMetadata = false;
+	private int stdrpt = 0;
 	private int imageIndex = 0;
 
 	private File outputDir = null;
@@ -341,6 +342,10 @@ public class Option {
 				preprocessorOutput = OptionPreprocOutputMode.CYPHER;
 			} else if (s.equalsIgnoreCase("-checkmetadata")) {
 				checkMetadata = true;
+			} else if (s.equalsIgnoreCase("-stdrpt:1")) {
+				stdrpt = 1;
+			} else if (s.equalsIgnoreCase("-stdrpt")) {
+				stdrpt = 1;
 			} else if (s.equalsIgnoreCase("-pipeimageindex")) {
 				i++;
 				if (i == arg.length) {
@@ -364,6 +369,17 @@ public class Option {
 				result.add(s);
 			}
 		}
+	}
+
+	public Stdrpt getStdrpt() {
+		if (stdrpt == 1) {
+			return new StdrptV1();
+		}
+		// Legacy case
+		if (isPipe() || isPipeMap() || isSyntax()) {
+			return new StdrptPipe0();
+		}
+		return new StdrptNull();
 	}
 
 	public int getFtpPort() {
@@ -442,7 +458,7 @@ public class Option {
 	public Defines getDefaultDefines(File f) {
 		final Defines result = Defines.createWithFileName(f);
 		for (Map.Entry<String, String> ent : defines.entrySet()) {
-			result.define(ent.getKey(), Arrays.asList(ent.getValue()), false);
+			result.define(ent.getKey(), Arrays.asList(ent.getValue()), false, null);
 		}
 		return result;
 	}
@@ -451,7 +467,7 @@ public class Option {
 		final Defines result = Defines.createEmpty();
 		result.overrideFilename(filename);
 		for (Map.Entry<String, String> ent : defines.entrySet()) {
-			result.define(ent.getKey(), Arrays.asList(ent.getValue()), false);
+			result.define(ent.getKey(), Arrays.asList(ent.getValue()), false, null);
 		}
 		return result;
 	}

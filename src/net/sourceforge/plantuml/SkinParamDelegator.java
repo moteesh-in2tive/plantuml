@@ -96,11 +96,8 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getDotSplines();
 	}
 
-	public String getDotExecutable() {
-		return skinParam.getDotExecutable();
-	}
-
-	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection, boolean isReverseDefine) {
+	public HorizontalAlignment getHorizontalAlignment(AlignmentParam param, ArrowDirection arrowDirection,
+			boolean isReverseDefine) {
 		return skinParam.getHorizontalAlignment(param, arrowDirection, isReverseDefine);
 	}
 
@@ -298,6 +295,14 @@ public class SkinParamDelegator implements ISkinParam {
 
 	public boolean fixCircleLabelOverlapping() {
 		return skinParam.fixCircleLabelOverlapping();
+	}
+
+	public void setUseVizJs(boolean useVizJs) {
+		skinParam.setUseVizJs(useVizJs);
+	}
+
+	public boolean isUseVizJs() {
+		return skinParam.isUseVizJs();
 	}
 
 }

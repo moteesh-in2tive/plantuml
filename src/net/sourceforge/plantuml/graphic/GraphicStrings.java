@@ -173,5 +173,10 @@ public class GraphicStrings extends AbstractTextBlock implements IEntityImage {
 	public boolean isHidden() {
 		return false;
 	}
+	
+	public double getOverscanX(StringBounder stringBounder) {
+		return 0;
+	}
+
 
 }
