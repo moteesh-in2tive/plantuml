@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2017, Arnaud Roques
+ * (C) Copyright 2009-2020, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -212,7 +212,7 @@ public class PreprocessorInclude3 implements ReadFilter {
 			}
 			final URL url = new URL(urlString);
 			return new Preprocessor2(config, getReaderInclude(url, s, suf), charset, defines, definitionsContainer,
-					filesUsedGlobal, importedFiles);
+					filesUsedGlobal, importedFiles, false);
 
 		} catch (MalformedURLException e) {
 			return new ReadLineSingle(s.withErrorPreprocessor("Cannot include url " + urlString));
@@ -223,7 +223,7 @@ public class PreprocessorInclude3 implements ReadFilter {
 		final String definitionName = matcher.group(1);
 		final List<? extends CharSequence> definition = definitionsContainer.getDefinition(definitionName);
 		return new Preprocessor2(config, new ReadLineList(definition, s.getLocation()), charset, defines,
-				definitionsContainer, filesUsedGlobal, importedFiles);
+				definitionsContainer, filesUsedGlobal, importedFiles, false);
 	}
 
 	private ReadLine manageFileInclude(CharSequence2 s, Matcher2 matcher, PreprocessorIncludeStrategy allowMany)
@@ -236,7 +236,7 @@ public class PreprocessorInclude3 implements ReadFilter {
 				return new ReadLineSingle(s.withErrorPreprocessor("Cannot include " + fileName));
 			}
 			return new Preprocessor2(config, strlibReader, charset, defines, definitionsContainer, filesUsedGlobal,
-					importedFiles);
+					importedFiles, false);
 		}
 		final int idx = fileName.lastIndexOf('!');
 		String suf = null;
@@ -257,7 +257,7 @@ public class PreprocessorInclude3 implements ReadFilter {
 		filesUsedGlobal.add(f2);
 
 		return new Preprocessor2(config, getReaderInclude(f2, s), charset, defines, definitionsContainer,
-				filesUsedGlobal, importedFiles.withCurrentDir(f2.getParentFile()));
+				filesUsedGlobal, importedFiles.withCurrentDir(f2.getParentFile()), false);
 	}
 
 	public static String withEnvironmentVariable(String s) {

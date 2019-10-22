@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2017, Arnaud Roques
+ * (C) Copyright 2009-2020, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -70,7 +70,7 @@ public class EntityImageSynchroBar extends AbstractEntityImage {
 		}
 		ug.apply(new UChangeColor(null))
 				.apply(new UChangeBackColor(SkinParamUtils
-						.getColor(getSkinParam(), ColorParam.activityBar, getStereo()))).draw(rect);
+						.getColor(getSkinParam(), getStereo(), ColorParam.activityBar))).draw(rect);
 	}
 
 	public ShapeType getShapeType() {
