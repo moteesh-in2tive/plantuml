@@ -41,7 +41,7 @@ import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.donors.PSystemDonors;
+import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockHorizontal;
@@ -78,7 +78,7 @@ public class PSystemListInternalSprites extends AbstractPSystem {
 				}
 			}
 		}
-		final List<TextBlock> cols = PSystemDonors.getCols(lines, 4, 0);
+		final List<TextBlock> cols = AbstractTextBlock.getCols(lines, 4, 0);
 		return new TextBlockHorizontal(cols, VerticalAlignment.TOP);
 	}
 

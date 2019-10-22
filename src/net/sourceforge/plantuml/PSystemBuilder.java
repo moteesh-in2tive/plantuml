@@ -51,7 +51,6 @@ import net.sourceforge.plantuml.dedication.PSystemDedicationFactory;
 import net.sourceforge.plantuml.definition.PSystemDefinitionFactory;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.directdot.PSystemDotFactory;
-import net.sourceforge.plantuml.donors.PSystemSkinparameterListFactory;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
 import net.sourceforge.plantuml.font.PSystemListFontsFactory;
 import net.sourceforge.plantuml.jungle.PSystemTreeFactory;
@@ -137,7 +136,6 @@ public class PSystemBuilder {
 		factories.add(new PrintSkinFactory());
 		factories.add(new PSystemLicenseFactory());
 		factories.add(new PSystemVersionFactory());
-		factories.add(new PSystemSkinparameterListFactory());
 		factories.add(new PSystemListFontsFactory());
 		factories.add(new PSystemOpenIconicFactory());
 		factories.add(new PSystemListOpenIconicFactory());
