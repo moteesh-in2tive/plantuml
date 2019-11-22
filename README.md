@@ -30,3 +30,8 @@ Furthermore:
  * [AsciiMath mathematical expressions](http://plantuml.com/ascii-math)
 
 To know more about PlantUML, please visit http://plantuml.com/
+
+
+draw.io specific changes:
+
+In order for deploying our custom PlantUML jars to Github, change the version in build.xml (in `mvn_windows` and `mvn_unix` targets). Then in PlantUML Server repository, change the dependency version to match the new version (in `pom.xml` find `plantuml` dependency) 
