@@ -1,4 +1,4 @@
-# Deploying mxGraph using Vagrant
+# Deploying PlantUML Jar using Vagrant
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). On Mac you can `brew cask install vagrant`
 1. Open a shell terminal and change directory to the `vagrant` directory
