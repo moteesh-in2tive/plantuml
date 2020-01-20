@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Map;
+
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.ugraphic.ColorMapper;
 
@@ -39,18 +41,22 @@ public interface ISkinSimple extends SpriteContainer {
 
 	public String getValue(String key);
 
+	public Map<String, String> values();
+
 	public double getPadding();
-	
+
 	public String getMonospacedFamily();
 
 	public int getTabSize();
-	
+
 	public IHtmlColorSet getIHtmlColorSet();
-	
+
 	public int getDpi();
-	
+
 	public LineBreakStrategy wrapWidth();
-	
+
 	public ColorMapper getColorMapper();
+
+	public void copyAllFrom(ISkinSimple other);
 
 }

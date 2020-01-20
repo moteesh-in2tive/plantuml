@@ -39,10 +39,10 @@ import net.sourceforge.plantuml.skin.ArrowConfiguration;
 import net.sourceforge.plantuml.skin.ArrowDirection;
 import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
-import net.sourceforge.plantuml.skin.Skin;
 import net.sourceforge.plantuml.skin.rose.ComponentRoseGroupingSpace;
+import net.sourceforge.plantuml.skin.rose.Rose;
 
-public class TextSkin implements Skin {
+public class TextSkin extends Rose {
 
 	private final FileFormat fileFormat;
 
@@ -120,10 +120,6 @@ public class TextSkin implements Skin {
 			return new ComponentTextDestroy();
 		}
 		throw new UnsupportedOperationException(type.toString());
-	}
-
-	public Object getProtocolVersion() {
-		return 1;
 	}
 
 }

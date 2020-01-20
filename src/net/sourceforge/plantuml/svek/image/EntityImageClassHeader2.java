@@ -32,8 +32,6 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import h.tedge_t;
-
 import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ColorParam;
@@ -137,8 +135,8 @@ public class EntityImageClassHeader2 extends AbstractEntityImage {
 
 	private TextBlock getCircledCharacter(ILeaf entity, ISkinParam skinParam) {
 		final Stereotype stereotype = entity.getStereotype();
-		if (stereotype != null && stereotype.getSprite() != null) {
-			return skinParam.getSprite(stereotype.getSprite()).asTextBlock(stereotype.getHtmlColor(), 1);
+		if (stereotype != null && stereotype.getSprite(skinParam) != null) {
+			return stereotype.getSprite(skinParam);
 		}
 		final UFont font = SkinParamUtils.getFont(getSkinParam(), FontParam.CIRCLED_CHARACTER, null);
 		final HtmlColor classBorder = SkinParamUtils.getColor(getSkinParam(), stereotype, ColorParam.classBorder);

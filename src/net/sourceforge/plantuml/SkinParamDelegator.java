@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Map;
+
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
@@ -303,6 +305,14 @@ public class SkinParamDelegator implements ISkinParam {
 
 	public boolean isUseVizJs() {
 		return skinParam.isUseVizJs();
+	}
+
+	public void copyAllFrom(ISkinSimple other) {
+		skinParam.copyAllFrom(other);
+	}
+
+	public Map<String, String> values() {
+		return skinParam.values();
 	}
 
 }

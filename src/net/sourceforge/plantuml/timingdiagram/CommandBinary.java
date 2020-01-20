@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,15 +33,35 @@
  * 
  *
  */
-package net.sourceforge.plantuml.skin;
+package net.sourceforge.plantuml.timingdiagram;
 
-import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
 
-public interface Skin {
+public class CommandBinary extends SingleLineCommand2<TimingDiagram> {
 
-	Object getProtocolVersion();
+	public CommandBinary() {
+		super(getRegexConcat());
+	}
 
-	Component createComponent(ComponentType type, ArrowConfiguration config, ISkinParam param, Display stringsToDisplay);
+	private static RegexConcat getRegexConcat() {
+		return new RegexConcat(new RegexLeaf("^"), //
+				new RegexLeaf("TYPE", //
+						"(binary)[%s]+"), //
+				new RegexLeaf("FULL", "[%g]([^%g]+)[%g]"), //
+				new RegexLeaf("[%s]+as[%s]+"), //
+				new RegexLeaf("CODE", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("$"));
+	}
+
+	@Override
+	final protected CommandExecutionResult executeArg(TimingDiagram diagram, RegexResult arg) {
+		final String code = arg.get("CODE", 0);
+		final String full = arg.get("FULL", 0);
+		return diagram.createBinary(code, full);
+	}
 
 }

@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -53,9 +56,10 @@ public class BlockUml {
 	private final List<CharSequence2> data;
 	private Diagram system;
 	private final Defines localDefines;
+	private final ISkinSimple skinParam;
 
 	BlockUml(String... strings) {
-		this(convert(strings), Defines.createEmpty());
+		this(convert(strings), Defines.createEmpty(), null);
 	}
 
 	public String getEncodedUrl() throws IOException {
@@ -89,8 +93,9 @@ public class BlockUml {
 		return result;
 	}
 
-	public BlockUml(List<CharSequence2> strings, Defines defines) {
+	public BlockUml(List<CharSequence2> strings, Defines defines, ISkinSimple skinParam) {
 		this.localDefines = defines;
+		this.skinParam = skinParam;
 		final CharSequence2 s0 = strings.get(0).trin();
 		if (StartUtils.startsWithSymbolAnd("start", s0) == false) {
 			throw new IllegalArgumentException();
@@ -127,7 +132,7 @@ public class BlockUml {
 
 	public Diagram getDiagram() {
 		if (system == null) {
-			system = new PSystemBuilderStripped().createPSystem(data);
+			system = new PSystemBuilderStripped().createPSystem(skinParam, data);
 		}
 		return system;
 	}

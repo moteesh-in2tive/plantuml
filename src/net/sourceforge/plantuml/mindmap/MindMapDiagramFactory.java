@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -27,37 +30,43 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
+ *
  *
  */
-package net.sourceforge.plantuml.skin;
+package net.sourceforge.plantuml.mindmap;
 
-import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.cucadiagram.Display;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ProtectedSkin implements Skin {
+import net.sourceforge.plantuml.command.Command;
+import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.core.DiagramType;
 
-	final private Skin skinToProtect;
+public class MindMapDiagramFactory extends UmlDiagramFactory {
 
-	public ProtectedSkin(Skin skinToProtect) {
-		this.skinToProtect = skinToProtect;
-
+	public MindMapDiagramFactory() {
+		super(DiagramType.MINDMAP);
 	}
 
-	public Component createComponent(ComponentType type, ArrowConfiguration config, ISkinParam param, Display stringsToDisplay) {
-		Component result = null;
-		try {
-			result = skinToProtect.createComponent(type, config, param, stringsToDisplay);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		if (result == null) {
-			return new GrayComponent(type);
-		}
-		return result;
+	@Override
+	protected List<Command> createCommands() {
+
+		final List<Command> cmds = new ArrayList<Command>();
+		addCommonCommands(cmds);
+		cmds.add(new CommandMindMapTabulation());
+		cmds.add(new CommandMindMapOrgmode());
+		cmds.add(new CommandMindMapRoot());
+		cmds.add(new CommandMindMapRight());
+		cmds.add(new CommandMindMapRightNumber());
+		cmds.add(new CommandMindMapLeft());
+		cmds.add(new CommandMindMapLeftNumber());
+
+		return cmds;
 	}
 
-	public Object getProtocolVersion() {
-		return skinToProtect.getProtocolVersion();
+	@Override
+	public MindMapDiagram createEmptyDiagram() {
+		return new MindMapDiagram();
 	}
+
 }

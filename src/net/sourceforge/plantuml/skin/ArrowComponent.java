@@ -44,5 +44,8 @@ public interface ArrowComponent extends Component {
 	Point2D getEndPoint(StringBounder stringBounder, Dimension2D dimensionToUse);
 	
 	double getPaddingY();
+	
+	public double getYPoint(StringBounder stringBounder);
+
 
 }

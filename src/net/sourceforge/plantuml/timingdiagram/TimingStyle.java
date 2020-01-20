@@ -31,8 +31,20 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
+import net.sourceforge.plantuml.ISkinParam;
+
 public enum TimingStyle {
 
-	ROBUST, CONCISE
+	ROBUST, CONCISE;
+
+	public Player createPlayer(String full, ISkinParam skinParam, TimingRuler ruler) {
+		if (this == ROBUST) {
+			return new PlayerRobust(full, skinParam, ruler);
+		}
+		if (this == CONCISE) {
+			return new PlayerConcise(full, skinParam, ruler);
+		}
+		throw new UnsupportedOperationException();
+	}
 
 }

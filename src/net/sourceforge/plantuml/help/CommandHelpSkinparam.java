@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,37 +33,42 @@
  * 
  *
  */
-package net.sourceforge.plantuml.timingdiagram;
+package net.sourceforge.plantuml.help;
 
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.syntax.LanguageDescriptor;
 
-public class CommandLifeLine extends SingleLineCommand2<TimingDiagram> {
+public class CommandHelpSkinparam extends SingleLineCommand2<Help> {
 
-	public CommandLifeLine() {
+	public CommandHelpSkinparam() {
 		super(getRegexConcat());
 	}
 
-	private static RegexConcat getRegexConcat() {
+	static RegexConcat getRegexConcat() {
 		return new RegexConcat(new RegexLeaf("^"), //
-				new RegexLeaf("TYPE", //
-						"(robust|concise)[%s]+"), //
-				new RegexLeaf("FULL", "[%g]([^%g]+)[%g]"), //
-				new RegexLeaf("[%s]+as[%s]+"), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.@]+)"), //
+				new RegexLeaf("help"), //
+				new RegexLeaf("[%s]+"), //
+				new RegexLeaf("skinparams?"), //
 				new RegexLeaf("$"));
 	}
 
 	@Override
-	final protected CommandExecutionResult executeArg(TimingDiagram diagram, RegexResult arg) {
-		final String code = arg.get("CODE", 0);
-		final String full = arg.get("FULL", 0);
-		final TimingStyle type = TimingStyle.valueOf(arg.get("TYPE", 0).toUpperCase());
-		diagram.createLifeLine(code, full, type);
+	protected CommandExecutionResult executeArg(Help diagram, RegexResult arg) {
+		diagram.add("<b>Help on skinparam");
+		diagram.add(" ");
+		diagram.add("The code of this command is located in <i>net.sourceforge.plantuml.help</i> package.");
+		diagram.add("You may improve it on <i>https://github.com/plantuml/plantuml/tree/master/src/net/sourceforge/plantuml/help</i>");
+		diagram.add(" ");
+		diagram.add(" The possible skinparam are :");
+		for (String type : SkinParam.getPossibleValues()) {
+			diagram.add("* " + type);
+		}
+
 		return CommandExecutionResult.ok();
 	}
-
 }

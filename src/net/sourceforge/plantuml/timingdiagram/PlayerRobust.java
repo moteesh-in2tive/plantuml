@@ -27,34 +27,22 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
  *
  */
-package net.sourceforge.plantuml;
+package net.sourceforge.plantuml.timingdiagram;
 
-import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.ISkinParam;
 
-public class EmbededDiagram implements CharSequence {
+public class PlayerRobust extends AbstractPlayer {
 
-	private final Display system;
-
-	public EmbededDiagram(Display system) {
-		this.system = system;
+	protected TimeDrawing buildDrawing() {
+		final TimeDrawing result;
+		result = new Histogram(ruler, skinParam, statesLabel.values());
+		return result;
 	}
 
-	public int length() {
-		return toString().length();
+	public PlayerRobust(String full, ISkinParam skinParam, TimingRuler ruler) {
+		super(full, skinParam, ruler);
 	}
 
-	public char charAt(int index) {
-		return toString().charAt(index);
-	}
-
-	public CharSequence subSequence(int start, int end) {
-		return toString().subSequence(start, end);
-	}
-
-	public final Display getLines() {
-		return system;
-	}
 }

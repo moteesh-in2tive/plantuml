@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,42 +33,35 @@
  * 
  *
  */
-package net.sourceforge.plantuml.skin.bluemodern;
+package net.sourceforge.plantuml.mindmap;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.Direction;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
 
-import net.sourceforge.plantuml.graphic.HtmlColor;
-import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.skin.AbstractComponent;
-import net.sourceforge.plantuml.skin.Area;
-import net.sourceforge.plantuml.skin.ArrowConfiguration;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
-import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.ULine;
+public class CommandMindMapLeftNumber extends SingleLineCommand2<MindMapDiagram> {
 
-public class ComponentBlueModernNewpage extends AbstractComponent {
+	public CommandMindMapLeftNumber() {
+		super(getRegexConcat());
+	}
 
-	private final HtmlColor foregroundColor;
-
-	public ComponentBlueModernNewpage(HtmlColor foregroundColor) {
-		this.foregroundColor = foregroundColor;
+	static RegexConcat getRegexConcat() {
+		return new RegexConcat(new RegexLeaf("^"), //
+				new RegexLeaf("TYPE", "([1-9][0-9]?)[<]"), //
+				new RegexLeaf("SHAPE", "(_)?"), //
+				new RegexLeaf("[%s]+"), //
+				new RegexLeaf("LABEL", "([^%s].*)"), //
+				new RegexLeaf("$"));
 	}
 
 	@Override
-	protected void drawInternalU(UGraphic ug, Area area) {
-		final Dimension2D dimensionToUse = area.getDimensionToUse();
-		ug = ArrowConfiguration.stroke(ug, 10, 2, 1);
-		ug.apply(new UChangeColor(foregroundColor)).draw(new ULine(dimensionToUse.getWidth(), 0));
-	}
-
-	@Override
-	public double getPreferredHeight(StringBounder stringBounder) {
-		return 2;
-	}
-
-	@Override
-	public double getPreferredWidth(StringBounder stringBounder) {
-		return 0;
+	protected CommandExecutionResult executeArg(MindMapDiagram diagram, RegexResult arg) {
+		final String label = arg.get("LABEL", 0);
+		return diagram.addIdea(Integer.parseInt(arg.get("TYPE", 0)), label, IdeaShape.fromDesc(arg.get("SHAPE", 0)),
+				Direction.LEFT);
 	}
 
 }

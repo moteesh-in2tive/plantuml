@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Map;
+
 import net.sourceforge.plantuml.creole.CommandCreoleMonospaced;
 import net.sourceforge.plantuml.graphic.HtmlColorSetSimple;
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
@@ -81,5 +83,15 @@ public class SpriteContainerEmpty implements SpriteContainer, ISkinSimple {
 	public ColorMapper getColorMapper() {
 		return new ColorMapperIdentity();
 	}
+	
+	public void copyAllFrom(ISkinSimple other) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public Map<String, String> values() {
+		throw new UnsupportedOperationException();
+	}
+
+
 
 }

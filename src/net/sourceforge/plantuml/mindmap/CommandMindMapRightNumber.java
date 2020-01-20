@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,27 +33,35 @@
  * 
  *
  */
-package net.sourceforge.plantuml.printskin;
+package net.sourceforge.plantuml.mindmap;
 
-import java.util.Arrays;
+import net.sourceforge.plantuml.Direction;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.command.PSystemSingleLineFactory;
-import net.sourceforge.plantuml.command.regex.Matcher2;
-import net.sourceforge.plantuml.command.regex.MyPattern;
-import net.sourceforge.plantuml.command.regex.Pattern2;
+public class CommandMindMapRightNumber extends SingleLineCommand2<MindMapDiagram> {
 
-public class PrintSkinFactory extends PSystemSingleLineFactory {
+	public CommandMindMapRightNumber() {
+		super(getRegexConcat());
+	}
 
-	static final Pattern2 p = MyPattern.cmpile("(?i)^testskin[%s]+([\\w.]+)[%s]*(.*)$");
+	static RegexConcat getRegexConcat() {
+		return new RegexConcat(new RegexLeaf("^"), //
+				new RegexLeaf("TYPE", "([1-9][0-9]?)[>]"), //
+				new RegexLeaf("SHAPE", "(_)?"), //
+				new RegexLeaf("[%s]+"), //
+				new RegexLeaf("LABEL", "([^%s].*)"), //
+				new RegexLeaf("$"));
+	}
 
 	@Override
-	protected AbstractPSystem executeLine(String line) {
-		final Matcher2 m = p.matcher(line);
-		if (m.find() == false) {
-			return null;
-		}
-		return new PrintSkin(m.group(1), Arrays.asList(m.group(2)));
+	protected CommandExecutionResult executeArg(MindMapDiagram diagram, RegexResult arg) {
+		final String label = arg.get("LABEL", 0);
+		return diagram.addIdea(Integer.parseInt(arg.get("TYPE", 0)), label, IdeaShape.fromDesc(arg.get("SHAPE", 0)),
+				Direction.RIGHT);
 	}
 
 }

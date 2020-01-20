@@ -6,8 +6,6 @@
  *
  * Project Info:  http://plantuml.com
  * 
- * If you like this project or if you find it useful, you can support us at:
- *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -53,14 +51,15 @@ import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.directdot.PSystemDotFactory;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
 import net.sourceforge.plantuml.font.PSystemListFontsFactory;
+import net.sourceforge.plantuml.help.HelpFactory;
 import net.sourceforge.plantuml.jungle.PSystemTreeFactory;
 import net.sourceforge.plantuml.math.PSystemLatexFactory;
 import net.sourceforge.plantuml.math.PSystemMathFactory;
+import net.sourceforge.plantuml.mindmap.MindMapDiagramFactory;
 import net.sourceforge.plantuml.nwdiag.NwDiagramFactory;
 import net.sourceforge.plantuml.openiconic.PSystemListOpenIconicFactory;
 import net.sourceforge.plantuml.openiconic.PSystemOpenIconicFactory;
 import net.sourceforge.plantuml.postit.PostIdDiagramFactory;
-import net.sourceforge.plantuml.printskin.PrintSkinFactory;
 import net.sourceforge.plantuml.project3.GanttDiagramFactory;
 import net.sourceforge.plantuml.salt.PSystemSaltFactory;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
@@ -75,7 +74,7 @@ public class PSystemBuilder {
 
 	public static final long startTime = System.currentTimeMillis();
 
-	final public Diagram createPSystem(final List<CharSequence2> strings2) {
+	final public Diagram createPSystem(ISkinSimple skinParam, final List<CharSequence2> strings2) {
 
 		final long now = System.currentTimeMillis();
 
@@ -97,7 +96,7 @@ public class PSystemBuilder {
 
 			final DiagramType diagramType = umlSource.getDiagramType();
 			final List<PSystemError> errors = new ArrayList<PSystemError>();
-			final List<PSystemFactory> factories = getAllFactories();
+			final List<PSystemFactory> factories = getAllFactories(skinParam);
 			for (PSystemFactory systemFactory : factories) {
 				if (diagramType != systemFactory.getDiagramType()) {
 					continue;
@@ -121,9 +120,9 @@ public class PSystemBuilder {
 
 	}
 
-	protected List<PSystemFactory> getAllFactories() {
+	protected List<PSystemFactory> getAllFactories(ISkinSimple skinParam) {
 		final List<PSystemFactory> factories = new ArrayList<PSystemFactory>();
-		factories.add(new SequenceDiagramFactory());
+		factories.add(new SequenceDiagramFactory(skinParam));
 		factories.add(new ClassDiagramFactory());
 		factories.add(new ActivityDiagramFactory());
 		factories.add(new DescriptionDiagramFactory());
@@ -133,9 +132,10 @@ public class PSystemBuilder {
 		// factories.add(new ObjectDiagramFactory());
 		factories.add(new BpmDiagramFactory(DiagramType.BPM));
 		factories.add(new PostIdDiagramFactory());
-		factories.add(new PrintSkinFactory());
+		// factories.add(new PrintSkinFactory());
 		factories.add(new PSystemLicenseFactory());
 		factories.add(new PSystemVersionFactory());
+		factories.add(new PSystemSkinparameterListFactory());
 		factories.add(new PSystemListFontsFactory());
 		factories.add(new PSystemOpenIconicFactory());
 		factories.add(new PSystemListOpenIconicFactory());
@@ -145,6 +145,7 @@ public class PSystemBuilder {
 		factories.add(new PSystemDotFactory(DiagramType.DOT));
 		factories.add(new PSystemDotFactory(DiagramType.UML));
 		factories.add(new NwDiagramFactory());
+		factories.add(new MindMapDiagramFactory());
 		factories.add(new PSystemDefinitionFactory());
 		factories.add(new PSystemMathFactory(DiagramType.MATH));
 		factories.add(new PSystemLatexFactory(DiagramType.LATEX));
@@ -157,6 +158,7 @@ public class PSystemBuilder {
 		factories.add(new PSystemCuteFactory(DiagramType.CUTE));
 		factories.add(new PSystemDedicationFactory());
 		factories.add(new TimingDiagramFactory());
+		factories.add(new HelpFactory());
 		return factories;
 	}
 
