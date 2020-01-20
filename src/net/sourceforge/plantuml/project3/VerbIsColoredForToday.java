@@ -30,28 +30,35 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project;
+package net.sourceforge.plantuml.project3;
 
-public class Ressource {
+import java.util.Arrays;
+import java.util.Collection;
 
-	private final String code;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
 
-	private int capacity = 1;
+public class VerbIsColoredForToday implements VerbPattern {
 
-	public Ressource(String code) {
-		this.code = code;
+	public Collection<ComplementPattern> getComplements() {
+		return Arrays.<ComplementPattern> asList(new ComplementInColors());
 	}
 
-	public DayClose getDayClose() {
-		return new DayCloseNone();
+	public IRegex toRegex() {
+		return new RegexLeaf("is[%s]+colou?red");
 	}
 
-	public final int getCapacity() {
-		return capacity;
-	}
+	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
+		return new Verb() {
+			public CommandExecutionResult execute(Subject subject, Complement complement) {
+				final Today task = (Today) subject;
+				final ComplementColors colors = (ComplementColors) complement;
+				project.setTodayColors(colors);
+				return CommandExecutionResult.ok();
+			}
 
-	public final void setCapacity(int capacity) {
-		this.capacity = capacity;
+		};
 	}
-
 }

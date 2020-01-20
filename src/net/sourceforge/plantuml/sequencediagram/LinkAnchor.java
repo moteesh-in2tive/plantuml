@@ -30,26 +30,35 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.command;
+package net.sourceforge.plantuml.sequencediagram;
 
-import java.util.List;
+public class LinkAnchor {
 
-import net.sourceforge.plantuml.StringUtils;
-import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.SingleLineCommand;
-import net.sourceforge.plantuml.project.PSystemProject;
-import net.sourceforge.plantuml.project.WeekDay;
+	private final String anchor1;
+	private final String anchor2;
+	private final String message;
 
-public class CommandCloseWeekDay extends SingleLineCommand<PSystemProject> {
-
-	public CommandCloseWeekDay() {
-		super("(?i)^\\s*close\\s+(\\w{3,}day)\\s*$");
+	public LinkAnchor(String anchor1, String anchor2, String message) {
+		this.anchor1 = anchor1;
+		this.anchor2 = anchor2;
+		this.message = message;
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(PSystemProject diagram, List<String> arg) {
-		final WeekDay weekDay = WeekDay.valueOf(StringUtils.goUpperCase(arg.get(0).substring(0, 3)));
-		diagram.getProject().closeWeekDay(weekDay);
-		return CommandExecutionResult.ok();
+	public String toString() {
+		return anchor1 + "<->" + anchor2 + " " + message;
 	}
+
+	public final String getAnchor1() {
+		return anchor1;
+	}
+
+	public final String getAnchor2() {
+		return anchor2;
+	}
+
+	public final String getMessage() {
+		return message;
+	}
+
 }

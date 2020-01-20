@@ -61,6 +61,7 @@ import net.sourceforge.plantuml.sequencediagram.command.CommandFootboxOld;
 import net.sourceforge.plantuml.sequencediagram.command.CommandGrouping;
 import net.sourceforge.plantuml.sequencediagram.command.CommandHSpace;
 import net.sourceforge.plantuml.sequencediagram.command.CommandIgnoreNewpage;
+import net.sourceforge.plantuml.sequencediagram.command.CommandLinkAnchor;
 import net.sourceforge.plantuml.sequencediagram.command.CommandNewpage;
 import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA;
 import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA2;
@@ -135,6 +136,7 @@ public class SequenceDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandDelay());
 		cmds.add(new CommandFootboxOld());
 		cmds.add(new CommandUrl());
+		cmds.add(new CommandLinkAnchor());
 
 		return cmds;
 	}

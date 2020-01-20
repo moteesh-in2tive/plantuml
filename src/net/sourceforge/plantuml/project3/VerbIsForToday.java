@@ -30,8 +30,33 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project;
+package net.sourceforge.plantuml.project3;
 
-interface Formal extends Expression {
+import java.util.Arrays;
+import java.util.Collection;
 
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
+
+public class VerbIsForToday implements VerbPattern {
+
+	public Collection<ComplementPattern> getComplements() {
+		return Arrays.<ComplementPattern> asList(new ComplementInColors(), new ComplementDate());
+	}
+
+	public IRegex toRegex() {
+		return new RegexLeaf("is");
+	}
+
+	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
+		return new Verb() {
+			public CommandExecutionResult execute(Subject subject, Complement complement) {
+				final Today task = (Today) subject;
+				final DayAsDate date = (DayAsDate) complement;
+				return project.setToday(date);
+			}
+		};
+	}
 }

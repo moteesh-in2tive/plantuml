@@ -49,6 +49,7 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.Bodier;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
 import net.sourceforge.plantuml.cucadiagram.GroupRoot;
@@ -87,6 +88,7 @@ final class EntityImpl implements ILeaf, IGroup {
 	private final Bodier bodier;
 	private final String uid = StringUtils.getUid("cl", UniqueSequence.getValue());
 	private Display display = Display.empty();
+	private DisplayPositionned legend = null;
 
 	private LeafType leafType;
 	private Stereotype stereotype;
@@ -641,4 +643,15 @@ final class EntityImpl implements ILeaf, IGroup {
 	public VisibilityModifier getVisibilityModifier() {
 		return visibility;
 	}
+
+	public void setLegend(DisplayPositionned legend) {
+		checkGroup();
+		this.legend = legend;
+	}
+
+	public DisplayPositionned getLegend() {
+		checkGroup();
+		return legend;
+	}
+
 }

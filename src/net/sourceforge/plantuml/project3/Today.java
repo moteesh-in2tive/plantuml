@@ -30,26 +30,8 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project;
+package net.sourceforge.plantuml.project3;
 
-class Constant implements Expression {
-
-	private final Numeric value;
-
-	public Constant(Numeric value) {
-		this.value = value;
-	}
-
-	public String getDescription() {
-		return "Constant:" + value;
-	}
-
-	public NumericType getNumericType() {
-		return value.getNumericType();
-	}
-
-	public Numeric getValue() {
-		return value;
-	}
+public class Today implements Subject {
 
 }

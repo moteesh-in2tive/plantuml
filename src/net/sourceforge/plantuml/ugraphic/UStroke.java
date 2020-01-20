@@ -57,6 +57,10 @@ public class UStroke implements UChange {
 		this(1.0);
 	}
 
+	public UStroke onlyThickness() {
+		return new UStroke(thickness);
+	}
+
 	private UStroke applyThickness(UStroke thickness) {
 		if (thickness == null) {
 			return this;

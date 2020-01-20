@@ -30,45 +30,29 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project;
+package net.sourceforge.plantuml.project3;
 
-class NumericNumber implements Numeric {
+import java.util.Arrays;
+import java.util.Collection;
 
-	private final int value;
+import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
 
-	public NumericNumber(int v) {
-		this.value = v;
+public class SubjectToday implements SubjectPattern {
+
+	public Collection<VerbPattern> getVerbs() {
+		return Arrays.<VerbPattern> asList(new VerbIsColoredForToday(), new VerbIsForToday());
 	}
 
-	public Numeric add(Numeric other) {
-		if (other.getNumericType() != getNumericType()) {
-			throw new IllegalArgumentException();
-		}
-		return new NumericNumber(value + ((NumericNumber) other).value);
+	public IRegex toRegex() {
+		return new RegexConcat( //
+				new RegexLeaf("today") //
+		);
 	}
 
-	public NumericType getNumericType() {
-		return NumericType.NUMBER;
+	public Subject getSubject(GanttDiagram project, RegexResult arg) {
+		return new Today();
 	}
-
-	public int getIntValue() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
-		return "Number:" + value;
-	}
-
-	public int compareTo(Numeric other) {
-		final NumericNumber this2 = (NumericNumber) other;
-		if (this2.value > value) {
-			return -1;
-		}
-		if (this2.value < value) {
-			return 1;
-		}
-		return 0;
-	}
-
 }

@@ -30,29 +30,38 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.command;
+package net.sourceforge.plantuml.sequencediagram.command;
 
-import java.util.List;
-
-import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.SingleLineCommand;
-import net.sourceforge.plantuml.project.Expression;
-import net.sourceforge.plantuml.project.PSystemProject;
+import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 
-public class CommandAffectation extends SingleLineCommand<PSystemProject> {
+public class CommandLinkAnchor extends SingleLineCommand2<SequenceDiagram> {
 
-	public CommandAffectation() {
-		super("(?i)^\\s*([~\\^]?[\\w$/]+)\\s*:=\\s*(.+)$");
+	public CommandLinkAnchor() {
+		super(getRegexConcat());
+	}
+
+	static RegexConcat getRegexConcat() {
+		return new RegexConcat(new RegexLeaf("^"), //
+				new RegexLeaf("ANCHOR1", "\\{([\\p{L}0-9_]+)\\}"), //
+				new RegexLeaf("[%s]*"), //
+				new RegexLeaf("LINK", "\\<-\\>"), //
+				new RegexLeaf("[%s]*"), //
+				new RegexLeaf("ANCHOR2", "\\{([\\p{L}0-9_]+)\\}"), //
+				new RegexLeaf("[%s]*"), //
+				new RegexLeaf("MESSAGE", "(?::[%s]*(.*))?$"));
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(PSystemProject diagram, List<String> arg) {
-		final Expression exp = diagram.getProject().getExpression(StringUtils.trin(arg.get(1)));
-		final boolean ok = diagram.getProject().affectation(StringUtils.trin(arg.get(0)), exp);
-		if (ok) {
-			return CommandExecutionResult.ok();
-		}
-		return CommandExecutionResult.error("Cannot execute");
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, RegexResult arg) {
+		final String anchor1 = arg.get("ANCHOR1", 0);
+		final String anchor2 = arg.get("ANCHOR2", 0);
+		final String message = arg.get("MESSAGE", 0);
+		return diagram.linkAnchor(anchor1, anchor2, message);
 	}
+
 }
