@@ -73,15 +73,13 @@ public class FtileGeometry extends Dimension2D {
 		}
 		return new Point2D.Double(0, (inY + outY) / 2);
 	}
-	
+
 	public Point2D getPointOut() {
 		if (outY == Double.MIN_NORMAL) {
 			throw new UnsupportedOperationException();
 		}
 		return new Point2D.Double(left, outY);
 	}
-
-
 
 	public FtileGeometry(Dimension2D dim, double left, double inY) {
 		this(dim.getWidth(), dim.getHeight(), left, inY);
@@ -140,6 +138,10 @@ public class FtileGeometry extends Dimension2D {
 
 	public final double getLeft() {
 		return left;
+	}
+
+	public final double getRight() {
+		return width - left;
 	}
 
 	public double getOutY() {

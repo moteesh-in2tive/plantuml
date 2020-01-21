@@ -105,6 +105,10 @@ public class SequenceDiagramArea {
 		return headerHeight + headerMargin;
 	}
 
+	public double getHeaderHeightMargin() {
+		return headerHeight + headerMargin;
+	}
+
 	public double getCaptionX() {
 		return (getWidth() - captionWidth) / 2;
 	}

@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.statediagram;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
 import net.sourceforge.plantuml.cucadiagram.Code;
@@ -49,6 +50,10 @@ import net.sourceforge.plantuml.utils.UniqueSequence;
 public class StateDiagram extends AbstractEntityDiagram {
 
 	private static final String CONCURRENT_PREFIX = "CONC";
+
+	public StateDiagram(ISkinSimple skinParam) {
+		super(skinParam);
+	}
 
 	public boolean checkConcurrentStateOk(Code code) {
 		if (leafExist(code) == false) {
@@ -160,6 +165,7 @@ public class StateDiagram extends AbstractEntityDiagram {
 
 	private boolean hideEmptyDescription = false;
 
+	@Override
 	public final void setHideEmptyDescription(boolean hideEmptyDescription) {
 		this.hideEmptyDescription = hideEmptyDescription;
 	}

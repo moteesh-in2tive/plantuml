@@ -448,5 +448,9 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		}
 		return i;
 	}
+	
+	public void setHideEmptyDescription(boolean hideEmptyDescription) {
+	}
+
 
 }

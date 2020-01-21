@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.bpm;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
+import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
@@ -45,12 +46,12 @@ public class CommandDockedEvent extends SingleLineCommand2<BpmDiagram> {
 		super(getRegexConcat());
 	}
 
-	static RegexConcat getRegexConcat() {
-		return new RegexConcat(new RegexLeaf("^"), //
+	static IRegex getRegexConcat() {
+		return RegexConcat.build(CommandDockedEvent.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf(":"), //
 				new RegexLeaf("LABEL", "(.*)"), //
 				new RegexLeaf("STYLE", ";"), //
-				new RegexLeaf("$"));
+				RegexLeaf.end());
 	}
 
 	@Override

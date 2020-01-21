@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.objectdiagram;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.classdiagram.command.CommandLinkClass;
 import net.sourceforge.plantuml.classdiagram.command.CommandUrl;
@@ -54,6 +55,12 @@ import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObjectMultilines;
 
 public class ObjectDiagramFactory extends UmlDiagramFactory {
+
+	private final ISkinSimple skinParam;
+
+	public ObjectDiagramFactory(ISkinSimple skinParam) {
+		this.skinParam = skinParam;
+	}
 
 	@Override
 	protected List<Command> createCommands() {
@@ -78,8 +85,8 @@ public class ObjectDiagramFactory extends UmlDiagramFactory {
 		// addCommand(new CommandStereotype());
 		//
 		// addCommand(new CommandImport());
-		final FactoryNoteOnEntityCommand factoryNoteOnEntityCommand = new FactoryNoteOnEntityCommand(new RegexLeaf(
-				"ENTITY", "([\\p{L}0-9_.]+|[%g][^%g]+[%g])"));
+		final FactoryNoteOnEntityCommand factoryNoteOnEntityCommand = new FactoryNoteOnEntityCommand("object",
+				new RegexLeaf("ENTITY", "([\\p{L}0-9_.]+|[%g][^%g]+[%g])"));
 		cmds.add(factoryNoteOnEntityCommand.createSingleLine());
 
 		cmds.add(new CommandUrl());
@@ -100,6 +107,6 @@ public class ObjectDiagramFactory extends UmlDiagramFactory {
 
 	@Override
 	public ObjectDiagram createEmptyDiagram() {
-		return new ObjectDiagram();
+		return new ObjectDiagram(skinParam);
 	}
 }

@@ -35,7 +35,7 @@
 
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2019.6-DRAWIO</version>
+    <version>1.2019.7-DRAWIO</version>
     <packaging>jar</packaging>
 
     <name>PlantUML</name>
@@ -108,9 +108,7 @@
                     <include>net/sourceforge/plantuml/version/*.png</include>
                     <include>net/sourceforge/plantuml/openiconic/data/*.txt</include>
                     <include>net/sourceforge/plantuml/openiconic/data/*.svg</include>
-                    <include>net/sourceforge/plantuml/fun/*.png</include>
                     <include>sprites/archimate/*.png</include>
-                    <include>net/sourceforge/plantuml/dedication/*.png</include>
                     <include>net/sourceforge/plantuml/math/*.js</include>
                 </includes>
             </resource>

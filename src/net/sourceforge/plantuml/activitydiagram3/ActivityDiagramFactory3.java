@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.activitydiagram3;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandActivity3;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandActivityLegacy1;
 import net.sourceforge.plantuml.activitydiagram3.command.CommandActivityLong3;
@@ -85,6 +86,12 @@ import net.sourceforge.plantuml.command.CommandFootboxIgnored;
 import net.sourceforge.plantuml.command.UmlDiagramFactory;
 
 public class ActivityDiagramFactory3 extends UmlDiagramFactory {
+
+	private final ISkinSimple skinParam;
+
+	public ActivityDiagramFactory3(ISkinSimple skinParam) {
+		this.skinParam = skinParam;
+	}
 
 	@Override
 	protected List<Command> createCommands() {
@@ -154,7 +161,7 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 
 	@Override
 	public ActivityDiagram3 createEmptyDiagram() {
-		return new ActivityDiagram3();
+		return new ActivityDiagram3(skinParam);
 	}
 
 }

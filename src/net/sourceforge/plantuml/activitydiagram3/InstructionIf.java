@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileDecorateWelding;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
@@ -57,6 +58,7 @@ public class InstructionIf extends WithNote implements Instruction, InstructionC
 	private Branch elseBranch;
 	private boolean endifCalled = false;
 	private final ISkinParam skinParam;
+	private final Url url;
 
 	private final Instruction parent;
 
@@ -79,7 +81,8 @@ public class InstructionIf extends WithNote implements Instruction, InstructionC
 	}
 
 	public InstructionIf(Swimlane swimlane, Instruction parent, Display labelTest, Display whenThen,
-			LinkRendering inlinkRendering, HtmlColor color, ISkinParam skinParam) {
+			LinkRendering inlinkRendering, HtmlColor color, ISkinParam skinParam, Url url) {
+		this.url = url;
 		this.parent = parent;
 		this.skinParam = skinParam;
 		this.topInlinkRendering = inlinkRendering;
@@ -103,7 +106,7 @@ public class InstructionIf extends WithNote implements Instruction, InstructionC
 			this.elseBranch = new Branch(swimlane, Display.NULL, Display.NULL, null, Display.NULL);
 		}
 		elseBranch.updateFtile(factory);
-		Ftile result = factory.createIf(swimlane, thens, elseBranch, afterEndwhile, topInlinkRendering);
+		Ftile result = factory.createIf(swimlane, thens, elseBranch, afterEndwhile, topInlinkRendering, url);
 		if (getPositionedNotes().size() > 0) {
 			result = FtileWithNoteOpale.create(result, getPositionedNotes(), skinParam, false);
 		}
