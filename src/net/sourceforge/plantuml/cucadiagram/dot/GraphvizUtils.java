@@ -6,26 +6,6 @@
  *
  * Project Info:  http://plantuml.com
  * 
- * If you like this project or if you find it useful, you can support us at:
- *
- * This file is part of PlantUML.
- *
- * PlantUML is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * PlantUML distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
- * License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
- *
- *
  * Original Author:  Arnaud Roques
  * 
  *
@@ -129,32 +109,30 @@ public class GraphvizUtils {
 		if (local != null) {
 			return local;
 		}
-		final String env = System.getProperty("PLANTUML_LIMIT_SIZE");
+		final String env = getenv("PLANTUML_LIMIT_SIZE");
 		if (StringUtils.isNotEmpty(env) && env.matches("\\d+")) {
 			return Integer.parseInt(env);
-		}
-		final String getenv = System.getenv("PLANTUML_LIMIT_SIZE");
-		if (StringUtils.isNotEmpty(getenv) && getenv.matches("\\d+")) {
-			return Integer.parseInt(getenv);
 		}
 		return 8192;
 	}
 
 	public static String getenvDefaultConfigFilename() {
-		final String env = System.getProperty("PLANTUML_DEFAULT_CONFIG_FILENAME");
-		if (StringUtils.isNotEmpty(env)) {
-			return env;
-		}
-		return System.getenv("PLANTUML_DEFAULT_CONFIG_FILENAME");
+		return getenv("PLANTUML_DEFAULT_CONFIG_FILENAME");
 	}
 
 	public static String getenvLogData() {
-		final String env = System.getProperty("PLANTUML_LOGDATA");
+		return getenv("PLANTUML_LOGDATA");
+	}
+	
+	public static String getenv(String name) {
+		final String env = System.getProperty(name);
 		if (StringUtils.isNotEmpty(env)) {
 			return env;
 		}
-		return System.getenv("PLANTUML_LOGDATA");
+		return System.getenv(name);
 	}
+
+
 
 	private static String dotVersion = null;
 

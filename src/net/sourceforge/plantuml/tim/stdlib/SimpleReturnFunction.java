@@ -5,8 +5,11 @@
  * (C) Copyright 2009-2020, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
+ *
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
  *
  * This file is part of PlantUML.
  *
@@ -28,39 +31,36 @@
  *
  * Original Author:  Arnaud Roques
  *
- *
  */
-package net.sourceforge.plantuml.suggest;
+package net.sourceforge.plantuml.tim.stdlib;
 
-public class VariatorAddTwoChar extends VariatorIteratorAdaptor {
+import java.util.List;
 
-	private final String data;
-	private final char toAdd;
-	private int i;
-	private int j = 1;
+import net.sourceforge.plantuml.tim.EaterException;
+import net.sourceforge.plantuml.tim.TContext;
+import net.sourceforge.plantuml.tim.TFunction;
+import net.sourceforge.plantuml.tim.TFunctionType;
+import net.sourceforge.plantuml.tim.TMemory;
+import net.sourceforge.plantuml.tim.expression.TValue;
 
-	public VariatorAddTwoChar(String data, char toAdd) {
-		this.data = data;
-		this.toAdd = toAdd;
+public abstract class SimpleReturnFunction implements TFunction {
+
+	final public TFunctionType getFunctionType() {
+		return TFunctionType.RETURN;
 	}
 
-	@Override
-	Variator getVariator() {
-		return new Variator() {
-			public String getData() {
-				if (i >= data.length()) {
-					return null;
-				}
-				return data.substring(0, i) + toAdd + data.substring(i, j) + toAdd + data.substring(j);
-			}
-
-			public void nextStep() {
-				j++;
-				if (j > data.length()) {
-					i++;
-					j = i + 1;
-				}
-			}
-		};
+	final public void executeVoid(TContext context, TMemory memory, String s) throws EaterException {
+		throw new UnsupportedOperationException();
 	}
+
+	final public void executeVoidInternal(TContext context, TMemory memory, List<TValue> args) throws EaterException {
+		throw new UnsupportedOperationException();
+	}
+	
+	final public boolean isUnquoted() {
+		return false;
+	}
+
+
+
 }

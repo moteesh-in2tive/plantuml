@@ -45,10 +45,21 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolNode extends USymbol {
 
+	// private final HorizontalAlignment stereotypeAlignement;
+
 	@Override
 	public SkinParameter getSkinParameter() {
 		return SkinParameter.NODE;
 	}
+
+//	public USymbolNode(HorizontalAlignment stereotypeAlignement) {
+//		this.stereotypeAlignement = stereotypeAlignement;
+//	}
+//
+//	@Override
+//	public USymbol withStereoAlignment(HorizontalAlignment alignment) {
+//		return new USymbolNode(alignment);
+//	}
 
 	private void drawNode(UGraphic ug, double width, double height, boolean shadowing) {
 		final UPolygon shape = new UPolygon();
@@ -108,7 +119,7 @@ class USymbolNode extends USymbol {
 
 	@Override
 	public TextBlock asSmall(TextBlock name, final TextBlock label, final TextBlock stereotype,
-			final SymbolContext symbolContext) {
+			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
@@ -116,7 +127,7 @@ class USymbolNode extends USymbol {
 				ug = symbolContext.apply(ug);
 				drawNode(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
 				final Margin margin = getMargin();
-				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
+				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, stereoAlignment);
 				final UGraphic ug2 = new MyUGraphicNode(ug, dim.getWidth());
 				tb.drawU(ug2.apply(new UTranslate(margin.getX1(), margin.getY1())));
 			}
@@ -131,7 +142,7 @@ class USymbolNode extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext) {
+			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
@@ -141,8 +152,15 @@ class USymbolNode extends USymbol {
 				ug = ug.apply(new UTranslate(-4, 11));
 
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
-				final double posStereo = (width - dimStereo.getWidth()) / 2;
-				stereotype.drawU(ug.apply(new UTranslate(posStereo, 2)));
+				final double posStereoX;
+				final double posStereoY = 2;
+				if (stereoAlignment == HorizontalAlignment.RIGHT) {
+					posStereoX = width - dimStereo.getWidth() - getMargin().getX1();
+				} else {
+					posStereoX = (width - dimStereo.getWidth()) / 2;
+
+				}
+				stereotype.drawU(ug.apply(new UTranslate(posStereoX, posStereoY)));
 				final Dimension2D dimTitle = title.calculateDimension(ug.getStringBounder());
 				final double posTitle = (width - dimTitle.getWidth()) / 2;
 				title.drawU(ug.apply(new UTranslate(posTitle, 2 + dimStereo.getHeight())));

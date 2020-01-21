@@ -28,32 +28,22 @@
  *
  * Original Author:  Arnaud Roques
  *
- *
  */
-package net.sourceforge.plantuml.suggest;
+package net.sourceforge.plantuml.error;
 
-public class VariatorRemoveOneChar extends VariatorIteratorAdaptor {
+import java.util.List;
 
-	private final String data;
-	private int i;
+import net.sourceforge.plantuml.ErrorUml;
+import net.sourceforge.plantuml.StringLocated;
+import net.sourceforge.plantuml.core.UmlSource;
 
-	public VariatorRemoveOneChar(String data) {
-		this.data = data;
+public class PSystemErrorV2 extends PSystemError {
+
+	public PSystemErrorV2(UmlSource source, List<StringLocated> trace, ErrorUml singleError) {
+		this.setSource(source);
+		this.trace = trace;
+		this.singleError = singleError;
+
 	}
 
-	@Override
-	Variator getVariator() {
-		return new Variator() {
-			public String getData() {
-				if (i >= data.length()) {
-					return null;
-				}
-				return data.substring(0, i) + data.substring(i + 1);
-			}
-
-			public void nextStep() {
-				i++;
-			}
-		};
-	}
 }

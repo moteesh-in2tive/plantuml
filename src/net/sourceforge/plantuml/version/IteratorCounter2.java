@@ -32,6 +32,7 @@
 package net.sourceforge.plantuml.version;
 
 import java.util.Iterator;
+import java.util.List;
 
 import net.sourceforge.plantuml.StringLocated;
 
@@ -46,5 +47,7 @@ public interface IteratorCounter2 extends Iterator<StringLocated> {
 	public StringLocated peekPrevious();
 
 	public void copyStateFrom(IteratorCounter2 other);
+
+	public List<StringLocated> getTrace();
 
 }

@@ -5,8 +5,11 @@
  * (C) Copyright 2009-2020, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
+ *
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
  *
  * This file is part of PlantUML.
  *
@@ -28,48 +31,30 @@
  *
  * Original Author:  Arnaud Roques
  *
- *
  */
-package net.sourceforge.plantuml.suggest;
+package net.sourceforge.plantuml.tim;
 
-public class VariatorAddOneCharBetweenWords extends VariatorIteratorAdaptor {
+public class EaterStartsub extends Eater {
 
-	private final String data;
-	private final char toAdd;
-	private int i;
+	private String subname;
 
-	public VariatorAddOneCharBetweenWords(String data, char toAdd) {
-		this.data = data;
-		this.toAdd = toAdd;
-		i++;
-		ensureBetweenWords();
-	}
-
-	private void ensureBetweenWords() {
-		while (i < data.length() && inWord()) {
-			i++;
-		}
-
-	}
-
-	private boolean inWord() {
-		return Character.isLetterOrDigit(data.charAt(i - 1)) && Character.isLetterOrDigit(data.charAt(i));
+	public EaterStartsub(String s) {
+		super(s);
 	}
 
 	@Override
-	Variator getVariator() {
-		return new Variator() {
-			public String getData() {
-				if (i > data.length() - 1) {
-					return null;
-				}
-				return data.substring(0, i) + toAdd + data.substring(i);
-			}
-
-			public void nextStep() {
-				i++;
-				ensureBetweenWords();
-			}
-		};
+	public void execute(TContext context, TMemory memory) throws EaterException {
+		skipSpaces();
+		checkAndEatChar("!startsub");
+		skipSpaces();
+		this.subname = eatAllToEnd();
+		if (this.subname.matches("\\w+") == false) {
+			throw new EaterException("Bad sub name");
+		}
 	}
+
+	public final String getSubname() {
+		return subname;
+	}
+
 }

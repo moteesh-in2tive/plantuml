@@ -5,8 +5,11 @@
  * (C) Copyright 2009-2020, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
+ *
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
  *
  * This file is part of PlantUML.
  *
@@ -28,32 +31,30 @@
  *
  * Original Author:  Arnaud Roques
  *
- *
  */
-package net.sourceforge.plantuml.suggest;
+package net.sourceforge.plantuml.tim;
 
-public class VariatorSwapChar extends VariatorIteratorAdaptor {
+import net.sourceforge.plantuml.tim.expression.TValue;
 
-	private final String data;
-	private int i;
+public class EaterElseIf extends Eater {
 
-	public VariatorSwapChar(String data) {
-		this.data = data;
+	private boolean booleanValue;
+
+	public EaterElseIf(String s) {
+		super(s);
 	}
 
 	@Override
-	Variator getVariator() {
-		return new Variator() {
-			public String getData() {
-				if (i >= data.length() - 1) {
-					return null;
-				}
-				return data.substring(0, i) + data.charAt(i + 1) + data.charAt(i) + data.substring(i + 2);
-			}
-
-			public void nextStep() {
-				i++;
-			}
-		};
+	public void execute(TContext context, TMemory memory) throws EaterException {
+		skipSpaces();
+		checkAndEatChar("!elseif");
+		skipSpaces();
+		final TValue value = eatExpression(context, memory);
+		this.booleanValue = value.toBoolean();
 	}
+
+	public boolean isTrue() {
+		return this.booleanValue;
+	}
+
 }

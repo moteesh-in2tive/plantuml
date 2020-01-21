@@ -28,11 +28,30 @@
  *
  * Original Author:  Arnaud Roques
  *
- *
+ * 
  */
-package net.sourceforge.plantuml.suggest;
+package net.sourceforge.plantuml.svek.extremity;
 
-public enum SuggestEngineStatus {
-	SYNTAX_OK, CANNOT_CORRECT, ONE_SUGGESTION
+import java.awt.geom.Point2D;
 
+import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UPolygon;
+
+public class ExtremityOther extends Extremity {
+
+	final private UPolygon polygon;
+
+	public ExtremityOther(UPolygon polygon) {
+		this.polygon = polygon;
+	}
+
+	public void drawU(UGraphic ug) {
+		ug.draw(polygon);
+
+	}
+
+	@Override
+	public Point2D somePoint() {
+		return polygon.getPoints().get(0);
+	}
 }

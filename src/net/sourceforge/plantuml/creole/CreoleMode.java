@@ -33,6 +33,6 @@
 package net.sourceforge.plantuml.creole;
 
 public enum CreoleMode {
-	FULL, SIMPLE_LINE;
+	FULL, SIMPLE_LINE, NO_CREOLE;
 
 }

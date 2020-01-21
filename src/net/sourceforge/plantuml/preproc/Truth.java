@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.preproc;
 
-interface Truth {
+public interface Truth {
 	public boolean isTrue(String name);
 
 }

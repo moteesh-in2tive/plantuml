@@ -70,6 +70,8 @@ public interface ISkinParam extends ISkinSimple {
 
 	public HorizontalAlignment getDefaultTextAlignment(HorizontalAlignment defaultValue);
 
+	public HorizontalAlignment getStereotypeAlignment();
+
 	public int getCircledCharacterRadius();
 
 	public char getCircledCharacter(Stereotype stereotype);

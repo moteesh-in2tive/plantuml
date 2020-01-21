@@ -40,17 +40,15 @@ import java.util.TreeSet;
 
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.PSystemError;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.error.PSystemError;
 
 public class SyntaxResult {
 
 	private UmlDiagramType umlDiagramType;
 	private boolean isError;
 	private String description;
-	// private int errorLinePosition;
 	private Collection<String> errors = new TreeSet<String>();
-	// private List<String> suggest;
 	private boolean hasCmapData;
 	private PSystemError systemError;
 	private LineLocation lineLocation;
@@ -66,14 +64,6 @@ public class SyntaxResult {
 	public String getDescription() {
 		return description;
 	}
-
-	// public int getErrorLinePosition() {
-	// return errorLinePosition;
-	// }
-
-	// public List<String> getSuggest() {
-	// return suggest;
-	// }
 
 	public Collection<String> getErrors() {
 		return Collections.unmodifiableCollection(errors);
@@ -91,17 +81,9 @@ public class SyntaxResult {
 		this.description = description;
 	}
 
-	// public void setErrorLinePosition(int errorLinePosition) {
-	// this.errorLinePosition = errorLinePosition;
-	// }
-
 	public void addErrorText(String error) {
 		this.errors.add(error);
 	}
-
-	// public void setSuggest(List<String> suggest) {
-	// this.suggest = suggest;
-	// }
 
 	public final boolean hasCmapData() {
 		return hasCmapData;
