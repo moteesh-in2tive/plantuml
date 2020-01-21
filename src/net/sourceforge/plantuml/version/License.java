@@ -344,46 +344,10 @@ public enum License {
 		h.add(" *");
 		h.add(" * Project Info:  http://plantuml.com");
 		h.add(" * ");
-		h.add(" * If you like this project or if you find it useful, you can support us at:");
-		h.add(" * ");
-		h.add(" * http://plantuml.com/patreon (only 1$ per month!)");
-		h.add(" * http://plantuml.com/paypal");
 		h.add(" * ");
 		h.add(" * This file is part of PlantUML.");
 		h.add(" *");
-		if (this == License.LGPL) {
-			h.add(" * PlantUML is free software; you can redistribute it and/or modify it");
-			h.add(" * under the terms of the GNU Lesser General Public License as published by");
-			h.add(" * the Free Software Foundation, either version 3 of the License, or");
-			h.add(" * (at your option) any later version.");
-			h.add(" *");
-			h.add(" * PlantUML distributed in the hope that it will be useful, but");
-			h.add(" * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY");
-			h.add(" * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public");
-			h.add(" * License for more details.");
-			h.add(" *");
-			h.add(" * You should have received a copy of the GNU Lesser General Public");
-			h.add(" * License along with this library; if not, write to the Free Software");
-			h.add(" * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-			h.add(" * USA.");
-			h.add(" *");
-		} else if (this == License.GPLV2) {
-			h.add(" * PlantUML is free software; you can redistribute it and/or modify it");
-			h.add(" * under the terms of the GNU General Public License as published by");
-			h.add(" * the Free Software Foundation, either version 2 of the License, or");
-			h.add(" * (at your option) any later version.");
-			h.add(" *");
-			h.add(" * PlantUML distributed in the hope that it will be useful, but");
-			h.add(" * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY");
-			h.add(" * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public");
-			h.add(" * License for more details.");
-			h.add(" *");
-			h.add(" * You should have received a copy of the GNU General Public");
-			h.add(" * License along with this library; if not, write to the Free Software");
-			h.add(" * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,");
-			h.add(" * USA.");
-			h.add(" *");
-		} else if (this == License.APACHE) {
+if (this == License.APACHE) {
 			h.add(" * Licensed under the Apache License, Version 2.0 (the \"License\");");
 			h.add(" * you may not use this file except in compliance with the License.");
 			h.add(" * You may obtain a copy of the License at");
@@ -460,21 +424,9 @@ public enum License {
 			h.add(" * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,");
 			h.add(" * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR");
 			h.add(" * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
-			h.add(" * ");
+			h.add(" */ ");
 		}
-		h.add(" *");
-		h.add(" * Original Author:  Arnaud Roques");
-		h.add(" */");
 		return Collections.unmodifiableList(h);
-	}
-
-	public List<String> getTextFull() {
-		final LicenseInfo licenseInfo = LicenseInfo.retrieveQuick();
-		final List<String> text = new ArrayList<String>();
-		header1(text, licenseInfo);
-		header2(text, licenseInfo, false);
-		end3(text, licenseInfo);
-		return text;
 	}
 
 	public List<String> getText1(LicenseInfo licenseInfo) {
@@ -491,11 +443,7 @@ public enum License {
 	}
 
 	private void end3(final List<String> text, final LicenseInfo licenseInfo) {
-		if (this == License.GPL) {
-			addGpl(licenseInfo, text);
-		} else if (this == License.GPLV2) {
-			addGplV2(licenseInfo, text);
-		} else if (this == License.MIT) {
+		if (this == License.MIT) {
 			addMit(licenseInfo, text);
 		} else if (this == License.EPL) {
 			addEpl(licenseInfo, text);
@@ -503,8 +451,6 @@ public enum License {
 			addBsd(licenseInfo, text);
 		} else if (this == License.APACHE) {
 			addApache(licenseInfo, text);
-		} else if (this == License.LGPL) {
-			addLgpl(licenseInfo, text);
 		} else {
 			throw new IllegalStateException();
 		}

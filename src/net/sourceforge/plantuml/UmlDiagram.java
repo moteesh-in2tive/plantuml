@@ -66,7 +66,6 @@ import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.cucadiagram.UnparsableGraphvizException;
 import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
 import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
-import net.sourceforge.plantuml.fun.IconLoader;
 import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HtmlColor;
@@ -234,7 +233,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 			GraphvizCrash.addDecodeHint(strings);
 		}
 
-		final TextBlockBackcolored graphicStrings = GraphicStrings.createBlackOnWhite(strings, IconLoader.getRandom(),
+		final TextBlockBackcolored graphicStrings = GraphicStrings.createBlackOnWhite(strings, new BufferedImage(1,1,0),
 				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
 
 		if (im == null) {

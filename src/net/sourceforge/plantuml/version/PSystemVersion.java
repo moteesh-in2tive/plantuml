@@ -57,7 +57,6 @@ import net.sourceforge.plantuml.Run;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
-import net.sourceforge.plantuml.dedication.Dedication;
 import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.preproc.ImportedFiles;
@@ -108,26 +107,10 @@ public class PSystemVersion extends AbstractPSystem {
 		return getImage("arecibo.png");
 	}
 
-	public static BufferedImage getApple2Image() {
-		return getImageWebp("apple2.png");
-	}
-
 	private static BufferedImage getImage(final String name) {
 		try {
 			final InputStream is = PSystemVersion.class.getResourceAsStream(name);
 			final BufferedImage image = ImageIO.read(is);
-			is.close();
-			return image;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-	}
-
-	private static BufferedImage getImageWebp(final String name) {
-		try {
-			final InputStream is = PSystemVersion.class.getResourceAsStream(name);
-			final BufferedImage image = Dedication.getBufferedImage(is);
 			is.close();
 			return image;
 		} catch (IOException e) {
@@ -334,22 +317,6 @@ public class PSystemVersion extends AbstractPSystem {
 			strings.add(ste.toString());
 		}
 		return new PSystemVersion(false, strings);
-	}
-
-	public static PSystemVersion createKeyDistributor() throws IOException {
-		final LicenseInfo license = LicenseInfo.retrieveDistributor();
-		BufferedImage im = null;
-		final List<String> strings = new ArrayList<String>();
-		if (license == null) {
-			strings.add("No license found");
-		} else {
-			strings.add(license.getOwner());
-			strings.add(license.getContext());
-			strings.add(license.getGenerationDate().toString());
-			strings.add(license.getExpirationDate().toString());
-			im = LicenseInfo.retrieveDistributorImage(license);
-		}
-		return new PSystemVersion(strings, im);
 	}
 
 	public static PSystemVersion createPath() throws IOException {

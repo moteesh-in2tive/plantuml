@@ -45,7 +45,6 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
 import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
-import net.sourceforge.plantuml.fun.IconLoader;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.GraphicPosition;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
@@ -68,7 +67,7 @@ public class GraphvizCrash extends AbstractTextBlock implements IEntityImage {
 		this.text = text;
 		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
 		this.flashCode = utils.exportFlashcode(text, Color.BLACK, Color.WHITE);
-		this.graphicStrings = GraphicStrings.createBlackOnWhite(init(), IconLoader.getRandom(),
+		this.graphicStrings = GraphicStrings.createBlackOnWhite(init(), new BufferedImage(2, 2, 0),
 				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
 	}
 

@@ -40,7 +40,6 @@ import java.util.Random;
 
 import net.sourceforge.plantuml.OptionPrint;
 import net.sourceforge.plantuml.SignatureUtils;
-import net.sourceforge.plantuml.dedication.TurningBytes;
 
 public class Magic {
 
@@ -53,16 +52,6 @@ public class Magic {
 
 	public String toHexString() {
 		return SignatureUtils.toHexString(buffer);
-	}
-
-	private void xor(TurningBytes turningBytes) {
-		for (int i = 0; i < buffer.length; i++) {
-			buffer[i] ^= turningBytes.nextByte();
-		}
-	}
-
-	public void xor(byte[] key) {
-		xor(new TurningBytes(key));
 	}
 
 	public static Magic fromHexString(String s) {
@@ -125,18 +114,6 @@ public class Magic {
 		final byte result[] = new byte[len];
 		System.arraycopy(buffer, pos, result, 0, len);
 		return result;
-	}
-
-	private boolean isEquals(byte data1[], byte[] data2) {
-		if (data1.length != data2.length) {
-			return false;
-		}
-		for (int i = 0; i < data1.length; i++) {
-			if (data1[i] != data2[i]) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public static byte[] signature() throws IOException {

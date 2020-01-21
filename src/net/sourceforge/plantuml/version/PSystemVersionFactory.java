@@ -62,9 +62,6 @@ public class PSystemVersionFactory extends PSystemSingleLineFactory {
 			if (line.matches("(?i)^dumpstacktrace\\s*$")) {
 				return PSystemVersion.createDumpStackTrace();
 			}
-			if (line.matches("(?i)^keydistributor\\s*$")) {
-				return PSystemVersion.createKeyDistributor();
-			}
 			if (line.matches("(?i)^checkversion\\s*$")) {
 				return PSystemVersion.createCheckVersions(null, null);
 			}

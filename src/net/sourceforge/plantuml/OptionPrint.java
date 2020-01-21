@@ -156,13 +156,6 @@ public class OptionPrint {
 		throw new InterruptedException("exit");
 	}
 
-	public static void printLicense() throws InterruptedException {
-		for (String s : License.getCurrent().getTextFull()) {
-			System.out.println(s);
-		}
-		exit();
-	}
-
 	public static void printVersion() throws InterruptedException {
 		System.out.println("PlantUML version " + Version.versionString() + " (" + Version.compileTimeString() + ")");
 		System.out.println("(" + License.getCurrent() + " source distribution)");

@@ -32,12 +32,8 @@
 package net.sourceforge.plantuml.version;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -47,8 +43,6 @@ import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 
-import net.sourceforge.plantuml.Log;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.SignatureUtils;
 
 public class LicenseInfo {
@@ -80,62 +74,6 @@ public class LicenseInfo {
 
 	private static LicenseInfo cache;
 
-	public static synchronized LicenseInfo retrieveQuick() {
-		if (cache == null) {
-			cache = retrieveDistributor();
-		}
-		if (cache == null) {
-			cache = retrieveNamedSlow();
-		}
-		return cache;
-	}
-
-	public static boolean retrieveNamedOrDistributorQuickIsValid() {
-		return retrieveQuick().isValid();
-	}
-
-	public static synchronized LicenseInfo retrieveNamedSlow() {
-		cache = LicenseInfo.NONE;
-		if (OptionFlags.ALLOW_INCLUDE == false) {
-			return cache;
-		}
-		final String key = prefs.get("license", "");
-		if (key.length() > 0) {
-			cache = setIfValid(retrieveNamed(key), cache);
-			if (cache.isValid()) {
-				return cache;
-			}
-		}
-		for (File f : fileCandidates()) {
-			try {
-				if (f.exists() && f.canRead()) {
-					final LicenseInfo result = retrieve(f);
-					cache = setIfValid(result, cache);
-					if (cache.isValid()) {
-						return cache;
-					}
-				}
-			} catch (IOException e) {
-				Log.info("Error " + e);
-				// e.printStackTrace();
-			}
-		}
-		return cache;
-	}
-
-	public static LicenseInfo retrieveNamed(final String key) {
-		if (key.length() > 99 && key.matches("^[0-9a-z]+$")) {
-			try {
-				final String sig = SignatureUtils.toHexString(PLSSignature.signature());
-				return PLSSignature.retrieveNamed(sig, key, true);
-			} catch (Exception e) {
-				// e.printStackTrace();
-				Log.info("Error retrieving license info" + e);
-			}
-		}
-		return LicenseInfo.NONE;
-	}
-
 	public static BufferedImage retrieveDistributorImage(LicenseInfo licenseInfo) {
 		if (licenseInfo.getLicenseType() != LicenseType.DISTRIBUTOR) {
 			return null;
@@ -161,30 +99,6 @@ public class LicenseInfo {
 		return null;
 	}
 
-	public static LicenseInfo retrieveDistributor() {
-		final InputStream dis = PSystemVersion.class.getResourceAsStream("/distributor.txt");
-		if (dis == null) {
-			return null;
-		}
-		try {
-			final BufferedReader br = new BufferedReader(new InputStreamReader(dis));
-			final String licenseString = br.readLine();
-			br.close();
-			final LicenseInfo result = PLSSignature.retrieveDistributor(licenseString);
-			final Throwable creationPoint = new Throwable();
-			creationPoint.fillInStackTrace();
-			for (StackTraceElement ste : creationPoint.getStackTrace()) {
-				if (ste.toString().contains(result.context)) {
-					return result;
-				}
-			}
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 	public static Collection<File> fileCandidates() {
 		final Set<File> result = new TreeSet<File>();
 		final String classpath = System.getProperty("java.class.path");
@@ -199,31 +113,6 @@ public class LicenseInfo {
 			}
 		}
 		return result;
-	}
-
-	private static LicenseInfo setIfValid(LicenseInfo value, LicenseInfo def) {
-		if (value.isValid() || def.isNone()) {
-			return value;
-		}
-		return def;
-	}
-
-	private static LicenseInfo retrieve(File f) throws IOException {
-		final BufferedReader br = new BufferedReader(new FileReader(f));
-		final String s = br.readLine();
-		br.close();
-		final LicenseInfo result = retrieveNamed(s);
-		if (result != null) {
-			Log.info("Reading license from " + f.getAbsolutePath());
-		}
-		return result;
-	}
-
-	public static void main(String[] args) {
-		LicenseInfo info = retrieveNamedSlow();
-		System.err.println("valid=" + info.isValid());
-		System.err.println("info=" + info.owner);
-
 	}
 
 	public final Date getGenerationDate() {
