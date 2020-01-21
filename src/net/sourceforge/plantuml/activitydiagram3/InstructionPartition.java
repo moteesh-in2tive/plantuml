@@ -87,4 +87,8 @@ public class InstructionPartition implements Instruction {
 		throw new UnsupportedOperationException();
 	}
 
+	public boolean containsBreak() {
+		return list.containsBreak();
+	}
+
 }

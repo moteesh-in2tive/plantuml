@@ -32,7 +32,6 @@
  */
 package net.sourceforge.plantuml.graph;
 
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.Dimension2D;
 

@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.sequencediagram.command;
 
 import java.text.DecimalFormat;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -60,7 +61,7 @@ public class CommandAutonumber extends SingleLineCommand2<SequenceDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(SequenceDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
 		DottedNumber start = DottedNumber.create("1");
 		final String arg0 = arg.get("START", 0);
 		// System.err.println("arg0=" + arg0);

@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class Bullet implements Atom {
+public class Bullet extends AbstractAtom implements Atom {
 
 	private final FontConfiguration fontConfiguration;
 	private final int order;

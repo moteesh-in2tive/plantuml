@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.classdiagram.command;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -54,7 +55,7 @@ public class CommandHideShow2 extends SingleLineCommand2<CucaDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(CucaDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(CucaDiagram diagram, LineLocation location, RegexResult arg) {
 
 		final char tmp = arg.get("COMMAND", 0).charAt(0);
 		final boolean show = tmp == 's' || tmp == 'S';

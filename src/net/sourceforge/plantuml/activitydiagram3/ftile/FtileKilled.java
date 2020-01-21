@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
+import java.util.Collection;
 import java.util.Set;
 
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -44,6 +45,11 @@ public class FtileKilled extends AbstractFtile {
 	public FtileKilled(Ftile tileToKill) {
 		super(tileToKill.skinParam());
 		this.tile = tileToKill;
+	}
+	
+	@Override
+	public Collection<Ftile> getMyChildren() {
+		return tile.getMyChildren();
 	}
 
 	public Set<Swimlane> getSwimlanes() {

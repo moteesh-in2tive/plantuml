@@ -497,7 +497,7 @@ public class SequenceDiagram extends UmlDiagram {
 		final double dpiFactor;
 		final Scale scale = getScale();
 		if (scale == null) {
-			dpiFactor = getDpiFactor(fileFormatOption);
+			dpiFactor = getScaleCoef(fileFormatOption);
 		} else {
 			dpiFactor = scale.getScale(dim.getWidth(), dim.getHeight());
 		}

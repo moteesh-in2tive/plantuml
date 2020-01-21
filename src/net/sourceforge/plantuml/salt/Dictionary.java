@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.salt;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.SpriteContainer;
@@ -75,8 +76,8 @@ public class Dictionary implements SpriteContainer, ISkinSimple {
 		return 0;
 	}
 
-	public boolean useGuillemet() {
-		return true;
+	public Guillemet guillemet() {
+		return Guillemet.GUILLEMET;
 	}
 
 	public String getMonospacedFamily() {

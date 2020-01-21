@@ -79,6 +79,7 @@ public class Note extends AbstractEvent implements Event, SpecificBackcolorable 
 		result.style = this.style;
 		result.url = this.url;
 		result.colors = this.colors;
+		result.parallel = this.parallel;
 		return result;
 	}
 
@@ -137,6 +138,16 @@ public class Note extends AbstractEvent implements Event, SpecificBackcolorable 
 
 	public void setUrl(Url url) {
 		this.url = url;
+	}
+
+	private boolean parallel = false;
+
+	public void goParallel() {
+		this.parallel = true;
+	}
+
+	public boolean isParallel() {
+		return parallel;
 	}
 
 }

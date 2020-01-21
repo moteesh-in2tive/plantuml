@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -58,7 +59,7 @@ public class CommandConstraint extends SingleLineCommand2<TimingDiagram> {
 	}
 
 	@Override
-	final protected CommandExecutionResult executeArg(TimingDiagram diagram, RegexResult arg) {
+	final protected CommandExecutionResult executeArg(TimingDiagram diagram, LineLocation location, RegexResult arg) {
 		final String part1 = arg.get("PART1", 0);
 		final Player player1;
 		if (part1 == null) {

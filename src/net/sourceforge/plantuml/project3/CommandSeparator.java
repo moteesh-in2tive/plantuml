@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.project3;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -53,7 +54,7 @@ public class CommandSeparator extends SingleLineCommand2<GanttDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(GanttDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(GanttDiagram diagram, LineLocation location, RegexResult arg) {
 		final String comment = arg.get("COMMENT", 1);
 		diagram.addSeparator(comment);
 		return CommandExecutionResult.ok();

@@ -32,8 +32,9 @@
  */
 package net.sourceforge.plantuml.command;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.PSystemError;
-import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.core.Diagram;
@@ -67,11 +68,11 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 		return new String[] { pattern.getPattern() };
 	}
 
-	private String myTrim(CharSequence s) {
+	private String myTrim(StringLocated s) {
 		if (doTrim) {
-			return StringUtils.trin(s);
+			return s.getStringTrimmed();
 		}
-		return s.toString();
+		return s.getString();
 	}
 
 	final public CommandControl isValid(BlocLines lines) {
@@ -86,8 +87,8 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 		}
 		final String line = myTrim(lines.getFirst499());
 		if (syntaxWithFinalBracket() && line.endsWith("{") == false) {
-			final String vline = lines.get499(0).toString() + " {";
-			if (isValid(BlocLines.single(vline)) == CommandControl.OK) {
+			final String vline = lines.get499(0).getString() + " {";
+			if (isValid(BlocLines.singleString(vline)) == CommandControl.OK) {
 				return CommandControl.OK_PARTIAL;
 			}
 			return CommandControl.NOT_OK;
@@ -105,8 +106,8 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 		if (myTrim(lines.get499(1)).equals("{") == false) {
 			return CommandControl.NOT_OK;
 		}
-		final String vline = lines.get499(0).toString() + " {";
-		return isValid(BlocLines.single(vline));
+		final String vline = lines.get499(0).getString() + " {";
+		return isValid(BlocLines.singleString(vline));
 	}
 
 	protected boolean isCommandForbidden() {
@@ -119,12 +120,13 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 	public final CommandExecutionResult execute(S system, BlocLines lines) {
 		if (syntaxWithFinalBracket() && lines.size() == 2) {
 			assert myTrim(lines.get499(1)).equals("{");
-			lines = BlocLines.single(lines.getFirst499() + " {");
+			lines = BlocLines.singleString(lines.getFirst499().getString() + " {");
 		}
 		if (lines.size() != 1) {
 			throw new IllegalArgumentException();
 		}
-		final String line = myTrim(lines.getFirst499());
+		final StringLocated first = lines.getFirst499();
+		final String line = myTrim(first);
 		if (isForbidden(line)) {
 			return CommandExecutionResult.error("Syntax error: " + line);
 		}
@@ -138,13 +140,13 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 		}
 		// System.err.println("lines="+lines);
 		// System.err.println("pattern="+pattern.getPattern());
-		return executeArg(system, arg);
+		return executeArg(system, first.getLocation(), arg);
 	}
 
 	protected boolean isForbidden(CharSequence line) {
 		return false;
 	}
 
-	protected abstract CommandExecutionResult executeArg(S system, RegexResult arg);
+	protected abstract CommandExecutionResult executeArg(S system, LineLocation location, RegexResult arg);
 
 }

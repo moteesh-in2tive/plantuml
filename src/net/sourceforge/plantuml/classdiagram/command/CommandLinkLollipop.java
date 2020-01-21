@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.classdiagram.command;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -89,7 +90,7 @@ final public class CommandLinkLollipop extends SingleLineCommand2<AbstractClassO
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(AbstractClassOrObjectDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(AbstractClassOrObjectDiagram diagram, LineLocation location, RegexResult arg) {
 
 		final Code ent1 = Code.of(arg.get("ENT1", 1));
 		final Code ent2 = Code.of(arg.get("ENT2", 1));

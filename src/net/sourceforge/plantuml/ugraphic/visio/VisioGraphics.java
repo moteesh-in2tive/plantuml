@@ -165,7 +165,7 @@ public class VisioGraphics {
 			} else if (type == USegmentType.SEG_CLOSE) {
 				// Nothing
 			} else {
-				Log.println("unknown " + seg);
+				Log.println("unknown5 " + seg);
 			}
 
 		}

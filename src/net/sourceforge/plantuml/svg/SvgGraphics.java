@@ -59,8 +59,8 @@ import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.SvgString;
 import net.sourceforge.plantuml.code.Base64Coder;
-import net.sourceforge.plantuml.eps.EpsGraphics;
 import net.sourceforge.plantuml.graphic.HtmlColorGradient;
+import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.USegment;
@@ -86,6 +86,8 @@ public class SvgGraphics {
 	// http://www.w3schools.com/svg/svg_feoffset.asp
 	// http://www.adobe.com/svg/demos/samples.html
 
+	private static final String XLINK_HREF = "href";
+	
 	final private Document document;
 	final private Element root;
 	final private Element defs;
@@ -323,7 +325,7 @@ public class SvgGraphics {
 
 		pendingAction.add(0, (Element) document.createElement("a"));
 		pendingAction.get(0).setAttribute("target", target);
-		pendingAction.get(0).setAttribute("xlink:href", url);
+		pendingAction.get(0).setAttribute(XLINK_HREF, url);
 		pendingAction.get(0).setAttribute("xlink:type", "simple");
 		pendingAction.get(0).setAttribute("xlink:actuate", "onRequest");
 		pendingAction.get(0).setAttribute("xlink:show", "new");
@@ -473,16 +475,17 @@ public class SvgGraphics {
 			elt.setTextContent(text);
 			getG().appendChild(elt);
 
-			if (textDecoration != null && textDecoration.contains("underline")) {
-				final double delta = 2;
-				final Element elt2 = (Element) document.createElement("line");
-				elt2.setAttribute("x1", format(x));
-				elt2.setAttribute("y1", format(y + delta));
-				elt2.setAttribute("x2", format(x + textLength));
-				elt2.setAttribute("y2", format(y + delta));
-				elt2.setAttribute("style", getStyleInternal(fill, "1.0", null));
-				getG().appendChild(elt2);
-			}
+			// http://forum.plantuml.net/9158/hyperlink-without-underline
+			// if (textDecoration != null && textDecoration.contains("underline")) {
+			// final double delta = 2;
+			// final Element elt2 = (Element) document.createElement("line");
+			// elt2.setAttribute("x1", format(x));
+			// elt2.setAttribute("y1", format(y + delta));
+			// elt2.setAttribute("x2", format(x + textLength));
+			// elt2.setAttribute("y2", format(y + delta));
+			// elt2.setAttribute("style", getStyleInternal(fill, "1.0", null));
+			// getG().appendChild(elt2);
+			// }
 
 		}
 		ensureVisible(x, y);
@@ -631,7 +634,7 @@ public class SvgGraphics {
 			} else if (type == USegmentType.SEG_CLOSE) {
 				// Nothing
 			} else {
-				Log.println("unknown " + seg);
+				Log.println("unknown3 " + seg);
 			}
 
 		}
@@ -693,7 +696,7 @@ public class SvgGraphics {
 	}
 
 	private String format(double x) {
-		return EpsGraphics.format(x * scale);
+		return TikzGraphics.format(x * scale);
 	}
 
 	private String formatBoolean(double x) {
@@ -719,7 +722,7 @@ public class SvgGraphics {
 			elt.setAttribute("x", format(x));
 			elt.setAttribute("y", format(y));
 			final String s = toBase64(image);
-			elt.setAttribute("xlink:href", "data:image/png;base64," + s);
+			elt.setAttribute(XLINK_HREF, "data:image/png;base64," + s);
 			getG().appendChild(elt);
 		}
 		ensureVisible(x, y);

@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.command.note;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -85,7 +86,7 @@ public final class FactoryNoteOnLinkCommand implements SingleMultiFactoryCommand
 			}
 
 			protected CommandExecutionResult executeNow(final CucaDiagram system, BlocLines lines) {
-				final String line0 = lines.getFirst499().toString();
+				final String line0 = lines.getFirst499().getString();
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
 				if (lines.size() > 0) {
@@ -102,7 +103,7 @@ public final class FactoryNoteOnLinkCommand implements SingleMultiFactoryCommand
 		return new SingleLineCommand2<CucaDiagram>(getRegexConcatSingleLine()) {
 
 			@Override
-			protected CommandExecutionResult executeArg(final CucaDiagram system, RegexResult arg) {
+			protected CommandExecutionResult executeArg(final CucaDiagram system, LineLocation location, RegexResult arg) {
 				final BlocLines note = BlocLines.getWithNewlines(arg.get("NOTE", 0));
 				return executeInternal(system, note, arg);
 			}

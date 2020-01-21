@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
@@ -63,7 +64,6 @@ import net.sourceforge.plantuml.cucadiagram.Stereotag;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.Neighborhood;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorType;
@@ -309,7 +309,7 @@ final class EntityImpl implements ILeaf, IGroup {
 		if (stereotype == null) {
 			return EntityPosition.NORMAL;
 		}
-		return EntityPosition.fromStereotype(stereotype.getLabel(false));
+		return EntityPosition.fromStereotype(stereotype.getLabel(Guillemet.DOUBLE_COMPARATOR));
 
 	}
 

@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
+import net.sourceforge.plantuml.Guillemet;
+
 public class EntityGenderUtils {
 
 	static public EntityGender byEntityType(final LeafType type) {
@@ -56,7 +58,7 @@ public class EntityGenderUtils {
 				if (test.getStereotype() == null) {
 					return false;
 				}
-				return stereotype.equals(test.getStereotype().getLabel(false));
+				return stereotype.equals(test.getStereotype().getLabel(Guillemet.DOUBLE_COMPARATOR));
 			}
 		};
 	}

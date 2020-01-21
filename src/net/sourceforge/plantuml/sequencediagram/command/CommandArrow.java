@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.sequencediagram.command;
 
 import java.util.StringTokenizer;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -61,6 +62,8 @@ import net.sourceforge.plantuml.skin.ArrowPart;
 
 public class CommandArrow extends SingleLineCommand2<SequenceDiagram> {
 
+	private static final String ANCHOR = "(\\{([\\p{L}0-9_]+)\\}[%s]+)?";
+
 	public CommandArrow() {
 		super(getRegexConcat());
 	}
@@ -72,13 +75,14 @@ public class CommandArrow extends SingleLineCommand2<SequenceDiagram> {
 	static RegexConcat getRegexConcat() {
 		return new RegexConcat(
 				new RegexLeaf("^"), //
-				new RegexLeaf("PARALLEL", "(&%s*)?"), //
-				new RegexLeaf("ANCHOR", "(\\{([\\p{L}0-9_]+)\\}[%s]+)?"), //
+				new RegexLeaf("PARALLEL", "(&[%s]*)?"), //
+				new RegexLeaf("ANCHOR", ANCHOR), //
 				new RegexOr("PART1", //
 						new RegexLeaf("PART1CODE", "([\\p{L}0-9_.@]+)"), //
 						new RegexLeaf("PART1LONG", "[%g]([^%g]+)[%g]"), //
 						new RegexLeaf("PART1LONGCODE", "[%g]([^%g]+)[%g][%s]*as[%s]+([\\p{L}0-9_.@]+)"), //
 						new RegexLeaf("PART1CODELONG", "([\\p{L}0-9_.@]+)[%s]+as[%s]*[%g]([^%g]+)[%g]")), //
+				new RegexLeaf("PART1ANCHOR", ANCHOR), //
 				new RegexLeaf("[%s]*"), //
 				new RegexLeaf("ARROW_DRESSING1", "([%s][ox]|(?:[%s][ox])?<<?|(?:[%s][ox])?//?|(?:[%s][ox])?\\\\\\\\?)?"), //
 				new RegexOr(new RegexConcat( //
@@ -96,6 +100,7 @@ public class CommandArrow extends SingleLineCommand2<SequenceDiagram> {
 						new RegexLeaf("PART2LONG", "[%g]([^%g]+)[%g]"), //
 						new RegexLeaf("PART2LONGCODE", "[%g]([^%g]+)[%g][%s]*as[%s]+([\\p{L}0-9_.@]+)"), //
 						new RegexLeaf("PART2CODELONG", "([\\p{L}0-9_.@]+)[%s]+as[%s]*[%g]([^%g]+)[%g]")), //
+				new RegexLeaf("PART2ANCHOR", ANCHOR), //
 				new RegexLeaf("[%s]*"), //
 				new RegexLeaf("ACTIVATION", "(?:([+*!-]+)?)"), //
 				new RegexLeaf("[%s]*"), //
@@ -137,7 +142,7 @@ public class CommandArrow extends SingleLineCommand2<SequenceDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(SequenceDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
 
 		Participant p1;
 		Participant p2;
@@ -232,8 +237,9 @@ public class CommandArrow extends SingleLineCommand2<SequenceDiagram> {
 		if (parallel) {
 			msg.goParallel();
 		}
-		final String anchor = arg.get("ANCHOR", 1);
-		msg.setAnchor(anchor);
+		msg.setAnchor(arg.get("ANCHOR", 1));
+		msg.setPart1Anchor(arg.get("PART1ANCHOR", 1));
+		msg.setPart2Anchor(arg.get("PART2ANCHOR", 1));
 
 		final String error = diagram.addMessage(msg);
 		if (error != null) {

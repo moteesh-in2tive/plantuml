@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.descdiagram;
 
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
@@ -76,7 +77,7 @@ public class CommandCreateDomain extends SingleLineCommand2<DescriptionDiagram> 
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(DescriptionDiagram diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(DescriptionDiagram diagram, LineLocation location, RegexResult arg) {
 		String type = arg.get("TYPE", 0);
 		String display = arg.getLazzy("DISPLAY", 0);
 		String code = arg.getLazzy("CODE", 0);

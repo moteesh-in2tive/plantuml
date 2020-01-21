@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.jungle;
 
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
@@ -51,7 +52,7 @@ public class CommandEmpty extends SingleLineCommand2<PSystemTree> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(PSystemTree diagram, RegexResult arg) {
+	protected CommandExecutionResult executeArg(PSystemTree diagram, LineLocation location, RegexResult arg) {
 		return CommandExecutionResult.ok();
 	}
 

@@ -158,7 +158,7 @@ public final class CucaDiagramFileMakerSvek implements CucaDiagramFileMaker {
 		final double scale;
 		final Scale diagScale = diagram.getScale();
 		if (diagScale == null) {
-			scale = diagram.getDpiFactor(fileFormatOption);
+			scale = diagram.getScaleCoef(fileFormatOption);
 		} else {
 			scale = diagScale.getScale(dim.getWidth(), dim.getHeight());
 		}

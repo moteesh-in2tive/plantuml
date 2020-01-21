@@ -34,7 +34,7 @@ package net.sourceforge.plantuml.preproc;
 
 import java.io.IOException;
 
-import net.sourceforge.plantuml.CharSequence2;
+import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.preproc2.ReadFilter;
 
 public class IfManagerFilter implements ReadFilter {
@@ -54,7 +54,7 @@ public class IfManagerFilter implements ReadFilter {
 				source.close();
 			}
 
-			public CharSequence2 readLine() throws IOException {
+			public StringLocated readLine() throws IOException {
 				return ifManager.readLine();
 			}
 		};

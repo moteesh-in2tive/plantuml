@@ -65,4 +65,8 @@ public class InstructionBreak extends MonoSwimable implements Instruction {
 		return inlinkRendering;
 	}
 
+	public boolean containsBreak() {
+		return true;
+	}
+
 }

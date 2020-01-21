@@ -52,5 +52,7 @@ public interface Instruction extends Swimable {
 	public LinkRendering getInLinkRendering();
 
 	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote);
+	
+	public boolean containsBreak();
 
 }
