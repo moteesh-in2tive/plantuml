@@ -44,9 +44,18 @@ import net.sourceforge.plantuml.sequencediagram.Event;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class TileParallel implements Tile, TileWithUpdateStairs {
+public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbackY {
 
 	private final List<Tile> tiles = new ArrayList<Tile>();
+	
+	public void callbackY(double y) {
+		for (Tile tile : tiles) {
+			if (tile instanceof TileWithCallbackY) {
+				((TileWithCallbackY) tile).callbackY(y);
+			}
+		}
+	}
+
 
 	public void updateStairs(StringBounder stringBounder, double y) {
 		for (Tile tile : tiles) {
@@ -152,5 +161,6 @@ public class TileParallel implements Tile, TileWithUpdateStairs {
 	public Event getEvent() {
 		return null;
 	}
+
 
 }

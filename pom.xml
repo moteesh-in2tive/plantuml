@@ -35,7 +35,7 @@
 
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2019.4-DRAWIO</version>
+    <version>1.2019.5-DRAWIO</version>
     <packaging>jar</packaging>
 
     <name>PlantUML</name>

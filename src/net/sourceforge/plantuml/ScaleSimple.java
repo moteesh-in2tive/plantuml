@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml;
 
-public class ScaleSimple implements Scale {
+public class ScaleSimple extends ScaleProtected implements Scale {
 	
 	private final double scale;
 	
@@ -40,7 +40,7 @@ public class ScaleSimple implements Scale {
 		this.scale = scale;
 	}
 	
-	public double getScale(double width, double height) {
+	public double getScaleInternal(double width, double height) {
 		return scale;
 	}
 }

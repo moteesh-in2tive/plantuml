@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.posimo.Positionable;
 import net.sourceforge.plantuml.svek.image.EntityImageDescription;
+import net.sourceforge.plantuml.svek.image.EntityImageLollipopInterface;
 import net.sourceforge.plantuml.svek.image.EntityImageStateBorder;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -340,5 +341,9 @@ public class Shape implements Positionable, IShapePseudo, Hideable {
 
 	public double getOverscanX(StringBounder stringBounder) {
 		return image.getOverscanX(stringBounder);
+	}
+
+	public void addImpact(double angle) {
+		((EntityImageLollipopInterface) image).addImpact(angle);
 	}
 }

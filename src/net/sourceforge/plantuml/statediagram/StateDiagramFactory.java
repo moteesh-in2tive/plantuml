@@ -95,7 +95,7 @@ public class StateDiagramFactory extends UmlDiagramFactory {
 		cmds.add(factoryNoteCommand.createSingleLine());
 		cmds.add(factoryNoteCommand.createMultiLine(false));
 
-		addCommonCommands(cmds);
+		addCommonCommands1(cmds);
 
 		return cmds;
 	}

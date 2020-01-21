@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.sequencediagram.teoz;
 
 import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -223,7 +224,7 @@ public class GroupingTile extends AbstractTile implements TileWithCallbackY {
 			positionedTiles.add(new YPositionedTile(tile, y));
 			if (tile instanceof GroupingTile) {
 				final GroupingTile groupingTile = (GroupingTile) tile;
-				final double headerHeight = groupingTile.getPreferredDimensionIfEmpty(stringBounder).getHeight();
+				final double headerHeight = groupingTile.getHeaderHeight(stringBounder);
 				fillPositionelTiles(stringBounder, y + headerHeight, groupingTile.tiles,
 						new ArrayList<YPositionedTile>());
 			}
@@ -231,6 +232,10 @@ public class GroupingTile extends AbstractTile implements TileWithCallbackY {
 		}
 		return y;
 
+	}
+
+	private double getHeaderHeight(StringBounder stringBounder) {
+		return getPreferredDimensionIfEmpty(stringBounder).getHeight() + 10;
 	}
 
 	private static List<Tile> mergeParallel(List<Tile> tiles) {
@@ -245,7 +250,7 @@ public class GroupingTile extends AbstractTile implements TileWithCallbackY {
 					if (tmp instanceof LifeEventTile) {
 						pending.add(result.get(result.size() - 2));
 						pending.add(tmp);
-//						result.set(result.size() - 1, pending);
+						// result.set(result.size() - 1, pending);
 						result.set(result.size() - 2, pending);
 						result.remove(result.size() - 1);
 					} else {
@@ -282,6 +287,18 @@ public class GroupingTile extends AbstractTile implements TileWithCallbackY {
 
 	private static boolean isParallel(Tile tile) {
 		return tile instanceof TileParallel == false && tile.getEvent().isParallel();
+	}
+
+	void addYNewPages(Collection<Double> yNewPages) {
+		for (Tile tile : tiles) {
+			if (tile instanceof GroupingTile) {
+				((GroupingTile) tile).addYNewPages(yNewPages);
+			}
+			if (tile instanceof NewpageTile) {
+				final double y = ((NewpageTile) tile).getCallbackY();
+				yNewPages.add(y);
+			}
+		}
 	}
 
 	// public double getStartY() {

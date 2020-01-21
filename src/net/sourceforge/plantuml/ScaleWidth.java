@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml;
 
-public class ScaleWidth implements Scale {
+public class ScaleWidth extends ScaleProtected implements Scale {
 
 	private final double maxWidth;
 
@@ -40,7 +40,7 @@ public class ScaleWidth implements Scale {
 		this.maxWidth = maxWidth;
 	}
 
-	public double getScale(double width, double height) {
+	public double getScaleInternal(double width, double height) {
 		return maxWidth / width;
 	}
 }

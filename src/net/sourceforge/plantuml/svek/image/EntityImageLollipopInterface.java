@@ -41,6 +41,7 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
+import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -75,9 +76,15 @@ public class EntityImageLollipopInterface extends AbstractEntityImage {
 	}
 
 	final public void drawU(UGraphic ug) {
-		final UEllipse circle = new UEllipse(SIZE, SIZE);
-		if (getSkinParam().shadowing(getEntity().getStereotype())) {
-			circle.setDeltaShadow(4);
+		final UEllipse circle;
+		if (getEntity().getLeafType() == LeafType.LOLLIPOP_HALF) {
+			// circle = new UEllipse(SIZE, SIZE, 0, 180);
+			circle = new UEllipse(SIZE, SIZE, angle - 90, 180);
+		} else {
+			circle = new UEllipse(SIZE, SIZE);
+			if (getSkinParam().shadowing(getEntity().getStereotype())) {
+				circle.setDeltaShadow(4);
+			}
 		}
 		ug = ug.apply(
 				new UChangeBackColor(SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground)))
@@ -101,6 +108,12 @@ public class EntityImageLollipopInterface extends AbstractEntityImage {
 
 	public ShapeType getShapeType() {
 		return ShapeType.CIRCLE_IN_RECT;
+	}
+
+	private double angle;
+
+	public void addImpact(double angle) {
+		this.angle = 180 - (angle * 180 / Math.PI);
 	}
 
 }

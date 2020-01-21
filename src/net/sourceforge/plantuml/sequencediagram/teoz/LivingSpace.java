@@ -230,7 +230,6 @@ public class LivingSpace {
 	}
 
 	public void goCreate(double y) {
-		System.err.println("LivingSpace::goCreate y=" + y);
 		this.createY = y;
 		this.create = true;
 	}

@@ -51,7 +51,7 @@ public class TimingDiagramFactory extends UmlDiagramFactory {
 
 		final List<Command> cmds = new ArrayList<Command>();
 
-		addCommonCommands(cmds);
+		addCommonCommands1(cmds);
 		cmds.add(new CommandFootboxIgnored());
 		cmds.add(new CommandRobustConcise());
 		cmds.add(new CommandClock());

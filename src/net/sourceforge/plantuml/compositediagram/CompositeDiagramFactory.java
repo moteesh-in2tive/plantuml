@@ -51,7 +51,7 @@ public class CompositeDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandLinkBlock());
 		cmds.add(new CommandCreatePackageBlock());
 		cmds.add(new CommandEndPackageBlock());
-		addCommonCommands(cmds);
+		addCommonCommands1(cmds);
 
 		return cmds;
 	}

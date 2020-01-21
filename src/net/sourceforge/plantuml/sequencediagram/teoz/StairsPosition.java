@@ -32,7 +32,6 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-
 public class StairsPosition implements Comparable<StairsPosition> {
 
 	private final double value;
@@ -46,6 +45,17 @@ public class StairsPosition implements Comparable<StairsPosition> {
 	@Override
 	public String toString() {
 		return "" + value + "-(" + destroy + ")";
+	}
+
+	@Override
+	public int hashCode() {
+		return new Double(value).hashCode() + (destroy ? 17 : 37);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		final StairsPosition other = (StairsPosition) obj;
+		return this.value == other.value && this.destroy == other.destroy;
 	}
 
 	public double getValue() {
