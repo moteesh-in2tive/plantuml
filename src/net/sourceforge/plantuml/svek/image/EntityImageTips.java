@@ -58,7 +58,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Bibliotekon;
-import net.sourceforge.plantuml.svek.Shape;
+import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -89,7 +89,7 @@ public class EntityImageTips extends AbstractEntityImage {
 	}
 
 	private Position getPosition() {
-		if (getEntity().getCode().getFullName().endsWith(Position.RIGHT.name())) {
+		if (getEntity().getCodeGetName().endsWith(Position.RIGHT.name())) {
 			return Position.RIGHT;
 		}
 		return Position.LEFT;
@@ -117,17 +117,17 @@ public class EntityImageTips extends AbstractEntityImage {
 
 		final IEntity other = bibliotekon.getOnlyOther(getEntity());
 
-		final Shape shapeMe = bibliotekon.getShape(getEntity());
-		final Shape shapeOther = bibliotekon.getShape(other);
-		final Point2D positionMe = shapeMe.getPosition();
-		final Point2D positionOther = shapeOther.getPosition();
-		bibliotekon.getShape(getEntity());
+		final Node nodeMe = bibliotekon.getNode(getEntity());
+		final Node nodeOther = bibliotekon.getNode(other);
+		final Point2D positionMe = nodeMe.getPosition();
+		final Point2D positionOther = nodeOther.getPosition();
+		bibliotekon.getNode(getEntity());
 		final Position position = getPosition();
 		Direction direction = position.reverseDirection();
 		double height = 0;
 		for (Map.Entry<String, Display> ent : getEntity().getTips().entrySet()) {
 			final Display display = ent.getValue();
-			final Rectangle2D memberPosition = shapeOther.getImage().getInnerPosition(ent.getKey(), stringBounder,
+			final Rectangle2D memberPosition = nodeOther.getImage().getInnerPosition(ent.getKey(), stringBounder,
 					InnerStrategy.STRICT);
 			if (memberPosition == null) {
 				return;
@@ -160,7 +160,8 @@ public class EntityImageTips extends AbstractEntityImage {
 		// final UFont fontNote = skinParam.getFont(FontParam.NOTE, null, false);
 		final TextBlock textBlock = new BodyEnhanced2(display, FontParam.NOTE, skinParam, HorizontalAlignment.LEFT,
 				new FontConfiguration(skinParam, FontParam.NOTE, null), LineBreakStrategy.NONE);
-		final Opale opale = new Opale(borderColor, noteBackgroundColor, textBlock, skinParam.shadowing(getEntity().getStereotype()), true);
+		final double shadowing = skinParam.shadowing(getEntity().getStereotype())?4:0;
+		final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true);
 		return opale;
 	}
 

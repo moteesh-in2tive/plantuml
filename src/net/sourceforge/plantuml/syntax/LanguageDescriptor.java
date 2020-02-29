@@ -79,6 +79,7 @@ public class LanguageDescriptor {
 		type.add("queue");
 		type.add("archimate");
 		type.add("diamond");
+		type.add("detach");
 
 		keyword.add("@startuml");
 		keyword.add("@enduml");

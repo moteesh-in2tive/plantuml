@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.command;
 
+import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -45,13 +46,14 @@ import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 
-	public static final String ENDING_GROUP = "(;|\\\\\\\\|(?<![/|<>}\\]])(?:[/<}\\]])|(?<!\\</?\\w{1,5})(?<!\\<img[^>]{1,999})(?<!\\<\\$\\w{1,999})(?<!\\>)(?:\\>)|(?<!\\|.{1,999})(?:\\|))";
+	public static final String ENDING_GROUP = "(;|\\\\\\\\|(?<![/|<>}\\]])(?:[/<}\\]])|(?<!\\</?\\w{1,5})(?<!\\<img[^>]{1,999})(?<!\\<[&$]\\w{1,999})(?<!\\>)(?:\\>)|(?<!\\|.{1,999})(?:\\|))";
 
 	public CommandActivity3() {
 		super(getRegexConcat());
@@ -61,6 +63,8 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 		return RegexConcat.build(CommandActivity3.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 				color().getRegex(), //
+				RegexLeaf.spaceZeroOrMore(), //
+				new RegexLeaf("STEREO", "(\\<{2}.*\\>{2})?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf(":"), //
 				new RegexLeaf("LABEL", "(.*)"), //
@@ -83,7 +87,12 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 			url = urlBuilder.getUrl(arg.get("URL", 0));
 		}
 
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final String stereo = arg.get("STEREO", 0);
+		if (stereo != null) {
+			final Stereotype stereotype = new Stereotype(stereo);
+			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.activityBackground);
+		}
 		final BoxStyle style = BoxStyle.fromChar(arg.get("STYLE", 0).charAt(0));
 		diagram.addActivity(Display.getWithNewlines(arg.get("LABEL", 0)), style, url, colors);
 		return CommandExecutionResult.ok();

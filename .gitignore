@@ -12,3 +12,12 @@ vagrant/.vagrant/machines/default/virtualbox/private_key
 vagrant/.vagrant/machines/default/virtualbox/synced_folders
 vagrant/.vagrant/machines/default/virtualbox/vagrant_cwd
 vagrant/.vagrant/rgloader/loader.rb
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen

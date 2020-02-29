@@ -102,16 +102,18 @@ public class CommandImport extends SingleLineCommand2<ClassDiagram> {
 		// }
 	}
 
-	private void includeFileJava(ClassDiagram classDiagram, final File f) throws IOException {
+	private void includeFileJava(ClassDiagram diagram, final File f) throws IOException {
 		final JavaFile javaFile = new JavaFile(f);
 		for (JavaClass cl : javaFile.getJavaClasses()) {
-			final Code name = Code.of(cl.getName());
-			final IEntity ent1 = classDiagram.getOrCreateLeaf(name, cl.getType(), null);
+			final String idShort = cl.getName();
+			final Code name = diagram.buildCode(idShort);
+			final IEntity ent1 = diagram.getOrCreateLeaf(diagram.buildLeafIdent(idShort), name, cl.getType(), null);
 
 			for (String p : cl.getParents()) {
-				final IEntity ent2 = classDiagram.getOrCreateLeaf(Code.of(p), cl.getParentType(), null);
-				final Link link = new Link(ent2, ent1, new LinkType(LinkDecor.NONE, LinkDecor.EXTENDS), Display.NULL, 2);
-				classDiagram.addLink(link);
+				final IEntity ent2 = diagram.getOrCreateLeaf(diagram.buildLeafIdent(p), diagram.buildCode(p), cl.getParentType(), null);
+				final Link link = new Link(ent2, ent1, new LinkType(LinkDecor.NONE, LinkDecor.EXTENDS), Display.NULL,
+						2, diagram.getSkinParam().getCurrentStyleBuilder());
+				diagram.addLink(link);
 			}
 		}
 	}

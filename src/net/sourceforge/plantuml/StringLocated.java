@@ -46,7 +46,18 @@ final public class StringLocated {
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + s;
+		return s;
+	}
+
+	public StringLocated append(String endOfLine) {
+		return new StringLocated(s + endOfLine, location, preprocessorError);
+	}
+
+	public StringLocated mergeEndBackslash(StringLocated next) {
+		if (StringUtils.endsWithBackslash(s) == false) {
+			throw new IllegalArgumentException();
+		}
+		return new StringLocated(s.substring(0, s.length() - 1) + next.s, location, preprocessorError);
 	}
 
 	public StringLocated(String s, LineLocation location, String preprocessorError) {
@@ -128,4 +139,5 @@ final public class StringLocated {
 		}
 		return fox;
 	}
+
 }

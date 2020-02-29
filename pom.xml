@@ -35,7 +35,7 @@
 
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2019.7-DRAWIO</version>
+    <version>1.2020.2-DRAWIO</version>
     <packaging>jar</packaging>
 
     <name>PlantUML</name>
@@ -116,6 +116,7 @@
                 <directory>${project.basedir}</directory>
                 <includes>
                     <include>stdlib/**/*.repx</include>
+                    <include>skin/**/*.skin</include>
                 </includes>
             </resource>
         </resources>        

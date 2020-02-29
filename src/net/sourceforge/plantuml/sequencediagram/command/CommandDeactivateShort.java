@@ -51,13 +51,14 @@ public class CommandDeactivateShort extends SingleLineCommand2<SequenceDiagram> 
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandDeactivateShort.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("TYPE", "(deactivate)"), //
-				RegexLeaf.spaceZeroOrMore(), RegexLeaf.end());
+				new RegexLeaf("TYPE", "deactivate"), //
+				RegexLeaf.spaceZeroOrMore(), //
+				RegexLeaf.end());
 	}
 
 	@Override
 	protected CommandExecutionResult executeArg(SequenceDiagram sequenceDiagram, LineLocation location, RegexResult arg2) {
-		Message message = sequenceDiagram.getActivatingMessage();
+		Message message = (Message) sequenceDiagram.getActivatingMessage();
 		if (message == null) {
 			return CommandExecutionResult.error("Nothing to deactivate.");
 		}

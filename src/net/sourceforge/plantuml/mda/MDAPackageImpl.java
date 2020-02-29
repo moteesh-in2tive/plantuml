@@ -62,7 +62,7 @@ public class MDAPackageImpl implements MDAPackage {
 		if (group instanceof GroupRoot) {
 			return "";
 		}
-		return group.getCode().getFullName();
+		return group.getCodeGetName();
 	}
 
 }

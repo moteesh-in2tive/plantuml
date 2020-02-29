@@ -229,6 +229,9 @@ public class StringUtils {
 	// }
 
 	public static String eventuallyRemoveStartingAndEndingDoubleQuote(String s, String format) {
+		if (s == null) {
+			return null;
+		}
 		if (format.contains("\"") && s.length() > 1 && isDoubleQuote(s.charAt(0))
 				&& isDoubleQuote(s.charAt(s.length() - 1))) {
 			return s.substring(1, s.length() - 1);
@@ -432,7 +435,8 @@ public class StringUtils {
 		while (matcher.find()) {
 			final String num = matcher.group(1);
 			final int value = Integer.parseInt(num, 16);
-			matcher.appendReplacement(result, new String(Character.toChars(value)));
+			final String replace = new String(Character.toChars(value));
+			matcher.appendReplacement(result, Matcher.quoteReplacement(replace));
 		}
 		matcher.appendTail(result);
 		return result.toString();

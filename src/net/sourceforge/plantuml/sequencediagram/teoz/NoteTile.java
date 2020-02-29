@@ -76,8 +76,8 @@ public class NoteTile extends AbstractTile implements Tile {
 	}
 
 	private Component getComponent(StringBounder stringBounder) {
-		final Component comp = skin.createComponent(getNoteComponentType(note.getStyle()), null,
-				note.getSkinParamBackcolored(skinParam), note.getStrings());
+		final Component comp = skin.createComponent(note.getUsedStyles(), getNoteComponentType(note.getNoteStyle()),
+				null, note.getSkinParamBackcolored(skinParam), note.getStrings());
 		return comp;
 	}
 
@@ -100,7 +100,6 @@ public class NoteTile extends AbstractTile implements Tile {
 
 		ug = ug.apply(new UTranslate(x, 0));
 		comp.drawU(ug, area, (Context2D) ug);
-		// ug.draw(new ULine(x2 - x1, 0));
 	}
 
 	private double getUsedWidth(StringBounder stringBounder) {

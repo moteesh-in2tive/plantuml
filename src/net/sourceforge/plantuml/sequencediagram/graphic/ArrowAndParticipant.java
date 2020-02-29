@@ -104,7 +104,10 @@ class ArrowAndParticipant extends Arrow implements InGroupable {
 		if (arrowHeight > boxHeight) {
 			diff = arrowHeight - boxHeight;
 		}
-		participantBox.drawParticipantHead(ug.apply(new UTranslate(participantBoxStartingX, getStartingY() + diff)));
+		if (context.isBackground() == false) {
+			participantBox
+					.drawParticipantHead(ug.apply(new UTranslate(participantBoxStartingX, getStartingY() + diff)));
+		}
 	}
 
 	private double getDiff(UGraphic ug) {

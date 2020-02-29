@@ -42,6 +42,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.style.StyleBuilder;
 
 class Idea {
 
@@ -51,23 +52,29 @@ class Idea {
 	private final List<Idea> children = new ArrayList<Idea>();
 	private final IdeaShape shape;
 	private final HtmlColor backColor;
+	private final StyleBuilder styleBuilder;
+	private final String stereotype;
 
-	public Idea(Display label, IdeaShape shape) {
-		this(null, 0, null, label, shape);
+	public Idea(StyleBuilder styleBuilder, HtmlColor backColor, Display label, IdeaShape shape, String stereotype) {
+		this(styleBuilder, backColor, 0, null, label, shape, stereotype);
 	}
 
-	public Idea createIdea(HtmlColor backColor, int newLevel, Display newDisplay, IdeaShape newShape) {
-		final Idea result = new Idea(backColor, newLevel, this, newDisplay, newShape);
+	public Idea createIdea(StyleBuilder styleBuilder, HtmlColor backColor, int newLevel, Display newDisplay,
+			IdeaShape newShape, String stereotype) {
+		final Idea result = new Idea(styleBuilder, backColor, newLevel, this, newDisplay, newShape, stereotype);
 		this.children.add(result);
 		return result;
 	}
 
-	private Idea(HtmlColor backColor, int level, Idea parent, Display label, IdeaShape shape) {
+	private Idea(StyleBuilder styleBuilder, HtmlColor backColor, int level, Idea parent, Display label,
+			IdeaShape shape, String stereotype) {
 		this.backColor = backColor;
+		this.styleBuilder = styleBuilder;
 		this.label = label;
 		this.level = level;
 		this.parent = parent;
 		this.shape = shape;
+		this.stereotype = stereotype;
 	}
 
 	@Override
@@ -101,6 +108,14 @@ class Idea {
 
 	public final HtmlColor getBackColor() {
 		return backColor;
+	}
+
+	public final StyleBuilder getStyleBuilder() {
+		return styleBuilder;
+	}
+
+	public final String getStereotype() {
+		return stereotype;
 	}
 
 }

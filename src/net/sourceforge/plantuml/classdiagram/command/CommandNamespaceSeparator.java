@@ -38,6 +38,7 @@ import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexOr;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 
@@ -52,7 +53,9 @@ public class CommandNamespaceSeparator extends SingleLineCommand2<CucaDiagram> {
 				RegexLeaf.start(), //
 				new RegexLeaf("set"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("namespaceseparator"), //
+				new RegexOr( //
+						new RegexLeaf("separator"), //
+						new RegexLeaf("namespaceseparator")), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("SEPARATOR", "(\\S+)"), RegexLeaf.end()); //
 	}

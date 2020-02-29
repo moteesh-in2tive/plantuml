@@ -33,6 +33,8 @@
 package net.sourceforge.plantuml.creole;
 
 import java.awt.geom.Dimension2D;
+import java.util.Arrays;
+import java.util.List;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinSimple;

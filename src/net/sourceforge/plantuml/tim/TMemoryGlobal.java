@@ -47,7 +47,7 @@ import net.sourceforge.plantuml.tim.expression.TValue;
 public class TMemoryGlobal extends ConditionalContexts implements TMemory {
 
 	private final Map<String, TVariable> globalVariables = new HashMap<String, TVariable>();
-	private final Trie variables = new Trie();
+	private final TrieImpl variables = new TrieImpl();
 
 	public TVariable getVariable(String varname) {
 		return this.globalVariables.get(varname);
@@ -63,7 +63,7 @@ public class TMemoryGlobal extends ConditionalContexts implements TMemory {
 		Log.error("[MemGlobal] Number of variable(s) : " + globalVariables.size());
 		for (Entry<String, TVariable> ent : new TreeMap<String, TVariable>(globalVariables).entrySet()) {
 			final String name = ent.getKey();
-			final TValue value = ent.getValue().getValue2();
+			final TValue value = ent.getValue().getValue();
 			Log.error("[MemGlobal] " + name + " = " + value);
 		}
 	}

@@ -36,6 +36,7 @@ import java.awt.font.LineMetrics;
 import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -59,10 +60,10 @@ import net.sourceforge.plantuml.graphic.Splitter;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.openiconic.OpenIcon;
+import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 import net.sourceforge.plantuml.utils.CharHidder;
 
 public class AtomText extends AbstractAtom implements Atom {
@@ -87,6 +88,11 @@ public class AtomText extends AbstractAtom implements Atom {
 		return new AtomText(text, fontConfiguration, null, ZERO, ZERO);
 	}
 
+//	public static AtomText createHeading(String text, FontConfiguration fontConfiguration, int order) {
+//		fontConfiguration = FOO(fontConfiguration, order);
+//		return new AtomText(text, fontConfiguration, null, ZERO, ZERO);
+//	}
+
 	public static Atom createUrl(Url url, FontConfiguration fontConfiguration, ISkinSimple skinSimple) {
 		fontConfiguration = fontConfiguration.hyperlink();
 		final Display display = Display.getWithNewlines(url.getLabel());
@@ -103,8 +109,8 @@ public class AtomText extends AbstractAtom implements Atom {
 
 	private static Atom createAtomText(final String text, Url url, FontConfiguration fontConfiguration,
 			ISkinSimple skinSimple) {
-		final Pattern p = Pattern.compile(Splitter.openiconPattern + "|" + Splitter.spritePattern2 + "|"
-				+ Splitter.imgPatternNoSrcColon);
+		final Pattern p = Pattern.compile(
+				Splitter.openiconPattern + "|" + Splitter.spritePattern2 + "|" + Splitter.imgPatternNoSrcColon);
 		final Matcher m = p.matcher(text);
 		final List<Atom> result = new ArrayList<Atom>();
 		while (m.find()) {
@@ -145,19 +151,6 @@ public class AtomText extends AbstractAtom implements Atom {
 		return new AtomHorizontalTexts(result);
 	}
 
-	public static AtomText createHeading(String text, FontConfiguration fontConfiguration, int order) {
-		if (order == 0) {
-			fontConfiguration = fontConfiguration.bigger(4).bold();
-		} else if (order == 1) {
-			fontConfiguration = fontConfiguration.bigger(2).bold();
-		} else if (order == 2) {
-			fontConfiguration = fontConfiguration.bigger(1).bold();
-		} else {
-			fontConfiguration = fontConfiguration.italic();
-		}
-		return new AtomText(text, fontConfiguration, null, ZERO, ZERO);
-	}
-
 	public static Atom createListNumber(final FontConfiguration fontConfiguration, final int order, int localNumber) {
 		final DelayedDouble left = new DelayedDouble() {
 			public double getDouble(StringBounder stringBounder) {
@@ -179,14 +172,15 @@ public class AtomText extends AbstractAtom implements Atom {
 		return text + " " + fontConfiguration;
 	}
 
-	private AtomText(String text, FontConfiguration style, Url url, DelayedDouble marginLeft, DelayedDouble marginRight) {
+	private AtomText(String text, FontConfiguration style, Url url, DelayedDouble marginLeft,
+			DelayedDouble marginRight) {
 		if (text.contains("" + BackSlash.hiddenNewLine())) {
 			throw new IllegalArgumentException(text);
 		}
 		this.marginLeft = marginLeft;
 		this.marginRight = marginRight;
-		this.text = StringUtils.manageTildeArobaseStart(StringUtils.manageUnicodeNotationUplus(StringUtils
-				.manageAmpDiese(StringUtils.showComparatorCharacters(CharHidder.unhide(text)))));
+		this.text = StringUtils.manageTildeArobaseStart(StringUtils.manageUnicodeNotationUplus(
+				StringUtils.manageAmpDiese(StringUtils.showComparatorCharacters(CharHidder.unhide(text)))));
 		this.fontConfiguration = style;
 		this.url = url;
 	}
@@ -237,42 +231,43 @@ public class AtomText extends AbstractAtom implements Atom {
 	}
 
 	public void drawU(UGraphic ug) {
-		if (ug.matchesProperty("SPECIALTXT")) {
-			ug.draw(this);
-			return;
-		}
 		if (url != null) {
 			ug.startUrl(url);
 		}
-		HtmlColor textColor = fontConfiguration.getColor();
-		FontConfiguration useFontConfiguration = fontConfiguration;
-		if (textColor instanceof HtmlColorAutomatic && ug.getParam().getBackcolor() != null) {
-			textColor = ((HtmlColorSimple) ug.getParam().getBackcolor()).opposite();
-			useFontConfiguration = fontConfiguration.changeColor(textColor);
-		}
-		if (marginLeft != ZERO) {
-			ug = ug.apply(new UTranslate(marginLeft.getDouble(ug.getStringBounder()), 0));
-		}
+		if (ug.matchesProperty("SPECIALTXT")) {
+			ug.draw(this);
+		} else {
+			HtmlColor textColor = fontConfiguration.getColor();
+			FontConfiguration useFontConfiguration = fontConfiguration;
+			if (textColor instanceof HtmlColorAutomatic && ug.getParam().getBackcolor() != null) {
+				textColor = ((HtmlColorSimple) ug.getParam().getBackcolor()).opposite();
+				useFontConfiguration = fontConfiguration.changeColor(textColor);
+			}
+			if (marginLeft != ZERO) {
+				ug = ug.apply(new UTranslate(marginLeft.getDouble(ug.getStringBounder()), 0));
+			}
 
-		final StringTokenizer tokenizer = new StringTokenizer(text, "\t", true);
+			final StringTokenizer tokenizer = new StringTokenizer(text, "\t", true);
 
-		double x = 0;
-		// final int ypos = fontConfiguration.getSpace();
-		final Dimension2D rect = ug.getStringBounder().calculateDimension(fontConfiguration.getFont(), text);
-		final double descent = getDescent();
-		final double ypos = rect.getHeight() - descent;
-		if (tokenizer.hasMoreTokens()) {
-			final double tabSize = getTabSize(ug.getStringBounder());
-			while (tokenizer.hasMoreTokens()) {
-				final String s = tokenizer.nextToken();
-				if (s.equals("\t")) {
-					final double remainder = x % tabSize;
-					x += tabSize - remainder;
-				} else {
-					final UText utext = new UText(s, useFontConfiguration);
-					final Dimension2D dim = ug.getStringBounder().calculateDimension(fontConfiguration.getFont(), s);
-					ug.apply(new UTranslate(x, ypos)).draw(utext);
-					x += dim.getWidth();
+			double x = 0;
+			// final int ypos = fontConfiguration.getSpace();
+			final Dimension2D rect = ug.getStringBounder().calculateDimension(fontConfiguration.getFont(), text);
+			final double descent = getDescent();
+			final double ypos = rect.getHeight() - descent;
+			if (tokenizer.hasMoreTokens()) {
+				final double tabSize = getTabSize(ug.getStringBounder());
+				while (tokenizer.hasMoreTokens()) {
+					final String s = tokenizer.nextToken();
+					if (s.equals("\t")) {
+						final double remainder = x % tabSize;
+						x += tabSize - remainder;
+					} else {
+						final UText utext = new UText(s, useFontConfiguration);
+						final Dimension2D dim = ug.getStringBounder().calculateDimension(fontConfiguration.getFont(),
+								s);
+						ug.apply(new UTranslate(x, ypos)).draw(utext);
+						x += dim.getWidth();
+					}
 				}
 			}
 		}
@@ -332,6 +327,53 @@ public class AtomText extends AbstractAtom implements Atom {
 
 	@Override
 	public List<Atom> splitInTwo(StringBounder stringBounder, double width) {
+		final StringBuilder tmp = new StringBuilder();
+		for (String token : splitted()) {
+			if (tmp.length() > 0 && getWidth(stringBounder, tmp.toString() + token) > width) {
+				final Atom part1 = new AtomText(tmp.toString(), fontConfiguration, url, marginLeft, marginRight);
+				String remain = text.substring(tmp.length());
+				while (remain.startsWith(" ")) {
+					remain = remain.substring(1);
+				}
+
+				final Atom part2 = new AtomText(remain, fontConfiguration, url, marginLeft, marginRight);
+				return Arrays.asList(part1, part2);
+			}
+			tmp.append(token);
+		}
+		return Collections.singletonList((Atom) this);
+	}
+
+	private Collection<String> splitted() {
+		final List<String> result = new ArrayList<String>();
+		for (int i = 0; i < text.length(); i++) {
+			final char ch = text.charAt(i);
+			if (Character.isLetter(ch)) {
+				final StringBuilder tmp = new StringBuilder();
+				tmp.append(ch);
+				while (i + 1 < text.length() && Character.isLetter(text.charAt(i + 1))) {
+					i++;
+					tmp.append(text.charAt(i));
+				}
+				result.add(tmp.toString());
+			} else {
+				result.add("" + text.charAt(i));
+			}
+		}
+		return result;
+	}
+
+	private Collection<String> splittedOld() {
+		final List<String> result = new ArrayList<String>();
+		final StringTokenizer st = new StringTokenizer(text, " ", true);
+		while (st.hasMoreTokens()) {
+			final String token = st.nextToken();
+			result.add(token);
+		}
+		return result;
+	}
+
+	private List<Atom> splitInTwoOld(StringBounder stringBounder, double width) {
 		final StringTokenizer st = new StringTokenizer(text, " ", true);
 		final StringBuilder tmp = new StringBuilder();
 		while (st.hasMoreTokens()) {
@@ -353,27 +395,6 @@ public class AtomText extends AbstractAtom implements Atom {
 
 	private List<String> splitLong1(StringBounder stringBounder, double maxWidth, String add) {
 		return Arrays.asList(add);
-	}
-
-	private List<String> splitLong2(StringBounder stringBounder, double maxWidth, String add) {
-		final List<String> result = new ArrayList<String>();
-		if (getWidth(stringBounder, add) <= maxWidth) {
-			result.add(add);
-			return result;
-		}
-		final StringBuilder current = new StringBuilder();
-		for (int i = 0; i < add.length(); i++) {
-			final char c = add.charAt(i);
-			if (getWidth(stringBounder, current.toString() + c) > maxWidth) {
-				result.add(current.toString());
-				current.setLength(0);
-			}
-			current.append(c);
-		}
-		if (current.length() > 0) {
-			result.add(current.toString());
-		}
-		return result;
 	}
 
 	public final String getText() {

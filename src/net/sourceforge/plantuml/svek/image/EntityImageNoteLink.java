@@ -46,6 +46,8 @@ import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.SimpleContext2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.IEntityImage;
 import net.sourceforge.plantuml.svek.Margins;
 import net.sourceforge.plantuml.svek.ShapeType;
@@ -55,9 +57,11 @@ public class EntityImageNoteLink extends AbstractTextBlock implements IEntityIma
 
 	private final Component comp;
 
-	public EntityImageNoteLink(Display note, Colors colors, ISkinParam skinParam) {
+	public EntityImageNoteLink(Display note, Colors colors, ISkinParam skinParam, StyleBuilder styleBuilder) {
 		final Rose skin = new Rose();
-		comp = skin.createComponent(ComponentType.NOTE, null, colors.mute(skinParam), note);
+		comp = skin.createComponent(
+				new Style[] { ComponentType.NOTE.getDefaultStyleDefinition().getMergedStyle(styleBuilder) },
+				ComponentType.NOTE, null, colors.mute(skinParam), note);
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -85,10 +89,9 @@ public class EntityImageNoteLink extends AbstractTextBlock implements IEntityIma
 	public boolean isHidden() {
 		return false;
 	}
-	
+
 	public double getOverscanX(StringBounder stringBounder) {
 		return 0;
 	}
-
 
 }

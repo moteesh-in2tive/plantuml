@@ -60,7 +60,7 @@ public interface FtileFactory {
 
 	public Ftile end(Swimlane swimlane);
 
-	public Ftile spot(Swimlane swimlane, String spot);
+	public Ftile spot(Swimlane swimlane, String spot, HtmlColor color);
 
 	public Ftile activity(Display label, Swimlane swimlane, BoxStyle style, Colors colors);
 
@@ -74,9 +74,9 @@ public interface FtileFactory {
 
 	public Ftile assembly(Ftile tile1, Ftile tile2);
 
-	public Ftile repeat(Swimlane swimlane, Swimlane swimlaneOut, Display startLabel, Ftile repeat, Display test,
-			Display yes, Display out, HtmlColor color, LinkRendering backRepeatLinkRendering, Ftile backward,
-			boolean noOut);
+	public Ftile repeat(BoxStyle boxStyleIn, Swimlane swimlane, Swimlane swimlaneOut, Display startLabel, Ftile repeat,
+			Display test, Display yes, Display out, Colors colors, LinkRendering backRepeatLinkRendering,
+			Ftile backward, boolean noOut);
 
 	public Ftile createWhile(Swimlane swimlane, Ftile whileBlock, Display test, Display yes, Display out,
 			LinkRendering afterEndwhile, HtmlColor color, Instruction specialOut);
@@ -87,7 +87,7 @@ public interface FtileFactory {
 	public Ftile createSwitch(Swimlane swimlane, List<Branch> branches, LinkRendering afterEndwhile,
 			LinkRendering topInlinkRendering, Display labelTest);
 
-	public Ftile createParallel(Swimlane swimlane, List<Ftile> all, ForkStyle style, String label);
+	public Ftile createParallel(List<Ftile> all, ForkStyle style, String label, Swimlane in, Swimlane out);
 
 	public Ftile createGroup(Ftile list, Display name, HtmlColor backColor, HtmlColor titleColor, PositionedNote note,
 			HtmlColor borderColor, USymbol type, double roundCorner);

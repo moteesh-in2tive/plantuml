@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.classdiagram.command;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -49,6 +50,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotag;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -71,15 +73,44 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 	}
 
 	private static RegexConcat getRegexConcat(Mode mode) {
-
-		// String regex = "(?:(actor|usecase|component)[%s]+)";
-		String regex = "(?:(state|" + CommandCreateElementFull.ALL_TYPES + ")[%s]+)";
+		String regex = "(state|" + CommandCreateElementFull.ALL_TYPES + ")";
 		if (mode == Mode.WITH_MIX_PREFIX) {
-			regex = "mix_" + regex;
+			return RegexConcat.build(CommandCreateElementFull2.class.getName() + mode, //
+					RegexLeaf.start(), //
+					new RegexLeaf("mix_"), //
+					new RegexLeaf("SYMBOL", regex), //
+					RegexLeaf.spaceOneOrMore(), //
+					new RegexOr(//
+							new RegexLeaf("CODE1", CommandCreateElementFull.CODE_WITH_QUOTE), //
+							new RegexConcat(//
+									new RegexLeaf("DISPLAY2", CommandCreateElementFull.DISPLAY), //
+									new RegexOptional( //
+											new RegexConcat( //
+													RegexLeaf.spaceOneOrMore(), //
+													new RegexLeaf("STEREOTYPE2", "(\\<\\<.+\\>\\>)") //
+											)), //
+									RegexLeaf.spaceZeroOrMore(), //
+									new RegexLeaf("as"), //
+									RegexLeaf.spaceOneOrMore(), //
+									new RegexLeaf("CODE2", CommandCreateElementFull.CODE)) //
+					), //
+					new RegexOptional( //
+							new RegexConcat( //
+									RegexLeaf.spaceZeroOrMore(), //
+									new RegexLeaf("STEREOTYPE", "(\\<\\<.+\\>\\>)")//
+							)), //
+					RegexLeaf.spaceZeroOrMore(), //
+					new RegexLeaf("TAGS", Stereotag.pattern() + "?"), //
+					RegexLeaf.spaceZeroOrMore(), //
+					new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
+					RegexLeaf.spaceZeroOrMore(), //
+					ColorParser.exp1(), //
+					RegexLeaf.end());
 		}
-		return RegexConcat.build(CommandCreateElementFull2.class.getName() + mode, RegexLeaf.start(), //
+		return RegexConcat.build(CommandCreateElementFull2.class.getName() + mode, //
+				RegexLeaf.start(), //
 				new RegexLeaf("SYMBOL", regex), //
-				RegexLeaf.spaceZeroOrMore(), //
+				RegexLeaf.spaceOneOrMore(), //
 				new RegexOr(//
 						new RegexLeaf("CODE1", CommandCreateElementFull.CODE_WITH_QUOTE), //
 						new RegexConcat(//
@@ -104,7 +135,8 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				ColorParser.exp1(), RegexLeaf.end());
+				ColorParser.exp1(), //
+				RegexLeaf.end());
 	}
 
 	@Override
@@ -143,7 +175,7 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 
 		if (symbol == null) {
 			type = LeafType.DESCRIPTION;
-			usymbol = USymbol.ACTOR;
+			usymbol = diagram.getSkinParam().getActorStyle().getUSymbol();
 		} else if (symbol.equalsIgnoreCase("usecase")) {
 			type = LeafType.USECASE;
 			usymbol = null;
@@ -152,20 +184,22 @@ public class CommandCreateElementFull2 extends SingleLineCommand2<ClassDiagram> 
 			usymbol = null;
 		} else {
 			type = LeafType.DESCRIPTION;
-			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam().useUml2ForComponent());
+			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}
 		}
 
-		final Code code = Code.of(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw));
+		final String idShort = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw);
+		final Ident ident = diagram.buildLeafIdent(idShort);
+		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
 		String display = displayRaw;
 		if (display == null) {
-			display = code.getFullName();
+			display = code.getName();
 		}
 		display = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(display);
 		final String stereotype = arg.getLazzy("STEREOTYPE", 0);
-		final IEntity entity = diagram.getOrCreateLeaf(code, type, usymbol);
+		final IEntity entity = diagram.getOrCreateLeaf(ident, code, type, usymbol);
 		entity.setDisplay(Display.getWithNewlines(display));
 		entity.setUSymbol(usymbol);
 		if (stereotype != null) {

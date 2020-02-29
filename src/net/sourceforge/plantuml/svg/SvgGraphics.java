@@ -56,6 +56,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.OptionFlags;
+import net.sourceforge.plantuml.SignatureUtils;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.SvgString;
 import net.sourceforge.plantuml.code.Base64Coder;
@@ -86,8 +87,11 @@ public class SvgGraphics {
 	// http://www.w3schools.com/svg/svg_feoffset.asp
 	// http://www.adobe.com/svg/demos/samples.html
 
-	private static final String XLINK_HREF = "href";
-	
+	private static final String XLINK_TITLE1 = "title";
+	private static final String XLINK_TITLE2 = "xlink:title";
+	private static final String XLINK_HREF1 = "href";
+	private static final String XLINK_HREF2 = "xlink:href";
+
 	final private Document document;
 	final private Element root;
 	final private Element defs;
@@ -101,6 +105,8 @@ public class SvgGraphics {
 
 	private int maxX = 10;
 	private int maxY = 10;
+
+	private final String preserveAspectRatio;
 
 	private final double scale;
 	private final String filterUid;
@@ -117,17 +123,19 @@ public class SvgGraphics {
 		}
 	}
 
-	public SvgGraphics(boolean svgDimensionStyle, Dimension2D minDim, double scale, String hover, long seed) {
-		this(svgDimensionStyle, minDim, null, scale, hover, seed);
+	public SvgGraphics(boolean svgDimensionStyle, Dimension2D minDim, double scale, String hover, long seed,
+			String preserveAspectRatio) {
+		this(svgDimensionStyle, minDim, null, scale, hover, seed, preserveAspectRatio);
 	}
 
 	public SvgGraphics(boolean svgDimensionStyle, Dimension2D minDim, String backcolor, double scale, String hover,
-			long seed) {
+			long seed, String preserveAspectRatio) {
 		try {
 			this.svgDimensionStyle = svgDimensionStyle;
 			this.scale = scale;
 			this.document = getDocument();
 			this.backcolor = backcolor;
+			this.preserveAspectRatio = preserveAspectRatio;
 			ensureVisible(minDim.getWidth(), minDim.getHeight());
 
 			this.root = getRootNode();
@@ -325,15 +333,18 @@ public class SvgGraphics {
 
 		pendingAction.add(0, (Element) document.createElement("a"));
 		pendingAction.get(0).setAttribute("target", target);
-		pendingAction.get(0).setAttribute(XLINK_HREF, url);
+		pendingAction.get(0).setAttribute(XLINK_HREF1, url);
+		pendingAction.get(0).setAttribute(XLINK_HREF2, url);
 		pendingAction.get(0).setAttribute("xlink:type", "simple");
 		pendingAction.get(0).setAttribute("xlink:actuate", "onRequest");
 		pendingAction.get(0).setAttribute("xlink:show", "new");
 		if (title == null) {
-			pendingAction.get(0).setAttribute("xlink:title", url);
+			pendingAction.get(0).setAttribute(XLINK_TITLE1, url);
+			pendingAction.get(0).setAttribute(XLINK_TITLE2, url);
 		} else {
 			title = title.replaceAll("\\\\n", "\n");
-			pendingAction.get(0).setAttribute("xlink:title", title);
+			pendingAction.get(0).setAttribute(XLINK_TITLE1, title);
+			pendingAction.get(0).setAttribute(XLINK_TITLE2, title);
 		}
 	}
 
@@ -524,13 +535,13 @@ public class SvgGraphics {
 	private Transformer getTransformer() throws TransformerException {
 		// Get a TransformerFactory object.
 		TransformerFactory xformFactory = null;
-		try {
-			final Class<?> factoryClass = Class
-					.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
-			xformFactory = (TransformerFactory) factoryClass.newInstance();
-		} catch (Exception e) {
+//		try {
+//			final Class<?> factoryClass = Class
+//					.forName("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
+//			xformFactory = (TransformerFactory) factoryClass.newInstance();
+//		} catch (Exception e) {
 			xformFactory = TransformerFactory.newInstance();
-		}
+//		}
 		Log.info("TransformerFactory=" + xformFactory.getClass());
 
 		// Get an XSL Transformer object.
@@ -584,7 +595,7 @@ public class SvgGraphics {
 		}
 		root.setAttribute("viewBox", "0 0 " + maxXscaled + " " + maxYscaled);
 		root.setAttribute("zoomAndPan", "magnify");
-		root.setAttribute("preserveAspectRatio", "none");
+		root.setAttribute("preserveAspectRatio", preserveAspectRatio);
 		root.setAttribute("contentScriptType", "application/ecmascript");
 		root.setAttribute("contentStyleType", "text/css");
 
@@ -804,7 +815,15 @@ public class SvgGraphics {
 		this.hidden = hidden;
 	}
 
+	public static final String MD5_HEADER = "<!--MD5=[";
+
+	public static String getMD5Hex(String comment) {
+		return SignatureUtils.getMD5Hex(comment);
+	}
+
 	public void addComment(String comment) {
+		final String signature = getMD5Hex(comment);
+		comment = "MD5=[" + signature + "]\n" + comment;
 		final Comment commentElement = document.createComment(comment);
 		getG().appendChild(commentElement);
 	}

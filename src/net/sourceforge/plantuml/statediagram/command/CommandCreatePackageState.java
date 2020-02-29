@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.statediagram.command;
 
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.UrlBuilder.ModeUrl;
@@ -49,6 +50,7 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.GroupType;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.NamespaceStrategy;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.HtmlColor;
@@ -106,12 +108,14 @@ public class CommandCreatePackageState extends SingleLineCommand2<StateDiagram> 
 	@Override
 	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) {
 		final IGroup currentPackage = diagram.getCurrentGroup();
-		final Code code = Code.of(getNotNull(arg, "CODE1", "CODE2"));
+		final String idShort = getNotNull(arg, "CODE1", "CODE2");
+		final Ident idNewLong = diagram.buildLeafIdentSpecial(idShort);
+		final Code code = diagram.V1972() ? idNewLong : diagram.buildCode(idShort);
 		String display = getNotNull(arg, "DISPLAY1", "DISPLAY2");
 		if (display == null) {
-			display = code.getFullName();
+			display = code.getName();
 		}
-		diagram.gotoGroup2(code, Display.getWithNewlines(display), GroupType.STATE, currentPackage,
+		diagram.gotoGroup(idNewLong, code, Display.getWithNewlines(display), GroupType.STATE, currentPackage,
 				NamespaceStrategy.SINGLE);
 		final IEntity p = diagram.getCurrentGroup();
 		final String stereotype = arg.get("STEREOTYPE", 0);

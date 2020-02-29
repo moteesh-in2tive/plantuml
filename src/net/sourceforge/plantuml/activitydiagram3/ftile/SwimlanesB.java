@@ -37,12 +37,13 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.Pragma;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
-import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -63,10 +64,14 @@ public class SwimlanesB extends SwimlanesA {
 
 		final StringBounder stringBounder = ug.getStringBounder();
 
-		final HtmlColor color = skinParam.getHtmlColor(ColorParam.swimlaneTitleBackground, null, false);
+		HtmlColor color = skinParam.getHtmlColor(ColorParam.swimlaneTitleBackground, null, false);
+		if (SkinParam.USE_STYLES()) {
+			color = getStyle().value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
+		}
 		if (color != null) {
 			final double titleHeight = getTitlesHeight(stringBounder);
 			final URectangle back = new URectangle(getTitlesWidth(stringBounder), titleHeight);
+			back.setIgnoreForCompression(true);
 			ug.apply(new UChangeBackColor(color)).apply(new UChangeColor(color)).draw(back);
 		}
 		for (Swimlane swimlane : swimlanes) {
@@ -87,14 +92,18 @@ public class SwimlanesB extends SwimlanesA {
 	}
 
 	private TextBlock getTitle(Swimlane swimlane) {
-		final FontConfiguration fontConfiguration = new FontConfiguration(skinParam, FontParam.SWIMLANE_TITLE, null);
+		final HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
+		FontConfiguration fontConfiguration = new FontConfiguration(skinParam, FontParam.SWIMLANE_TITLE, null);
+		if (SkinParam.USE_STYLES()) {
+			fontConfiguration = getStyle().getFontConfiguration(skinParam.getIHtmlColorSet());
+		}
 
 		LineBreakStrategy wrap = getWrap();
 		if (wrap.isAuto()) {
 			wrap = new LineBreakStrategy("" + ((int) swimlane.getActualWidth()));
 		}
 
-		return swimlane.getDisplay().create(fontConfiguration, HorizontalAlignment.LEFT, skinParam, wrap);
+		return swimlane.getDisplay().create(fontConfiguration, horizontalAlignment, skinParam, wrap);
 	}
 
 	private LineBreakStrategy getWrap() {

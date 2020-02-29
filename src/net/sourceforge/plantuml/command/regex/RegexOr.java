@@ -57,7 +57,7 @@ public class RegexOr extends RegexComposed implements IRegex {
 		if (name == null) {
 			sb.append("?:");
 		}
-		for (IRegex p : partials) {
+		for (IRegex p : partials()) {
 			sb.append(p.getPattern());
 			sb.append("|");
 		}

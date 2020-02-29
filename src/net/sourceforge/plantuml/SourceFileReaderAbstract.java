@@ -144,6 +144,7 @@ public abstract class SourceFileReaderAbstract {
 			try {
 				system = blockUml.getDiagram();
 			} catch (Throwable t) {
+				t.printStackTrace();
 				return getCrashedImage(blockUml, t, suggested.getFile(0));
 			}
 

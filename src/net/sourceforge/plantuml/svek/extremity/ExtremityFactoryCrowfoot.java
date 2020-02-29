@@ -47,7 +47,8 @@ public class ExtremityFactoryCrowfoot extends AbstractExtremityFactory implement
 
 	@Override
 	public UDrawable createUDrawable(Point2D p0, double angle, Side side) {
-		throw new UnsupportedOperationException(getClass().toString());
+		angle -= Math.PI / 2;
+		return new ExtremityCrowfoot(p0, angle, side);
 	}
 
 }

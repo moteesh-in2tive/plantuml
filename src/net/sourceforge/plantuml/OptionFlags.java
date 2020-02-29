@@ -52,6 +52,10 @@ public class OptionFlags {
 
 	static public boolean ALLOW_INCLUDE = true;
 
+	static public void setAllowIncludeFalse() {
+		ALLOW_INCLUDE = false;
+	}
+
 	static public void setMaxPixel(int max) {
 		ImageBuilder.setMaxPixel(max);
 	}

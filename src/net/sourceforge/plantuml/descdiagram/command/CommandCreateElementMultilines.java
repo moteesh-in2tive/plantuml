@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.descdiagram.command;
 import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UrlBuilder;
@@ -51,6 +52,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.USymbol;
@@ -92,7 +94,12 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					ColorParser.exp1(), //
-					RegexLeaf.spaceZeroOrMore(), new RegexLeaf("DESC", "as[%s]*[%g]([^%g]*)"), RegexLeaf.end());
+					RegexLeaf.spaceZeroOrMore(), //
+					new RegexLeaf("as"), //
+					RegexLeaf.spaceZeroOrMore(), //
+					new RegexLeaf("[%g]"), //
+					new RegexLeaf("DESC", "([^%g]*)"), //
+					RegexLeaf.end());
 		}
 		if (type == 1) {
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
@@ -104,7 +111,10 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 					new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					ColorParser.exp1(), //
-					RegexLeaf.spaceZeroOrMore(), new RegexLeaf("DESC", "\\[(.*)"), RegexLeaf.end());
+					RegexLeaf.spaceZeroOrMore(), //
+					new RegexLeaf("\\["), //
+					new RegexLeaf("DESC", "(.*)"), //
+					RegexLeaf.end());
 		}
 		throw new IllegalArgumentException();
 	}
@@ -121,14 +131,14 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 			type = LeafType.USECASE;
 			usymbol = null;
 		} else {
-			usymbol = USymbol.getFromString(symbol);
+			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam().getActorStyle());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}
 			type = LeafType.DESCRIPTION;
 		}
 
-		final Code code = Code.of(line0.get("CODE", 0));
+		final String idShort = line0.get("CODE", 0);
 		final List<String> lineLast = StringUtils.getSplit(MyPattern.cmpile(getPatternEnd()), lines.getLast499()
 				.getString());
 		lines = lines.subExtract(1, 1);
@@ -144,12 +154,14 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 
 		final String stereotype = line0.get("STEREO", 0);
 
-		if (CommandCreateElementFull.existsWithBadType(diagram, code, type, usymbol)) {
-			return CommandExecutionResult.error("This element (" + code.getFullName() + ") is already defined");
+		final Ident ident = diagram.buildLeafIdent(idShort);
+		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
+		if (CommandCreateElementFull.existsWithBadType3(diagram, code, ident, type, usymbol)) {
+			return CommandExecutionResult.error("This element (" + code.getName() + ") is already defined");
 		}
-		final ILeaf result = diagram.createLeaf(code, display, type, usymbol);
+		final ILeaf result = diagram.createLeaf(ident, code, display, type, usymbol);
 		if (result == null) {
-			return CommandExecutionResult.error("This element (" + code.getFullName() + ") is already defined");
+			return CommandExecutionResult.error("This element (" + code.getName() + ") is already defined");
 		}
 		result.setUSymbol(usymbol);
 		if (stereotype != null) {

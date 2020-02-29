@@ -33,6 +33,8 @@
 package net.sourceforge.plantuml;
 
 import java.awt.Font;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
@@ -58,7 +61,15 @@ import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.skin.ActorStyle;
 import net.sourceforge.plantuml.skin.ArrowDirection;
+import net.sourceforge.plantuml.skin.Padder;
+import net.sourceforge.plantuml.sprite.Sprite;
+import net.sourceforge.plantuml.sprite.SpriteImage;
+import net.sourceforge.plantuml.style.FromSkinparamToStyle;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleLoader;
 import net.sourceforge.plantuml.svek.ConditionEndStyle;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
@@ -69,10 +80,78 @@ import net.sourceforge.plantuml.ugraphic.ColorMapperReverse;
 import net.sourceforge.plantuml.ugraphic.ColorOrder;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
-import net.sourceforge.plantuml.ugraphic.sprite.SpriteImage;
 
 public class SkinParam implements ISkinParam {
+
+	// private String skin = "debug.skin";
+
+	private String skin = "plantuml.skin";
+
+	private SkinParam(UmlDiagramType type) {
+		USE_STYLE2.set(false);
+		this.type = type;
+		if (type == UmlDiagramType.MINDMAP) {
+			USE_STYLE2.set(true);
+		}
+		if (type == UmlDiagramType.WBS) {
+			USE_STYLE2.set(true);
+		}
+		if (type == UmlDiagramType.SEQUENCE) {
+			// skin = "debug.skin";
+			// USE_STYLE2.set(true);
+		}
+		// if (type == UmlDiagramType.ACTIVITY) {
+		// // skin = "debug.skin";
+		// USE_STYLE2.set(true);
+		// }
+	}
+
+	private StyleBuilder styleBuilder;
+
+	public StyleBuilder getCurrentStyleBuilder() {
+		if (styleBuilder == null && SkinParam.USE_STYLES()) {
+			try {
+				this.styleBuilder = getCurrentStyleBuilderInternal();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return styleBuilder;
+	}
+
+	public void muteStyle(Style modifiedStyle) {
+		if (SkinParam.USE_STYLES()) {
+			styleBuilder = getCurrentStyleBuilder().muteStyle(modifiedStyle);
+		}
+	}
+
+	public String getDefaultSkin() {
+		return skin;
+	}
+
+	public void setDefaultSkin(String newSkin) {
+		this.skin = newSkin;
+	}
+
+	public StyleBuilder getCurrentStyleBuilderInternal() throws IOException {
+		final StyleLoader tmp = new StyleLoader(this);
+		StyleBuilder result = tmp.loadSkin(this.getDefaultSkin());
+		if (result == null) {
+			result = tmp.loadSkin("plantuml.skin");
+		}
+
+		return result;
+	}
+
+	private static ThreadLocal<Boolean> USE_STYLE2 = new ThreadLocal<Boolean>();
+
+	static public boolean USE_STYLES() {
+		final Boolean result = USE_STYLE2.get();
+		if (result == null) {
+			return false;
+		}
+		return result;
+	}
 
 	private static final String stereoPatternString = "\\<\\<(.*?)\\>\\>";
 	private static final Pattern2 stereoPattern = MyPattern.cmpile(stereoPatternString);
@@ -93,11 +172,30 @@ public class SkinParam implements ISkinParam {
 	public void setParam(String key, String value) {
 		for (String key2 : cleanForKey(key)) {
 			params.put(key2, StringUtils.trin(value));
+			if (key2.startsWith("usebetastyle")) {
+				USE_STYLE2.set("true".equalsIgnoreCase(value));
+			}
+			if (USE_STYLES()) {
+				final FromSkinparamToStyle convertor = new FromSkinparamToStyle(key2, value, getCurrentStyleBuilder());
+				for (Style style : convertor.getStyles()) {
+					muteStyle(style);
+				}
+			}
 		}
-	}
-
-	private SkinParam(UmlDiagramType type) {
-		this.type = type;
+		if ("style".equalsIgnoreCase(key) && "strictuml".equalsIgnoreCase(value)) {
+			if (USE_STYLES()) {
+				final InputStream internalIs = StyleLoader.class.getResourceAsStream("/skin/strictuml.skin");
+				final StyleBuilder styleBuilder = this.getCurrentStyleBuilder();
+				try {
+					final BlocLines lines = BlocLines.load(internalIs, null);
+					for (Style modifiedStyle : StyleLoader.getDeclaredStyles(lines, styleBuilder)) {
+						this.muteStyle(modifiedStyle);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public static SkinParam create(UmlDiagramType type) {
@@ -666,6 +764,10 @@ public class SkinParam implements ISkinParam {
 
 	private final Map<String, Sprite> sprites = new HashMap<String, Sprite>();
 
+	public Collection<String> getAllSpriteNames() {
+		return Collections.unmodifiableCollection(new TreeSet<String>(sprites.keySet()));
+	}
+
 	public void addSprite(String name, Sprite sprite) {
 		sprites.put(name, sprite);
 	}
@@ -942,6 +1044,14 @@ public class SkinParam implements ISkinParam {
 		return value;
 	}
 
+	public String getPreserveAspectRatio() {
+		final String value = getValue("preserveaspectratio");
+		if (value == null) {
+			return "none";
+		}
+		return value;
+	}
+
 	public String getMonospacedFamily() {
 		final String value = getValue("defaultMonospacedFontName");
 		if (value == null) {
@@ -1012,15 +1122,17 @@ public class SkinParam implements ISkinParam {
 	}
 
 	public double getPadding() {
-		final String value = getValue("padding");
-		if (value != null && value.matches("\\d+(\\.\\d+)?")) {
-			return Double.parseDouble(value);
-		}
-		return 0;
+		final String name = "padding";
+		return getAsDouble(name);
 	}
 
 	public double getPadding(PaddingParam param) {
-		final String value = getValue(param.getSkinName());
+		final String name = param.getSkinName();
+		return getAsDouble(name);
+	}
+
+	private double getAsDouble(final String name) {
+		final String value = getValue(name);
 		if (value != null && value.matches("\\d+(\\.\\d+)?")) {
 			return Double.parseDouble(value);
 		}
@@ -1074,6 +1186,29 @@ public class SkinParam implements ISkinParam {
 
 	public boolean isUseVizJs() {
 		return useVizJs;
+	}
+
+	public Padder getSequenceDiagramPadder() {
+		final double padding = getAsDouble("SequenceMessagePadding");
+		final double margin = getAsDouble("SequenceMessageMargin");
+		final String borderColor = getValue("SequenceMessageBorderColor");
+		final String backgroundColor = getValue("SequenceMessageBackGroundColor");
+		if (padding == 0 && margin == 0 && borderColor == null && backgroundColor == null) {
+			return Padder.NONE;
+		}
+		final HtmlColor border = getIHtmlColorSet().getColorIfValid(borderColor);
+		final HtmlColor background = getIHtmlColorSet().getColorIfValid(backgroundColor);
+		final double roundCorner = getRoundCorner(CornerParam.DEFAULT, null);
+		return Padder.NONE.withMargin(margin).withPadding(padding).withBackgroundColor(background)
+				.withBorderColor(border).withRoundCorner(roundCorner);
+	}
+
+	public ActorStyle getActorStyle() {
+		final String value = getValue("actorstyle");
+		if ("awesome".equalsIgnoreCase(value)) {
+			return ActorStyle.AWESOME;
+		}
+		return ActorStyle.STICKMAN;
 	}
 
 }

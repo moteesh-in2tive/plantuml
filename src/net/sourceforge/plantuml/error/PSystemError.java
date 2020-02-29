@@ -161,7 +161,6 @@ public abstract class PSystemError extends AbstractPSystem {
 			return new ImageDataSimple(1, 1);
 
 		}
-		// final boolean useRed = fileFormat.isUseRedForError();
 		final TextBlockBackcolored result = getGraphicalFormatted();
 
 		TextBlock udrawable;
@@ -182,13 +181,6 @@ public abstract class PSystemError extends AbstractPSystem {
 		}
 	}
 
-	// private String getRed(boolean useRed) {
-	// if (useRed) {
-	// return "#CD0A0A";
-	// }
-	// return "red";
-	// }
-	//
 	final public DiagramDescription getDescription() {
 		return new DiagramDescription("(Error)");
 	}

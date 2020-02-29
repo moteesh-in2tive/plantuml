@@ -46,13 +46,13 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 public enum BoxStyle {
 	PLAIN {
 		@Override
-		protected Shadowable getShape(double width, double height) {
-			return new URectangle(width, height, CORNER, CORNER);
+		protected Shadowable getShape(double width, double height, double roundCorner) {
+			return new URectangle(width, height, roundCorner, roundCorner);
 		}
 	},
 	SDL_INPUT('<') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
 			result.addPoint(0, 0);
 			result.addPoint(width + DELTA_INPUT_OUTPUT, 0);
@@ -64,7 +64,7 @@ public enum BoxStyle {
 	},
 	SDL_OUTPUT('>') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
 			result.addPoint(0.0, 0.0);
 			result.addPoint(width, 0.0);
@@ -76,11 +76,9 @@ public enum BoxStyle {
 	},
 	SDL_PROCEDURE('|') {
 		@Override
-		protected void drawInternal(UGraphic ug, double width, double height, boolean shadowing) {
+		protected void drawInternal(UGraphic ug, double width, double height, double shadowing, double roundCorner) {
 			final URectangle rect = new URectangle(width, height);
-			if (shadowing) {
-				rect.setDeltaShadow(3);
-			}
+			rect.setDeltaShadow(shadowing);
 			ug.draw(rect);
 			final ULine vline = new ULine(0, height);
 			ug.apply(new UTranslate(PADDING, 0)).draw(vline);
@@ -89,7 +87,7 @@ public enum BoxStyle {
 	},
 	SDL_SAVE('\\') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
 			result.addPoint(0.0, 0.0);
 			result.addPoint(width - DELTA_INPUT_OUTPUT, 0.0);
@@ -100,7 +98,7 @@ public enum BoxStyle {
 	},
 	SDL_ANTISAVE('/') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
 			result.addPoint(DELTA_INPUT_OUTPUT, 0.0);
 			result.addPoint(width, 0.0);
@@ -111,7 +109,7 @@ public enum BoxStyle {
 	},
 	SDL_CONTINUOUS('}') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPath result = new UPath();
 			final double c1[] = { DELTA_CONTINUOUS, 0 };
 			final double c2[] = { 0, height / 2 };
@@ -133,12 +131,11 @@ public enum BoxStyle {
 	},
 	SDL_TASK(']') {
 		@Override
-		protected Shadowable getShape(double width, double height) {
+		protected Shadowable getShape(double width, double height, double roundCorner) {
 			return new URectangle(width, height);
 		}
 	};
 
-	private static final int CORNER = 25;
 	private final char style;
 	private static int DELTA_INPUT_OUTPUT = 10;
 	private static double DELTA_CONTINUOUS = 5.0;
@@ -161,23 +158,22 @@ public enum BoxStyle {
 		return PLAIN;
 	}
 
-	public final UDrawable getUDrawable(final double width, final double height, final boolean shadowing) {
+	public final UDrawable getUDrawable(final double width, final double height, final double shadowing,
+			final double roundCorner) {
 		return new UDrawable() {
 			public void drawU(UGraphic ug) {
-				drawInternal(ug, width, height, shadowing);
+				drawInternal(ug, width, height, shadowing, roundCorner);
 			}
 		};
 	}
 
-	protected Shadowable getShape(double width, double height) {
+	protected Shadowable getShape(double width, double height, double roundCorner) {
 		return null;
 	}
 
-	protected void drawInternal(UGraphic ug, double width, double height, boolean shadowing) {
-		final Shadowable s = getShape(width, height);
-		if (shadowing) {
-			s.setDeltaShadow(3);
-		}
+	protected void drawInternal(UGraphic ug, double width, double height, double shadowing, double roundCorner) {
+		final Shadowable s = getShape(width, height, roundCorner);
+		s.setDeltaShadow(shadowing);
 		ug.draw(s);
 
 	}

@@ -51,6 +51,8 @@ import net.sourceforge.plantuml.error.PSystemError;
 import net.sourceforge.plantuml.error.PSystemErrorUtils;
 import net.sourceforge.plantuml.sequencediagram.command.CommandSkin;
 import net.sourceforge.plantuml.statediagram.command.CommandHideEmptyDescription;
+import net.sourceforge.plantuml.style.CommandStyleImport;
+import net.sourceforge.plantuml.style.CommandStyleMultilinesCSS;
 import net.sourceforge.plantuml.utils.StartUtils;
 import net.sourceforge.plantuml.version.IteratorCounter2;
 
@@ -64,7 +66,6 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 
 	protected UmlDiagramFactory(DiagramType type) {
 		super(type);
-		// cmds = createCommands();
 	}
 
 	final public Diagram createSystem(UmlSource source) {
@@ -215,10 +216,12 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		addTitleCommands(cmds);
 		addCommonCommands2(cmds);
 		addCommonHides(cmds);
-
+		cmds.add(new CommandStyleMultilinesCSS());
+		cmds.add(new CommandStyleImport());
 	}
 
 	final protected void addCommonCommands2(List<Command> cmds) {
+		// cmds.add(new CommandListSprite());
 		cmds.add(new CommandNope());
 		cmds.add(new CommandPragma());
 
@@ -235,7 +238,7 @@ public abstract class UmlDiagramFactory extends PSystemAbstractFactory {
 		cmds.add(new CommandScaleMaxWidthAndHeight());
 		cmds.add(new CommandAffineTransform());
 		cmds.add(new CommandAffineTransformMultiline());
-		final FactorySpriteCommand factorySpriteCommand = new FactorySpriteCommand();
+		final CommandFactorySprite factorySpriteCommand = new CommandFactorySprite();
 		cmds.add(factorySpriteCommand.createMultiLine(false));
 		cmds.add(factorySpriteCommand.createSingleLine());
 		cmds.add(new CommandSpriteFile());

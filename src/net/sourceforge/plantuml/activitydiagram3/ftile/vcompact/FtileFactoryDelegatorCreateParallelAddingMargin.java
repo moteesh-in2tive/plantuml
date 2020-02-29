@@ -54,9 +54,9 @@ public class FtileFactoryDelegatorCreateParallelAddingMargin extends FtileFactor
 	}
 
 	@Override
-	public Ftile createParallel(Swimlane swimlane, List<Ftile> all, ForkStyle style, String label) {
+	public Ftile createParallel(List<Ftile> all, ForkStyle style, String label, Swimlane in, Swimlane out) {
 
-		final Dimension2D dimSuper = super.createParallel(swimlane, all, style, label).calculateDimension(
+		final Dimension2D dimSuper = super.createParallel(all, style, label, in, out).calculateDimension(
 				getStringBounder());
 		final double height1 = dimSuper.getHeight() + 2 * spaceArroundBlackBar;
 
@@ -64,7 +64,7 @@ public class FtileFactoryDelegatorCreateParallelAddingMargin extends FtileFactor
 		for (Ftile tmp : all) {
 			list.add(new FtileHeightFixed(FtileUtils.addHorizontalMargin(tmp, xMargin), height1));
 		}
-		return super.createParallel(swimlane, list, style, label);
+		return super.createParallel(list, style, label, in, out);
 	}
 
 }

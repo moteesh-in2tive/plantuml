@@ -48,5 +48,4 @@ public interface IRegex {
 	public boolean match(StringLocated full);
 
 	public RegexResult matcher(String full);
-
 }

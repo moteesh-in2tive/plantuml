@@ -85,7 +85,7 @@ public class InstructionSplit implements Instruction {
 		for (InstructionList list : splits) {
 			all.add(list.createFtile(factory));
 		}
-		return factory.createParallel(getSwimlaneIn(), all, ForkStyle.SPLIT, null);
+		return factory.createParallel(all, ForkStyle.SPLIT, null, swimlaneIn, swimlaneOut);
 	}
 
 	public Instruction getParent() {

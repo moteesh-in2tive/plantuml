@@ -43,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -76,7 +77,6 @@ import net.sourceforge.plantuml.graphic.HtmlColorSimple;
 import net.sourceforge.plantuml.graphic.HtmlColorTransparent;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.mjpeg.MJPEGGenerator;
 import net.sourceforge.plantuml.skin.rose.Rose;
@@ -111,6 +111,7 @@ public class ImageBuilder {
 	private double borderCorner;
 
 	private boolean svgDimensionStyle;
+	private boolean randomPixel;
 
 	public ImageBuilder(ColorMapper colorMapper, double dpiFactor, HtmlColor mybackcolor, String metadata,
 			String warningOrError, double margin1, double margin2, Animation animation, boolean useHandwritten) {
@@ -244,6 +245,9 @@ public class ImageBuilder {
 								- externalMargin() - borderStroke.getThickness(), borderCorner, borderCorner);
 				ug2.apply(new UChangeColor(color)).apply(borderStroke).draw(shape);
 			}
+			if (randomPixel) {
+				drawRandomPoint(ug2);
+			}
 			if (externalMargin1 > 0) {
 				ug2 = ug2.apply(new UTranslate(externalMargin2, externalMargin2));
 			}
@@ -270,19 +274,30 @@ public class ImageBuilder {
 
 	}
 
+	private void drawRandomPoint(UGraphic ug2) {
+		final Random rnd = new Random();
+		final int red = rnd.nextInt(40);
+		final int green = rnd.nextInt(40);
+		final int blue = rnd.nextInt(40);
+		final Color c = new Color(red, green, blue);
+		final HtmlColor color = new HtmlColorSimple(c, false);
+		ug2.apply(new UChangeColor(color)).apply(new UChangeBackColor(color)).draw(new URectangle(1, 1));
+
+	}
+
 	private double externalMargin() {
 		return 2 * (externalMargin1 + externalMargin2);
 	}
 
 	public Dimension2D getFinalDimension(StringBounder stringBounder) {
 		final Dimension2D dim;
-//		if (udrawable instanceof TextBlock) {
-//			dim = ((TextBlock) udrawable).calculateDimension(stringBounder);
-//		} else {
-			final LimitFinder limitFinder = new LimitFinder(stringBounder, true);
-			udrawable.drawU(limitFinder);
-			dim = new Dimension2DDouble(limitFinder.getMaxX(), limitFinder.getMaxY());
-//		}
+		// if (udrawable instanceof TextBlock) {
+		// dim = ((TextBlock) udrawable).calculateDimension(stringBounder);
+		// } else {
+		final LimitFinder limitFinder = new LimitFinder(stringBounder, true);
+		udrawable.drawU(limitFinder);
+		dim = new Dimension2DDouble(limitFinder.getMaxX(), limitFinder.getMaxY());
+		// }
 		return new Dimension2DDouble(dim.getWidth() + 1 + margin1 + margin2 + externalMargin(), dim.getHeight() + 1
 				+ margin1 + margin2 + externalMargin());
 	}
@@ -375,7 +390,7 @@ public class ImageBuilder {
 			return createUGraphicPNG(colorMapper, dpiFactor, dim, mybackcolor, animationArg, dx, dy);
 		case SVG:
 			return createUGraphicSVG(colorMapper, dpiFactor, dim, mybackcolor, fileFormatOption.getSvgLinkTarget(),
-					fileFormatOption.getHoverColor(), seed);
+					fileFormatOption.getHoverColor(), seed, fileFormatOption.getPreserveAspectRatio());
 		case EPS:
 			return new UGraphicEps(colorMapper, EpsStrategy.getDefault2());
 		case EPS_TEXT:
@@ -399,7 +414,7 @@ public class ImageBuilder {
 	}
 
 	private UGraphic2 createUGraphicSVG(ColorMapper colorMapper, double scale, Dimension2D dim, HtmlColor mybackcolor,
-			String svgLinkTarget, String hover, long seed) {
+			String svgLinkTarget, String hover, long seed, String preserveAspectRatio) {
 		Color backColor = Color.WHITE;
 		if (mybackcolor instanceof HtmlColorSimple) {
 			backColor = colorMapper.getMappedColor(mybackcolor);
@@ -407,12 +422,12 @@ public class ImageBuilder {
 		final UGraphicSvg ug;
 		if (mybackcolor instanceof HtmlColorGradient) {
 			ug = new UGraphicSvg(svgDimensionStyle, dim, colorMapper, (HtmlColorGradient) mybackcolor, false, scale,
-					svgLinkTarget, hover, seed);
+					svgLinkTarget, hover, seed, preserveAspectRatio);
 		} else if (backColor == null || backColor.equals(Color.WHITE)) {
-			ug = new UGraphicSvg(svgDimensionStyle, dim, colorMapper, false, scale, svgLinkTarget, hover, seed);
+			ug = new UGraphicSvg(svgDimensionStyle, dim, colorMapper, false, scale, svgLinkTarget, hover, seed, preserveAspectRatio);
 		} else {
 			ug = new UGraphicSvg(svgDimensionStyle, dim, colorMapper, StringUtils.getAsHtml(backColor), false, scale,
-					svgLinkTarget, hover, seed);
+					svgLinkTarget, hover, seed, preserveAspectRatio);
 		}
 		return ug;
 
@@ -447,6 +462,11 @@ public class ImageBuilder {
 		}
 
 		return ug;
+	}
+
+	public void setRandomPixel(boolean randomPixel) {
+		this.randomPixel = randomPixel;
+
 	}
 
 }

@@ -64,7 +64,7 @@ public class GroupRoot implements IGroup {
 
 	public Collection<ILeaf> getLeafsDirect() {
 		final List<ILeaf> result = new ArrayList<ILeaf>();
-		for (ILeaf ent : entityFactory.getLeafsvalues()) {
+		for (ILeaf ent : entityFactory.leafs()) {
 			if (ent.getParentContainer() == this) {
 				result.add(ent);
 			}
@@ -117,11 +117,11 @@ public class GroupRoot implements IGroup {
 	}
 
 	public Code getCode() {
-		return Code.of("__ROOT__");
+		return CodeImpl.of("__ROOT__");
 	}
 
-	public LongCode getLongCode() {
-		return null;
+	public String getCodeGetName() {
+		return getCode().getName();
 	}
 
 	public void addUrl(Url url) {
@@ -140,9 +140,18 @@ public class GroupRoot implements IGroup {
 
 	public Collection<IGroup> getChildren() {
 		final List<IGroup> result = new ArrayList<IGroup>();
-		for (IGroup ent : entityFactory.getGroupsvalues()) {
-			if (ent.getParentContainer() == this) {
-				result.add(ent);
+		if (entityFactory.namespaceSeparator.V1972()) {
+			for (IGroup ent : entityFactory.groups()) {
+				if (ent.getIdent().size() == 1) {
+					result.add(ent);
+				}
+			}
+
+		} else {
+			for (IGroup ent : entityFactory.groups()) {
+				if (ent.getParentContainer() == this) {
+					result.add(ent);
+				}
 			}
 		}
 		return Collections.unmodifiableCollection(result);
@@ -160,7 +169,7 @@ public class GroupRoot implements IGroup {
 		return null;
 	}
 
-	public Code getNamespace2() {
+	public Code getNamespace() {
 		throw new UnsupportedOperationException();
 
 	}
@@ -265,5 +274,9 @@ public class GroupRoot implements IGroup {
 
 	public DisplayPositionned getLegend() {
 		throw new UnsupportedOperationException();
+	}
+
+	public Ident getIdent() {
+		return Ident.empty();
 	}
 }

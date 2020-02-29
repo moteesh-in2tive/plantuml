@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,13 +50,15 @@ import java.util.regex.Pattern;
 import net.sourceforge.plantuml.AParentFolder;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.api.ApiWarning;
+import net.sourceforge.plantuml.tim.EaterException;
+import net.sourceforge.plantuml.tim.TMemory;
+import net.sourceforge.plantuml.tim.TVariableScope;
 import net.sourceforge.plantuml.version.Version;
 
 public class Defines implements Truth {
 
 	private final Map<String, String> environment = new LinkedHashMap<String, String>();
 	private final Map<String, Define> values = new LinkedHashMap<String, Define>();
-	private final Map<String, Define> savedState = new LinkedHashMap<String, Define>();
 
 	@Deprecated
 	@ApiWarning(willBeRemoved = "in next major release")
@@ -70,6 +73,15 @@ public class Defines implements Truth {
 
 	public static Defines createEmpty() {
 		return new Defines();
+	}
+
+	public void copyTo(TMemory memory) throws EaterException {
+		for (Entry<String, Define> ent : values.entrySet()) {
+			final String name = ent.getKey();
+			final Define def = ent.getValue();
+			memory.putVariable(name, def.asTVariable(), TVariableScope.GLOBAL);
+		}
+
 	}
 
 	public void overrideFilename(String filename) {
@@ -98,12 +110,18 @@ public class Defines implements Truth {
 		final Defines result = createEmpty();
 		result.overrideFilename(file.getName());
 		result.environment.put("filedate", new Date(file.lastModified()).toString());
-		// result.environment.put("filename", file.getName());
-		// result.environment.put("filenameNoExtension", nameNoExtension(file));
 		result.environment.put("dirpath", file.getAbsoluteFile().getParentFile().getAbsolutePath().replace('\\', '/'));
 		return result;
 	}
-	
+
+	public static Defines createWithMap(Map<String, String> init) {
+		final Defines result = createEmpty();
+		for (Map.Entry<String, String> ent : init.entrySet()) {
+			result.environment.put(ent.getKey(), ent.getValue());
+		}
+		return result;
+	}
+
 	public String getEnvironmentValue(String key) {
 		return this.environment.get(key);
 	}
@@ -233,17 +251,6 @@ public class Defines implements Truth {
 			line = line.replaceAll(DATE, replace);
 		}
 		return line;
-	}
-
-	public void saveState1() {
-		this.savedState.putAll(values);
-
-	}
-
-	public void restoreState1() {
-		this.values.clear();
-		this.values.putAll(savedState);
-		magic = null;
 	}
 
 }

@@ -104,7 +104,7 @@ public class Bodier {
 	private boolean isMethod(String s) {
 		if (type == LeafType.ANNOTATION || type == LeafType.ABSTRACT_CLASS || type == LeafType.CLASS
 				|| type == LeafType.INTERFACE || type == LeafType.ENUM) {
-			return MemberImpl.isMethod(s);
+			return Member.isMethod(s);
 		}
 		return false;
 	}
@@ -120,7 +120,7 @@ public class Bodier {
 				if (s.length() == 0 && methodsToDisplay.size() == 0) {
 					continue;
 				}
-				final Member m = new MemberImpl(s, true, manageModifier);
+				final Member m = new Member(s, true, manageModifier);
 				if (hides == null || hides.contains(m.getVisibilityModifier()) == false) {
 					methodsToDisplay.add(m);
 				}
@@ -148,7 +148,7 @@ public class Bodier {
 				if (s.length() == 0 && fieldsToDisplay.size() == 0) {
 					continue;
 				}
-				final Member m = new MemberImpl(s, false, manageModifier);
+				final Member m = new Member(s, false, manageModifier);
 				if (hides == null || hides.contains(m.getVisibilityModifier()) == false) {
 					fieldsToDisplay.add(m);
 				}
@@ -184,7 +184,7 @@ public class Bodier {
 		}
 		final List<String> result = new ArrayList<String>();
 		for (String s : rawBody) {
-			final Member m = new MemberImpl(s, isMethod(s), manageModifier);
+			final Member m = new Member(s, isMethod(s), manageModifier);
 			if (hides.contains(m.getVisibilityModifier()) == false) {
 				result.add(s);
 			}

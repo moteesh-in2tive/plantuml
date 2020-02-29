@@ -54,7 +54,7 @@ public interface IGroup extends IEntity {
 
 	public GroupType getGroupType();
 
-	public Code getNamespace2();
+	public Code getNamespace();
 
 	public PackageStyle getPackageStyle();
 
@@ -71,4 +71,5 @@ public interface IGroup extends IEntity {
 	public void setLegend(DisplayPositionned legend);
 
 	public DisplayPositionned getLegend();
+
 }

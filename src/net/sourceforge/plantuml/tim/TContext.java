@@ -47,9 +47,10 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.DefinitionsContainer;
 import net.sourceforge.plantuml.FileSystem;
-import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.json.JsonObject;
+import net.sourceforge.plantuml.json.JsonValue;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.preproc.FileWithSuffix;
 import net.sourceforge.plantuml.preproc.ImportedFiles;
@@ -57,11 +58,10 @@ import net.sourceforge.plantuml.preproc.ReadLine;
 import net.sourceforge.plantuml.preproc.ReadLineList;
 import net.sourceforge.plantuml.preproc.ReadLineReader;
 import net.sourceforge.plantuml.preproc.StartDiagramExtractReader;
-import net.sourceforge.plantuml.preproc.Sub2;
+import net.sourceforge.plantuml.preproc.Sub;
 import net.sourceforge.plantuml.preproc.UncommentReadLine;
-import net.sourceforge.plantuml.preproc2.PreprocessorInclude;
 import net.sourceforge.plantuml.preproc2.PreprocessorIncludeStrategy;
-import net.sourceforge.plantuml.preproc2.ReadLineQuoteComment;
+import net.sourceforge.plantuml.preproc2.PreprocessorUtils;
 import net.sourceforge.plantuml.tim.expression.Knowledge;
 import net.sourceforge.plantuml.tim.expression.TValue;
 import net.sourceforge.plantuml.tim.stdlib.AlwaysFalse;
@@ -73,10 +73,12 @@ import net.sourceforge.plantuml.tim.stdlib.FileExists;
 import net.sourceforge.plantuml.tim.stdlib.Filename;
 import net.sourceforge.plantuml.tim.stdlib.FunctionExists;
 import net.sourceforge.plantuml.tim.stdlib.GetVariableValue;
+import net.sourceforge.plantuml.tim.stdlib.GetVersion;
 import net.sourceforge.plantuml.tim.stdlib.Getenv;
 import net.sourceforge.plantuml.tim.stdlib.IntVal;
 import net.sourceforge.plantuml.tim.stdlib.InvokeVoidFunction;
 import net.sourceforge.plantuml.tim.stdlib.LogicalNot;
+import net.sourceforge.plantuml.tim.stdlib.RetrieveVoidFunction;
 import net.sourceforge.plantuml.tim.stdlib.SetVariableValue;
 import net.sourceforge.plantuml.tim.stdlib.Strlen;
 import net.sourceforge.plantuml.tim.stdlib.Strpos;
@@ -85,18 +87,18 @@ import net.sourceforge.plantuml.tim.stdlib.VariableExists;
 
 public class TContext {
 
-	private final List<StringLocated> result = new ArrayList<StringLocated>();
+	private final List<StringLocated> resultList = new ArrayList<StringLocated>();
 	private final List<StringLocated> debug = new ArrayList<StringLocated>();
 	private final Map<TFunctionSignature, TFunction> functions2 = new HashMap<TFunctionSignature, TFunction>();
 	private final Set<TFunctionSignature> functionsFinal = new HashSet<TFunctionSignature>();
-	private final Trie functions3 = new Trie();
+	private final Trie functions3 = new TrieImpl();
 	private ImportedFiles importedFiles;
 	private final String charset;
 
 	private TFunctionImpl pendingFunction;
-	private Sub2 pendingSub;
+	private Sub pendingSub;
 	private boolean inLongComment;
-	private final Map<String, Sub2> subs = new HashMap<String, Sub2>();
+	private final Map<String, Sub> subs = new HashMap<String, Sub>();
 	private final DefinitionsContainer definitionsContainer;
 
 	// private final Set<FileWithSuffix> usedFiles = new HashSet<FileWithSuffix>();
@@ -118,9 +120,11 @@ public class TContext {
 		addFunction(new FunctionExists());
 		addFunction(new VariableExists());
 		addFunction(new CallUserFunction());
+		addFunction(new RetrieveVoidFunction());
 		addFunction(new SetVariableValue());
 		addFunction(new GetVariableValue());
 		addFunction(new IntVal());
+		addFunction(new GetVersion());
 		// !exit
 		// !log
 		// %min
@@ -181,7 +185,7 @@ public class TContext {
 			}
 			final EaterStartsub eater = new EaterStartsub(s.getTrimmed().getString());
 			eater.execute(this, memory);
-			this.pendingSub = new Sub2(eater.getSubname());
+			this.pendingSub = new Sub(eater.getSubname());
 			this.subs.put(eater.getSubname(), this.pendingSub);
 			return;
 		}
@@ -189,15 +193,15 @@ public class TContext {
 			if (pendingSub == null) {
 				throw new EaterException("No corresponding !startsub");
 			}
-			final Sub2 newly = this.pendingSub;
+			final Sub newly = this.pendingSub;
 			this.pendingSub = null;
 			this.runSub(memory, newly);
 			return;
 		}
-		if (this.inLongComment == false && type == TLineType.INCLUDESUB) {
-			this.executeIncludesub(memory, s);
-			return;
-		}
+		// if (this.inLongComment == false && type == TLineType.INCLUDESUB) {
+		// this.executeIncludesub(memory, s);
+		// return;
+		// }
 
 		if (pendingSub != null) {
 			pendingSub.add(s);
@@ -252,6 +256,10 @@ public class TContext {
 
 		final ConditionalContext conditionalContext = memory.peekConditionalContext();
 		if (conditionalContext != null && memory.areAllIfOk() == false) {
+			return;
+		}
+		if (this.inLongComment == false && type == TLineType.INCLUDESUB) {
+			this.executeIncludesub(memory, s);
 			return;
 		}
 
@@ -314,7 +322,7 @@ public class TContext {
 				tmp = new StringLocated(pendingAdd + tmp.getString(), tmp.getLocation());
 				pendingAdd = null;
 			}
-			result.add(tmp);
+			resultList.add(tmp);
 		}
 	}
 
@@ -501,8 +509,39 @@ public class TContext {
 				if (result.toString().endsWith("##")) {
 					result.setLength(result.length() - 2);
 				}
-				result.append(memory.getVariable(presentVariable).getValue2().toString());
+				final TValue value = memory.getVariable(presentVariable).getValue();
 				i += presentVariable.length() - 1;
+				if (value.isJson()) {
+					JsonValue jsonValue = (JsonObject) value.toJson();
+					// System.err.println("jsonValue1=" + jsonValue);
+					i++;
+					while (true) {
+						final char n = s.charAt(i);
+						// System.err.println("n=" + n);
+						if (n != '.') {
+							if (jsonValue.isString()) {
+								result.append(jsonValue.asString());
+							} else {
+								result.append(jsonValue.toString());
+							}
+							break;
+						}
+						i++;
+						final StringBuilder fieldName = new StringBuilder();
+						while (true) {
+							if (Character.isJavaIdentifierPart(s.charAt(i)) == false) {
+								break;
+							}
+							fieldName.append(s.charAt(i));
+							i++;
+						}
+						// System.err.println("fieldName=" + fieldName);
+						jsonValue = ((JsonObject) jsonValue).get(fieldName.toString());
+						// System.err.println("jsonValue2=" + jsonValue);
+					}
+				} else {
+					result.append(value.toString());
+				}
 				if (i + 2 < s.length() && s.charAt(i + 1) == '#' && s.charAt(i + 2) == '#') {
 					i += 2;
 				}
@@ -542,37 +581,47 @@ public class TContext {
 	}
 
 	private void executeIncludesub(TMemory memory, StringLocated s) throws EaterException {
-		final EaterIncludesub include = new EaterIncludesub(s.getTrimmed().getString());
-		include.execute(this, memory);
-		final String location = include.getLocation();
-		final int idx = location.indexOf('!');
-		Sub2 sub = null;
-		if (OptionFlags.ALLOW_INCLUDE && idx != -1) {
-			final String filename = location.substring(0, idx);
-			final String blocname = location.substring(idx + 1);
-			try {
-				final FileWithSuffix f2 = new FileWithSuffix(importedFiles, filename, null);
-				if (f2.fileOk()) {
-					final Reader reader = f2.getReader(charset);
-					ReadLine readerline = ReadLineReader.create(reader, location, s.getLocation());
-					readerline = new UncommentReadLine(readerline);
-					readerline = new ReadLineQuoteComment(true).applyFilter(readerline);
-					sub = Sub2.fromFile(readerline, blocname, this, memory);
+		ImportedFiles saveImportedFiles = null;
+		try {
+			final EaterIncludesub include = new EaterIncludesub(s.getTrimmed().getString());
+			include.execute(this, memory);
+			final String location = include.getLocation();
+			final int idx = location.indexOf('!');
+			Sub sub = null;
+			if (idx != -1) {
+				final String filename = location.substring(0, idx);
+				final String blocname = location.substring(idx + 1);
+				try {
+					final FileWithSuffix f2 = importedFiles.getFile(filename, null);
+					if (f2.fileOk()) {
+						saveImportedFiles = this.importedFiles;
+						this.importedFiles = this.importedFiles.withCurrentDir(f2.getParentFile());
+						final Reader reader = f2.getReader(charset);
+						ReadLine readerline = ReadLineReader.create(reader, location, s.getLocation());
+						readerline = new UncommentReadLine(readerline);
+						// readerline = new ReadLineQuoteComment(true).applyFilter(readerline);
+						sub = Sub.fromFile(readerline, blocname, this, memory);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new EaterException("cannot include " + e);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new EaterException("cannot include " + e);
 			}
-		} else {
-			sub = subs.get(location);
+			if (sub == null) {
+				sub = subs.get(location);
+			}
+			if (sub == null) {
+				throw new EaterException("cannot include " + location);
+			}
+			runSub(memory, sub);
+		} finally {
+			if (saveImportedFiles != null) {
+				this.importedFiles = saveImportedFiles;
+			}
 		}
-		if (sub == null) {
-			throw new EaterException("cannot include " + location);
-		}
-		runSub(memory, sub);
 	}
 
-	private void runSub(TMemory memory, final Sub2 sub) throws EaterException {
+	private void runSub(TMemory memory, final Sub sub) throws EaterException {
 		for (StringLocated sl : sub.lines()) {
 			executeOneLine(memory, TLineType.getFromLine(sl.getString()), sl, null);
 		}
@@ -582,11 +631,11 @@ public class TContext {
 		final EaterIncludeDef include = new EaterIncludeDef(s.getTrimmed().getString());
 		include.execute(this, memory);
 		final String definitionName = include.getLocation();
-		final List<String> definition = definitionsContainer.getDefinition2(definitionName);
+		final List<String> definition = definitionsContainer.getDefinition(definitionName);
 		ReadLine reader2 = new ReadLineList(definition, s.getLocation());
 
 		try {
-			reader2 = new ReadLineQuoteComment(true).applyFilter(reader2);
+			// reader2 = new ReadLineQuoteComment(true).applyFilter(reader2);
 			do {
 				final StringLocated sl = reader2.readLine();
 				if (sl == null) {
@@ -617,13 +666,13 @@ public class TContext {
 		try {
 			if (location.startsWith("http://") || location.startsWith("https://")) {
 				final URL url = new URL(location);
-				reader2 = PreprocessorInclude.getReaderIncludeUrl2(url, s, suf, charset);
+				reader2 = PreprocessorUtils.getReaderIncludeUrl2(url, s, suf, charset);
 
 			}
 			if (location.startsWith("<") && location.endsWith(">")) {
-				reader2 = PreprocessorInclude.getReaderStdlibInclude(s, location.substring(1, location.length() - 1));
-			} else if (OptionFlags.ALLOW_INCLUDE) {
-				final FileWithSuffix f2 = new FileWithSuffix(importedFiles, location, suf);
+				reader2 = PreprocessorUtils.getReaderStdlibInclude(s, location.substring(1, location.length() - 1));
+			} else {
+				final FileWithSuffix f2 = importedFiles.getFile(location, suf);
 				if (f2.fileOk()) {
 					if (strategy == PreprocessorIncludeStrategy.DEFAULT && filesUsedCurrent.contains(f2)) {
 						return;
@@ -636,6 +685,9 @@ public class TContext {
 						reader2 = StartDiagramExtractReader.build(f2, s, charset);
 					} else {
 						final Reader reader = f2.getReader(charset);
+						if (reader == null) {
+							throw new EaterException("Cannot include file");
+						}
 						reader2 = ReadLineReader.create(reader, location, s.getLocation());
 					}
 					saveImportedFiles = this.importedFiles;
@@ -646,7 +698,7 @@ public class TContext {
 				}
 			}
 			if (reader2 != null) {
-				reader2 = new ReadLineQuoteComment(true).applyFilter(reader2);
+				// reader2 = new ReadLineQuoteComment(true).applyFilter(reader2);
 				try {
 					do {
 						final StringLocated sl = reader2.readLine();
@@ -716,6 +768,9 @@ public class TContext {
 	}
 
 	private String getFunctionNameAt(String s, int pos) {
+		if (pos > 0 && TLineType.isLetterOrUnderscoreOrDigit(s.charAt(pos - 1)) && justAfterBackslashN(s, pos) == false) {
+			return null;
+		}
 		final String fname = functions3.getLonguestMatchStartingIn(s.substring(pos));
 		if (fname.length() == 0) {
 			return null;
@@ -723,8 +778,8 @@ public class TContext {
 		return fname.substring(0, fname.length() - 1);
 	}
 
-	public List<StringLocated> getResult() {
-		return result;
+	public List<StringLocated> getResultList() {
+		return resultList;
 	}
 
 	public List<StringLocated> getDebug() {
@@ -746,6 +801,27 @@ public class TContext {
 	public void executeEndfunction() {
 		addFunction(pendingFunction);
 		pendingFunction = null;
+	}
+
+	public String extractFromResultList(int n1) {
+		final StringBuilder sb = new StringBuilder();
+		while (resultList.size() > n1) {
+			sb.append(resultList.get(n1).getString());
+			resultList.remove(n1);
+			if (resultList.size() > n1) {
+				sb.append("\\n");
+			}
+		}
+		return sb.toString();
+	}
+
+	public void appendEndOfLine(String endOfLine) {
+		if (endOfLine.length() > 0) {
+			final int idx = resultList.size() - 1;
+			StringLocated last = resultList.get(idx);
+			last = last.append(endOfLine);
+			resultList.set(idx, last);
+		}
 	}
 
 }

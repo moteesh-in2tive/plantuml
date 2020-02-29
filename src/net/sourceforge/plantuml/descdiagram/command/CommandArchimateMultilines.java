@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.descdiagram.command;
 
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
@@ -48,6 +49,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.USymbol;
@@ -83,7 +85,10 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				ColorParser.exp1(), //
-				RegexLeaf.spaceZeroOrMore(), new RegexLeaf("DESC", "\\[(.*)"), RegexLeaf.end());
+				RegexLeaf.spaceZeroOrMore(), //
+				new RegexLeaf("\\["), //
+				new RegexLeaf("DESC", "(.*)"), //
+				RegexLeaf.end());
 	}
 
 	private static ColorParser color() {
@@ -96,10 +101,12 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst499().getTrimmed().getString());
 		final String codeRaw = line0.getLazzy("CODE", 0);
 
-		final Code code = Code.of(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw));
+		final String idShort = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeRaw);
+		final Ident ident = diagram.buildLeafIdent(idShort);
+		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);
 		final String icon = line0.getLazzy("STEREOTYPE", 0);
 
-		final IEntity entity = diagram.getOrCreateLeaf(code, LeafType.DESCRIPTION, USymbol.RECTANGLE);
+		final IEntity entity = diagram.getOrCreateLeaf(ident, code, LeafType.DESCRIPTION, USymbol.RECTANGLE);
 
 		lines = lines.subExtract(1, 1);
 		Display display = lines.toDisplay();

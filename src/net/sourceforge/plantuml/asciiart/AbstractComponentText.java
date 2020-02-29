@@ -37,6 +37,8 @@ import java.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.Component;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
 
 public abstract class AbstractComponentText implements Component {
 
@@ -45,5 +47,14 @@ public abstract class AbstractComponentText implements Component {
 		final double h = getPreferredHeight(stringBounder);
 		return new Dimension2DDouble(w, h);
 	}
+	
+	public Style[] getUsedStyles() {
+		throw new UnsupportedOperationException();
+	}
+
+	public StyleSignature getDefaultStyleDefinition() {
+		throw new UnsupportedOperationException();
+	}
+
 
 }

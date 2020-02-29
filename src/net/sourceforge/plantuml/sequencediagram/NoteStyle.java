@@ -33,6 +33,8 @@
 package net.sourceforge.plantuml.sequencediagram;
 
 import net.sourceforge.plantuml.skin.ComponentType;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.StyleSignature;
 
 public enum NoteStyle {
 
@@ -46,7 +48,7 @@ public enum NoteStyle {
 		}
 		return NoteStyle.NORMAL;
 	}
-	
+
 	public ComponentType getNoteComponentType() {
 		if (this == NoteStyle.HEXAGONAL) {
 			return ComponentType.NOTE_HEXAGONAL;
@@ -57,5 +59,9 @@ public enum NoteStyle {
 		return ComponentType.NOTE;
 	}
 
+	public StyleSignature getDefaultStyleDefinition() {
+		return StyleSignature.of(SName.root, SName.element, SName.sequenceDiagram,
+				SName.note);
+	}
 
 }

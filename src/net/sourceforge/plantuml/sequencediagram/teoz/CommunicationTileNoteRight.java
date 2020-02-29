@@ -64,7 +64,7 @@ public class CommunicationTileNoteRight extends AbstractTile implements TileWith
 	private boolean isCreate() {
 		return message.isCreate();
 	}
-	
+
 	@Override
 	public double getYPoint(StringBounder stringBounder) {
 		return tile.getYPoint(stringBounder);
@@ -85,7 +85,7 @@ public class CommunicationTileNoteRight extends AbstractTile implements TileWith
 	}
 
 	private Component getComponent(StringBounder stringBounder) {
-		final Component comp = skin.createComponent(ComponentType.NOTE, null,
+		final Component comp = skin.createComponent(noteOnMessage.getUsedStyles(), ComponentType.NOTE, null,
 				noteOnMessage.getSkinParamBackcolored(skinParam), noteOnMessage.getStrings());
 		return comp;
 	}

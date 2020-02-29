@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.AParentFolder;
 import net.sourceforge.plantuml.BackSlash;
+import net.sourceforge.plantuml.tim.TVariable;
+import net.sourceforge.plantuml.tim.expression.TValue;
 
 public class Define {
 
@@ -119,4 +121,7 @@ public class Define {
 		return signature.getFonctionName();
 	}
 
+	public TVariable asTVariable() {
+		return new TVariable(TValue.fromString(definition));
+	}
 }

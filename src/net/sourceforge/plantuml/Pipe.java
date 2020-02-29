@@ -97,6 +97,9 @@ public class Pipe {
 			} else if (option.isPipeMap()) {
 				final String result = sourceStringReader.getCMapData(option.getImageIndex(),
 						option.getFileFormatOption());
+				// https://forum.plantuml.net/10049/2019-pipemap-diagrams-containing-links-give-zero-exit-code
+				// We don't check errors
+				error.goOk();
 				if (result == null) {
 					ps.println();
 				} else {
@@ -147,6 +150,8 @@ public class Pipe {
 			final String s = readOneLine();
 			if (s == null) {
 				closed = true;
+			} else if (s.startsWith("@@@format ")) {
+				manageFormat(s);
 			} else {
 				sb.append(s);
 				sb.append(BackSlash.NEWLINE);
@@ -163,6 +168,14 @@ public class Pipe {
 			source = "@startuml\n" + source + "\n@enduml";
 		}
 		return source;
+	}
+
+	private void manageFormat(String s) {
+		if (s.contains("png")) {
+			option.setFileFormatOption(new FileFormatOption(FileFormat.PNG));
+		} else if (s.contains("svg")) {
+			option.setFileFormatOption(new FileFormatOption(FileFormat.SVG));
+		}
 	}
 
 	private String readOneLine() throws IOException {

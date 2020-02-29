@@ -49,13 +49,14 @@ import net.sourceforge.plantuml.code.AsciiEncoder;
 
 public class SignatureUtils {
 
-//	private static byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException,
-//			UnsupportedEncodingException {
-//		final byte[] tmp = salting2(pass, salt);
-//		return SignatureUtils.getSHA512raw(tmp);
-//	}
+	// private static byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException,
+	// UnsupportedEncodingException {
+	// final byte[] tmp = salting2(pass, salt);
+	// return SignatureUtils.getSHA512raw(tmp);
+	// }
 
-	public static byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public static synchronized byte[] salting(String pass, byte[] salt) throws NoSuchAlgorithmException,
+			InvalidKeySpecException {
 		final int iterations = 500;
 		final int keyLength = 512;
 		final SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -119,7 +120,7 @@ public class SignatureUtils {
 		}
 	}
 
-	public static byte[] getMD5raw(String s) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static synchronized byte[] getMD5raw(String s) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
 		msgDigest.update(s.getBytes("UTF-8"));
 		return msgDigest.digest();
@@ -129,7 +130,8 @@ public class SignatureUtils {
 		return getSHA512raw(s.getBytes("UTF-8"));
 	}
 
-	public static byte[] getSHA512raw(byte data[]) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static synchronized byte[] getSHA512raw(byte data[]) throws NoSuchAlgorithmException,
+			UnsupportedEncodingException {
 		final MessageDigest msgDigest = MessageDigest.getInstance("SHA-512");
 		msgDigest.update(data);
 		return msgDigest.digest();
@@ -144,7 +146,7 @@ public class SignatureUtils {
 		}
 	}
 
-	public static String getSignatureSha512(InputStream is) throws IOException {
+	public static synchronized String getSignatureSha512(InputStream is) throws IOException {
 		try {
 			final MessageDigest msgDigest = MessageDigest.getInstance("SHA-512");
 			int read = 0;
@@ -175,7 +177,7 @@ public class SignatureUtils {
 		return s;
 	}
 
-	public static String getSignature(File f) throws IOException {
+	public static synchronized String getSignature(File f) throws IOException {
 		try {
 			final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
 			final FileInputStream is = new FileInputStream(f);

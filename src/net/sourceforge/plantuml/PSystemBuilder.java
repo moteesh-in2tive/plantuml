@@ -40,7 +40,6 @@ import net.sourceforge.plantuml.api.PSystemFactory;
 import net.sourceforge.plantuml.bpm.BpmDiagramFactory;
 import net.sourceforge.plantuml.classdiagram.ClassDiagramFactory;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
-import net.sourceforge.plantuml.compositediagram.CompositeDiagramFactory;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
@@ -60,16 +59,21 @@ import net.sourceforge.plantuml.mindmap.MindMapDiagramFactory;
 import net.sourceforge.plantuml.nwdiag.NwDiagramFactory;
 import net.sourceforge.plantuml.openiconic.PSystemListOpenIconicFactory;
 import net.sourceforge.plantuml.openiconic.PSystemOpenIconicFactory;
-import net.sourceforge.plantuml.project3.GanttDiagramFactory;
+import net.sourceforge.plantuml.oregon.PSystemOregonFactory;
+import net.sourceforge.plantuml.project.GanttDiagramFactory;
 import net.sourceforge.plantuml.salt.PSystemSaltFactory;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
+import net.sourceforge.plantuml.sprite.ListSpriteDiagramFactory;
+import net.sourceforge.plantuml.sprite.StdlibDiagramFactory;
+import net.sourceforge.plantuml.sprite.PSystemListInternalSpritesFactory;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtilsIncrement;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagramFactory;
-import net.sourceforge.plantuml.ugraphic.sprite.PSystemListInternalSpritesFactory;
+import net.sourceforge.plantuml.version.License;
 import net.sourceforge.plantuml.version.PSystemLicenseFactory;
 import net.sourceforge.plantuml.version.PSystemVersionFactory;
 import net.sourceforge.plantuml.wbs.WBSDiagramFactory;
+import net.sourceforge.plantuml.wire.WireDiagramFactory;
 
 public class PSystemBuilder {
 
@@ -120,7 +124,6 @@ public class PSystemBuilder {
 			Log.info("Compilation duration " + (System.currentTimeMillis() - now));
 			RegexConcat.printCacheInfo();
 		}
-
 	}
 
 	protected List<PSystemFactory> getAllFactories(ISkinSimple skinParam) {
@@ -131,7 +134,7 @@ public class PSystemBuilder {
 		factories.add(new DescriptionDiagramFactory(skinParam));
 		factories.add(new StateDiagramFactory(skinParam));
 		factories.add(new ActivityDiagramFactory3(skinParam));
-		factories.add(new CompositeDiagramFactory(skinParam));
+		// factories.add(new CompositeDiagramFactory(skinParam));
 		factories.add(new BpmDiagramFactory(DiagramType.BPM));
 		// factories.add(new PostIdDiagramFactory());
 		factories.add(new PSystemLicenseFactory());
@@ -148,7 +151,18 @@ public class PSystemBuilder {
 		factories.add(new NwDiagramFactory());
 		factories.add(new MindMapDiagramFactory());
 		factories.add(new WBSDiagramFactory());
+		factories.add(new PSystemDitaaFactory(DiagramType.DITAA));
+		factories.add(new PSystemDitaaFactory(DiagramType.UML));
+		//Remove GPL Components
+		//if (License.getCurrent() == License.GPL || License.getCurrent() == License.GPLV2) {
+			// factories.add(new PSystemJcckitFactory(DiagramType.JCCKIT));
+			// factories.add(new PSystemJcckitFactory(DiagramType.UML));
+			// factories.add(new PSystemLogoFactory());
+		//	factories.add(new PSystemSudokuFactory());
+		//}
 		factories.add(new PSystemDefinitionFactory());
+		factories.add(new ListSpriteDiagramFactory(skinParam));
+		factories.add(new StdlibDiagramFactory(skinParam));
 		factories.add(new PSystemMathFactory(DiagramType.MATH));
 		factories.add(new PSystemLatexFactory(DiagramType.LATEX));
 		// factories.add(new PSystemStatsFactory());
@@ -160,6 +174,7 @@ public class PSystemBuilder {
 		// factories.add(new PSystemCuteFactory(DiagramType.CUTE));
 		factories.add(new TimingDiagramFactory());
 		factories.add(new HelpFactory());
+		factories.add(new WireDiagramFactory());
 		return factories;
 	}
 

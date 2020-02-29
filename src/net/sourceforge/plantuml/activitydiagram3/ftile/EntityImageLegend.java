@@ -56,7 +56,9 @@ public class EntityImageLegend {
 		final HtmlColor legendColor = rose.getHtmlColor(skinParam, ColorParam.legendBorder);
 		final UStroke stroke = skinParam.getThickness(LineParam.legendBorder, null);
 
-		final TextBlock result = TextBlockUtils.bordered(textBlock, stroke, legendColor, legendBackgroundColor, 10);
+		final int cornersize = 10;
+		final TextBlock result = TextBlockUtils.bordered(textBlock, stroke, legendColor, legendBackgroundColor,
+				cornersize);
 		return TextBlockUtils.withMargin(result, 8, 8);
 	}
 

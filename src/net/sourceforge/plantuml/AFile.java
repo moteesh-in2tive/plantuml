@@ -44,8 +44,8 @@ public interface AFile {
 
 	public AParentFolder getParentFile();
 
-	public String getAbsolutePath();
-
 	public File getUnderlyingFile();
+
+	public File getSystemFolder() throws IOException;
 
 }

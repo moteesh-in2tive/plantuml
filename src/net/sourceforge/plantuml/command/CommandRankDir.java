@@ -51,7 +51,8 @@ public class CommandRankDir extends SingleLineCommand2<CucaDiagram> {
 		return RegexConcat.build(CommandRankDir.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("DIRECTION", "(left[%s]to[%s]right|top[%s]to[%s]bottom)"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("direction"), RegexLeaf.end()); //
+				new RegexLeaf("direction"), //
+				RegexLeaf.end()); //
 	}
 
 	@Override

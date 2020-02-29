@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.CornerParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.posimo.Positionable;
 import net.sourceforge.plantuml.posimo.PositionableImpl;
@@ -66,7 +67,15 @@ public class TextBlockUtils {
 		return new TextBlockBordered(textBlock, stroke, borderColor, backgroundColor, cornersize);
 	}
 
+	public static TextBlock bordered(TextBlock textBlock, UStroke stroke, HtmlColor borderColor,
+			HtmlColor backgroundColor, double cornersize, double marginX, double marginY) {
+		return new TextBlockBordered(textBlock, stroke, borderColor, backgroundColor, cornersize, marginX, marginY);
+	}
+
 	public static TextBlock title(FontConfiguration font, Display stringsToDisplay, ISkinParam skinParam) {
+		if (SkinParam.USE_STYLES()) {
+			throw new UnsupportedOperationException();
+		}
 		UStroke stroke = skinParam.getThickness(LineParam.titleBorder, null);
 		final Rose rose = new Rose();
 		HtmlColor borderColor = rose.getHtmlColor(skinParam, ColorParam.titleBorder);
@@ -94,7 +103,8 @@ public class TextBlockUtils {
 		return new TextBlockMarged(textBlock, marginX1, marginX2, marginY1, marginY2);
 	}
 
-	public static TextBlock withMinWidth(TextBlock textBlock, double minWidth, HorizontalAlignment horizontalAlignment) {
+	public static TextBlock withMinWidth(TextBlock textBlock, double minWidth,
+			HorizontalAlignment horizontalAlignment) {
 		return new TextBlockMinWidth(textBlock, minWidth, horizontalAlignment);
 	}
 
@@ -113,6 +123,10 @@ public class TextBlockUtils {
 		return new PositionableImpl(pt, textBlock.calculateDimension(stringBounder));
 	}
 
+	public static Positionable asPositionable(Dimension2D dim, StringBounder stringBounder, Point2D pt) {
+		return new PositionableImpl(pt, dim);
+	}
+
 	public static TextBlock mergeLR(TextBlock b1, TextBlock b2, VerticalAlignment verticallAlignment) {
 		return new TextBlockHorizontal(b1, b2, verticallAlignment);
 	}
@@ -121,7 +135,8 @@ public class TextBlockUtils {
 		return new TextBlockVertical2(b1, b2, horizontalAlignment);
 	}
 
-	// public static TextBlockBackcolored mergeColoredTB(TextBlockBackcolored b1, TextBlockBackcolored b2,
+	// public static TextBlockBackcolored mergeColoredTB(TextBlockBackcolored b1,
+	// TextBlockBackcolored b2,
 	// HorizontalAlignment horizontalAlignment) {
 	// return addBackcolor(mergeTB(b1, b2, horizontalAlignment), b1.getBackcolor());
 	// }

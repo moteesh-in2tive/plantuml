@@ -52,33 +52,6 @@ public class BlocLines implements Iterable<StringLocated> {
 
 	private List<StringLocated> lines;
 
-	private void check() {
-		// for (CharSequence s : lines) {
-		// // if (s == null) {
-		// // continue;
-		// // }
-		// if (s instanceof String) {
-		// continue;
-		// }
-		// // if (s instanceof Stereotype) {
-		// // continue;
-		// // }
-		// if (s instanceof CharSequence2) {
-		// continue;
-		// }
-		// // if (s instanceof MessageNumber) {
-		// // continue;
-		// // }
-		// // if (s instanceof EmbeddedDiagram) {
-		// // continue;
-		// // }
-		// System.err.println("PB2=" + s);
-		// System.err.println("PB=" + s.getClass());
-		// Thread.dumpStack();
-		// System.exit(0);
-		// }
-	}
-
 	@Override
 	public String toString() {
 		return lines.toString();
@@ -106,7 +79,6 @@ public class BlocLines implements Iterable<StringLocated> {
 
 	private BlocLines(List<StringLocated> lines) {
 		this.lines = Collections.unmodifiableList(lines);
-		this.check();
 	}
 
 	public Display toDisplay() {
@@ -122,6 +94,14 @@ public class BlocLines implements Iterable<StringLocated> {
 	public static BlocLines singleString(String single) {
 		final List<StringLocated> result = new ArrayList<StringLocated>();
 		result.add(new StringLocated(single, null));
+		return new BlocLines(result);
+	}
+
+	public static BlocLines fromArray(String[] array) {
+		final List<StringLocated> result = new ArrayList<StringLocated>();
+		for (String single : array) {
+			result.add(new StringLocated(single, null));
+		}
 		return new BlocLines(result);
 	}
 
@@ -319,13 +299,29 @@ public class BlocLines implements Iterable<StringLocated> {
 		final String first = getFirst499().getTrimmed().getString();
 		final String second = get499(1).getTrimmed().getString();
 		if (first.endsWith("{") == false && second.equals("{")) {
-			final String vline = first + " {";
+			final StringLocated vline = getFirst499().append(" {");
 			final List<StringLocated> result = new ArrayList<StringLocated>();
-			result.add(new StringLocated(vline, null));
+			result.add(vline);
 			result.addAll(this.lines.subList(2, this.lines.size()));
 			return new BlocLines(result);
 		}
 		return this;
+	}
+
+	public BlocLines eventuallyMoveAllEmptyBracket() {
+		final List<StringLocated> result = new ArrayList<StringLocated>();
+		for (StringLocated line : lines) {
+			if (line.getTrimmed().toString().equals("{")) {
+				if (result.size() > 0) {
+					final int pos = result.size() - 1;
+					StringLocated last = result.get(pos);
+					result.set(pos, last.append(" {"));
+				}
+			} else {
+				result.add(line);
+			}
+		}
+		return new BlocLines(result);
 	}
 
 }

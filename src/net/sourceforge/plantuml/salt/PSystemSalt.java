@@ -51,7 +51,7 @@ import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.FactorySpriteCommand;
+import net.sourceforge.plantuml.command.CommandFactorySprite;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
@@ -76,11 +76,11 @@ import net.sourceforge.plantuml.salt.factory.ElementFactoryTab;
 import net.sourceforge.plantuml.salt.factory.ElementFactoryText;
 import net.sourceforge.plantuml.salt.factory.ElementFactoryTextField;
 import net.sourceforge.plantuml.salt.factory.ElementFactoryTree;
+import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class PSystemSalt extends AbstractPSystem implements WithSprite {
 
@@ -140,8 +140,7 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 
 	private List<String> manageSprite() {
 
-		final FactorySpriteCommand factorySpriteCommand = new FactorySpriteCommand();
-		Command<WithSprite> cmd = factorySpriteCommand.createMultiLine(false);
+		final Command<WithSprite> cmd = new CommandFactorySprite().createMultiLine(false);
 
 		final List<String> result = new ArrayList<String>();
 		for (Iterator<String> it = data.iterator(); it.hasNext();) {

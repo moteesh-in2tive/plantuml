@@ -46,10 +46,16 @@ public class TimLoader {
 	private final TContext context;
 	private final TMemory global = new TMemoryGlobal();
 	private boolean preprocessorError;
-	private List<StringLocated> result;
+	private List<StringLocated> resultList;
 
-	public TimLoader(ImportedFiles importedFiles, Defines defines, String charset, DefinitionsContainer definitionsContainer) {
+	public TimLoader(ImportedFiles importedFiles, Defines defines, String charset,
+			DefinitionsContainer definitionsContainer) {
 		this.context = new TContext(importedFiles, defines, charset, definitionsContainer);
+		try {
+			defines.copyTo(global);
+		} catch (EaterException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void load(List<StringLocated> input) {
@@ -58,14 +64,14 @@ public class TimLoader {
 			try {
 				context.executeOneLine(global, type, s, null);
 			} catch (EaterException e) {
-				context.getResult().add(s.withErrorPreprocessor(e.getMessage()));
-				this.result = context.getResult();
+				context.getResultList().add(s.withErrorPreprocessor(e.getMessage()));
+				this.resultList = context.getResultList();
 				changeLastLine(context.getDebug(), e.getMessage());
 				this.preprocessorError = true;
 				return;
 			}
 		}
-		this.result = context.getResult();
+		this.resultList = context.getResultList();
 	}
 
 	private void changeLastLine(List<StringLocated> list, String message) {
@@ -74,8 +80,8 @@ public class TimLoader {
 		list.set(num, last.withErrorPreprocessor(message));
 	}
 
-	public final List<StringLocated> getResult() {
-		return result;
+	public final List<StringLocated> getResultList() {
+		return resultList;
 	}
 
 	public final List<StringLocated> getDebug() {

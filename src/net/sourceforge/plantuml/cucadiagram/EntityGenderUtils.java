@@ -112,13 +112,5 @@ public class EntityGenderUtils {
 		};
 	}
 
-//	static public EntityGender emptyMembers() {
-//		return new EntityGender() {
-//			public boolean contains(IEntity test) {
-//				return test.getBodier().getMethodsToDisplay().size() == 0
-//						&& test.getBodier().getFieldsToDisplay().size() == 0;
-//			}
-//		};
-//	}
 
 }

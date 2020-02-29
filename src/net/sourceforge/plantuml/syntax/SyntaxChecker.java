@@ -65,7 +65,7 @@ public class SyntaxChecker {
 		if (source.startsWith("@startuml\n") == false) {
 			result.setError(true);
 			result.setLineLocation(new LineLocationImpl("", null).oneLineRead());
-			result.addErrorText("No @startuml found");
+			result.addErrorText("No @startuml/@enduml found");
 			return result;
 		}
 		if (source.endsWith("@enduml\n") == false && source.endsWith("@enduml") == false) {

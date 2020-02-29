@@ -49,8 +49,11 @@ public class CommandAllowMixing extends SingleLineCommand2<ClassDiagram> {
 
 	private static IRegex getRegexConcat() {
 
-		return RegexConcat.build(CommandAllowMixing.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("allow_?mixing"), //
+		return RegexConcat.build(CommandAllowMixing.class.getName(), //
+				RegexLeaf.start(), //
+				new RegexLeaf("allow"), //
+				new RegexLeaf("_?"), //
+				new RegexLeaf("mixing"), //
 				RegexLeaf.end());
 	}
 

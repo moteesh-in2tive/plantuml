@@ -63,11 +63,11 @@ import net.sourceforge.plantuml.objectdiagram.ObjectDiagramFactory;
 import net.sourceforge.plantuml.png.MetadataTag;
 import net.sourceforge.plantuml.preproc.Stdlib;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
+import net.sourceforge.plantuml.sprite.SpriteGrayLevel;
+import net.sourceforge.plantuml.sprite.SpriteUtils;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.stats.StatsUtils;
 import net.sourceforge.plantuml.syntax.LanguageDescriptor;
-import net.sourceforge.plantuml.ugraphic.sprite.SpriteGrayLevel;
-import net.sourceforge.plantuml.ugraphic.sprite.SpriteUtils;
 import net.sourceforge.plantuml.utils.Cypher;
 import net.sourceforge.plantuml.version.Version;
 
@@ -461,10 +461,18 @@ public class Run {
 		}
 		final ISourceFileReader sourceFileReader;
 		if (option.getOutputFile() == null) {
-			sourceFileReader = new SourceFileReader(option.getDefaultDefines(f), f, option.getOutputDir(),
-					option.getConfig(), option.getCharset(), option.getFileFormatOption());
+			File outputDir = option.getOutputDir();
+			if (outputDir != null && outputDir.getPath().endsWith("$")) {
+				final String path = outputDir.getPath();
+				outputDir = new File(path.substring(0, path.length() - 1)).getAbsoluteFile();
+				sourceFileReader = new SourceFileReaderCopyCat(option.getDefaultDefines(f), f, outputDir,
+						option.getConfig(), option.getCharset(), option.getFileFormatOption());
+			} else {
+				sourceFileReader = new SourceFileReader(option.getDefaultDefines(f), f, outputDir, option.getConfig(),
+						option.getCharset(), option.getFileFormatOption());
+			}
 		} else {
-			sourceFileReader = new SourceFileReader2(option.getDefaultDefines(f), f, option.getOutputFile(),
+			sourceFileReader = new SourceFileReaderHardFile(option.getDefaultDefines(f), f, option.getOutputFile(),
 					option.getConfig(), option.getCharset(), option.getFileFormatOption());
 		}
 		sourceFileReader.setCheckMetadata(option.isCheckMetadata());

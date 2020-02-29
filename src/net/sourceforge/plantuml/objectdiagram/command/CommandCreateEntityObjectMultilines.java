@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.objectdiagram.command;
 
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.command.BlocLines;
@@ -46,6 +47,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
@@ -61,7 +63,7 @@ public class CommandCreateEntityObjectMultilines extends CommandMultilines2<Abst
 
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandCreateEntityObjectMultilines.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("TYPE", "(object)"), //
+				new RegexLeaf("TYPE", "object"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("NAME", "(?:[%g]([^%g]+)[%g][%s]+as[%s]+)?([\\p{L}0-9_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -70,7 +72,9 @@ public class CommandCreateEntityObjectMultilines extends CommandMultilines2<Abst
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				ColorParser.exp1(), //
-				RegexLeaf.spaceZeroOrMore(), new RegexLeaf("\\{[%s]*"), RegexLeaf.end());
+				RegexLeaf.spaceZeroOrMore(), //
+				new RegexLeaf("\\{"), //
+				RegexLeaf.end());
 	}
 
 	@Override
@@ -78,6 +82,7 @@ public class CommandCreateEntityObjectMultilines extends CommandMultilines2<Abst
 		return "(?i)^[%s]*\\}[%s]*$";
 	}
 
+	@Override
 	protected CommandExecutionResult executeNow(AbstractClassOrObjectDiagram diagram, BlocLines lines) {
 		lines = lines.trim(true);
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst499().getTrimmed().getString());
@@ -97,13 +102,16 @@ public class CommandCreateEntityObjectMultilines extends CommandMultilines2<Abst
 	}
 
 	private IEntity executeArg0(AbstractClassOrObjectDiagram diagram, RegexResult line0) {
-		final Code code = Code.of(line0.get("NAME", 1));
+		final String name = line0.get("NAME", 1);
+		final Ident ident = diagram.buildLeafIdent(name);
+		final Code code = diagram.V1972() ? ident : diagram.buildCode(name);
 		final String display = line0.get("NAME", 0);
 		final String stereotype = line0.get("STEREO", 0);
-		if (diagram.leafExist(code)) {
-			return diagram.getOrCreateLeaf(code, LeafType.OBJECT, null);
+		final boolean leafExist = diagram.V1972() ? diagram.leafExistSmart(ident) : diagram.leafExist(code);
+		if (leafExist) {
+			return diagram.getOrCreateLeaf(diagram.buildLeafIdent(name), code, LeafType.OBJECT, null);
 		}
-		final IEntity entity = diagram.createLeaf(code, Display.getWithNewlines(display), LeafType.OBJECT, null);
+		final IEntity entity = diagram.createLeaf(ident, code, Display.getWithNewlines(display), LeafType.OBJECT, null);
 		if (stereotype != null) {
 			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(), diagram
 					.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER), diagram.getSkinParam()

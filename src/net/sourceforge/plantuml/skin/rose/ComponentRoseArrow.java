@@ -49,6 +49,7 @@ import net.sourceforge.plantuml.skin.ArrowDirection;
 import net.sourceforge.plantuml.skin.ArrowDressing;
 import net.sourceforge.plantuml.skin.ArrowHead;
 import net.sourceforge.plantuml.skin.ArrowPart;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
@@ -64,12 +65,16 @@ public class ComponentRoseArrow extends AbstractComponentRoseArrow {
 	private final boolean niceArrow;
 	private final boolean belowForResponse;
 
-	public ComponentRoseArrow(HtmlColor foregroundColor, FontConfiguration font, Display stringsToDisplay,
+	public ComponentRoseArrow(Style style, HtmlColor foregroundColor, FontConfiguration font, Display stringsToDisplay,
 			ArrowConfiguration arrowConfiguration, HorizontalAlignment messagePosition, ISkinSimple spriteContainer,
 			HorizontalAlignment textHorizontalAlignment, LineBreakStrategy maxMessageSize, boolean niceArrow,
 			boolean belowForResponse) {
-		super(foregroundColor, font, stringsToDisplay, arrowConfiguration, spriteContainer, textHorizontalAlignment,
-				maxMessageSize);
+		super(style, foregroundColor, font, stringsToDisplay, arrowConfiguration, spriteContainer,
+				textHorizontalAlignment, maxMessageSize);
+		// Done in Rose::createComponentArrow
+		// if (SkinParam.USE_STYLES()) {
+		// messagePosition = style.getHorizontalAlignment();
+		// }
 		this.messagePosition = messagePosition;
 		this.niceArrow = niceArrow;
 		this.belowForResponse = belowForResponse;

@@ -39,6 +39,7 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.AbstractComponent;
 import net.sourceforge.plantuml.skin.Area;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UAntiAliasing;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -49,7 +50,8 @@ public class ComponentRoseDelayLine extends AbstractComponent {
 
 	private final HtmlColor color;
 
-	public ComponentRoseDelayLine(HtmlColor color) {
+	public ComponentRoseDelayLine(Style style, HtmlColor color) {
+		super(style);
 		this.color = color;
 	}
 

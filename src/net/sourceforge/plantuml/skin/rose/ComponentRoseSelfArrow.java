@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.skin.ArrowConfiguration;
 import net.sourceforge.plantuml.skin.ArrowDecoration;
 import net.sourceforge.plantuml.skin.ArrowHead;
 import net.sourceforge.plantuml.skin.ArrowPart;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
@@ -61,11 +62,11 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 	private final double arrowWidth = 45;
 	private final boolean niceArrow;
 
-	public ComponentRoseSelfArrow(HtmlColor foregroundColor, FontConfiguration font, Display stringsToDisplay,
-			ArrowConfiguration arrowConfiguration, ISkinSimple spriteContainer, LineBreakStrategy maxMessageSize,
-			boolean niceArrow) {
-		super(foregroundColor, font, stringsToDisplay, arrowConfiguration, spriteContainer, HorizontalAlignment.LEFT,
-				maxMessageSize);
+	public ComponentRoseSelfArrow(Style style, HtmlColor foregroundColor, FontConfiguration font,
+			Display stringsToDisplay, ArrowConfiguration arrowConfiguration, ISkinSimple spriteContainer,
+			LineBreakStrategy maxMessageSize, boolean niceArrow) {
+		super(style, foregroundColor, font, stringsToDisplay, arrowConfiguration, spriteContainer,
+				HorizontalAlignment.LEFT, maxMessageSize);
 		this.niceArrow = niceArrow;
 	}
 

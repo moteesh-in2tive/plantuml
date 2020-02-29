@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.skin.rose;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -40,6 +41,7 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.skin.AbstractTextualComponent;
 import net.sourceforge.plantuml.skin.Area;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -50,10 +52,14 @@ final public class ComponentRoseNoteHexagonal extends AbstractTextualComponent {
 	private final int cornersize = 10;
 	private final SymbolContext symbolContext;
 
-	public ComponentRoseNoteHexagonal(SymbolContext symbolContext, FontConfiguration font, Display strings,
-			ISkinSimple spriteContainer, HorizontalAlignment alignment) {
-		super(spriteContainer.wrapWidth(), strings, font, alignment, 12, 12, 4, spriteContainer, false, null, null);
-		this.symbolContext = symbolContext;
+	public ComponentRoseNoteHexagonal(Style style, SymbolContext symbolContext, FontConfiguration font,
+			Display strings, ISkinSimple spriteContainer, HorizontalAlignment alignment) {
+		super(style, spriteContainer.wrapWidth(), strings, font, alignment, 12, 12, 4, spriteContainer, false, null, null);
+		if (SkinParam.USE_STYLES()) {
+			this.symbolContext = style.getSymbolContext(getIHtmlColorSet());
+		} else {
+			this.symbolContext = symbolContext;
+		}
 	}
 
 	@Override

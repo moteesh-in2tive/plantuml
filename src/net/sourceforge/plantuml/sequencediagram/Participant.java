@@ -36,6 +36,7 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
 import net.sourceforge.plantuml.SpecificBackcolorable;
 import net.sourceforge.plantuml.Url;
@@ -46,8 +47,12 @@ import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.WithStyle;
 
-public class Participant implements SpecificBackcolorable {
+public class Participant implements SpecificBackcolorable, WithStyle {
 
 	private final String code;
 	private Display display;
@@ -59,9 +64,32 @@ public class Participant implements SpecificBackcolorable {
 	private boolean stereotypePositionTop;
 	private final Set<EntityPortion> hiddenPortions;
 	private final int order;
+	private final StyleBuilder styleBuilder;
 
-	public Participant(ParticipantType type, String code, Display display, Set<EntityPortion> hiddenPortions, int order) {
+	// private Style style;
+
+	public StyleSignature getDefaultStyleDefinition() {
+		return type.getDefaultStyleDefinition().addClickable(getUrl());
+	}
+
+	public Style[] getUsedStyles() {
+		if (SkinParam.USE_STYLES() == false) {
+			return null;
+		}
+		final StyleSignature signature = getDefaultStyleDefinition().with(stereotype);
+		Style tmp = signature.getMergedStyle(styleBuilder);
+		tmp = tmp.eventuallyOverride(getColors(null));
+		Style stereo = getDefaultStyleDefinition().withStereotype(stereotype).getMergedStyle(styleBuilder);
+		if (tmp != null) {
+			stereo = tmp.mergeWith(stereo);
+		}
+		return new Style[] { tmp, stereo };
+	}
+
+	public Participant(ParticipantType type, String code, Display display, Set<EntityPortion> hiddenPortions,
+			int order, StyleBuilder styleBuilder) {
 		this.hiddenPortions = hiddenPortions;
+		this.styleBuilder = styleBuilder;
 		this.order = order;
 		if (type == null) {
 			throw new IllegalArgumentException();
@@ -75,6 +103,9 @@ public class Participant implements SpecificBackcolorable {
 		this.code = code;
 		this.type = type;
 		this.display = display;
+		// if (SkinParam.USE_STYLES()) {
+		// this.style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+		// }
 	}
 
 	public String getCode() {
@@ -111,6 +142,12 @@ public class Participant implements SpecificBackcolorable {
 		}
 		this.stereotype = stereotype;
 		this.stereotypePositionTop = stereotypePositionTop;
+
+		// if (SkinParam.USE_STYLES()) {
+		// for (Style style : stereotype.getStyles(styleBuilder)) {
+		// this.style = this.style.mergeWith(style);
+		// }
+		// }
 	}
 
 	public final int getInitialLife() {

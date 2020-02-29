@@ -41,6 +41,7 @@ import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.skin.ActorStyle;
 import net.sourceforge.plantuml.ugraphic.UFont;
 
 public class DiagElement {
@@ -82,10 +83,10 @@ public class DiagElement {
 		final TextBlock ad1 = toTextBlock(adress1);
 		final TextBlock ad2 = toTextBlock(adress2);
 		final SymbolContext symbolContext = new SymbolContext(ColorParam.activityBackground.getDefaultValue(),
-				ColorParam.activityBorder.getDefaultValue()).withShadow(true);
+				ColorParam.activityBorder.getDefaultValue()).withShadow(3);
 		final TextBlock desc = toTextBlock(description);
-		final TextBlock box = shape
-				.asSmall(TextBlockUtils.empty(0, 0), desc, TextBlockUtils.empty(0, 0), symbolContext, HorizontalAlignment.CENTER);
+		final TextBlock box = shape.asSmall(TextBlockUtils.empty(0, 0), desc, TextBlockUtils.empty(0, 0),
+				symbolContext, HorizontalAlignment.CENTER);
 		return new LinkedElement(ad1, box, ad2, mainNetwork, this);
 	}
 
@@ -106,7 +107,7 @@ public class DiagElement {
 	}
 
 	public final void setShape(String shapeName) {
-		final USymbol shapeFromString = USymbol.getFromString(shapeName);
+		final USymbol shapeFromString = USymbol.getFromString(shapeName, ActorStyle.STICKMAN);
 		if (shapeFromString != null) {
 			this.shape = shapeFromString;
 		}

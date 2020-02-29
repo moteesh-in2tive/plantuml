@@ -103,7 +103,7 @@ public class CommunicationTile extends AbstractTile implements TileWithUpdateSta
 	private boolean isCreate() {
 		return message.isCreate();
 	}
-	
+
 	private double getArrowThickness() {
 		final UStroke result = skinParam.getThickness(LineParam.sequenceArrow, null);
 		if (result == null) {
@@ -111,7 +111,6 @@ public class CommunicationTile extends AbstractTile implements TileWithUpdateSta
 		}
 		return result.getThickness();
 	}
-
 
 	private ArrowComponent getComponent(StringBounder stringBounder) {
 		ArrowConfiguration arrowConfiguration = message.getArrowConfiguration();
@@ -123,8 +122,8 @@ public class CommunicationTile extends AbstractTile implements TileWithUpdateSta
 		}
 		arrowConfiguration = arrowConfiguration.withThickness(getArrowThickness());
 
-		final ArrowComponent comp = skin
-				.createComponentArrow(arrowConfiguration, skinParam, message.getLabelNumbered());
+		final ArrowComponent comp = skin.createComponentArrow(message.getUsedStyles(), arrowConfiguration, skinParam,
+				message.getLabelNumbered());
 		return comp;
 	}
 

@@ -35,6 +35,8 @@ package net.sourceforge.plantuml;
 import java.awt.Font;
 
 import net.sourceforge.plantuml.graphic.FontConfiguration;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.StyleSignature;
 
 interface FontParamConstant {
 	String FAMILY = "SansSerif";
@@ -89,11 +91,11 @@ public enum FontParam {
 	SEQUENCE_GROUP_HEADER(13, Font.BOLD), //
 	PARTICIPANT(14, Font.PLAIN), //
 	PARTICIPANT_STEREOTYPE(14, Font.ITALIC), //
-	SEQUENCE_TITLE(14, Font.BOLD), //
 	STATE(14, Font.PLAIN), //
 	STATE_ATTRIBUTE(12, Font.PLAIN), //
 	LEGEND(14, Font.PLAIN), //
 	TITLE(18, Font.PLAIN), //
+	// SEQUENCE_TITLE(14, Font.BOLD), //
 	CAPTION(14, Font.PLAIN), //
 	SWIMLANE_TITLE(18, Font.PLAIN), //
 	FOOTER(10, Font.PLAIN, "#888888", FontParamConstant.FAMILY), //
@@ -174,6 +176,20 @@ public enum FontParam {
 
 	public FontConfiguration getFontConfiguration(ISkinParam skinParam) {
 		return new FontConfiguration(skinParam, this, null);
+	}
+
+	public StyleSignature getStyleDefinition() {
+		if (this == FOOTER) {
+			return StyleSignature.of(SName.root, SName.footer);
+		}
+		if (this == HEADER) {
+			return StyleSignature.of(SName.root, SName.header);
+		}
+		if (this == TITLE) {
+			return StyleSignature.of(SName.root, SName.title);
+		}
+		System.err.println("Warning " + this);
+		return null;
 	}
 
 }

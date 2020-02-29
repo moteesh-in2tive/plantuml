@@ -39,6 +39,7 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.PaddingParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
+import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.real.Real;
 import net.sourceforge.plantuml.real.RealUtils;
@@ -49,27 +50,47 @@ import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.Context2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.WithStyle;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class Englober {
+public class Englober implements WithStyle {
 
 	final private ParticipantEnglober participantEnglober;
 	final private List<Participant> participants = new ArrayList<Participant>();
 	final private TileArguments tileArguments;
+	final private StyleBuilder styleBuilder;
 	final private Real core1;
 	final private Real core2;
 	final private boolean isTeoz;
 	private double marginX = 0;
 
+	public StyleSignature getDefaultStyleDefinition() {
+		return ComponentType.ENGLOBER.getDefaultStyleDefinition();
+	}
+
+	public Style[] getUsedStyles() {
+		Style tmp = getDefaultStyleDefinition().with(participantEnglober.getStereotype()).getMergedStyle(styleBuilder);
+		final HtmlColor backColor = participantEnglober.getBoxColor();
+		if (tmp != null) {
+			tmp = tmp.eventuallyOverride(PName.BackGroundColor, backColor);
+		}
+		return new Style[] { tmp };
+	}
+
 	public static Englober createPuma(ParticipantEnglober englober, Participant first, ISkinParam skinParam, Rose skin,
-			StringBounder stringBounder) {
-		return new Englober(englober, first, convertFunctionToBeRemoved(skinParam, skin, stringBounder), false);
+			StringBounder stringBounder, StyleBuilder styleBuilder) {
+		return new Englober(englober, first, convertFunctionToBeRemoved(skinParam, skin, stringBounder), false,
+				styleBuilder);
 	}
 
 	public static Englober createTeoz(ParticipantEnglober participantEnglober, Participant first,
-			TileArguments tileArguments) {
-		return new Englober(participantEnglober, first, tileArguments, true);
+			TileArguments tileArguments, StyleBuilder styleBuilder) {
+		return new Englober(participantEnglober, first, tileArguments, true, styleBuilder);
 	}
 
 	private static TileArguments convertFunctionToBeRemoved(ISkinParam skinParam, Rose skin, StringBounder stringBounder) {
@@ -78,10 +99,11 @@ public class Englober {
 	}
 
 	private Englober(ParticipantEnglober participantEnglober, Participant first, TileArguments tileArguments,
-			boolean isTeoz) {
+			boolean isTeoz, StyleBuilder styleBuilder) {
 		if (tileArguments == null) {
 			throw new IllegalArgumentException();
 		}
+		this.styleBuilder = styleBuilder;
 		this.isTeoz = isTeoz;
 		this.participantEnglober = participantEnglober;
 		this.participants.add(first);
@@ -145,7 +167,8 @@ public class Englober {
 		final ParticipantEnglober englober = getParticipantEnglober();
 		final ISkinParam s = englober.getBoxColor() == null ? tileArguments.getSkinParam() : new SkinParamBackcolored(
 				tileArguments.getSkinParam(), englober.getBoxColor());
-		return tileArguments.getSkin().createComponent(ComponentType.ENGLOBER, null, s, englober.getTitle());
+		return tileArguments.getSkin().createComponent(getUsedStyles(), ComponentType.ENGLOBER, null, s,
+				englober.getTitle());
 	}
 
 	public final ParticipantEnglober getParticipantEnglober() {
@@ -180,7 +203,7 @@ public class Englober {
 	}
 
 	public double getPreferredHeight() {
-		final Component comp = tileArguments.getSkin().createComponent(ComponentType.ENGLOBER, null,
+		final Component comp = tileArguments.getSkin().createComponent(getUsedStyles(), ComponentType.ENGLOBER, null,
 				tileArguments.getSkinParam(), getParticipantEnglober().getTitle());
 		return comp.getPreferredHeight(tileArguments.getStringBounder());
 	}

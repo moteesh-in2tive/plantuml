@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.svek;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -91,15 +92,16 @@ import net.sourceforge.plantuml.svek.extremity.ExtremityOther;
 import net.sourceforge.plantuml.svek.image.EntityImageNoteLink;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
-import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
+import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class Line implements Moveable, Hideable {
 
+	private static final Dimension2DDouble CONSTRAINT_SPOT = new Dimension2DDouble(10, 10);
 	private final Cluster ltail;
 	private final Cluster lhead;
 	private final Link link;
@@ -140,6 +142,7 @@ public class Line implements Moveable, Hideable {
 	private final boolean useRankSame;
 	private final UStroke defaultThickness;
 	private HtmlColor arrowLollipopColor;
+	private final ISkinParam skinParam;
 
 	// private final UmlDiagramType umlType;
 
@@ -210,7 +213,7 @@ public class Line implements Moveable, Hideable {
 
 	private Cluster getCluster2(Bibliotekon bibliotekon, IEntity entityMutable) {
 		for (Cluster cl : bibliotekon.allCluster()) {
-			if (entityMutable == cl.getGroup()) {
+			if (cl.getGroups().contains(entityMutable)) {
 				return cl;
 			}
 		}
@@ -223,6 +226,7 @@ public class Line implements Moveable, Hideable {
 		if (link == null) {
 			throw new IllegalArgumentException();
 		}
+		this.skinParam = skinParam;
 		// this.umlType = link.getUmlDiagramType();
 		this.useRankSame = skinParam.useRankSame();
 		this.startUid = link.getEntityPort1(bibliotekon);
@@ -291,7 +295,7 @@ public class Line implements Moveable, Hideable {
 		if (link.getNote() == null) {
 			noteOnly = null;
 		} else {
-			noteOnly = new EntityImageNoteLink(link.getNote(), link.getNoteColors(), skinParam);
+			noteOnly = new EntityImageNoteLink(link.getNote(), link.getNoteColors(), skinParam, link.getStyleBuilder());
 			if (link.getNoteLinkStrategy() == NoteLinkStrategy.HALF_NOT_PRINTED
 					|| link.getNoteLinkStrategy() == NoteLinkStrategy.HALF_PRINTED_FULL) {
 				divideLabelWidthByTwo = true;
@@ -339,7 +343,8 @@ public class Line implements Moveable, Hideable {
 		final VisibilityModifier visibilityModifier = link.getVisibilityModifier();
 		if (visibilityModifier != null) {
 			final Rose rose = new Rose();
-			// final HtmlColor back = visibilityModifier.getBackground() == null ? null : rose.getHtmlColor(skinParam,
+			// final HtmlColor back = visibilityModifier.getBackground() == null ? null :
+			// rose.getHtmlColor(skinParam,
 			// visibilityModifier.getBackground());
 			final HtmlColor fore = rose.getHtmlColor(skinParam, visibilityModifier.getForeground());
 			TextBlock visibility = visibilityModifier.getUBlock(skinParam.classAttributeIconSize(), fore, null, false);
@@ -400,17 +405,17 @@ public class Line implements Moveable, Hideable {
 			sb.append(",");
 		}
 		sb.append("color=\"" + StringUtils.getAsHtml(lineColor) + "\"");
-		if (labelText != null) {
+		if (labelText != null || link.getLinkConstraint() != null) {
 			sb.append(",");
 			if (graphvizVersion.useXLabelInsteadOfLabel() || dotMode == DotMode.NO_LEFT_RIGHT_AND_XLABEL) {
 				sb.append("xlabel=<");
 			} else {
 				sb.append("label=<");
 			}
-			appendTable(sb, eventuallyDivideByTwo(labelText.calculateDimension(stringBounder)), noteLabelColor,
-					graphvizVersion);
+			final Dimension2D dimNote = labelText == null ? CONSTRAINT_SPOT
+					: labelText.calculateDimension(stringBounder);
+			appendTable(sb, eventuallyDivideByTwo(dimNote), noteLabelColor, graphvizVersion);
 			sb.append(">");
-			// sb.append(",labelfloat=true");
 		}
 
 		if (startTailText != null) {
@@ -418,14 +423,12 @@ public class Line implements Moveable, Hideable {
 			sb.append("taillabel=<");
 			appendTable(sb, startTailText.calculateDimension(stringBounder), startTailColor, graphvizVersion);
 			sb.append(">");
-			// sb.append(",labelangle=0");
 		}
 		if (endHeadText != null) {
 			sb.append(",");
 			sb.append("headlabel=<");
 			appendTable(sb, endHeadText.calculateDimension(stringBounder), endHeadColor, graphvizVersion);
 			sb.append(">");
-			// sb.append(",labelangle=0");
 		}
 
 		if (link.isInvis()) {
@@ -493,7 +496,7 @@ public class Line implements Moveable, Hideable {
 	}
 
 	private UDrawable getExtremity(LinkDecor decor, PointListIterator pointListIterator, final Point2D center,
-			double angle, Cluster cluster, Shape shapeContact) {
+			double angle, Cluster cluster, Node nodeContact) {
 		final ExtremityFactory extremityFactory = decor.getExtremityFactory(backgroundColor);
 
 		if (cluster != null) {
@@ -516,8 +519,8 @@ public class Line implements Moveable, Hideable {
 			final Point2D p1 = points.get(1);
 			final Point2D p2 = points.get(2);
 			Side side = null;
-			if (shapeContact != null) {
-				side = shapeContact.getClusterPosition().getClosestSide(p1);
+			if (nodeContact != null) {
+				side = nodeContact.getClusterPosition().getClosestSide(p1);
 			}
 			return extremityFactory.createUDrawable(p0, p1, p2, side);
 		} else if (decor == LinkDecor.NONE) {
@@ -563,9 +566,11 @@ public class Line implements Moveable, Hideable {
 		dotPath = new DotPath(path);
 
 		if (projectionCluster != null) {
-			// System.err.println("Line::solveLine1 projectionCluster=" + projectionCluster.getClusterPosition());
+			// System.err.println("Line::solveLine1 projectionCluster=" +
+			// projectionCluster.getClusterPosition());
 			projectionCluster.manageEntryExitPoint(stringBounder);
-			// System.err.println("Line::solveLine2 projectionCluster=" + projectionCluster.getClusterPosition());
+			// System.err.println("Line::solveLine2 projectionCluster=" +
+			// projectionCluster.getClusterPosition());
 			// if (lhead != null)
 			// System.err.println("Line::solveLine ltail=" + lhead.getClusterPosition());
 			// if (ltail != null)
@@ -578,15 +583,15 @@ public class Line implements Moveable, Hideable {
 
 		final LinkType linkType = link.getType();
 		this.extremity1 = getExtremity(linkType.getDecor2(), pointListIterator, dotPath.getStartPoint(),
-				dotPath.getStartAngle() + Math.PI, ltail, bibliotekon.getShape(link.getEntity1()));
+				dotPath.getStartAngle() + Math.PI, ltail, bibliotekon.getNode(link.getEntity1()));
 		this.extremity2 = getExtremity(linkType.getDecor1(), pointListIterator, dotPath.getEndPoint(),
-				dotPath.getEndAngle(), lhead, bibliotekon.getShape(link.getEntity2()));
+				dotPath.getEndAngle(), lhead, bibliotekon.getNode(link.getEntity2()));
 
 		if (link.getEntity1().getLeafType() == LeafType.LOLLIPOP_HALF) {
-			bibliotekon.getShape(link.getEntity1()).addImpact(dotPath.getStartAngle() + Math.PI);
+			bibliotekon.getNode(link.getEntity1()).addImpact(dotPath.getStartAngle() + Math.PI);
 		}
 		if (link.getEntity2().getLeafType() == LeafType.LOLLIPOP_HALF) {
-			bibliotekon.getShape(link.getEntity2()).addImpact(dotPath.getEndAngle());
+			bibliotekon.getNode(link.getEntity2()).addImpact(dotPath.getEndAngle());
 		}
 
 		if (extremity1 instanceof Extremity && extremity2 instanceof Extremity) {
@@ -601,19 +606,20 @@ public class Line implements Moveable, Hideable {
 				if (dist1start > dist1end && dist2end > dist2start) {
 					pointListIterator = lineSvg.getPointsWithThisColor(lineColor);
 					this.extremity2 = getExtremity(linkType.getDecor1(), pointListIterator, dotPath.getEndPoint(),
-							dotPath.getEndAngle(), lhead, bibliotekon.getShape(link.getEntity2()));
+							dotPath.getEndAngle(), lhead, bibliotekon.getNode(link.getEntity2()));
 					this.extremity1 = getExtremity(linkType.getDecor2(), pointListIterator, dotPath.getStartPoint(),
-							dotPath.getStartAngle() + Math.PI, ltail, bibliotekon.getShape(link.getEntity1()));
+							dotPath.getStartAngle() + Math.PI, ltail, bibliotekon.getNode(link.getEntity1()));
 				}
 			}
 
 		}
 
-		if (this.labelText != null) {
+		if (this.labelText != null || link.getLinkConstraint() != null) {
 			final Point2D pos = getXY(fullSvg, this.noteLabelColor);
 			if (pos != null) {
 				corner1.manage(pos);
-				this.labelXY = TextBlockUtils.asPositionable(labelText, stringBounder, pos);
+				this.labelXY = labelText == null ? TextBlockUtils.asPositionable(CONSTRAINT_SPOT, stringBounder, pos)
+						: TextBlockUtils.asPositionable(labelText, stringBounder, pos);
 			}
 		}
 
@@ -656,8 +662,7 @@ public class Line implements Moveable, Hideable {
 		if (opale) {
 			return;
 		}
-		ug.draw(new UComment("link " + link.getEntity1().getCode().getFullName() + " to "
-				+ link.getEntity2().getCode().getFullName()));
+		ug.draw(link.commentForSvg());
 		double x = 0;
 		double y = 0;
 		final Url url = link.getUrl();
@@ -707,8 +712,8 @@ public class Line implements Moveable, Hideable {
 		if (link.getEntity2().isGroup() && link.getEntity2().getUSymbol() instanceof USymbolFolder) {
 			final Cluster endCluster = bibliotekon.getCluster((IGroup) link.getEntity2());
 			if (endCluster != null) {
-				final double deltaFolderH = endCluster
-						.checkFolderPosition(dotPath.getEndPoint(), ug.getStringBounder());
+				final double deltaFolderH = endCluster.checkFolderPosition(dotPath.getEndPoint(),
+						ug.getStringBounder());
 				todraw = new DotPath(dotPath);
 				todraw.moveEndPoint(0, deltaFolderH);
 				// moveEndY = deltaFolderH;
@@ -728,9 +733,9 @@ public class Line implements Moveable, Hideable {
 
 		}
 
-		final String comment = link.getEntity1().getCode().getFullName() + "-"
-				+ link.getEntity2().getCode().getFullName();
-		todraw.setComment(uniq(ids, comment));
+		final String comment = link.idCommentForSvg();
+		final String tmp = uniq(ids, comment);
+		todraw.setComment(tmp);
 
 		drawRainbow(ug.apply(new UTranslate(x, y)), color, todraw, link.getSupplementaryColors(), stroke);
 
@@ -738,16 +743,17 @@ public class Line implements Moveable, Hideable {
 
 		if (this.labelText != null && this.labelXY != null
 				&& link.getNoteLinkStrategy() != NoteLinkStrategy.HALF_NOT_PRINTED) {
-			this.labelText.drawU(ug.apply(new UTranslate(x + this.labelXY.getPosition().getX(), y
-					+ this.labelXY.getPosition().getY())));
+			this.labelText.drawU(ug.apply(
+					new UTranslate(x + this.labelXY.getPosition().getX(), y + this.labelXY.getPosition().getY())));
 		}
-		if (this.startTailText != null && this.startTailLabelXY != null && this.startTailLabelXY.getPosition() != null) {
-			this.startTailText.drawU(ug.apply(new UTranslate(x + this.startTailLabelXY.getPosition().getX(), y
-					+ this.startTailLabelXY.getPosition().getY())));
+		if (this.startTailText != null && this.startTailLabelXY != null
+				&& this.startTailLabelXY.getPosition() != null) {
+			this.startTailText.drawU(ug.apply(new UTranslate(x + this.startTailLabelXY.getPosition().getX(),
+					y + this.startTailLabelXY.getPosition().getY())));
 		}
 		if (this.endHeadText != null && this.endHeadLabelXY != null && this.endHeadLabelXY.getPosition() != null) {
-			this.endHeadText.drawU(ug.apply(new UTranslate(x + this.endHeadLabelXY.getPosition().getX(), y
-					+ this.endHeadLabelXY.getPosition().getY())));
+			this.endHeadText.drawU(ug.apply(new UTranslate(x + this.endHeadLabelXY.getPosition().getX(),
+					y + this.endHeadLabelXY.getPosition().getY())));
 		}
 
 		if (linkType.getMiddleDecor() != LinkMiddleDecor.NONE) {
@@ -762,6 +768,40 @@ public class Line implements Moveable, Hideable {
 		if (url != null) {
 			ug.closeAction();
 		}
+
+		if (link.getLinkConstraint() != null) {
+			final double xConstraint = x + this.labelXY.getPosition().getX();
+			final double yConstraint = y + this.labelXY.getPosition().getY();
+//			ug.apply(new UTranslate(xConstraint, yConstraint)).draw(new URectangle(10, 10));
+			final List<Point2D> square = getSquare(xConstraint, yConstraint);
+			final Set<Point2D> bez = dotPath.sample();
+			Point2D minPt = null;
+			double minDist = Double.MAX_VALUE;
+			for (Point2D pt : square) {
+				for (Point2D pt2 : bez) {
+					final double distance = pt2.distance(pt);
+					if (minPt == null || distance < minDist) {
+						minPt = pt;
+						minDist = distance;
+					}
+				}
+			}
+			link.getLinkConstraint().setPosition(link, minPt);
+			link.getLinkConstraint().drawMe(ug, skinParam);
+		}
+	}
+
+	private List<Point2D> getSquare(double x, double y) {
+		final List<Point2D> result = new ArrayList<Point2D>();
+		result.add(new Point2D.Double(x, y));
+		result.add(new Point2D.Double(x + 5, y));
+		result.add(new Point2D.Double(x + 10, y));
+		result.add(new Point2D.Double(x, y + 5));
+		result.add(new Point2D.Double(x + 10, y + 5));
+		result.add(new Point2D.Double(x, y + 10));
+		result.add(new Point2D.Double(x + 5, y + 10));
+		result.add(new Point2D.Double(x + 10, y + 10));
+		return result;
 	}
 
 	private String uniq(final Set<String> ids, final String comment) {
@@ -870,11 +910,12 @@ public class Line implements Moveable, Hideable {
 		return strategy.getResult() + getDecorDzeta();
 	}
 
-	public void manageCollision(Collection<Shape> allShapes) {
+	public void manageCollision(Collection<Node> allNodes) {
 
-		for (Shape sh : allShapes) {
+		for (Node sh : allNodes) {
 			final Positionable cl = PositionableUtils.addMargin(sh, 8, 8);
-			if (startTailText != null && startTailLabelXY != null && PositionableUtils.intersect(cl, startTailLabelXY)) {
+			if (startTailText != null && startTailLabelXY != null
+					&& PositionableUtils.intersect(cl, startTailLabelXY)) {
 				startTailLabelXY = PositionableUtils.moveAwayFrom(cl, startTailLabelXY);
 			}
 			if (endHeadText != null && endHeadLabelXY != null && PositionableUtils.intersect(cl, endHeadLabelXY)) {
@@ -902,7 +943,7 @@ public class Line implements Moveable, Hideable {
 
 	}
 
-	private void avoid(Point2D.Double move, Positionable pos, Shape sh) {
+	private void avoid(Point2D.Double move, Positionable pos, Node sh) {
 		final Oscillator oscillator = new Oscillator();
 		final Point2D.Double orig = new Point2D.Double(move.x, move.y);
 		while (cut(pos, sh)) {
@@ -911,7 +952,7 @@ public class Line implements Moveable, Hideable {
 		}
 	}
 
-	private boolean cut(Positionable pos, Shape sh) {
+	private boolean cut(Positionable pos, Node sh) {
 		return BezierUtils.intersect(pos, sh) || tooClose(pos);
 	}
 

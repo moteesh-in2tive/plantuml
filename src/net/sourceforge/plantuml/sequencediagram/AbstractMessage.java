@@ -41,8 +41,26 @@ import java.util.Set;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.WithStyle;
 
-public abstract class AbstractMessage implements EventWithDeactivate {
+public abstract class AbstractMessage implements EventWithDeactivate, WithStyle {
+
+	public Style[] getUsedStyles() {
+		Style style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+		if (style != null && arrowConfiguration.getColor() != null) {
+			style = style.eventuallyOverride(PName.LineColor, arrowConfiguration.getColor());
+		}
+		return new Style[] { style };
+	}
+
+	public StyleSignature getDefaultStyleDefinition() {
+		return StyleSignature.of(SName.root, SName.element, SName.sequenceDiagram, SName.arrow);
+	}
 
 	private final Display label;
 	private final ArrowConfiguration arrowConfiguration;
@@ -51,10 +69,13 @@ public abstract class AbstractMessage implements EventWithDeactivate {
 	private Url url;
 	private final String messageNumber;
 	private boolean parallel = false;
+	private final StyleBuilder styleBuilder;
 
 	private List<Note> noteOnMessages = new ArrayList<Note>();
 
-	public AbstractMessage(Display label, ArrowConfiguration arrowConfiguration, String messageNumber) {
+	public AbstractMessage(StyleBuilder styleBuilder, Display label, ArrowConfiguration arrowConfiguration,
+			String messageNumber) {
+		this.styleBuilder = styleBuilder;
 		this.url = null;
 		this.label = label;
 		this.arrowConfiguration = arrowConfiguration;
@@ -161,7 +182,8 @@ public abstract class AbstractMessage implements EventWithDeactivate {
 	}
 
 	public final void setNote(Note note) {
-		if (note.getPosition() != NotePosition.LEFT && note.getPosition() != NotePosition.RIGHT) {
+		if (note.getPosition() != NotePosition.LEFT && note.getPosition() != NotePosition.RIGHT
+				&& note.getPosition() != NotePosition.BOTTOM && note.getPosition() != NotePosition.TOP) {
 			throw new IllegalArgumentException();
 		}
 		note = note.withPosition(overideNotePosition(note.getPosition()));
@@ -209,7 +231,7 @@ public abstract class AbstractMessage implements EventWithDeactivate {
 			throw new IllegalArgumentException(anchor);
 		}
 	}
-	
+
 	public void setPart1Anchor(String anchor) {
 		this.anchor1 = anchor;
 	}
@@ -221,7 +243,7 @@ public abstract class AbstractMessage implements EventWithDeactivate {
 	public String getAnchor() {
 		return anchor;
 	}
-	
+
 	public String getPart1Anchor() {
 		return this.anchor1;
 	}
@@ -230,5 +252,7 @@ public abstract class AbstractMessage implements EventWithDeactivate {
 		return this.anchor2;
 	}
 
+	public abstract Participant getParticipant1();
 
+	public abstract Participant getParticipant2();
 }

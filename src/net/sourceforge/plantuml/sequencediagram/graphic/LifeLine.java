@@ -48,6 +48,8 @@ import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -204,7 +206,8 @@ public class LifeLine {
 			ComponentType type = ComponentType.ALIVE_BOX_CLOSE_OPEN;
 			for (final Iterator<SegmentColored> it = getSegmentsCutted(stringBounder, i).iterator(); it.hasNext();) {
 				final SegmentColored seg = it.next();
-				ISkinParam skinParam2 = new SkinParamBackcolored(skinParam, seg.getSpecificBackColor());
+				final HtmlColor specificBackColor = seg.getSpecificBackColor();
+				ISkinParam skinParam2 = new SkinParamBackcolored(skinParam, specificBackColor);
 				final HtmlColor specificLineColor = seg.getSpecificLineColor();
 				if (specificLineColor != null) {
 					skinParam2 = new SkinParamForceColor(skinParam2, ColorParam.sequenceLifeLineBorder,
@@ -214,7 +217,13 @@ public class LifeLine {
 					type = type == ComponentType.ALIVE_BOX_CLOSE_OPEN ? ComponentType.ALIVE_BOX_CLOSE_CLOSE
 							: ComponentType.ALIVE_BOX_OPEN_CLOSE;
 				}
-				final Component compAliveBox = skin.createComponent(type, null, skinParam2, null);
+				Style style = type.getDefaultStyleDefinition().getMergedStyle(skinParam2.getCurrentStyleBuilder());
+				if (style != null) {
+					style = style.eventuallyOverride(PName.BackGroundColor, specificBackColor);
+					style = style.eventuallyOverride(PName.LineColor, specificLineColor);
+				}
+				final Component compAliveBox = skin
+						.createComponent(new Style[] { style }, type, null, skinParam2, null);
 				type = ComponentType.ALIVE_BOX_OPEN_OPEN;
 				final int currentLevel = getLevel(seg.getPos1Initial());
 				seg.drawU(ug, compAliveBox, currentLevel);

@@ -42,6 +42,7 @@ import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
+import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -60,6 +61,10 @@ public abstract class AbstractFtile extends AbstractTextBlock implements Ftile {
 			throw new IllegalStateException();
 		}
 		return skinParam;
+	}
+
+	final public IHtmlColorSet getIHtmlColorSet() {
+		return skinParam.getIHtmlColorSet();
 	}
 
 	public LinkRendering getInLinkRendering() {

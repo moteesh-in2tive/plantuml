@@ -43,14 +43,24 @@ public class UImage implements UShape {
 
 	private final BufferedImage image;
 	private final String formula;
+	private final String rawFileName;
 
-	public UImage(BufferedImage image) {
-		this(image, null);
+	public String getRawFileName() {
+		return rawFileName;
 	}
 
-	public UImage(BufferedImage image, String formula) {
+	public UImage(BufferedImage image) {
+		this(null, image, null);
+	}
+
+	public UImage(String rawFileName, BufferedImage image) {
+		this(rawFileName, image, null);
+	}
+
+	public UImage(String rawFileName, BufferedImage image, String formula) {
 		this.image = image;
 		this.formula = formula;
+		this.rawFileName = rawFileName;
 	}
 
 	public UImage scale(double scale) {
@@ -71,7 +81,7 @@ public class UImage implements UShape {
 		final AffineTransform at = new AffineTransform();
 		at.scale(scale, scale);
 		final AffineTransformOp scaleOp = new AffineTransformOp(at, type);
-		return new UImage(scaleOp.filter(image, after), formula);
+		return new UImage(rawFileName, scaleOp.filter(image, after), formula);
 	}
 
 	public final BufferedImage getImage() {
@@ -106,7 +116,7 @@ public class UImage implements UShape {
 				}
 			}
 		}
-		return new UImage(copy, formula);
+		return new UImage(rawFileName, copy, formula);
 	}
 
 	public UImage muteTransparentColor(Color newColor) {
@@ -124,7 +134,7 @@ public class UImage implements UShape {
 				}
 			}
 		}
-		return new UImage(copy, formula);
+		return new UImage(rawFileName, copy, formula);
 	}
 
 	private int getDarkerRgb() {
@@ -132,7 +142,8 @@ public class UImage implements UShape {
 		for (int i = 0; i < image.getWidth(); i++) {
 			for (int j = 0; j < image.getHeight(); j++) {
 				final int color = image.getRGB(i, j);
-				// System.err.println("i="+i+" j="+j+" "+Integer.toHexString(color)+" "+isTransparent(color));
+				// System.err.println("i="+i+" j="+j+" "+Integer.toHexString(color)+"
+				// "+isTransparent(color));
 				final int rgb = getRgb(color);
 				final int a = getA(color);
 				if (a != mask_a__) {
@@ -168,7 +179,8 @@ public class UImage implements UShape {
 	// return true;
 	// }
 
-	// From https://stackoverflow.com/questions/3514158/how-do-you-clone-a-bufferedimage
+	// From
+	// https://stackoverflow.com/questions/3514158/how-do-you-clone-a-bufferedimage
 	private static BufferedImage deepCopyOld(BufferedImage bi) {
 		final ColorModel cm = bi.getColorModel();
 		final boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
@@ -177,7 +189,8 @@ public class UImage implements UShape {
 	}
 
 	private BufferedImage deepCopy2() {
-		final BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		final BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
 		for (int i = 0; i < this.image.getWidth(); i++) {
 			for (int j = 0; j < this.image.getHeight(); j++) {
 				result.setRGB(i, j, image.getRGB(i, j));

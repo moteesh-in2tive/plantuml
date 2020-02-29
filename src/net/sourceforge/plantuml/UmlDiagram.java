@@ -43,7 +43,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
@@ -57,7 +56,6 @@ import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.CommandControl;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.CommandSkinParam;
 import net.sourceforge.plantuml.command.CommandSkinParamMultilines;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.ImageData;
@@ -73,6 +71,7 @@ import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.mjpeg.MJPEGGenerator;
 import net.sourceforge.plantuml.pdf.PdfConverter;
+import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.svek.EmptySvgException;
 import net.sourceforge.plantuml.svek.GraphvizCrash;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
@@ -81,7 +80,6 @@ import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 import net.sourceforge.plantuml.version.Version;
 
 public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annotated, WithSprite {
@@ -184,6 +182,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		if (fileFormatOption.getSvgLinkTarget() == null || fileFormatOption.getSvgLinkTarget().equals("_top")) {
 			fileFormatOption = fileFormatOption.withSvgLinkTarget(getSkinParam().getSvgLinkTarget());
 		}
+		fileFormatOption = fileFormatOption.withPreserveAspectRatio(getSkinParam().getPreserveAspectRatio());
 		fileFormatOption = fileFormatOption.withTikzFontDistortion(getSkinParam().getTikzFontDistortion());
 		if (hover != null) {
 			fileFormatOption = fileFormatOption.withHoverColor(StringUtils.getAsHtml(getSkinParam().getColorMapper()
@@ -402,38 +401,39 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		return useJDot;
 	}
 
-	public CommandExecutionResult loadSkin(String filename) throws IOException {
-
-		final String res = "/skin/" + filename + ".skin";
-		final InputStream internalIs = UmlDiagram.class.getResourceAsStream(res);
-		if (internalIs != null) {
-			final BlocLines lines2 = BlocLines.load(internalIs, new LineLocationImpl(filename, null));
-			return loadSkinInternal(lines2);
-		}
-		if (OptionFlags.ALLOW_INCLUDE == false) {
-			return CommandExecutionResult.ok();
-		}
-		final File f = FileSystem.getInstance().getFile(filename + ".skin");
-		if (f == null || f.exists() == false || f.canRead() == false) {
-			return CommandExecutionResult.error("Cannot load skin from " + filename);
-		}
-		final BlocLines lines = BlocLines.load(f, new LineLocationImpl(f.getName(), null));
-		return loadSkinInternal(lines);
-	}
-
-	private CommandExecutionResult loadSkinInternal(final BlocLines lines) {
-		final CommandSkinParam cmd1 = new CommandSkinParam();
-		final CommandSkinParamMultilines cmd2 = new CommandSkinParamMultilines();
-		for (int i = 0; i < lines.size(); i++) {
-			final BlocLines ext1 = lines.subList(i, i + 1);
-			if (cmd1.isValid(ext1) == CommandControl.OK) {
-				cmd1.execute(this, ext1);
-			} else if (cmd2.isValid(ext1) == CommandControl.OK_PARTIAL) {
-				i = tryMultilines(cmd2, i, lines);
-			}
-		}
+	public CommandExecutionResult loadSkin(String newSkin) throws IOException {
+		getSkinParam().setDefaultSkin(newSkin + ".skin");
 		return CommandExecutionResult.ok();
+		// final String res = "/skin/" + filename + ".skin";
+		// final InputStream internalIs = UmlDiagram.class.getResourceAsStream(res);
+		// if (internalIs != null) {
+		// final BlocLines lines2 = BlocLines.load(internalIs, new LineLocationImpl(filename, null));
+		// return loadSkinInternal(lines2);
+		// }
+		// if (OptionFlags.ALLOW_INCLUDE == false) {
+		// return CommandExecutionResult.ok();
+		// }
+		// final File f = FileSystem.getInstance().getFile(filename + ".skin");
+		// if (f == null || f.exists() == false || f.canRead() == false) {
+		// return CommandExecutionResult.error("Cannot load skin from " + filename);
+		// }
+		// final BlocLines lines = BlocLines.load(f, new LineLocationImpl(f.getName(), null));
+		// return loadSkinInternal(lines);
 	}
+
+	// private CommandExecutionResult loadSkinInternal(final BlocLines lines) {
+	// final CommandSkinParam cmd1 = new CommandSkinParam();
+	// final CommandSkinParamMultilines cmd2 = new CommandSkinParamMultilines();
+	// for (int i = 0; i < lines.size(); i++) {
+	// final BlocLines ext1 = lines.subList(i, i + 1);
+	// if (cmd1.isValid(ext1) == CommandControl.OK) {
+	// cmd1.execute(this, ext1);
+	// } else if (cmd2.isValid(ext1) == CommandControl.OK_PARTIAL) {
+	// i = tryMultilines(cmd2, i, lines);
+	// }
+	// }
+	// return CommandExecutionResult.ok();
+	// }
 
 	private int tryMultilines(CommandSkinParamMultilines cmd2, int i, BlocLines lines) {
 		for (int j = i + 1; j <= lines.size(); j++) {
@@ -447,9 +447,8 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 		}
 		return i;
 	}
-	
+
 	public void setHideEmptyDescription(boolean hideEmptyDescription) {
 	}
-
 
 }

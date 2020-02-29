@@ -39,6 +39,10 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class SkinParamColors extends SkinParamDelegator {
 
+	public final Colors getColors() {
+		return colors;
+	}
+
 	final private Colors colors;
 
 	public SkinParamColors(ISkinParam skinParam, Colors colors) {

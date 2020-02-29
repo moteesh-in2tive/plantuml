@@ -36,10 +36,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
 import net.sourceforge.plantuml.cucadiagram.GroupHierarchy;
@@ -48,13 +49,18 @@ import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.cucadiagram.SuperGroup;
 import net.sourceforge.plantuml.cucadiagram.dot.DotData;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
-import net.sourceforge.plantuml.ugraphic.UFont;
 
 public final class GroupPngMakerActivity {
 
@@ -64,6 +70,18 @@ public final class GroupPngMakerActivity {
 
 	class InnerGroupHierarchy implements GroupHierarchy {
 
+		public Set<SuperGroup> getAllSuperGroups() {
+			throw new UnsupportedOperationException();
+		}
+
+		public IGroup getRootGroup() {
+			throw new UnsupportedOperationException();
+		}
+		
+		public SuperGroup getRootSuperGroup() {
+			throw new UnsupportedOperationException();
+		}
+		
 		public Collection<IGroup> getChildrenGroups(IGroup parent) {
 			if (EntityUtils.groupRoot(parent)) {
 				return diagram.getChildrenGroups(group);
@@ -74,6 +92,8 @@ public final class GroupPngMakerActivity {
 		public boolean isEmpty(IGroup g) {
 			return diagram.isEmpty(g);
 		}
+
+
 
 	}
 
@@ -96,42 +116,42 @@ public final class GroupPngMakerActivity {
 		return result;
 	}
 
-	public IEntityImage getImage() throws IOException, InterruptedException {
-		// final List<? extends CharSequence> display = group.getDisplay();
-		// final TextBlock title = Display.create(display, new FontConfiguration(
-		// getFont(FontParam.STATE), HtmlColorUtils.BLACK), HorizontalAlignment.CENTER, diagram.getSkinParam());
+	final public StyleSignature getDefaultStyleDefinitionGroup() {
+		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.group);
+	}
 
+	public IEntityImage getImage() throws IOException, InterruptedException {
 		if (group.size() == 0) {
 			return new EntityImageState(group, diagram.getSkinParam());
 		}
 		final List<Link> links = getPureInnerLinks();
 		final ISkinParam skinParam = diagram.getSkinParam();
-		// if (OptionFlags.PBBACK && group.getSpecificBackColor() != null) {
-		// skinParam = new SkinParamBackcolored(skinParam, null, group.getSpecificBackColor());
-		// }
+
 		final DotData dotData = new DotData(group, links, group.getLeafsDirect(), diagram.getUmlDiagramType(),
 				skinParam, new InnerGroupHierarchy(), diagram.getColorMapper(), diagram.getEntityFactory(), false,
 				DotMode.NORMAL, diagram.getNamespaceSeparator(), diagram.getPragma());
 
-		final GeneralImageBuilder svek2 = new GeneralImageBuilder(dotData, diagram.getEntityFactory(),
+		final GeneralImageBuilder svek2 = new GeneralImageBuilder(false, dotData, diagram.getEntityFactory(),
 				diagram.getSource(), diagram.getPragma(), stringBounder);
 
 		if (group.getGroupType() == GroupType.INNER_ACTIVITY) {
 			final Stereotype stereo = group.getStereotype();
 			final HtmlColor borderColor = getColor(ColorParam.activityBorder, stereo);
-			final HtmlColor backColor = group.getColors(skinParam).getColor(ColorType.BACK) == null ? getColor(
-					ColorParam.background, stereo) : group.getColors(skinParam).getColor(ColorType.BACK);
-			return new InnerActivity(svek2.buildImage(null, new String[0]), borderColor, backColor,
-					skinParam.shadowing(group.getStereotype()));
+			final HtmlColor backColor = group.getColors(skinParam).getColor(ColorType.BACK) == null
+					? getColor(ColorParam.background, stereo)
+					: group.getColors(skinParam).getColor(ColorType.BACK);
+			final double shadowing;
+			if (SkinParam.USE_STYLES()) {
+				final Style style = getDefaultStyleDefinitionGroup().getMergedStyle(skinParam.getCurrentStyleBuilder());
+				shadowing = style.value(PName.Shadowing).asDouble();
+			} else {
+				shadowing = skinParam.shadowing(group.getStereotype()) ? 4 : 0;
+			}
+			return new InnerActivity(svek2.buildImage(null, new String[0]), borderColor, backColor, shadowing);
 		}
 
 		throw new UnsupportedOperationException(group.getGroupType().toString());
 
-	}
-
-	private UFont getFont(FontParam fontParam) {
-		final ISkinParam skinParam = diagram.getSkinParam();
-		return skinParam.getFont(null, false, fontParam);
 	}
 
 	private final Rose rose = new Rose();

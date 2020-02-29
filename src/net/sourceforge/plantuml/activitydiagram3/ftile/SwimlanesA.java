@@ -60,6 +60,10 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.UGraphicDelegator;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.Styleable;
 import net.sourceforge.plantuml.svek.UGraphicForSnake;
 import net.sourceforge.plantuml.ugraphic.LimitFinder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
@@ -73,7 +77,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.comp.SlotSet;
 import net.sourceforge.plantuml.utils.MathUtils;
 
-public class SwimlanesA extends AbstractTextBlock implements TextBlock {
+public class SwimlanesA extends AbstractTextBlock implements TextBlock, Styleable {
 
 	protected final ISkinParam skinParam;;
 	private final Pragma pragma;
@@ -85,10 +89,22 @@ public class SwimlanesA extends AbstractTextBlock implements TextBlock {
 	private Instruction currentInstruction = root;
 
 	private LinkRendering nextLinkRenderer = LinkRendering.none();
+	private Style style;
+
+	public StyleSignature getDefaultStyleDefinition() {
+		return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.swimlane);
+	}
 
 	public SwimlanesA(ISkinParam skinParam, Pragma pragma) {
 		this.skinParam = skinParam;
 		this.pragma = pragma;
+	}
+
+	protected Style getStyle() {
+		if (style == null) {
+			this.style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
+		}
+		return style;
 	}
 
 	private FtileFactory getFtileFactory(StringBounder stringBounder) {
@@ -203,8 +219,10 @@ public class SwimlanesA extends AbstractTextBlock implements TextBlock {
 			if (back != null) {
 				final UGraphic background = ug.apply(new UChangeBackColor(back)).apply(new UChangeColor(back))
 						.apply(new UTranslate(x2, 0));
-				background.draw(new URectangle(swimlane.getActualWidth(), dimensionFull.getHeight()
-						+ titleHeightTranslate.getDy()));
+				final URectangle rectangle = new URectangle(swimlane.getActualWidth(), dimensionFull.getHeight()
+						+ titleHeightTranslate.getDy());
+				rectangle.setIgnoreForCompression(true);
+				background.draw(rectangle);
 			}
 
 			full.drawU(new UGraphicInterceptorOneSwimlane(ug, swimlane).apply(swimlane.getTranslate()).apply(

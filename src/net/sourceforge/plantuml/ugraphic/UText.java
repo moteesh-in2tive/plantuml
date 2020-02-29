@@ -41,7 +41,6 @@ public class UText implements UShape {
 
 	private final String text;
 	private final FontConfiguration font;
-	private final String ariaLabel;
 
 	@Override
 	public String toString() {
@@ -49,18 +48,9 @@ public class UText implements UShape {
 	}
 
 	public UText(String text, FontConfiguration font) {
-		this(text, font, null);
-	}
-	
-	private UText(String text, FontConfiguration font, String ariaLabel) {
 		assert text.indexOf('\t') == -1;
 		this.text = text;
 		this.font = font;
-		this.ariaLabel = ariaLabel;
-	}
-	
-	public UText withAriaLabel(String newAriaLabel) {
-		return new UText(text, font, newAriaLabel);
 	}
 
 	public String getText() {
@@ -70,17 +60,11 @@ public class UText implements UShape {
 	public FontConfiguration getFontConfiguration() {
 		return font;
 	}
-	
+
 	public double getDescent() {
 		final LineMetrics fm = TextBlockUtils.getLineMetrics(font.getFont(), text);
 		final double descent = fm.getDescent();
 		return descent;
 	}
-
-	public String getAriaLabel() {
-		return ariaLabel;
-	}
-
-
 
 }

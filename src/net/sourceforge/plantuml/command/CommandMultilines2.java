@@ -33,7 +33,6 @@
 package net.sourceforge.plantuml.command;
 
 import net.sourceforge.plantuml.StringLocated;
-import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
@@ -44,7 +43,7 @@ public abstract class CommandMultilines2<S extends Diagram> implements Command<S
 	private final IRegex starting;
 
 	private final MultilinesStrategy strategy;
-
+	
 	public CommandMultilines2(IRegex patternStart, MultilinesStrategy strategy) {
 		if (patternStart.getPattern().startsWith("^") == false || patternStart.getPattern().endsWith("$") == false) {
 			throw new IllegalArgumentException("Bad pattern " + patternStart.getPattern());

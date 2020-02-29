@@ -167,7 +167,7 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 							align, skinParam, CreoleMode.FULL);
 					blocks.add(bloc);
 				} else {
-					final Member m = new MemberImpl(s, MemberImpl.isMethod(s), manageModifier);
+					final Member m = new Member(s, Member.isMethod(s), manageModifier);
 					members.add(m);
 					if (m.getUrl() != null) {
 						urls.add(m.getUrl());
@@ -176,7 +176,7 @@ public class BodyEnhanced extends AbstractTextBlock implements TextBlock, WithPo
 			}
 		}
 		if (inEllipse && members.size() == 0) {
-			members.add(new MemberImpl("", false, false));
+			members.add(new Member("", false, false));
 		}
 		blocks.add(decorate(stringBounder, new MethodsOrFieldsArea(members, fontParam, skinParam, align, stereotype,
 				entity), separator, title));

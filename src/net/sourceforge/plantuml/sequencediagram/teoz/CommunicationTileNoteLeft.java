@@ -60,7 +60,7 @@ public class CommunicationTileNoteLeft extends AbstractTile implements TileWithU
 	public Event getEvent() {
 		return message;
 	}
-	
+
 	@Override
 	public double getYPoint(StringBounder stringBounder) {
 		return tile.getYPoint(stringBounder);
@@ -81,7 +81,7 @@ public class CommunicationTileNoteLeft extends AbstractTile implements TileWithU
 	}
 
 	private Component getComponent(StringBounder stringBounder) {
-		final Component comp = skin.createComponent(ComponentType.NOTE, null,
+		final Component comp = skin.createComponent(noteOnMessage.getUsedStyles(), ComponentType.NOTE, null,
 				noteOnMessage.getSkinParamBackcolored(skinParam), noteOnMessage.getStrings());
 		return comp;
 	}

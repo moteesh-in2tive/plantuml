@@ -57,17 +57,21 @@ import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandEndPackage;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
 import net.sourceforge.plantuml.command.CommandNamespace;
+import net.sourceforge.plantuml.command.CommandNamespace2;
+import net.sourceforge.plantuml.command.CommandNamespaceEmpty;
 import net.sourceforge.plantuml.command.CommandPackage;
 import net.sourceforge.plantuml.command.CommandPackageEmpty;
 import net.sourceforge.plantuml.command.CommandPage;
 import net.sourceforge.plantuml.command.CommandRankDir;
 import net.sourceforge.plantuml.command.UmlDiagramFactory;
-import net.sourceforge.plantuml.command.note.FactoryNoteCommand;
-import net.sourceforge.plantuml.command.note.FactoryNoteOnEntityCommand;
-import net.sourceforge.plantuml.command.note.FactoryNoteOnLinkCommand;
-import net.sourceforge.plantuml.command.note.FactoryTipOnEntityCommand;
+import net.sourceforge.plantuml.command.note.CommandConstraintOnLinks;
+import net.sourceforge.plantuml.command.note.CommandFactoryNote;
+import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
+import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnLink;
+import net.sourceforge.plantuml.command.note.CommandFactoryTipOnEntity;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementMultilines;
+import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementParenthesis;
 import net.sourceforge.plantuml.descdiagram.command.CommandNewpage;
 import net.sourceforge.plantuml.descdiagram.command.CommandPackageWithUSymbol;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
@@ -107,6 +111,7 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandCreateEntityObject());
 
 		cmds.add(new CommandAllowMixing());
+		cmds.add(new CommandCreateElementParenthesis());
 		cmds.add(new CommandLayoutNewLine());
 
 		cmds.add(new CommandPackage());
@@ -116,10 +121,12 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandCreateElementFull2(Mode.NORMAL_KEYWORD));
 		cmds.add(new CommandCreateElementFull2(Mode.WITH_MIX_PREFIX));
-		final FactoryNoteCommand factoryNoteCommand = new FactoryNoteCommand();
+		final CommandFactoryNote factoryNoteCommand = new CommandFactoryNote();
 		cmds.add(factoryNoteCommand.createSingleLine());
 
 		cmds.add(new CommandNamespace());
+		cmds.add(new CommandNamespace2());
+		cmds.add(new CommandNamespaceEmpty());
 		cmds.add(new CommandStereotype());
 
 		cmds.add(new CommandLinkClass(UmlDiagramType.CLASS));
@@ -127,12 +134,12 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandImport());
 
-		final FactoryTipOnEntityCommand factoryTipOnEntityCommand = new FactoryTipOnEntityCommand("a", new RegexLeaf(
+		final CommandFactoryTipOnEntity factoryTipOnEntityCommand = new CommandFactoryTipOnEntity("a", new RegexLeaf(
 				"ENTITY", "(" + CommandCreateClass.CODE_NO_DOTDOT + "|[%g][^%g]+[%g])::([%g][^%g]+[%g]|[^%s]+)"));
 		cmds.add(factoryTipOnEntityCommand.createMultiLine(true));
 		cmds.add(factoryTipOnEntityCommand.createMultiLine(false));
 
-		final FactoryNoteOnEntityCommand factoryNoteOnEntityCommand = new FactoryNoteOnEntityCommand("class",
+		final CommandFactoryNoteOnEntity factoryNoteOnEntityCommand = new CommandFactoryNoteOnEntity("class",
 				new RegexLeaf("ENTITY", "(" + CommandCreateClass.CODE + "|[%g][^%g]+[%g])"));
 		cmds.add(factoryNoteOnEntityCommand.createSingleLine());
 		cmds.add(new CommandUrl());
@@ -141,9 +148,10 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 		cmds.add(factoryNoteOnEntityCommand.createMultiLine(false));
 		cmds.add(factoryNoteCommand.createMultiLine(false));
 
-		final FactoryNoteOnLinkCommand factoryNoteOnLinkCommand = new FactoryNoteOnLinkCommand();
+		final CommandFactoryNoteOnLink factoryNoteOnLinkCommand = new CommandFactoryNoteOnLink();
 		cmds.add(factoryNoteOnLinkCommand.createSingleLine());
 		cmds.add(factoryNoteOnLinkCommand.createMultiLine(false));
+		cmds.add(new CommandConstraintOnLinks());
 
 		cmds.add(new CommandDiamondAssociation());
 

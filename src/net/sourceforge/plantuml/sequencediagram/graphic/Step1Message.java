@@ -50,6 +50,7 @@ import net.sourceforge.plantuml.skin.ArrowConfiguration;
 import net.sourceforge.plantuml.skin.ArrowHead;
 import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
+import net.sourceforge.plantuml.style.Style;
 
 class Step1Message extends Step1Abstract {
 
@@ -67,9 +68,11 @@ class Step1Message extends Step1Abstract {
 		if (isSelfMessage()) {
 			this.messageArrow = null;
 		} else {
-			final ArrowComponent comp = drawingSet.getSkin().createComponentArrow(getConfig(),
+			final ArrowComponent comp = drawingSet.getSkin().createComponentArrow(message.getUsedStyles(), getConfig(),
 					drawingSet.getSkinParam(), message.getLabelNumbered());
-			final Component compAliveBox = drawingSet.getSkin().createComponent(ComponentType.ALIVE_BOX_OPEN_OPEN,
+			final Component compAliveBox = drawingSet.getSkin().createComponent(
+					new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getDefaultStyleDefinition().getMergedStyle(
+							drawingSet.getSkinParam().getCurrentStyleBuilder()) }, ComponentType.ALIVE_BOX_OPEN_OPEN,
 					null, drawingSet.getSkinParam(), null);
 
 			this.messageArrow = new MessageArrow(freeY.getFreeY(range), drawingSet.getSkin(), comp,
@@ -79,8 +82,8 @@ class Step1Message extends Step1Abstract {
 		final List<Note> noteOnMessages = message.getNoteOnMessages();
 		for (Note noteOnMessage : noteOnMessages) {
 			final ISkinParam skinParam = noteOnMessage.getSkinParamBackcolored(drawingSet.getSkinParam());
-			addNote(drawingSet.getSkin().createComponent(noteOnMessage.getStyle().getNoteComponentType(), null,
-					skinParam, noteOnMessage.getStrings()));
+			addNote(drawingSet.getSkin().createComponent(noteOnMessage.getUsedStyles(),
+					noteOnMessage.getNoteStyle().getNoteComponentType(), null, skinParam, noteOnMessage.getStrings()));
 		}
 
 	}
@@ -171,6 +174,7 @@ class Step1Message extends Step1Abstract {
 			for (int i = 0; i < getNotes().size(); i++) {
 				final Component note = getNotes().get(i);
 				final Note noteOnMessage = getMessage().getNoteOnMessages().get(i);
+				noteOnMessage.temporaryProtectedUntilTeozIsStandard();
 				noteBoxes.add(createNoteBox(getStringBounder(), messageSelfArrow, note, noteOnMessage));
 			}
 			return new ArrowAndNoteBox(getStringBounder(), messageSelfArrow, noteBoxes);
@@ -179,6 +183,7 @@ class Step1Message extends Step1Abstract {
 			for (int i = 0; i < getNotes().size(); i++) {
 				final Component note = getNotes().get(i);
 				final Note noteOnMessage = getMessage().getNoteOnMessages().get(i);
+				noteOnMessage.temporaryProtectedUntilTeozIsStandard();
 				noteBoxes.add(createNoteBox(getStringBounder(), messageArrow, note, noteOnMessage));
 			}
 			return new ArrowAndNoteBox(getStringBounder(), messageArrow, noteBoxes);
@@ -203,16 +208,21 @@ class Step1Message extends Step1Abstract {
 			deltaY += getHalfLifeWidth();
 		}
 
-		return new MessageSelfArrow(posY, getDrawingSet().getSkin(), getDrawingSet().getSkin().createComponentArrow(
-				getConfig(), getDrawingSet().getSkinParam(), getMessage().getLabelNumbered()),
-				getLivingParticipantBox1(), deltaY, getMessage().getUrl(), deltaX);
+		final Style[] styles = getMessage().getUsedStyles();
+		final ArrowComponent comp = getDrawingSet().getSkin().createComponentArrow(styles, getConfig(),
+				getDrawingSet().getSkinParam(), getMessage().getLabelNumbered());
+		return new MessageSelfArrow(posY, getDrawingSet().getSkin(), comp, getLivingParticipantBox1(), deltaY,
+				getMessage().getUrl(), deltaX);
 	}
 
 	private double getHalfLifeWidth() {
 		return getDrawingSet()
 				.getSkin()
-				.createComponent(ComponentType.ALIVE_BOX_OPEN_OPEN, null, getDrawingSet().getSkinParam(),
-						Display.create("")).getPreferredWidth(null) / 2;
+				.createComponent(
+						new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getDefaultStyleDefinition().getMergedStyle(
+								getDrawingSet().getSkinParam().getCurrentStyleBuilder()) },
+						ComponentType.ALIVE_BOX_OPEN_OPEN, null, getDrawingSet().getSkinParam(), Display.create(""))
+				.getPreferredWidth(null) / 2;
 	}
 
 	private Arrow createArrowCreate() {
@@ -253,7 +263,8 @@ class Step1Message extends Step1Abstract {
 		}
 		if (m.getArrowConfiguration().getDressing2().getHead() == ArrowHead.CROSSX) {
 			result = result.withHead2(m.getArrowConfiguration().getDressing2().getHead());
-			System.err.println("WARNING : CROSSX");
+			// System.err.println("WARNING : CROSSX");
+			// Thread.dumpStack();
 			// assert false;
 		}
 		result = result.withPart(m.getArrowConfiguration().getPart());

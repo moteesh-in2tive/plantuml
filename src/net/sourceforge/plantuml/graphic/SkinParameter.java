@@ -84,7 +84,7 @@ public class SkinParameter {
 			ColorParam.fileBorder, FontParam.FILE, FontParam.FILE_STEREOTYPE);
 
 	public static final SkinParameter PACKAGE = new SkinParameter("PACKAGE", ColorParam.packageBackground,
-			ColorParam.packageBorder, FontParam.FOLDER, FontParam.FOLDER_STEREOTYPE);
+			ColorParam.packageBorder, FontParam.PACKAGE, FontParam.PACKAGE_STEREOTYPE);
 
 	public static final SkinParameter CARD = new SkinParameter("CARD", ColorParam.cardBackground,
 			ColorParam.cardBorder, FontParam.CARD, FontParam.CARD_STEREOTYPE, LineParam.cardBorder,
@@ -113,7 +113,7 @@ public class SkinParameter {
 	public static final SkinParameter CONTROL = new SkinParameter("CONTROL", ColorParam.controlBackground,
 			ColorParam.controlBorder, FontParam.CONTROL, FontParam.CONTROL_STEREOTYPE);
 
-	public static final SkinParameter ENTITY_DOMAIN = new SkinParameter("ENTITY_DOMAIN", ColorParam.entityBackground,
+	public static final SkinParameter ENTITY = new SkinParameter("ENTITY", ColorParam.entityBackground,
 			ColorParam.entityBorder, FontParam.ENTITY, FontParam.ENTITY_STEREOTYPE);
 
 	public static final SkinParameter INTERFACE = new SkinParameter("INTERFACE", ColorParam.interfaceBackground,

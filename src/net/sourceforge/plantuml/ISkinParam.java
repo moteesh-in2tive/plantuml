@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Collection;
+
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
@@ -39,7 +41,11 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.skin.ActorStyle;
 import net.sourceforge.plantuml.skin.ArrowDirection;
+import net.sourceforge.plantuml.skin.Padder;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.ConditionEndStyle;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
@@ -116,7 +122,7 @@ public interface ISkinParam extends ISkinSimple {
 	public ConditionStyle getConditionStyle();
 
 	public ConditionEndStyle getConditionEndStyle();
-        
+
 	public double minClassWidth();
 
 	public boolean sameClassWidth();
@@ -132,6 +138,8 @@ public interface ISkinParam extends ISkinSimple {
 	public boolean handwritten();
 
 	public String getSvgLinkTarget();
+
+	public String getPreserveAspectRatio();
 
 	public int getTabSize();
 
@@ -164,5 +172,19 @@ public interface ISkinParam extends ISkinSimple {
 	public void setUseVizJs(boolean useVizJs);
 
 	public boolean isUseVizJs();
+
+	public Padder getSequenceDiagramPadder();
+
+	public StyleBuilder getCurrentStyleBuilder();
+
+	public void muteStyle(Style modifiedStyle);
+
+	public Collection<String> getAllSpriteNames();
+
+	public String getDefaultSkin();
+
+	public void setDefaultSkin(String newSkin);
+
+	public ActorStyle getActorStyle();
 
 }

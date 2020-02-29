@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml;
 
+import java.util.Collection;
 import java.util.Map;
 
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
@@ -42,14 +43,18 @@ import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.graphic.SkinParameter;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.skin.ActorStyle;
 import net.sourceforge.plantuml.skin.ArrowDirection;
+import net.sourceforge.plantuml.skin.Padder;
+import net.sourceforge.plantuml.sprite.Sprite;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.ConditionEndStyle;
 import net.sourceforge.plantuml.svek.ConditionStyle;
 import net.sourceforge.plantuml.svek.PackageStyle;
 import net.sourceforge.plantuml.ugraphic.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UStroke;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class SkinParamDelegator implements ISkinParam {
 
@@ -179,7 +184,7 @@ public class SkinParamDelegator implements ISkinParam {
 	public ConditionEndStyle getConditionEndStyle() {
 		return skinParam.getConditionEndStyle();
 	}
-        
+
 	public double minClassWidth() {
 		return skinParam.minClassWidth();
 	}
@@ -226,6 +231,10 @@ public class SkinParamDelegator implements ISkinParam {
 
 	public String getSvgLinkTarget() {
 		return skinParam.getSvgLinkTarget();
+	}
+
+	public String getPreserveAspectRatio() {
+		return skinParam.getPreserveAspectRatio();
 	}
 
 	public String getMonospacedFamily() {
@@ -319,10 +328,37 @@ public class SkinParamDelegator implements ISkinParam {
 	public Map<String, String> values() {
 		return skinParam.values();
 	}
-	
+
 	public HorizontalAlignment getStereotypeAlignment() {
 		return skinParam.getStereotypeAlignment();
 	}
 
+	public Padder getSequenceDiagramPadder() {
+		return skinParam.getSequenceDiagramPadder();
+	}
+
+	public StyleBuilder getCurrentStyleBuilder() {
+		return skinParam.getCurrentStyleBuilder();
+	}
+
+	public void muteStyle(Style modifiedStyle) {
+		skinParam.muteStyle(modifiedStyle);
+	}
+
+	public Collection<String> getAllSpriteNames() {
+		return skinParam.getAllSpriteNames();
+	}
+
+	public String getDefaultSkin() {
+		return skinParam.getDefaultSkin();
+	}
+
+	public void setDefaultSkin(String newFileName) {
+		skinParam.setDefaultSkin(newFileName);
+	}
+
+	public ActorStyle getActorStyle() {
+		return skinParam.getActorStyle();
+	}
 
 }

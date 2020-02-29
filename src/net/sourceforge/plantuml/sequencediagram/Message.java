@@ -34,15 +34,16 @@ package net.sourceforge.plantuml.sequencediagram;
 
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.skin.ArrowConfiguration;
+import net.sourceforge.plantuml.style.StyleBuilder;
 
 public final class Message extends AbstractMessage {
 
 	final private Participant p1;
 	final private Participant p2;
 
-	public Message(Participant p1, Participant p2, Display label, ArrowConfiguration arrowConfiguration,
-			String messageNumber) {
-		super(label, arrowConfiguration, messageNumber);
+	public Message(StyleBuilder styleBuilder, Participant p1, Participant p2, Display label,
+			ArrowConfiguration arrowConfiguration, String messageNumber) {
+		super(styleBuilder, label, arrowConfiguration, messageNumber);
 		this.p1 = p1;
 		this.p2 = p2;
 	}
@@ -52,10 +53,12 @@ public final class Message extends AbstractMessage {
 		return super.toString() + " " + p1 + "->" + p2 + " " + getLabel();
 	}
 
+	@Override
 	public Participant getParticipant1() {
 		return p1;
 	}
 
+	@Override
 	public Participant getParticipant2() {
 		return p2;
 	}

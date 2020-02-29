@@ -32,8 +32,11 @@
  */
 package net.sourceforge.plantuml.command;
 
+import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.TitledDiagram;
+import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
@@ -66,8 +69,13 @@ public class CommandHeader extends SingleLineCommand2<TitledDiagram> {
 	@Override
 	protected CommandExecutionResult executeArg(TitledDiagram diagram, LineLocation location, RegexResult arg) {
 		final String align = arg.get("POSITION", 0);
-		diagram.getHeader().put(Display.getWithNewlines(arg.get("LABEL", 0)),
-				HorizontalAlignment.fromString(align, HorizontalAlignment.RIGHT));
+		HorizontalAlignment ha = HorizontalAlignment.fromString(align, HorizontalAlignment.RIGHT);
+		if (SkinParam.USE_STYLES() && align == null) {
+			ha = FontParam.HEADER.getStyleDefinition()
+					.getMergedStyle(((UmlDiagram) diagram).getSkinParam().getCurrentStyleBuilder())
+					.getHorizontalAlignment();
+		}
+		diagram.getHeader().putDisplay(Display.getWithNewlines(arg.get("LABEL", 0)), ha);
 		return CommandExecutionResult.ok();
 	}
 }

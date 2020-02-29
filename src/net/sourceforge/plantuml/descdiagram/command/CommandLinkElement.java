@@ -49,6 +49,7 @@ import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
+import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkArrow;
@@ -79,14 +80,14 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("LABEL1", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0)]|<\\||[%s]+o)?"), //
+				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\||[%s]+o)?"), //
 				new RegexLeaf("BODY1", "([-=.~]+)"), //
 				new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + LINE_STYLE_MUTILPLES + ")\\])?"), //
 				new RegexOptional(new RegexLeaf("DIRECTION", "(left|right|up|down|le?|ri?|up?|do?)(?=[-=.~0()])")), //
 				new RegexOptional(new RegexLeaf("INSIDE", "(0|\\(0\\)|\\(0|0\\))(?=[-=.~])")), //
 				new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("BODY2", "([-=.~]*)"), //
-				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0(]|\\|>|o[%s]+)?"), //
+				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|\\|>|\\\\\\\\|o[%s]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional(new RegexLeaf("LABEL2", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -114,6 +115,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d1 = LinkDecor.SQUARE;
 		} else if (head1.equals("0")) {
 			d1 = LinkDecor.CIRCLE;
+		} else if (head1.equals("@")) {
+			d1 = LinkDecor.CIRCLE_FILL;
 		} else if (head1.equals("(")) {
 			d1 = LinkDecor.PARENTHESIS;
 		} else if (head1.equals(">")) {
@@ -124,6 +127,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d1 = LinkDecor.AGREGATION;
 		} else if (head1.equals("+")) {
 			d1 = LinkDecor.PLUS;
+		} else if (head1.equals("\\\\")) {
+			d1 = LinkDecor.HALF_ARROW;
 		} else if (head1.equals(">>")) {
 			d1 = LinkDecor.ARROW_TRIANGLE;
 		} else if (head1.equals("^")) {
@@ -138,6 +143,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d2 = LinkDecor.SQUARE;
 		} else if (head2.equals("0")) {
 			d2 = LinkDecor.CIRCLE;
+		} else if (head2.equals("@")) {
+			d2 = LinkDecor.CIRCLE_FILL;
 		} else if (head2.equals(")")) {
 			d2 = LinkDecor.PARENTHESIS;
 		} else if (head2.equals("<")) {
@@ -220,7 +227,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				if (firstLabel == null && secondLabel == null) {
 					init();
 				}
-				labelLink = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(labelLink);
+				labelLink = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(labelLink, "\"");
 
 				if ("<".equals(labelLink)) {
 					linkArrow = LinkArrow.BACKWARD;
@@ -279,24 +286,14 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 
 	@Override
 	protected CommandExecutionResult executeArg(DescriptionDiagram diagram, LineLocation location, RegexResult arg) {
-		final Code ent1 = Code.of(arg.get("ENT1", 0));
-		final Code ent2 = Code.of(arg.get("ENT2", 0));
-
-		if (diagram.isGroup(ent1) && diagram.isGroup(ent2)) {
-			return executePackageLink(diagram, arg);
-		}
-
-		final IEntity cl1 = diagram.isGroup(ent1) ? diagram.getGroup(Code.of(arg.get("ENT1", 0))) : getOrCreateLeaf(
-				diagram, ent1);
-		final IEntity cl2 = diagram.isGroup(ent2) ? diagram.getGroup(Code.of(arg.get("ENT2", 0))) : getOrCreateLeaf(
-				diagram, ent2);
-
-		// if (arg.get("ENT1", 1) != null) {
-		// cl1.setStereotype(new Stereotype(arg.get("ENT1", 1)));
-		// }
-		// if (arg.get("ENT2", 1) != null) {
-		// cl2.setStereotype(new Stereotype(arg.get("ENT2", 1)));
-		// }
+		final String ent1String = arg.get("ENT1", 0);
+		final String ent2String = arg.get("ENT2", 0);
+		final Ident ident1 = diagram.buildFullyQualified(ent1String);
+		final Ident ident2 = diagram.buildFullyQualified(ent2String);
+		Ident ident1pure = Ident.empty().add(ent1String, diagram.getNamespaceSeparator());
+		Ident ident2pure = Ident.empty().add(ent2String, diagram.getNamespaceSeparator());
+		final Code code1 = diagram.V1972() ? ident1 : diagram.buildCode(ent1String);
+		final Code code2 = diagram.V1972() ? ident2 : diagram.buildCode(ent2String);
 
 		final LinkType linkType = getLinkType(arg);
 		final Direction dir = getDirection(arg);
@@ -306,11 +303,22 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		} else {
 			queue = getQueue(arg);
 		}
-
 		final Labels labels = new Labels(arg);
 
+		final IEntity cl1;
+		final IEntity cl2;
+		if (diagram.isGroup(code1) && diagram.isGroup(code2)) {
+			cl1 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent1String)) : diagram
+					.getGroup(diagram.buildCode(ent1String));
+			cl2 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent2String)) : diagram
+					.getGroup(diagram.buildCode(ent2String));
+		} else {
+			cl1 = getFoo1(diagram, code1, ident1, ident1pure);
+			cl2 = getFoo1(diagram, code2, ident2, ident2pure);
+		}
 		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.labelLink), queue.length(),
-				labels.firstLabel, labels.secondLabel, diagram.getLabeldistance(), diagram.getLabelangle());
+				labels.firstLabel, labels.secondLabel, diagram.getLabeldistance(), diagram.getLabelangle(), diagram
+						.getSkinParam().getCurrentStyleBuilder());
 		link.setLinkArrow(labels.linkArrow);
 		if (dir == Direction.LEFT || dir == Direction.UP) {
 			link = link.getInv();
@@ -325,48 +333,46 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		return CommandExecutionResult.ok();
 	}
 
-	private ILeaf getOrCreateLeaf(DescriptionDiagram diagram, final Code code2) {
-		final String code = code2.getFullName();
-		if (code.startsWith("()")) {
-			return diagram.getOrCreateLeaf(Code.of(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
-					.trin(code.substring(2)))), LeafType.DESCRIPTION, USymbol.INTERFACE);
+	private IEntity getFoo1(DescriptionDiagram diagram, Code code, Ident ident, Ident pure) {
+		if (!diagram.V1972() && diagram.isGroup(code)) {
+			return diagram.getGroup(code);
 		}
-		final char codeChar = code.length() > 2 ? code.charAt(0) : 0;
+		if (diagram.V1972() && diagram.isGroupStrict(ident)) {
+			return diagram.getGroupStrict(ident);
+		}
+		final String codeString = code.getName();
+		if (ident.getLast().startsWith("()")) {
+			ident = ident.removeStartingParenthesis();
+			return getOrCreateLeaf1972(diagram, ident, ident.toCode(diagram), LeafType.DESCRIPTION, USymbol.INTERFACE,
+					pure);
+		}
+		final char codeChar = codeString.length() > 2 ? codeString.charAt(0) : 0;
+		final String tmp3 = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(codeString, "\"([:");
+		final Ident ident3 = diagram.buildFullyQualified(tmp3);
+		final Code code3 = diagram.V1972() ? ident3 : diagram.buildCode(tmp3);
 		if (codeChar == '(') {
-			return diagram.getOrCreateLeaf(code2.eventuallyRemoveStartingAndEndingDoubleQuote("\"([:"),
-					LeafType.USECASE, USymbol.USECASE);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.USECASE, USymbol.USECASE, pure);
 		} else if (codeChar == ':') {
-			return diagram.getOrCreateLeaf(code2.eventuallyRemoveStartingAndEndingDoubleQuote("\"([:"),
-					LeafType.DESCRIPTION, USymbol.ACTOR);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, diagram.getSkinParam()
+					.getActorStyle().getUSymbol(), pure);
 		} else if (codeChar == '[') {
 			final USymbol sym = diagram.getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
-			return diagram.getOrCreateLeaf(code2.eventuallyRemoveStartingAndEndingDoubleQuote("\"([:"),
-					LeafType.DESCRIPTION, sym);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, sym, pure);
 		}
 
-		return diagram.getOrCreateLeaf(code2, null, null);
+		return getOrCreateLeaf1972(diagram, ident, code, null, null, pure);
 	}
 
-	private CommandExecutionResult executePackageLink(DescriptionDiagram diagram, RegexResult arg) {
-		final IEntity cl1 = diagram.getGroup(Code.of(arg.get("ENT1", 0)));
-		final IEntity cl2 = diagram.getGroup(Code.of(arg.get("ENT2", 0)));
-
-		final LinkType linkType = getLinkType(arg);
-		final Direction dir = getDirection(arg);
-		final String queue;
-		if (dir == Direction.LEFT || dir == Direction.RIGHT) {
-			queue = "-";
-		} else {
-			queue = getQueue(arg);
+	private ILeaf getOrCreateLeaf1972(DescriptionDiagram diagram, Ident ident, Code code, LeafType type,
+			USymbol symbol, Ident pure) {
+		if (diagram.V1972()) {
+			final ILeaf result = pure.size() == 1 ? diagram.getLeafVerySmart(ident) : diagram.getLeafStrict(ident);
+			// final ILeaf result = diagram.getLeafSmart(ident);
+			if (result != null) {
+				return result;
+			}
 		}
-
-		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(arg.get("LABEL_LINK", 0)), queue.length());
-		if (dir == Direction.LEFT || dir == Direction.UP) {
-			link = link.getInv();
-		}
-		link.applyStyle(arg.getLazzy("ARROW_STYLE", 0));
-		diagram.addLink(link);
-		return CommandExecutionResult.ok();
+		return diagram.getOrCreateLeaf(ident, code, type, symbol);
 	}
 
 }

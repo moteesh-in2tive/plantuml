@@ -39,8 +39,10 @@ import java.util.Map;
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.creole.Stencil;
+import net.sourceforge.plantuml.skin.ActorStyle;
 
 public abstract class USymbol {
 
@@ -60,17 +62,22 @@ public abstract class USymbol {
 	public final static USymbol FILE = record("FILE", SkinParameter.FILE, new USymbolFile());
 	public final static USymbol RECTANGLE = record("RECTANGLE", SkinParameter.RECTANGLE, new USymbolRect(
 			SkinParameter.RECTANGLE));
+	public final static USymbol LABEL = record("LABEL", SkinParameter.RECTANGLE, new USymbolLabel(
+			SkinParameter.RECTANGLE));
 	public final static USymbol ARCHIMATE = record("ARCHIMATE", SkinParameter.ARCHIMATE, new USymbolRect(
 			SkinParameter.ARCHIMATE));
 	public final static USymbol COLLECTIONS = record("COLLECTIONS", SkinParameter.COLLECTIONS, new USymbolCollections(
 			SkinParameter.RECTANGLE));
 	public final static USymbol AGENT = record("AGENT", SkinParameter.AGENT, new USymbolRect(SkinParameter.AGENT));
-	public final static USymbol ACTOR = record("ACTOR", SkinParameter.ACTOR, new USymbolActor());
+	public final static USymbol ACTOR_STICKMAN = record("ACTOR_STICKMAN", SkinParameter.ACTOR, new USymbolActor(
+			ActorStyle.STICKMAN));
+	public final static USymbol ACTOR_AWESOME = record("ACTOR_AWESOME", SkinParameter.ACTOR, new USymbolActor(
+			ActorStyle.AWESOME));
 	public final static USymbol USECASE = null;
 	public final static USymbol COMPONENT1 = record("COMPONENT1", SkinParameter.COMPONENT1, new USymbolComponent1());
 	public final static USymbol COMPONENT2 = record("COMPONENT2", SkinParameter.COMPONENT2, new USymbolComponent2());
 	public final static USymbol BOUNDARY = record("BOUNDARY", SkinParameter.BOUNDARY, new USymbolBoundary());
-	public final static USymbol ENTITY_DOMAIN = record("ENTITY_DOMAIN", SkinParameter.ENTITY_DOMAIN,
+	public final static USymbol ENTITY_DOMAIN = record("ENTITY_DOMAIN", SkinParameter.ENTITY,
 			new USymbolEntityDomain(2));
 	public final static USymbol CONTROL = record("CONTROL", SkinParameter.CONTROL, new USymbolControl(2));
 	public final static USymbol INTERFACE = record("INTERFACE", SkinParameter.INTERFACE, new USymbolInterface());
@@ -101,9 +108,12 @@ public abstract class USymbol {
 		return getSkinParameter().getColorParamBorder();
 	}
 
-	public static USymbol getFromString(String s) {
+	public static USymbol getFromString(String s, ActorStyle actorStyle) {
 		if (s == null) {
 			return null;
+		}
+		if (s.equalsIgnoreCase("actor")) {
+			return actorStyle.getUSymbol();
 		}
 		final USymbol result = all.get(StringUtils.goUpperCase(s.replaceAll("\\W", "")));
 		if (result == null) {
@@ -187,7 +197,7 @@ public abstract class USymbol {
 		};
 	}
 
-	public static USymbol getFromString(String symbol, boolean useUml2ForComponent) {
+	public static USymbol getFromString(String symbol, ISkinParam skinParam) {
 		USymbol usymbol = null;
 		if (symbol.equalsIgnoreCase("artifact")) {
 			usymbol = USymbol.ARTIFACT;
@@ -199,6 +209,8 @@ public abstract class USymbol {
 			usymbol = USymbol.PACKAGE;
 		} else if (symbol.equalsIgnoreCase("rectangle")) {
 			usymbol = USymbol.RECTANGLE;
+		} else if (symbol.equalsIgnoreCase("label")) {
+			usymbol = USymbol.LABEL;
 		} else if (symbol.equalsIgnoreCase("collections")) {
 			usymbol = USymbol.COLLECTIONS;
 		} else if (symbol.equalsIgnoreCase("node")) {
@@ -218,9 +230,9 @@ public abstract class USymbol {
 		} else if (symbol.equalsIgnoreCase("agent")) {
 			usymbol = USymbol.AGENT;
 		} else if (symbol.equalsIgnoreCase("actor")) {
-			usymbol = USymbol.ACTOR;
+			usymbol = skinParam.getActorStyle().getUSymbol();
 		} else if (symbol.equalsIgnoreCase("component")) {
-			usymbol = useUml2ForComponent ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
+			usymbol = skinParam.useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
 		} else if (symbol.equalsIgnoreCase("boundary")) {
 			usymbol = USymbol.BOUNDARY;
 		} else if (symbol.equalsIgnoreCase("control")) {

@@ -43,7 +43,7 @@ public class RegexOptional extends RegexComposed implements IRegex {
 	@Override
 	protected String getFullSlow() {
 		final StringBuilder sb = new StringBuilder("(?:");
-		sb.append(partials.get(0).getPattern());
+		sb.append(partials().get(0).getPattern());
 		sb.append(")?");
 		return sb.toString();
 	}

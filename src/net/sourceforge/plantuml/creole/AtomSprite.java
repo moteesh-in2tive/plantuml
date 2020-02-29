@@ -40,8 +40,8 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
 
 public class AtomSprite extends AbstractAtom implements Atom {
 
@@ -49,11 +49,6 @@ public class AtomSprite extends AbstractAtom implements Atom {
 	private final double scale;
 	private final Url url;
 	private final HtmlColor color;
-
-	@Override
-	public List<Atom> splitInTwo(StringBounder stringBounder, double width) {
-		return Arrays.asList((Atom) this);
-	}
 
 	public AtomSprite(HtmlColor newColor, double scale, FontConfiguration fontConfiguration, Sprite sprite, Url url) {
 		this.scale = scale;

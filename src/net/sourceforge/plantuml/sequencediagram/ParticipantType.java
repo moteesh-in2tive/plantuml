@@ -33,8 +33,11 @@
 package net.sourceforge.plantuml.sequencediagram;
 
 import net.sourceforge.plantuml.ColorParam;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.Styleable;
 
-public enum ParticipantType {
+public enum ParticipantType implements Styleable {
 	PARTICIPANT(ColorParam.participantBackground), //
 	ACTOR(ColorParam.actorBackground), //
 	BOUNDARY(ColorParam.boundaryBackground), //
@@ -52,6 +55,42 @@ public enum ParticipantType {
 
 	public ColorParam getBackgroundColorParam() {
 		return background;
+	}
+
+	public StyleSignature getDefaultStyleDefinition() {
+		if (this == PARTICIPANT) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.participant);
+		}
+		if (this == ACTOR) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.actor);
+		}
+		if (this == BOUNDARY) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.boundary);
+		}
+		if (this == CONTROL) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.control);
+		}
+		if (this == ENTITY) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.entity);
+		}
+		if (this == QUEUE) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.queue);
+		}
+		if (this == DATABASE) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.database);
+		}
+		if (this == COLLECTIONS) {
+			return StyleSignature.of(SName.root, SName.element,
+					SName.sequenceDiagram, SName.collections);
+		}
+		return null;
 	}
 
 }

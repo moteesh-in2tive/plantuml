@@ -55,10 +55,12 @@ import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.IHtmlColorSet;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.sprite.Sprite;
+import net.sourceforge.plantuml.sprite.SpriteUtils;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.PackageStyle;
 import net.sourceforge.plantuml.ugraphic.UFont;
-import net.sourceforge.plantuml.ugraphic.sprite.Sprite;
-import net.sourceforge.plantuml.ugraphic.sprite.SpriteUtils;
 
 public class Stereotype implements CharSequence {
 	private final static RegexComposed circleChar = new RegexConcat( //
@@ -261,9 +263,27 @@ public class Stereotype implements CharSequence {
 	public List<String> getLabels(Guillemet guillemet) {
 		final String labelLocal = getLabel(Guillemet.DOUBLE_COMPARATOR);
 		if (labelLocal == null) {
-			return null;
+			return Collections.emptyList();
 		}
 		return cutLabels(labelLocal, guillemet);
+	}
+
+	public List<Style> getStyles(StyleBuilder builder) {
+		final List<Style> result = new ArrayList<Style>();
+		for (String s : getStyleNames()) {
+			final Style style = builder.createStyle(s);
+			assert (style != null);
+			result.add(style);
+		}
+		return Collections.unmodifiableList(result);
+	}
+
+	public List<String> getStyleNames() {
+		final List<String> labels = getLabels(Guillemet.NONE);
+		if (labels == null) {
+			return Collections.emptyList();
+		}
+		return Collections.unmodifiableList(labels);
 	}
 
 	private static List<String> cutLabels(final String label, Guillemet guillemet) {
