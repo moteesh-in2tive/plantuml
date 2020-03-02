@@ -87,24 +87,8 @@ public class PSystemVersion extends AbstractPSystem {
 		return getImage("logo.png");
 	}
 
-	public static BufferedImage getCharlieImage() {
-		return getImage("charlie.png");
-	}
-
-	public static BufferedImage getTime01() {
-		return getImage("time01.png");
-	}
-
-	public static BufferedImage getTime15() {
-		return getImage("time15.png");
-	}
-
 	public static BufferedImage getPlantumlSmallIcon() {
 		return getImage("favicon.png");
-	}
-
-	public static BufferedImage getArecibo() {
-		return getImage("arecibo.png");
 	}
 
 	private static BufferedImage getImage(final String name) {

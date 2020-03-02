@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -347,7 +350,7 @@ public enum License {
 		h.add(" * ");
 		h.add(" * This file is part of PlantUML.");
 		h.add(" *");
-if (this == License.APACHE) {
+		if (this == License.APACHE) {
 			h.add(" * Licensed under the Apache License, Version 2.0 (the \"License\");");
 			h.add(" * you may not use this file except in compliance with the License.");
 			h.add(" * You may obtain a copy of the License at");
@@ -424,9 +427,21 @@ if (this == License.APACHE) {
 			h.add(" * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,");
 			h.add(" * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR");
 			h.add(" * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.");
-			h.add(" */ ");
+			h.add(" * ");
 		}
+		h.add(" *");
+		h.add(" * Original Author:  Arnaud Roques");
+		h.add(" */");
 		return Collections.unmodifiableList(h);
+	}
+
+	public List<String> getTextFull() {
+		final LicenseInfo licenseInfo = LicenseInfo.NONE;
+		final List<String> text = new ArrayList<String>();
+		header1(text, licenseInfo);
+		header2(text, licenseInfo, false);
+		end3(text, licenseInfo);
+		return text;
 	}
 
 	public List<String> getText1(LicenseInfo licenseInfo) {

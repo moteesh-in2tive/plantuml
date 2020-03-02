@@ -56,15 +56,18 @@ import net.sourceforge.plantuml.mindmap.MindMapDiagramFactory;
 import net.sourceforge.plantuml.nwdiag.NwDiagramFactory;
 import net.sourceforge.plantuml.openiconic.PSystemListOpenIconicFactory;
 import net.sourceforge.plantuml.openiconic.PSystemOpenIconicFactory;
-import net.sourceforge.plantuml.project3.GanttDiagramFactory;
+import net.sourceforge.plantuml.project.GanttDiagramFactory;
 import net.sourceforge.plantuml.salt.PSystemSaltFactory;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
+import net.sourceforge.plantuml.sprite.ListSpriteDiagramFactory;
+import net.sourceforge.plantuml.sprite.PSystemListInternalSpritesFactory;
+import net.sourceforge.plantuml.sprite.StdlibDiagramFactory;
 import net.sourceforge.plantuml.statediagram.StateDiagramFactory;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagramFactory;
-import net.sourceforge.plantuml.ugraphic.sprite.PSystemListInternalSpritesFactory;
 import net.sourceforge.plantuml.version.PSystemLicenseFactory;
 import net.sourceforge.plantuml.version.PSystemVersionFactory;
 import net.sourceforge.plantuml.wbs.WBSDiagramFactory;
+import net.sourceforge.plantuml.wire.WireDiagramFactory;
 
 public class PSystemBuilderStripped extends PSystemBuilder{
 
@@ -95,6 +98,8 @@ public class PSystemBuilderStripped extends PSystemBuilder{
 		factories.add(new MindMapDiagramFactory());
 		factories.add(new WBSDiagramFactory());
 		factories.add(new PSystemDefinitionFactory());
+		factories.add(new ListSpriteDiagramFactory(skinParam));
+		factories.add(new StdlibDiagramFactory(skinParam));
 		factories.add(new PSystemMathFactory(DiagramType.MATH));
 		factories.add(new PSystemLatexFactory(DiagramType.LATEX));
 		// factories.add(new PSystemStatsFactory());
@@ -106,6 +111,7 @@ public class PSystemBuilderStripped extends PSystemBuilder{
 		// factories.add(new PSystemCuteFactory(DiagramType.CUTE));
 		factories.add(new TimingDiagramFactory());
 		factories.add(new HelpFactory());
+		factories.add(new WireDiagramFactory());
 		return factories;
 	}
 

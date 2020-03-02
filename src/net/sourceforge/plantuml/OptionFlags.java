@@ -118,7 +118,7 @@ public class OptionFlags {
 	private boolean dumpStats;
 	private boolean loopStats;
 	private boolean overwrite;
-	private boolean enableStats = defaultForStats();
+	private boolean enableStats = false;
 	private boolean stdLib;
 	private boolean silentlyCompletelyIgnoreErrors;
 	private boolean extractStdLib;
