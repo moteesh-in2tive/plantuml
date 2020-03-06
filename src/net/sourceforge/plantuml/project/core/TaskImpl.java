@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.project.Load;
 import net.sourceforge.plantuml.project.LoadPlanable;
 import net.sourceforge.plantuml.project.PlanUtils;
@@ -50,6 +51,14 @@ public class TaskImpl implements Task, LoadPlanable {
 	private final Map<Resource, Integer> resources2 = new LinkedHashMap<Resource, Integer>();
 	private final LoadPlanable defaultPlan;
 	private boolean diamond;
+	
+	private Url url;
+	private TaskDraw taskDraw;
+	private ComplementColors colors;
+
+	public void setUrl(Url url) {
+		this.url = url;
+	}
 
 	public TaskImpl(TaskCode code, LoadPlanable defaultPlan) {
 		this.code = code;
@@ -69,7 +78,8 @@ public class TaskImpl implements Task, LoadPlanable {
 	}
 
 	public int loadForResource(Resource res, Wink instant) {
-		if (resources2.keySet().contains(res) && instant.compareTo(getStart()) >= 0 && instant.compareTo(getEnd()) <= 0) {
+		if (resources2.keySet().contains(res) && instant.compareTo(getStart()) >= 0
+				&& instant.compareTo(getEnd()) <= 0) {
 			if (res.isClosedAt(instant)) {
 				return 0;
 			}
@@ -169,11 +179,9 @@ public class TaskImpl implements Task, LoadPlanable {
 		solver.setData(TaskAttribute.END, end);
 	}
 
-	private TaskDraw taskDraw;
-	private ComplementColors colors;
 
 	public void setTaskDraw(TaskDraw taskDraw) {
-		taskDraw.setColorsAndCompletion(colors, completion);
+		taskDraw.setColorsAndCompletion(colors, completion, url);
 		this.taskDraw = taskDraw;
 	}
 
@@ -196,7 +204,7 @@ public class TaskImpl implements Task, LoadPlanable {
 	public boolean isDiamond() {
 		return this.diamond;
 	}
-	
+
 	private int completion = 100;
 
 	public void setCompletion(int completion) {

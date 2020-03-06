@@ -331,6 +331,9 @@ public class StringUtils {
 		if (uml.startsWith("@startuml\nauthor\n")) {
 			return false;
 		}
+		if (uml.startsWith("@startuml\ndonors\n")) {
+			return false;
+		}
 		if (uml.startsWith("@startuml\ncheckversion")) {
 			return false;
 		}
@@ -338,6 +341,9 @@ public class StringUtils {
 			return false;
 		}
 		if (uml.startsWith("@startuml\nsudoku\n")) {
+			return false;
+		}
+		if (uml.startsWith("@startuml\nstdlib\n")) {
 			return false;
 		}
 		return true;

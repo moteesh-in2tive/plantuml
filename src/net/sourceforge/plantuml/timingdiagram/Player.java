@@ -47,7 +47,7 @@ public interface Player extends TimeProjected {
 
 	public void createConstraint(TimeTick tick1, TimeTick tick2, String message);
 
-	public void drawFrameTitle(UGraphic ug);
+	public PlayerFrame getPlayerFrame();
 
 	public void drawContent(UGraphic ug);
 
@@ -56,8 +56,7 @@ public interface Player extends TimeProjected {
 	public double getWidthHeader(StringBounder stringBounder);
 
 	public double getHeight(StringBounder stringBounder);
-	
-	public double getFirstColumnWidth(StringBounder stringBounder);
 
+	public double getFirstColumnWidth(StringBounder stringBounder);
 
 }

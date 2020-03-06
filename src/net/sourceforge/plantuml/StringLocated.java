@@ -33,12 +33,17 @@
 package net.sourceforge.plantuml;
 
 import net.sourceforge.plantuml.command.regex.FoxSignature;
+import net.sourceforge.plantuml.tim.TLineType;
 
 final public class StringLocated {
 
 	private final String s;
 	private final LineLocation location;
 	private final String preprocessorError;
+
+	private StringLocated trimmed;
+	private long fox = -1;
+	private TLineType type;
 
 	public StringLocated(String s, LineLocation location) {
 		this(s, location, null);
@@ -73,12 +78,14 @@ final public class StringLocated {
 		return new StringLocated(s, location, preprocessorError);
 	}
 
-	public StringLocated sub(int start, int end) {
+	public StringLocated substring(int start, int end) {
 		return new StringLocated(this.getString().substring(start, end), this.getLocation(),
 				this.getPreprocessorError());
 	}
 
-	private StringLocated trimmed;
+	public StringLocated substring(int start) {
+		return new StringLocated(this.getString().substring(start), this.getLocation(), this.getPreprocessorError());
+	}
 
 	public StringLocated getTrimmed() {
 		if (trimmed == null) {
@@ -131,13 +138,18 @@ final public class StringLocated {
 		return preprocessorError;
 	}
 
-	private long fox = -1;
-
 	public long getFoxSignature() {
 		if (fox == -1) {
 			fox = FoxSignature.getFoxSignature(getString());
 		}
 		return fox;
+	}
+
+	public TLineType getType() {
+		if (type == null) {
+			type = TLineType.getFromLineInternal(s);
+		}
+		return type;
 	}
 
 }
