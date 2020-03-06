@@ -82,13 +82,13 @@
 
 	<target name="mvn_windows" if="isWindows">
 	    <exec dir="." executable="cmd">
-	        <arg line="/c mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=2.2020.1-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml" />
+	        <arg line="/c mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2020.2-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml" />
 	    </exec>
 	</target>
 
 	<target name="mvn_unix" if="isUnix">
 	    <exec dir="." executable="sh">
-	        <arg line="-c 'mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=2.2020.1-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml'" />
+	        <arg line="-c 'mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2020.2-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml'" />
 	    </exec>
 	</target>
 </project>
