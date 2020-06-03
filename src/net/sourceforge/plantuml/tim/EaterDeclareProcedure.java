@@ -32,38 +32,57 @@
  * Original Author:  Arnaud Roques
  *
  */
-package net.sourceforge.plantuml.tim.stdlib;
-
-import java.util.List;
+package net.sourceforge.plantuml.tim;
 
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.tim.EaterExceptionLocated;
-import net.sourceforge.plantuml.tim.EaterException;
-import net.sourceforge.plantuml.tim.TContext;
-import net.sourceforge.plantuml.tim.TFunction;
-import net.sourceforge.plantuml.tim.TFunctionSignature;
-import net.sourceforge.plantuml.tim.TMemory;
-import net.sourceforge.plantuml.tim.expression.TValue;
+import net.sourceforge.plantuml.StringLocated;
 
-public class RetrieveVoidFunction extends SimpleReturnFunction {
+public class EaterDeclareProcedure extends Eater {
 
-	public TFunctionSignature getSignature() {
-		return new TFunctionSignature("%retrieve_void_func", 1);
+	private TFunctionImpl function;
+	private final LineLocation location;
+	private boolean finalFlag;
+
+	public EaterDeclareProcedure(StringLocated s) {
+		super(s.getTrimmed());
+		this.location = s.getLocation();
 	}
 
-	public boolean canCover(int nbArg) {
-		return nbArg > 0;
+	@Override
+	public void analyze(TContext context, TMemory memory) throws EaterException, EaterExceptionLocated {
+		skipSpaces();
+		checkAndEatChar("!");
+		boolean unquoted = false;
+		while (peekUnquoted() || peekFinal()) {
+			if (peekUnquoted()) {
+				checkAndEatChar("unquoted");
+				skipSpaces();
+				unquoted = true;
+			} else if (peekFinal()) {
+				checkAndEatChar("final");
+				skipSpaces();
+				finalFlag = true;
+			}
+		}
+		checkAndEatChar("procedure");
+		skipSpaces();
+		function = eatDeclareProcedure(context, memory, unquoted, location);
 	}
 
-	public TValue executeReturn(TContext context, TMemory memory, LineLocation location, List<TValue> values) throws EaterException, EaterExceptionLocated {
-		final String fname = values.get(0).toString();
-		final List<TValue> args = values.subList(1, values.size());
-		final TFunctionSignature signature = new TFunctionSignature(fname, args.size());
-		final TFunction func = context.getFunctionSmart(signature);
-		final int n1 = context.getResultList().size();
-		func.executeVoidInternal(context, memory, args);
-		final String extracted = context.extractFromResultList(n1);
-		return TValue.fromString(extracted);
+	private boolean peekUnquoted() {
+		return peekChar() == 'u';
+	}
+
+	private boolean peekFinal() {
+		return peekChar() == 'f' && peekCharN2() == 'i';
+	}
+
+	public TFunctionImpl getFunction() {
+		return function;
+	}
+
+	public final boolean getFinalFlag() {
+		return finalFlag;
 	}
 
 }

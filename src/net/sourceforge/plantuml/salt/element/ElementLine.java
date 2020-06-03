@@ -36,7 +36,6 @@ import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -59,7 +58,7 @@ public class ElementLine extends AbstractElement {
 		if (zIndex != 0) {
 			return;
 		}
-		ug = ug.apply(new UChangeColor(HColorSet.instance().getColorIfValid("#AAAAAA")));
+		ug = ug.apply(HColorSet.instance().getColorIfValid("#AAAAAA"));
 		double y2 = dimToUse.getHeight() / 2;
 		if (separator == '=') {
 			y2 = y2 - 1;

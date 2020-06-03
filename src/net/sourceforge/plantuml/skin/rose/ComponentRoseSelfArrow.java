@@ -47,8 +47,6 @@ import net.sourceforge.plantuml.skin.ArrowDecoration;
 import net.sourceforge.plantuml.skin.ArrowHead;
 import net.sourceforge.plantuml.skin.ArrowPart;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -78,7 +76,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final double textHeight = getTextHeight(stringBounder);
 
-		ug = ug.apply(new UChangeColor(getForegroundColor()));
+		ug = ug.apply(getForegroundColor());
 		final double xRight = arrowWidth - 3;
 
 		final UGraphic ug2 = getArrowConfiguration().applyStroke(ug);
@@ -90,7 +88,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 		final UEllipse circle = new UEllipse(ComponentRoseArrow.diamCircle, ComponentRoseArrow.diamCircle);
 		if (getArrowConfiguration().getDecoration1() == ArrowDecoration.CIRCLE) {
 			ug2.apply(new UStroke(ComponentRoseArrow.thinCircle))
-					.apply(new UChangeColor(getForegroundColor()))
+					.apply(getForegroundColor())
 					.apply(new UTranslate(x1 + 1 - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle,
 							textHeight - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle / 2))
 					.draw(circle);
@@ -98,7 +96,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 		}
 		if (getArrowConfiguration().getDecoration2() == ArrowDecoration.CIRCLE) {
 			ug2.apply(new UStroke(ComponentRoseArrow.thinCircle))
-					.apply(new UChangeColor(getForegroundColor()))
+					.apply(getForegroundColor())
 					.apply(new UTranslate(x2 - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle,
 							textAndArrowHeight - ComponentRoseArrow.diamCircle / 2 - ComponentRoseArrow.thinCircle / 2))
 					.draw(circle);
@@ -134,7 +132,7 @@ public class ComponentRoseSelfArrow extends AbstractComponentRoseArrow {
 
 		} else {
 			final UPolygon polygon = getPolygon(textAndArrowHeight);
-			ug.apply(new UChangeBackColor(getForegroundColor())).apply(UTranslate.dx(x2)).draw(polygon);
+			ug.apply(getForegroundColor().bg()).apply(UTranslate.dx(x2)).draw(polygon);
 
 		}
 

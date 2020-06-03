@@ -34,8 +34,6 @@ package net.sourceforge.plantuml.skin;
 
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.UDrawable;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -63,8 +61,8 @@ public class CircleInterface implements UDrawable {
 	public void drawU(UGraphic ug) {
 		final UEllipse head = new UEllipse(headDiam, headDiam);
 		
-		ug.apply(new UStroke(thickness)).apply(new UChangeBackColor(backgroundColor))
-		.apply(new UChangeColor(foregroundColor)).apply(new UTranslate((double) thickness, (double) thickness)).draw(head);
+		ug.apply(new UStroke(thickness)).apply(backgroundColor.bg())
+		.apply(foregroundColor).apply(new UTranslate((double) thickness, (double) thickness)).draw(head);
 	}
 
 	public double getPreferredWidth(StringBounder stringBounder) {

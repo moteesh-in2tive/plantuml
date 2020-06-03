@@ -47,8 +47,6 @@ import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.ShapeType;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -98,7 +96,7 @@ public class EntityImageBranch extends AbstractEntityImage {
 		}
 		diams.setDeltaShadow(shadowing);
 
-		ug.apply(new UChangeColor(border)).apply(new UChangeBackColor(back)).apply(stroke).draw(diams);
+		ug.apply(border).apply(back.bg()).apply(stroke).draw(diams);
 	}
 
 	public ShapeType getShapeType() {

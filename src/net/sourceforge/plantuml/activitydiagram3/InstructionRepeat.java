@@ -53,7 +53,6 @@ public class InstructionRepeat implements Instruction {
 	private final Swimlane swimlane;
 	private Swimlane swimlaneOut;
 	private BoxStyle boxStyle;
-//	private final HtmlColor color;
 	private boolean killed = false;
 	private final BoxStyle boxStyleIn;
 

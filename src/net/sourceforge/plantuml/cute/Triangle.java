@@ -44,9 +44,6 @@ public class Triangle implements CuteShape {
 
 	private Triangle(CutePath cutePath) {
 		this.cutePath = cutePath;
-		// if (points.size() != 3) {
-		// throw new IllegalArgumentException();
-		// }
 	}
 
 	public Triangle rotateZoom(final RotationZoom angle) {
@@ -58,9 +55,5 @@ public class Triangle implements CuteShape {
 
 	public void drawU(UGraphic ug) {
 		cutePath.drawU(ug);
-		// ug = ug.apply(new UChangeBackColor(null)).apply(new UChangeColor(HtmlColorUtils.BLACK));
-		// cutePath.withNoTension().drawU(
-		// ug.apply(new UChangeBackColor(null)).apply(new UChangeColor(HtmlColorUtils.BLACK)));
-
 	}
 }

@@ -43,8 +43,6 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
-import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -92,7 +90,7 @@ public class FtileBlackBlock extends AbstractFtile {
 		if (skinParam().shadowing(null)) {
 			rect.setDeltaShadow(3);
 		}
-		ug.apply(new UChangeColor(colorBar)).apply(new UChangeBackColor(colorBar)).draw(rect);
+		ug.apply(colorBar).apply(colorBar.bg()).draw(rect);
 		final Dimension2D dimLabel = label.calculateDimension(ug.getStringBounder());
 		label.drawU(ug.apply(new UTranslate(width + labelMargin, -dimLabel.getHeight() / 2)));
 	}

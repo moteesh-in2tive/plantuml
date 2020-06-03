@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -27,28 +30,20 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
  *
  */
-package net.sourceforge.plantuml.ugraphic;
+package net.sourceforge.plantuml.ugraphic.color;
 
-import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.UBackground;
 
-public class UChangeBackColor implements UChange {
-	
-	private final HColor color;
-	
-	public UChangeBackColor(HColor color) {
-		this.color = color;
+abstract class HColorAbstract implements HColor {
+
+	final public UBackground bg() {
+		return new UBackground() {
+			public HColor getBackColor() {
+				return HColorAbstract.this;
+			}
+		};
 	}
-
-	public HColor getBackColor() {
-		return color;
-	}
-
-	// private HtmlColor color = null;
-	// private HtmlColor backcolor = null;
-	// private UStroke stroke = new UStroke(1);
-	// private boolean hidden = false;
 
 }

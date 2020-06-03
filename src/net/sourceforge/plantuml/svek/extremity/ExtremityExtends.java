@@ -34,7 +34,6 @@ package net.sourceforge.plantuml.svek.extremity;
 
 import java.awt.geom.Point2D;
 
-import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -65,7 +64,7 @@ class ExtremityExtends extends Extremity {
 	}
 
 	public void drawU(UGraphic ug) {
-		ug = ug.apply(new UChangeBackColor(fill));
+		ug = ug.apply(fill.bg());
 		ug.draw(polygon);
 	}
 

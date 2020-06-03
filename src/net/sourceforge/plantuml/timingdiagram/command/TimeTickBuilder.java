@@ -47,6 +47,7 @@ public class TimeTickBuilder {
 
 	public static IRegex expressionAtWithoutArobase(String name) {
 		return new RegexOr( //
+				new RegexLeaf(name + "CODE", ":([\\p{L}0-9_.]+)([-+]\\d+)?"), //
 				new RegexLeaf(name + "DATE", "(\\d+)/(\\d+)/(\\d+)"), //
 				new RegexLeaf(name + "HOUR", "(\\d+):(\\d+):(\\d+)"), //
 				new RegexLeaf(name + "DIGIT", "(\\+?)(-?\\d+\\.?\\d*)"), //
@@ -64,6 +65,16 @@ public class TimeTickBuilder {
 	}
 
 	public static TimeTick parseTimeTick(String name, RegexResult arg, Clocks clock) {
+		final String code = arg.get(name + "CODE", 0);
+		if (code != null) {
+			final String delta = arg.get(name + "CODE", 1);
+			TimeTick result = clock.getCodeValue(code);
+			if (delta == null) {
+				return result;
+			}
+			final BigDecimal value = result.getTime().add(new BigDecimal(delta));
+			return new TimeTick(value, TimingFormat.DECIMAL);
+		}
 		final String clockName = arg.get(name + "CLOCK", 0);
 		if (clockName != null) {
 			final int number = Integer.parseInt(arg.get(name + "CLOCK", 1));
