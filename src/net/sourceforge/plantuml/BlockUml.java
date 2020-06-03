@@ -158,7 +158,7 @@ public class BlockUml {
 			if (preprocessorError) {
 				system = new PSystemErrorPreprocessor(data, debug);
 			} else {
-				system = new PSystemBuilderStripped().createPSystem(skinParam, data);
+				system = new PSystemBuilder().createPSystem(skinParam, data);
 			}
 		}
 		return system;

@@ -41,6 +41,11 @@ public class LineBreakStrategy {
 	public LineBreakStrategy(String value) {
 		this.value = value;
 	}
+	
+	@Override
+	public String toString() {
+		return value;
+	}
 
 	public boolean isAuto() {
 		return "auto".equalsIgnoreCase(value);

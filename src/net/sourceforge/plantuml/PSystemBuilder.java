@@ -6,6 +6,11 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -40,6 +45,7 @@ import net.sourceforge.plantuml.api.PSystemFactory;
 import net.sourceforge.plantuml.bpm.BpmDiagramFactory;
 import net.sourceforge.plantuml.classdiagram.ClassDiagramFactory;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
+import net.sourceforge.plantuml.compositediagram.CompositeDiagramFactory;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
@@ -91,9 +97,9 @@ public class PSystemBuilder {
 					// Dead code : should not append
 					Log.error("Preprocessor Error: " + s.getPreprocessorError());
 					final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, s.getPreprocessorError(), /* cpt */
-					s.getLocation());
-					// return PSystemErrorUtils.buildV1(umlSource, err, Collections.<String> emptyList());
-					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String> emptyList(), strings2);
+							s.getLocation());
+					// return PSystemErrorUtils.buildV1(umlSource, err, Collections.<String>
+					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String>emptyList(), strings2);
 				}
 			}
 
@@ -124,7 +130,7 @@ public class PSystemBuilder {
 		}
 	}
 
-	protected List<PSystemFactory> getAllFactories(ISkinSimple skinParam) {
+	private static List<PSystemFactory> getAllFactories(ISkinSimple skinParam) {
 		final List<PSystemFactory> factories = new ArrayList<PSystemFactory>();
 		factories.add(new SequenceDiagramFactory(skinParam));
 		factories.add(new ClassDiagramFactory(skinParam));

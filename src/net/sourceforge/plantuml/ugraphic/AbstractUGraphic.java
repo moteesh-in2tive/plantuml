@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.ugraphic;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.plantuml.graphic.SpecialText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
 public abstract class AbstractUGraphic<O> extends AbstractCommonUGraphic {
@@ -67,6 +68,10 @@ public abstract class AbstractUGraphic<O> extends AbstractCommonUGraphic {
 	}
 
 	public final void draw(UShape shape) {
+		if (shape instanceof SpecialText) {
+			((SpecialText) shape).getTitle().drawU(this);
+			return;
+		}
 		if (shape instanceof UEmpty) {
 			return;
 		}

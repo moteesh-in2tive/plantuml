@@ -279,4 +279,8 @@ public class GroupRoot implements IGroup {
 	public Ident getIdent() {
 		return Ident.empty();
 	}
+
+	public boolean isAloneAndUnlinked() {
+		throw new UnsupportedOperationException();
+	}
 }

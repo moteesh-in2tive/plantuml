@@ -70,7 +70,7 @@ public class SwimlanesB extends SwimlanesA {
 		}
 		if (color != null) {
 			final double titleHeight = getTitlesHeight(stringBounder);
-			final URectangle back = new URectangle(getTitlesWidth(stringBounder), titleHeight).ignoreForCompression();
+			final URectangle back = new URectangle(getTitlesWidth(stringBounder), titleHeight).ignoreForCompressionOnX().ignoreForCompressionOnY();
 			ug.apply(new UChangeBackColor(color)).apply(new UChangeColor(color)).draw(back);
 		}
 		for (Swimlane swimlane : swimlanes) {
@@ -102,7 +102,7 @@ public class SwimlanesB extends SwimlanesA {
 			wrap = new LineBreakStrategy("" + ((int) swimlane.getActualWidth()));
 		}
 
-		return swimlane.getDisplay().create(fontConfiguration, horizontalAlignment, skinParam, wrap);
+		return swimlane.getDisplay().create9(fontConfiguration, horizontalAlignment, skinParam, wrap);
 	}
 
 	private LineBreakStrategy getWrap() {
@@ -121,7 +121,7 @@ public class SwimlanesB extends SwimlanesA {
 		}
 
 		final double titleWidth = getTitle(swimlane).calculateDimension(stringBounder).getWidth();
-		return MathUtils.max(m1, titleWidth + 2 * separationMargin);
+		return MathUtils.max(m1, titleWidth + 2 * separationMargin());
 
 	}
 

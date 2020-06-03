@@ -52,6 +52,7 @@ public class InstructionRepeat implements Instruction {
 	private final LinkRendering nextLinkRenderer;
 	private final Swimlane swimlane;
 	private Swimlane swimlaneOut;
+	private BoxStyle boxStyle;
 //	private final HtmlColor color;
 	private boolean killed = false;
 	private final BoxStyle boxStyleIn;
@@ -90,9 +91,10 @@ public class InstructionRepeat implements Instruction {
 		return false;
 	}
 
-	public void setBackward(Display label, Swimlane swimlaneOut) {
+	public void setBackward(Display label, Swimlane swimlaneOut, BoxStyle boxStyle) {
 		this.backward = label;
 		this.swimlaneOut = swimlaneOut;
+		this.boxStyle = boxStyle;
 	}
 
 	public void add(Instruction ins) {
@@ -101,7 +103,7 @@ public class InstructionRepeat implements Instruction {
 
 	public Ftile createFtile(FtileFactory factory) {
 		final Ftile back = Display.isNull(backward) ? null
-				: factory.activity(backward, swimlane, BoxStyle.PLAIN, Colors.empty());
+				: factory.activity(backward, swimlane, boxStyle, Colors.empty());
 		final Ftile decorateOut = factory.decorateOut(repeatList.createFtile(factory), endRepeatLinkRendering);
 		final Ftile result = factory.repeat(boxStyleIn, swimlane, swimlaneOut, startLabel, decorateOut, test, yes, out,
 				colors, backRepeatLinkRendering, back, isLastOfTheParent());

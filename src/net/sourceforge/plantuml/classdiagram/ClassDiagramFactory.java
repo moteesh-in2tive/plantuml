@@ -76,6 +76,7 @@ import net.sourceforge.plantuml.descdiagram.command.CommandNewpage;
 import net.sourceforge.plantuml.descdiagram.command.CommandPackageWithUSymbol;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObjectMultilines;
+import net.sourceforge.plantuml.objectdiagram.command.CommandCreateMap;
 
 public class ClassDiagramFactory extends UmlDiagramFactory {
 
@@ -107,6 +108,7 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandRemoveRestore());
 		cmds.add(new CommandCreateClassMultilines());
 		cmds.add(new CommandCreateEntityObjectMultilines());
+		cmds.add(new CommandCreateMap());
 		cmds.add(new CommandCreateClass());
 		cmds.add(new CommandCreateEntityObject());
 
