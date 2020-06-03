@@ -60,7 +60,6 @@ import net.sourceforge.plantuml.creole.Stencil;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
@@ -77,6 +76,7 @@ import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class FtileBox extends AbstractFtile {
 
@@ -95,8 +95,8 @@ public class FtileBox extends AbstractFtile {
 	private final Swimlane swimlane;
 	private final BoxStyle boxStyle;
 
-	private final HtmlColor borderColor;
-	private final HtmlColor backColor;
+	private final HColor borderColor;
+	private final HColor backColor;
 	private final Style style;
 
 	static public StyleSignature getDefaultStyleDefinitionActivity() {

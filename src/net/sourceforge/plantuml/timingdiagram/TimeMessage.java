@@ -35,7 +35,7 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.cucadiagram.WithLinkType;
-import net.sourceforge.plantuml.graphic.HtmlColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class TimeMessage extends WithLinkType {
 
@@ -47,7 +47,7 @@ public class TimeMessage extends WithLinkType {
 		this.tickInPlayer1 = tickInPlayer1;
 		this.tickInPlayer2 = tickInPlayer2;
 		this.label = Display.getWithNewlines(label);
-		this.setSpecificColor(HtmlColorUtils.BLUE);
+		this.setSpecificColor(HColorUtils.BLUE);
 		this.type = new LinkType(LinkDecor.NONE, LinkDecor.NONE);
 	}
 

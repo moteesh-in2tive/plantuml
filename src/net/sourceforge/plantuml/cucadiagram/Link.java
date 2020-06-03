@@ -43,7 +43,6 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.command.Position;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.USymbolInterface;
@@ -53,6 +52,7 @@ import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.svek.Bibliotekon;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public class Link extends WithLinkType implements Hideable, Removeable {
@@ -128,7 +128,7 @@ public class Link extends WithLinkType implements Hideable, Removeable {
 	}
 
 	public Link(IEntity cl1, IEntity cl2, LinkType type, Display label, int length, String qualifier1,
-			String qualifier2, String labeldistance, String labelangle, HtmlColor specificColor,
+			String qualifier2, String labeldistance, String labelangle, HColor specificColor,
 			StyleBuilder styleBuilder) {
 		if (length < 1) {
 			throw new IllegalArgumentException();

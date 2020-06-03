@@ -43,9 +43,10 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.eps.EpsStrategy;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.png.PngIO;
+import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.eps.UGraphicEps;
 import net.sourceforge.plantuml.ugraphic.g2d.UGraphicG2d;
 import net.sourceforge.plantuml.ugraphic.svg.UGraphicSvg;
@@ -53,7 +54,7 @@ import net.sourceforge.plantuml.ugraphic.svg.UGraphicSvg;
 public abstract class UGraphicUtils {
 
 	public static void writeImage(OutputStream os, String metadata, FileFormatOption fileFormatOption, long seed,
-			ColorMapper colorMapper, HtmlColor background, TextBlock image) throws IOException {
+			ColorMapper colorMapper, HColor background, TextBlock image) throws IOException {
 		final FileFormat fileFormat = fileFormatOption.getFileFormat();
 		if (fileFormat == FileFormat.PNG) {
 			final BufferedImage im = createImage(colorMapper, background, image);
@@ -78,7 +79,7 @@ public abstract class UGraphicUtils {
 		}
 	}
 
-	private static BufferedImage createImage(ColorMapper colorMapper, HtmlColor background, TextBlock image) {
+	private static BufferedImage createImage(ColorMapper colorMapper, HColor background, TextBlock image) {
 		final Dimension2D size = computeSize(colorMapper, background, image);
 
 		final EmptyImageBuilder builder = new EmptyImageBuilder(size.getWidth(), size.getHeight(),
@@ -92,7 +93,7 @@ public abstract class UGraphicUtils {
 		return im;
 	}
 
-	private static Dimension2D computeSize(ColorMapper colorMapper, HtmlColor background, TextBlock image) {
+	private static Dimension2D computeSize(ColorMapper colorMapper, HColor background, TextBlock image) {
 		final EmptyImageBuilder builder = new EmptyImageBuilder(10, 10, colorMapper.getMappedColor(background));
 		final Graphics2D g2d = builder.getGraphics2D();
 

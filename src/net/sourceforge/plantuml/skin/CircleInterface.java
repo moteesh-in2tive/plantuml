@@ -32,7 +32,6 @@
  */
 package net.sourceforge.plantuml.skin;
 
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.ugraphic.UChangeBackColor;
@@ -41,19 +40,20 @@ import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class CircleInterface implements UDrawable {
 
 	private final float thickness;
 	private final double headDiam;
-	private final HtmlColor backgroundColor;
-	private final HtmlColor foregroundColor;
+	private final HColor backgroundColor;
+	private final HColor foregroundColor;
 
-	public CircleInterface(HtmlColor backgroundColor, HtmlColor foregroundColor) {
+	public CircleInterface(HColor backgroundColor, HColor foregroundColor) {
 		this(backgroundColor, foregroundColor, 16, 2);
 	}
 
-	public CircleInterface(HtmlColor backgroundColor, HtmlColor foregroundColor, double headDiam, float thickness) {
+	public CircleInterface(HColor backgroundColor, HColor foregroundColor, double headDiam, float thickness) {
 		this.backgroundColor = backgroundColor;
 		this.foregroundColor = foregroundColor;
 		this.headDiam = headDiam;

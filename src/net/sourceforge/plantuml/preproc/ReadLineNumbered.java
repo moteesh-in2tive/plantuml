@@ -32,9 +32,7 @@
  */
 package net.sourceforge.plantuml.preproc;
 
-import java.util.Set;
-
 public interface ReadLineNumbered extends ReadLine {
 
-	public Set<FileWithSuffix> getFilesUsed();
+	// public Set<FileWithSuffix> getFilesUsedTOBEREMOVED();
 }

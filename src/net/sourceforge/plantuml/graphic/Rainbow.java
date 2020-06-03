@@ -42,6 +42,8 @@ import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class Rainbow {
 
@@ -63,7 +65,7 @@ public class Rainbow {
 		return new Rainbow(0);
 	}
 	
-	public static Rainbow fromColor(HtmlColor color) {
+	public static Rainbow fromColor(HColor color) {
 		if (color == null) {
 			return Rainbow.none();
 		}
@@ -77,8 +79,8 @@ public class Rainbow {
 		return fromColor(rose.getHtmlColor(skinParam, ColorParam.arrow));
 	}
 
-	public static Rainbow build(Style style, IHtmlColorSet set) {
-		final HtmlColor color = style.value(PName.LineColor).asColor(set);
+	public static Rainbow build(Style style, HColorSet set) {
+		final HColor color = style.value(PName.LineColor).asColor(set);
 		return fromColor(color);
 	}
 
@@ -124,7 +126,7 @@ public class Rainbow {
 		return Collections.unmodifiableList(colors);
 	}
 
-	public HtmlColor getColor() {
+	public HColor getColor() {
 		return colors.get(0).getColor();
 	}
 

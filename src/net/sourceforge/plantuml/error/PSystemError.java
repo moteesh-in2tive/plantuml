@@ -6,6 +6,29 @@
  *
  * Project Info:  http://plantuml.com
  * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * PlantUML is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PlantUML distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ * USA.
+ *
+ *
  * Original Author:  Arnaud Roques
  *
  */
@@ -36,13 +59,13 @@ import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockRaw;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
+import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
 
 public abstract class PSystemError extends AbstractPSystem {
@@ -75,23 +98,22 @@ public abstract class PSystemError extends AbstractPSystem {
 	}
 
 	private TextBlockBackcolored getGraphicalFormatted() {
-		final FontConfiguration fc0 = GraphicStrings.sansSerif14(HtmlColorUtils.BLACK).bold();
-		final FontConfiguration fc1 = GraphicStrings.sansSerif14(HtmlColorUtils.MY_GREEN).bold();
-		final FontConfiguration fc2 = GraphicStrings.sansSerif14(HtmlColorUtils.RED).bold();
+		final FontConfiguration fc0 = GraphicStrings.sansSerif14(HColorUtils.BLACK).bold();
+		final FontConfiguration fc1 = GraphicStrings.sansSerif14(HColorUtils.MY_GREEN).bold();
+		final FontConfiguration fc2 = GraphicStrings.sansSerif14(HColorUtils.RED).bold();
 
 		final List<String> fullBody = getTextFullBody();
 		final TextBlock result0 = TextBlockUtils.addBackcolor(
-				TextBlockUtils.withMargin(new TextBlockRaw(getTextFromStack(), fc0), 1, 1, 1, 4),
-				HtmlColorUtils.MY_GREEN);
+				TextBlockUtils.withMargin(new TextBlockRaw(getTextFromStack(), fc0), 1, 1, 1, 4), HColorUtils.MY_GREEN);
 		final TextBlock result1 = new TextBlockRaw(allButLast(fullBody), fc1);
-		final TextBlock result2 = new TextBlockRaw(onlyLast(fullBody), fc1.wave(HtmlColorUtils.RED));
+		final TextBlock result2 = new TextBlockRaw(onlyLast(fullBody), fc1.wave(HColorUtils.RED));
 		final TextBlock result3 = new TextBlockRaw(getTextError(), fc2);
 		TextBlock result = result0;
 		result = TextBlockUtils.mergeTB(result, result1, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.mergeTB(result, result2, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.mergeTB(result, result3, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.withMargin(result, 5, 5);
-		return TextBlockUtils.addBackcolor(result, HtmlColorUtils.BLACK);
+		return TextBlockUtils.addBackcolor(result, HColorUtils.BLACK);
 	}
 
 	private List<String> getPureAsciiFormatted() {
@@ -167,6 +189,7 @@ public abstract class PSystemError extends AbstractPSystem {
 		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1.0, result.getBackcolor(),
 				getMetadata(), null, 0, 0, null, false);
 		udrawable = result;
+
 		imageBuilder.setUDrawable(udrawable);
 		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormat, seed(), os);
 		((ImageDataAbstract) imageData).setStatus(FileImageData.ERROR);
@@ -194,5 +217,4 @@ public abstract class PSystemError extends AbstractPSystem {
 	public int size() {
 		return trace.size();
 	}
-
 }

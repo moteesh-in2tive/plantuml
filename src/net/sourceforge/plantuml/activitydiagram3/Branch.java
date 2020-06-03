@@ -41,7 +41,6 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.WeldingPoint;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
@@ -51,6 +50,7 @@ import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class Branch {
 
@@ -58,7 +58,7 @@ public class Branch {
 	private final Display labelTest;
 	private final Display labelPositive;
 	private final Display inlabel;
-	private final HtmlColor color;
+	private final HColor color;
 	private LinkRendering inlinkRendering = LinkRendering.none();
 
 	private Ftile ftile;
@@ -76,7 +76,7 @@ public class Branch {
 	}
 
 	public Branch(StyleBuilder styleBuilder, Swimlane swimlane, Display labelPositive, Display labelTest,
-			HtmlColor color, Display inlabel) {
+			HColor color, Display inlabel) {
 		if (labelPositive == null) {
 			throw new IllegalArgumentException();
 		}
@@ -159,7 +159,7 @@ public class Branch {
 		return ftile.skinParam();
 	}
 
-	public final HtmlColor getColor() {
+	public final HColor getColor() {
 		return color;
 	}
 

@@ -42,13 +42,13 @@ import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
-import net.sourceforge.plantuml.graphic.HtmlColorUtils;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UChangeColor;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class TilesField extends AbstractTextBlock implements TextBlock {
 
@@ -250,7 +250,7 @@ public class TilesField extends AbstractTextBlock implements TextBlock {
 			final double yt = p.getYmin() * dimSingle.getHeight() / 2;
 			t.drawU(ug.apply(new UTranslate((x + xt), (y + yt))));
 		}
-		ug = ug.apply(new UChangeColor(HtmlColorUtils.RED));
+		ug = ug.apply(new UChangeColor(HColorUtils.RED));
 		for (Path p : paths) {
 			final TileArea start = p.getStart();
 			final TileArea dest = p.getDest();

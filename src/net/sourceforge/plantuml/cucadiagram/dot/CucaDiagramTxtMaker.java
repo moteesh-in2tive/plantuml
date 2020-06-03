@@ -119,7 +119,7 @@ public final class CucaDiagramTxtMaker {
 			printClass(
 					ent,
 					(UGraphicTxt) globalUg.apply(new UTranslate(p.getX() / getXPixelPerChar(), p.getY()
-							/ getYPixelPerChar())));
+									/ getYPixelPerChar())));
 		}
 
 	}

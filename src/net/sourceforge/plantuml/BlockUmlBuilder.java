@@ -72,7 +72,7 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 		} finally {
 			if (includer != null) {
 				includer.close();
-				usedFiles = includer.getFilesUsed();
+				// usedFiles = includer.getFilesUsedTOBEREMOVED();
 			}
 			readerInit.close();
 		}
@@ -117,7 +117,9 @@ public final class BlockUmlBuilder implements DefinitionsContainer {
 				if (paused) {
 					current2.add(s);
 				}
-				blocks.add(new BlockUml(current2, defines.cloneMe(), null, this));
+				final BlockUml uml = new BlockUml(current2, defines.cloneMe(), null, this);
+				usedFiles.addAll(uml.getIncluded());
+				blocks.add(uml);
 				current2 = null;
 				reader.setPaused(false);
 			}

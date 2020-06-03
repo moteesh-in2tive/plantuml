@@ -39,6 +39,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
+import net.sourceforge.plantuml.ugraphic.color.ColorChangerMonochrome;
+
 public class UImage implements UShape {
 
 	private final BufferedImage image;

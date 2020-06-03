@@ -37,13 +37,13 @@ import java.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class DecorateEntityImage extends AbstractTextBlock implements TextBlockBackcolored {
 
@@ -100,7 +100,7 @@ public class DecorateEntityImage extends AbstractTextBlock implements TextBlockB
 
 		if (text1 != null) {
 			final double xText1 = getTextX(dimText1, dimTotal, horizontal1);
-			text1.drawU(ug.apply(new UTranslate(xText1, 0)));
+			text1.drawU(ug.apply(UTranslate.dx(xText1)));
 		}
 		original.drawU(ug.apply(new UTranslate(xImage, yImage)));
 		deltaX = xImage;
@@ -130,7 +130,7 @@ public class DecorateEntityImage extends AbstractTextBlock implements TextBlockB
 		}
 	}
 
-	public HtmlColor getBackcolor() {
+	public HColor getBackcolor() {
 		if (original instanceof TextBlockBackcolored) {
 			return ((TextBlockBackcolored) original).getBackcolor();
 		}

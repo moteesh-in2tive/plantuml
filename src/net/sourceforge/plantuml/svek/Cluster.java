@@ -65,8 +65,6 @@ import net.sourceforge.plantuml.cucadiagram.MethodsOrFieldsArea;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizVersion;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColor;
-import net.sourceforge.plantuml.graphic.HtmlColorTransparent;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockEmpty;
@@ -89,6 +87,8 @@ import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public class Cluster implements Moveable {
@@ -300,7 +300,7 @@ public class Cluster implements Moveable {
 		this.yTitle = y;
 	}
 
-	private static HtmlColor getColor(ColorParam colorParam, ISkinParam skinParam, Stereotype stereotype) {
+	private static HColor getColor(ColorParam colorParam, ISkinParam skinParam, Stereotype stereotype) {
 		return SkinParamUtils.getColor(skinParam, stereotype, colorParam);
 	}
 
@@ -317,7 +317,7 @@ public class Cluster implements Moveable {
 			ug.draw(new UComment("cluster " + fullName));
 		}
 		final Stereotype stereotype = group.getStereotype();
-		HtmlColor borderColor;
+		HColor borderColor;
 		if (SkinParam.USE_STYLES()) {
 			final Style style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
 			borderColor = style.value(PName.LineColor).asColor(skinParam2.getIHtmlColorSet());
@@ -360,7 +360,7 @@ public class Cluster implements Moveable {
 				packageStyle = skinParam2.getPackageStyle();
 			}
 			if (border != null) {
-				final HtmlColor tmp = skinParam2.getHtmlColor(border, group.getStereotype(), false);
+				final HColor tmp = skinParam2.getHtmlColor(border, group.getStereotype(), false);
 				if (tmp != null) {
 					borderColor = tmp;
 				}
@@ -379,7 +379,7 @@ public class Cluster implements Moveable {
 							: 0;
 				}
 			}
-			HtmlColor backColor = getBackColor(umlDiagramType);
+			HColor backColor = getBackColor(umlDiagramType);
 			backColor = getBackColor(backColor, skinParam2, group.getStereotype());
 			if (ztitle != null || zstereo != null) {
 				final double roundCorner = group.getUSymbol() == null ? 0
@@ -449,22 +449,22 @@ public class Cluster implements Moveable {
 		xTitle = minX + ((maxX - minX - widthTitle) / 2);
 	}
 
-	private void drawSwinLinesState(UGraphic ug, HtmlColor borderColor) {
+	private void drawSwinLinesState(UGraphic ug, HColor borderColor) {
 		if (ztitle != null) {
-			ztitle.drawU(ug.apply(new UTranslate(xTitle, 0)));
+			ztitle.drawU(ug.apply(UTranslate.dx(xTitle)));
 		}
-		final ULine line = new ULine(0, maxY - minY);
+		final ULine line = ULine.vline(maxY - minY);
 		ug = ug.apply(new UChangeColor(borderColor));
-		ug.apply(new UTranslate(minX, 0)).draw(line);
-		ug.apply(new UTranslate(maxX, 0)).draw(line);
+		ug.apply(UTranslate.dx(minX)).draw(line);
+		ug.apply(UTranslate.dx(maxX)).draw(line);
 
 	}
 
-	private HtmlColor getColor(ISkinParam skinParam, ColorParam colorParam, Stereotype stereo) {
+	private HColor getColor(ISkinParam skinParam, ColorParam colorParam, Stereotype stereo) {
 		return new Rose().getHtmlColor(skinParam, stereo, colorParam);
 	}
 
-	private void drawUState(UGraphic ug, HtmlColor borderColor, ISkinParam skinParam2, UStroke stroke,
+	private void drawUState(UGraphic ug, HColor borderColor, ISkinParam skinParam2, UStroke stroke,
 			UmlDiagramType umlDiagramType) {
 		final Dimension2D total = new Dimension2DDouble(maxX - minX, maxY - minY);
 		final double suppY;
@@ -475,11 +475,11 @@ public class Cluster implements Moveable {
 					+ IEntityImage.MARGIN_LINE;
 		}
 
-		HtmlColor stateBack = getBackColor(umlDiagramType);
+		HColor stateBack = getBackColor(umlDiagramType);
 		if (stateBack == null) {
 			stateBack = getColor(skinParam2, ColorParam.stateBackground, group.getStereotype());
 		}
-		final HtmlColor background = getColor(skinParam2, ColorParam.background, null);
+		final HColor background = getColor(skinParam2, ColorParam.background, null);
 		final TextBlockWidth attribute = getTextBlockAttribute(skinParam2);
 		final double attributeHeight = attribute.calculateDimension(ug.getStringBounder()).getHeight();
 		final RoundedContainer r = new RoundedContainer(total, suppY,
@@ -853,11 +853,11 @@ public class Cluster implements Moveable {
 		return colorTitle;
 	}
 
-	private final HtmlColor getBackColor(final UmlDiagramType umlDiagramType) {
+	private final HColor getBackColor(final UmlDiagramType umlDiagramType) {
 		if (EntityUtils.groupRoot(group)) {
 			return null;
 		}
-		final HtmlColor result = group.getColors(skinParam).getColor(ColorType.BACK);
+		final HColor result = group.getColors(skinParam).getColor(ColorType.BACK);
 		if (result != null) {
 			return result;
 		}
@@ -865,7 +865,7 @@ public class Cluster implements Moveable {
 		final USymbol sym = group.getUSymbol() == null ? USymbol.PACKAGE : group.getUSymbol();
 		final ColorParam backparam = umlDiagramType == UmlDiagramType.ACTIVITY ? ColorParam.partitionBackground
 				: sym.getColorParamBack();
-		final HtmlColor c1 = skinParam.getHtmlColor(backparam, stereo, false);
+		final HColor c1 = skinParam.getHtmlColor(backparam, stereo, false);
 		if (c1 != null) {
 			return c1;
 		}
@@ -882,14 +882,14 @@ public class Cluster implements Moveable {
 		return group == ent;
 	}
 
-	public static HtmlColor getBackColor(HtmlColor backColor, ISkinParam skinParam, Stereotype stereotype) {
+	public static HColor getBackColor(HColor backColor, ISkinParam skinParam, Stereotype stereotype) {
 		if (SkinParam.USE_STYLES()) {
 			final Style style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
 			if (backColor == null) {
 				backColor = style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
 			}
 			if (backColor == null /* || stateBack instanceof HtmlColorTransparent */) {
-				backColor = new HtmlColorTransparent();
+				backColor = new HColorBackground(skinParam.getBackgroundColor());
 			}
 			return backColor;
 		}
@@ -900,7 +900,7 @@ public class Cluster implements Moveable {
 			backColor = skinParam.getHtmlColor(ColorParam.background, stereotype, false);
 		}
 		if (backColor == null /* || stateBack instanceof HtmlColorTransparent */) {
-			backColor = new HtmlColorTransparent();
+			backColor = new HColorBackground(skinParam.getBackgroundColor());
 		}
 		return backColor;
 	}

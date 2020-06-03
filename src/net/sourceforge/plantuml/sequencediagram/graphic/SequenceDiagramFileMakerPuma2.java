@@ -53,7 +53,6 @@ import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.HtmlColor;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
@@ -72,6 +71,7 @@ import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class SequenceDiagramFileMakerPuma2 implements FileMaker {
 
@@ -263,7 +263,7 @@ public class SequenceDiagramFileMakerPuma2 implements FileMaker {
 			return;
 		}
 		text.drawU(ug.apply(new UTranslate(area.getFooterX(diagram.getFooter().getHorizontalAlignment()), area
-				.getFooterY() + legendHeight)));
+						.getFooterY() + legendHeight)));
 	}
 
 	private void drawHeader(SequenceDiagramArea area, UGraphic ug, int page) {
@@ -273,7 +273,7 @@ public class SequenceDiagramFileMakerPuma2 implements FileMaker {
 			return;
 		}
 		text.drawU(ug.apply(new UTranslate(area.getHeaderX(diagram.getHeader().getHorizontalAlignment()), area
-				.getHeaderY())));
+						.getHeaderY())));
 	}
 
 	private double oneOf(double a, double b) {
@@ -305,8 +305,8 @@ public class SequenceDiagramFileMakerPuma2 implements FileMaker {
 
 	private PngTitler getPngTitler(final FontParam fontParam, int page) {
 		final ISkinParam skinParam = diagram.getSkinParam();
-		final HtmlColor hyperlinkColor = skinParam.getHyperlinkColor();
-		final HtmlColor titleColor = skinParam.getFontHtmlColor(null, fontParam);
+		final HColor hyperlinkColor = skinParam.getHyperlinkColor();
+		final HColor titleColor = skinParam.getFontHtmlColor(null, fontParam);
 		final String fontFamily = skinParam.getFont(null, false, fontParam).getFamily(null);
 		final int fontSize = skinParam.getFont(null, false, fontParam).getSize();
 		final DisplaySection display = diagram.getFooterOrHeaderTeoz(fontParam).withPage(page + 1, pages.size());

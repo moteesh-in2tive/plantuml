@@ -36,23 +36,23 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
-import net.sourceforge.plantuml.graphic.HtmlColor;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class SkinParamBackcolored extends SkinParamDelegator {
 
-	final private HtmlColor backColorElement;
-	final private HtmlColor backColorGeneral;
+	final private HColor backColorElement;
+	final private HColor backColorGeneral;
 	final private boolean forceClickage;
 
-	public SkinParamBackcolored(ISkinParam skinParam, HtmlColor backColorElement) {
+	public SkinParamBackcolored(ISkinParam skinParam, HColor backColorElement) {
 		this(skinParam, backColorElement, null, false);
 	}
 
-	public SkinParamBackcolored(ISkinParam skinParam, HtmlColor backColorElement, boolean forceClickage) {
+	public SkinParamBackcolored(ISkinParam skinParam, HColor backColorElement, boolean forceClickage) {
 		this(skinParam, backColorElement, null, forceClickage);
 	}
 
-	public SkinParamBackcolored(ISkinParam skinParam, HtmlColor backColorElement, HtmlColor backColorGeneral) {
+	public SkinParamBackcolored(ISkinParam skinParam, HColor backColorElement, HColor backColorGeneral) {
 		this(skinParam, backColorElement, backColorGeneral, false);
 	}
 
@@ -61,7 +61,7 @@ public class SkinParamBackcolored extends SkinParamDelegator {
 		return super.toString() + " " + backColorElement + " " + backColorGeneral;
 	}
 
-	public SkinParamBackcolored(ISkinParam skinParam, HtmlColor backColorElement, HtmlColor backColorGeneral,
+	public SkinParamBackcolored(ISkinParam skinParam, HColor backColorElement, HColor backColorGeneral,
 			boolean forceClickage) {
 		super(skinParam);
 		this.forceClickage = forceClickage;
@@ -70,7 +70,7 @@ public class SkinParamBackcolored extends SkinParamDelegator {
 	}
 
 	@Override
-	public HtmlColor getBackgroundColor() {
+	public HColor getBackgroundColor() {
 		if (backColorGeneral != null) {
 			return backColorGeneral;
 		}
@@ -78,27 +78,27 @@ public class SkinParamBackcolored extends SkinParamDelegator {
 	}
 
 	@Override
-	public HtmlColor getHtmlColor(ColorParam param, Stereotype stereotype, boolean clickable) {
+	public HColor getHtmlColor(ColorParam param, Stereotype stereotype, boolean clickable) {
 		if (param.isBackground() && backColorElement != null) {
 			return backColorElement;
 		}
 		if (forceClickage) {
-			final HtmlColor c1 = super.getHtmlColor(param, stereotype, true);
+			final HColor c1 = super.getHtmlColor(param, stereotype, true);
 			if (c1 != null) {
 				return c1;
 			}
 			// clickable = true;
 		}
-		final HtmlColor forcedColor = forced.get(param);
+		final HColor forcedColor = forced.get(param);
 		if (forcedColor != null) {
 			return forcedColor;
 		}
 		return super.getHtmlColor(param, stereotype, clickable);
 	}
 
-	private final Map<ColorParam, HtmlColor> forced = new EnumMap<ColorParam, HtmlColor>(ColorParam.class);
+	private final Map<ColorParam, HColor> forced = new EnumMap<ColorParam, HColor>(ColorParam.class);
 
-	public void forceColor(ColorParam param, HtmlColor color) {
+	public void forceColor(ColorParam param, HColor color) {
 		forced.put(param, color);
 	}
 

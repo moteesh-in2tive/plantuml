@@ -39,10 +39,10 @@ import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.graphic.HtmlColor;
-import net.sourceforge.plantuml.project.DayAsDate;
 import net.sourceforge.plantuml.project.DaysAsDates;
 import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.project.time.Day;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class VerbIsOrAre implements VerbPattern {
 
@@ -59,7 +59,7 @@ public class VerbIsOrAre implements VerbPattern {
 		return new Verb() {
 			public CommandExecutionResult execute(Subject subject, Complement complement) {
 				if (complement instanceof ComplementColors) {
-					final HtmlColor color = ((ComplementColors) complement).getCenter();
+					final HColor color = ((ComplementColors) complement).getCenter();
 					return manageColor(project, subject, color);
 				}
 				if (complement == ComplementClose.CLOSE) {
@@ -73,14 +73,14 @@ public class VerbIsOrAre implements VerbPattern {
 		};
 	}
 
-	private CommandExecutionResult manageColor(final GanttDiagram project, Subject subject, HtmlColor color) {
-		if (subject instanceof DayAsDate) {
-			final DayAsDate day = (DayAsDate) subject;
+	private CommandExecutionResult manageColor(final GanttDiagram project, Subject subject, HColor color) {
+		if (subject instanceof Day) {
+			final Day day = (Day) subject;
 			project.colorDay(day, color);
 		}
 		if (subject instanceof DaysAsDates) {
 			final DaysAsDates days = (DaysAsDates) subject;
-			for (DayAsDate d : days) {
+			for (Day d : days) {
 				project.colorDay(d, color);
 			}
 		}
@@ -88,13 +88,13 @@ public class VerbIsOrAre implements VerbPattern {
 	}
 
 	private CommandExecutionResult manageClose(final GanttDiagram project, Subject subject) {
-		if (subject instanceof DayAsDate) {
-			final DayAsDate day = (DayAsDate) subject;
+		if (subject instanceof Day) {
+			final Day day = (Day) subject;
 			project.closeDayAsDate(day);
 		}
 		if (subject instanceof DaysAsDates) {
 			final DaysAsDates days = (DaysAsDates) subject;
-			for (DayAsDate d : days) {
+			for (Day d : days) {
 				project.closeDayAsDate(d);
 			}
 		}
@@ -102,13 +102,13 @@ public class VerbIsOrAre implements VerbPattern {
 	}
 
 	private CommandExecutionResult manageOpen(final GanttDiagram project, Subject subject) {
-		if (subject instanceof DayAsDate) {
-			final DayAsDate day = (DayAsDate) subject;
+		if (subject instanceof Day) {
+			final Day day = (Day) subject;
 			project.openDayAsDate(day);
 		}
 		if (subject instanceof DaysAsDates) {
 			final DaysAsDates days = (DaysAsDates) subject;
-			for (DayAsDate d : days) {
+			for (Day d : days) {
 				project.openDayAsDate(d);
 			}
 		}
