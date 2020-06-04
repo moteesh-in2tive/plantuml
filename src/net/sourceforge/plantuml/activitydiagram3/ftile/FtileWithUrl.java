@@ -51,7 +51,7 @@ public class FtileWithUrl extends FtileDecorate {
 	public void drawU(UGraphic ug) {
 		ug.startUrl(url);
 		getFtileDelegated().drawU(ug);
-		ug.closeAction();
+		ug.closeUrl();
 	}
 
 }

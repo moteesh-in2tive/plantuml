@@ -45,7 +45,6 @@ import net.sourceforge.plantuml.classdiagram.command.CommandCreateElementFull2;
 import net.sourceforge.plantuml.classdiagram.command.CommandCreateElementFull2.Mode;
 import net.sourceforge.plantuml.classdiagram.command.CommandDiamondAssociation;
 import net.sourceforge.plantuml.classdiagram.command.CommandHideShow2;
-import net.sourceforge.plantuml.classdiagram.command.CommandImport;
 import net.sourceforge.plantuml.classdiagram.command.CommandLayoutNewLine;
 import net.sourceforge.plantuml.classdiagram.command.CommandLinkClass;
 import net.sourceforge.plantuml.classdiagram.command.CommandLinkLollipop;
@@ -133,8 +132,6 @@ public class ClassDiagramFactory extends UmlDiagramFactory {
 
 		cmds.add(new CommandLinkClass(UmlDiagramType.CLASS));
 		cmds.add(new CommandLinkLollipop(UmlDiagramType.CLASS));
-
-		cmds.add(new CommandImport());
 
 		final CommandFactoryTipOnEntity factoryTipOnEntityCommand = new CommandFactoryTipOnEntity("a", new RegexLeaf(
 				"ENTITY", "(" + CommandCreateClass.CODE_NO_DOTDOT + "|[%g][^%g]+[%g])::([%g][^%g]+[%g]|[^%s]+)"));

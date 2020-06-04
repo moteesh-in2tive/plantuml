@@ -46,6 +46,7 @@ import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Scale;
+import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -55,7 +56,12 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
@@ -90,9 +96,23 @@ public class MindMapDiagram extends UmlDiagram {
 
 		final double dpiFactor = scale == null ? getScaleCoef(fileFormatOption) : scale.getScale(100, 100);
 		final ISkinParam skinParam = getSkinParam();
-		final ImageBuilder imageBuilder = new ImageBuilder(skinParam.getColorMapper(), dpiFactor,
-				skinParam.getBackgroundColor(), fileFormatOption.isWithMetadata() ? getMetadata() : null, "", 10, 10,
-				null, skinParam.handwritten());
+		final int margin1;
+		final int margin2;
+		final HColor backgroundColor;
+		if (SkinParam.USE_STYLES()) {
+			margin1 = SkinParam.zeroMargin(10);
+			margin2 = SkinParam.zeroMargin(10);
+			final Style style = StyleSignature.of(SName.root, SName.document, SName.mindmapDiagram)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
+			backgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
+		} else {
+			margin1 = 10;
+			margin2 = 10;
+			backgroundColor = skinParam.getBackgroundColor(false);
+		}
+		final ImageBuilder imageBuilder = ImageBuilder.buildBB(skinParam.getColorMapper(), skinParam.handwritten(),
+				ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), null,
+				fileFormatOption.isWithMetadata() ? getMetadata() : null, "", dpiFactor, backgroundColor);
 		TextBlock result = getTextBlock();
 
 		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
@@ -149,8 +169,8 @@ public class MindMapDiagram extends UmlDiagram {
 		final double y2 = left.finger == null ? 0 : left.finger.getFullThickness(stringBounder) / 2;
 		final double y = Math.max(y1, y2);
 
-		final double x = left.finger == null ? 0 : left.finger.getFullElongation(stringBounder)
-				+ ((FingerImpl) left.finger).getX12();
+		final double x = left.finger == null ? 0
+				: left.finger.getFullElongation(stringBounder) + ((FingerImpl) left.finger).getX12();
 		if (right.finger != null) {
 			right.finger.drawU(ug.apply(new UTranslate(x, y)));
 		}
@@ -183,10 +203,20 @@ public class MindMapDiagram extends UmlDiagram {
 		if (stereotype != null) {
 			label = label.removeEndingStereotype();
 		}
+		return addIdeaInternal(stereotype, backColor, level, label, shape, direction);
+	}
+
+	public CommandExecutionResult addIdea(String stereotype, HColor backColor, int level, Display label,
+			IdeaShape shape) {
+		return addIdeaInternal(stereotype, backColor, level, label, shape, defaultDirection);
+	}
+
+	private CommandExecutionResult addIdeaInternal(String stereotype, HColor backColor, int level, Display label,
+			IdeaShape shape, Direction direction) {
 		if (level == 0) {
 			if (this.right.root != null) {
-				return CommandExecutionResult
-						.error("I don't know how to draw multi-root diagram. You should suggest an image so that the PlantUML team implements it :-)");
+				return CommandExecutionResult.error(
+						"I don't know how to draw multi-root diagram. You should suggest an image so that the PlantUML team implements it :-)");
 			}
 			right.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
 			left.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
@@ -203,7 +233,8 @@ public class MindMapDiagram extends UmlDiagram {
 		private Idea last;
 		private Finger finger;
 
-		private void initRoot(StyleBuilder styleBuilder, HColor backColor, Display label, IdeaShape shape, String stereotype) {
+		private void initRoot(StyleBuilder styleBuilder, HColor backColor, Display label, IdeaShape shape,
+				String stereotype) {
 			root = new Idea(styleBuilder, backColor, label, shape, stereotype);
 			last = root;
 		}

@@ -34,7 +34,6 @@ package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
-import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.Branch;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractConnection;
@@ -55,7 +53,7 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileAssemblySimple;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
-import net.sourceforge.plantuml.activitydiagram3.ftile.FtileMinWidth;
+import net.sourceforge.plantuml.activitydiagram3.ftile.FtileMinWidthCentered;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileUtils;
 import net.sourceforge.plantuml.activitydiagram3.ftile.MergeStrategy;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
@@ -149,10 +147,10 @@ class FtileIfLongHorizontal extends AbstractFtile {
 		final List<Ftile> tiles = new ArrayList<Ftile>();
 
 		for (Branch branch : thens) {
-			tiles.add(new FtileMinWidth(branch.getFtile(), 30));
+			tiles.add(new FtileMinWidthCentered(branch.getFtile(), 30));
 		}
 
-		final Ftile tile2 = new FtileMinWidth(branch2.getFtile(), 30);
+		final Ftile tile2 = new FtileMinWidthCentered(branch2.getFtile(), 30);
 
 		List<Ftile> diamonds = new ArrayList<Ftile>();
 		List<Double> inlabelSizes = new ArrayList<Double>();
@@ -232,13 +230,6 @@ class FtileIfLongHorizontal extends AbstractFtile {
 		}
 
 		return FtileUtils.addConnection(result, conns);
-	}
-
-	static private TextBlock getSpecial(Branch branch, FontConfiguration fcTest, ISkinParam skinParam) {
-		if (branch.getSpecial() == null) {
-			return null;
-		}
-		return branch.getSpecial().getDisplay().create(fcTest, HorizontalAlignment.LEFT, skinParam);
 	}
 
 	class ConnectionHorizontal extends AbstractConnection {
@@ -484,7 +475,7 @@ class FtileIfLongHorizontal extends AbstractFtile {
 
 			final double minX = minmax[0];
 			final double maxX = minmax[1];
-			if (minX == Double.NaN || maxX == Double.NaN) {
+			if (Double.isNaN(minX) || Double.isNaN(maxX)) {
 				return;
 			}
 
@@ -495,9 +486,21 @@ class FtileIfLongHorizontal extends AbstractFtile {
 			ug.draw(s);
 		}
 
+		private Double getLeftOut(final StringBounder stringBounder) {
+			final FtileGeometry dim = calculateDimension(stringBounder);
+			if (dim.hasPointOut()) {
+				return dim.getLeft();
+			}
+			return null;
+		}
+
 		private double[] getMinmax(StringBounder stringBounder, double width, List<Ftile> allTiles, Swimlane intoSw,
 				List<Swimlane> allSwimlanes) {
 			final int current = allSwimlanes.indexOf(intoSw);
+			final Double leftOut = getLeftOut(stringBounder);
+			if (leftOut == null)
+				return new double[] { Double.NaN, Double.NaN };
+
 			if (current == -1) {
 				throw new IllegalStateException();
 			}
@@ -507,6 +510,8 @@ class FtileIfLongHorizontal extends AbstractFtile {
 				return new double[] { Double.NaN, Double.NaN };
 			double minX = current != first ? 0 : width;
 			double maxX = current != last ? width : 0;
+			minX = Math.min(minX, leftOut);
+			maxX = Math.max(maxX, leftOut);
 			for (Ftile tmp : allTiles) {
 				if (tmp.calculateDimension(stringBounder).hasPointOut() == false) {
 					continue;
@@ -523,8 +528,13 @@ class FtileIfLongHorizontal extends AbstractFtile {
 		}
 
 		private double[] getMinmaxSimple(StringBounder stringBounder, double width, List<Ftile> allTiles) {
+			final Double leftOut = getLeftOut(stringBounder);
+			if (leftOut == null)
+				return new double[] { Double.NaN, Double.NaN };
 			double minX = width / 2;
 			double maxX = width / 2;
+			minX = Math.min(minX, leftOut);
+			maxX = Math.max(maxX, leftOut);
 			for (Ftile tmp : allTiles) {
 				if (tmp.calculateDimension(stringBounder).hasPointOut() == false) {
 					continue;

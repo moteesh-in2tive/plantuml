@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import net.sourceforge.plantuml.EnsureVisible;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.TikzFontDistortion;
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 
@@ -59,12 +58,6 @@ public class UGraphicNull extends AbstractUGraphic<String> implements EnsureVisi
 
 	public StringBounder getStringBounder() {
 		return FileFormat.PNG.getDefaultStringBounder(TikzFontDistortion.getDefault());
-	}
-
-	public void startUrl(Url url) {
-	}
-
-	public void closeAction() {
 	}
 
 	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {

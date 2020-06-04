@@ -113,6 +113,7 @@ public class EntityImageState extends AbstractEntityImage {
 	}
 
 	final public void drawU(UGraphic ug) {
+		ug.startGroup(getEntity().getIdent().getName());
 		if (url != null) {
 			ug.startUrl(url);
 		}
@@ -160,8 +161,9 @@ public class EntityImageState extends AbstractEntityImage {
 		fields.drawU(ug.apply(new UTranslate(xFields, yFields)));
 
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
+		ug.closeGroup();
 	}
 
 	private UStroke getStroke() {

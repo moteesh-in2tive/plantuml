@@ -45,15 +45,13 @@ import net.sourceforge.plantuml.api.PSystemFactory;
 import net.sourceforge.plantuml.bpm.BpmDiagramFactory;
 import net.sourceforge.plantuml.classdiagram.ClassDiagramFactory;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
-import net.sourceforge.plantuml.compositediagram.CompositeDiagramFactory;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
-import net.sourceforge.plantuml.creole.PSystemCreoleFactory;
+import net.sourceforge.plantuml.creole.legacy.PSystemCreoleFactory;
 import net.sourceforge.plantuml.definition.PSystemDefinitionFactory;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.directdot.PSystemDotFactory;
-import net.sourceforge.plantuml.donors.PSystemSkinparameterListFactory;
 import net.sourceforge.plantuml.error.PSystemError;
 import net.sourceforge.plantuml.error.PSystemErrorUtils;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
@@ -83,23 +81,24 @@ public class PSystemBuilder {
 
 	public static final long startTime = System.currentTimeMillis();
 
-	final public Diagram createPSystem(ISkinSimple skinParam, final List<StringLocated> strings2) {
+	final public Diagram createPSystem(ISkinSimple skinParam, List<StringLocated> source,
+			List<StringLocated> rawSource) {
 
 		final long now = System.currentTimeMillis();
 
 		Diagram result = null;
 		try {
-			final DiagramType type = DiagramType.getTypeFromArobaseStart(strings2.get(0).getString());
-			final UmlSource umlSource = new UmlSource(strings2, type == DiagramType.UML);
+			final DiagramType type = DiagramType.getTypeFromArobaseStart(source.get(0).getString());
+			final UmlSource umlSource = new UmlSource(source, type == DiagramType.UML, rawSource);
 
-			for (StringLocated s : strings2) {
+			for (StringLocated s : source) {
 				if (s.getPreprocessorError() != null) {
 					// Dead code : should not append
+					assert false;
 					Log.error("Preprocessor Error: " + s.getPreprocessorError());
 					final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, s.getPreprocessorError(), /* cpt */
 							s.getLocation());
-					// return PSystemErrorUtils.buildV1(umlSource, err, Collections.<String>
-					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String>emptyList(), strings2);
+					return PSystemErrorUtils.buildV2(umlSource, err, Collections.<String>emptyList(), source);
 				}
 			}
 
@@ -143,7 +142,6 @@ public class PSystemBuilder {
 		// factories.add(new PostIdDiagramFactory());
 		factories.add(new PSystemLicenseFactory());
 		factories.add(new PSystemVersionFactory());
-		factories.add(new PSystemSkinparameterListFactory());
 		factories.add(new PSystemListFontsFactory());
 		factories.add(new PSystemOpenIconicFactory());
 		factories.add(new PSystemListOpenIconicFactory());
@@ -162,7 +160,7 @@ public class PSystemBuilder {
 		factories.add(new PSystemLatexFactory(DiagramType.LATEX));
 		// factories.add(new PSystemStatsFactory());
 		factories.add(new PSystemCreoleFactory());
-		factories.add(new GanttDiagramFactory(DiagramType.GANTT));
+ 		factories.add(new GanttDiagramFactory(DiagramType.GANTT));
 		factories.add(new GanttDiagramFactory(DiagramType.UML));
 		factories.add(new FlowDiagramFactory());
 		// factories.add(new PSystemTreeFactory(DiagramType.JUNGLE));

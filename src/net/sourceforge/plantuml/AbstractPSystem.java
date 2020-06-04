@@ -47,7 +47,6 @@ import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.stats.StatsUtilsIncrement;
-import net.sourceforge.plantuml.version.License;
 import net.sourceforge.plantuml.version.Version;
 
 public abstract class AbstractPSystem implements Diagram {
@@ -60,7 +59,6 @@ public abstract class AbstractPSystem implements Diagram {
 		toAppend.append("PlantUML version ");
 		toAppend.append(Version.versionString());
 		toAppend.append("(" + Version.compileTimeString() + ")\n");
-		toAppend.append("(" + License.getCurrent() + " source distribution)\n");
 		for (String name : OptionPrint.interestingProperties()) {
 			toAppend.append(name);
 			toAppend.append(BackSlash.CHAR_NEWLINE);
@@ -72,7 +70,12 @@ public abstract class AbstractPSystem implements Diagram {
 		if (source == null) {
 			return getVersion();
 		}
-		return source.getPlainString() + BackSlash.NEWLINE + getVersion();
+		final String rawString = source.getRawString();
+		final String plainString = source.getPlainString();
+		if (rawString != null && rawString.equals(plainString)) {
+			return rawString + BackSlash.NEWLINE + getVersion();
+		}
+		return rawString + BackSlash.NEWLINE + plainString + BackSlash.NEWLINE + getVersion();
 	}
 
 	final public UmlSource getSource() {

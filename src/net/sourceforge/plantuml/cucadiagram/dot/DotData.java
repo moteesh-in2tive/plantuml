@@ -48,7 +48,6 @@ import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Link;
-import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.PortionShower;
 import net.sourceforge.plantuml.cucadiagram.entity.EntityFactory;
 import net.sourceforge.plantuml.svek.DotMode;
@@ -172,7 +171,7 @@ final public class DotData implements PortionShower {
 	public void removeIrrelevantSametail() {
 		final Map<String, Integer> sametails = new HashMap<String, Integer>();
 		for (Link link : links) {
-			if (link.getType().getDecor2() == LinkDecor.EXTENDS) {
+			if (link.getType().getDecor2().isExtendsLike()) {
 				link.setSametail(link.getEntity1().getUid());
 			}
 			final String sametail = link.getSametail();

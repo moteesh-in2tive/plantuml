@@ -52,7 +52,7 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.creole.CreoleMode;
-import net.sourceforge.plantuml.creole.CreoleParser;
+import net.sourceforge.plantuml.creole.Parser;
 import net.sourceforge.plantuml.creole.Sheet;
 import net.sourceforge.plantuml.creole.SheetBlock1;
 import net.sourceforge.plantuml.creole.SheetBlock2;
@@ -78,11 +78,10 @@ import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
 public class FtileBox extends AbstractFtile {
 
-	private double padding() {
-		return padding;
-	}
-
-	private double padding = 10;
+	private double padding1 = 10;
+	private double padding2 = 10;
+	private double paddingTop = 10;
+	private double paddingBottom = 10;
 	private final TextBlock tb;
 	private double roundCorner = 25;
 	private final double shadowing;
@@ -127,12 +126,12 @@ public class FtileBox extends AbstractFtile {
 	class MyStencil implements Stencil {
 
 		public double getStartingX(StringBounder stringBounder, double y) {
-			return -padding();
+			return -padding1;
 		}
 
 		public double getEndingX(StringBounder stringBounder, double y) {
 			final Dimension2D dim = calculateDimension(stringBounder);
-			return dim.getWidth() - padding();
+			return dim.getWidth() - padding2;
 		}
 
 	}
@@ -196,7 +195,10 @@ public class FtileBox extends AbstractFtile {
 			this.backColor = style.value(PName.BackGroundColor).asColor(getIHtmlColorSet());
 			fc = style.getFontConfiguration(getIHtmlColorSet());
 			horizontalAlignment = style.getHorizontalAlignment();
-			this.padding = style.getPadding().asDouble();
+			this.padding1 = style.getPadding().getLeft();
+			this.padding2 = style.getPadding().getRight();
+			this.paddingTop = style.getPadding().getTop();
+			this.paddingBottom = style.getPadding().getBottom();
 			this.roundCorner = style.value(PName.RoundCorner).asDouble();
 			this.shadowing = style.value(PName.Shadowing).asDouble();
 			wrapWidth = style.wrapWidth();
@@ -211,8 +213,9 @@ public class FtileBox extends AbstractFtile {
 			wrapWidth = skinParam.wrapWidth();
 
 		}
-		final Sheet sheet = new CreoleParser(fc, skinParam.getDefaultTextAlignment(horizontalAlignment), skinParam,
-				CreoleMode.FULL).createSheet(label);
+		final Sheet sheet = Parser
+				.build(fc, skinParam.getDefaultTextAlignment(horizontalAlignment), skinParam, CreoleMode.FULL)
+				.createSheet(label);
 		this.tb = new SheetBlock2(new SheetBlock1(sheet, wrapWidth, skinParam.getPadding()), new MyStencil(),
 				new UStroke(1));
 		this.print = label.toString();
@@ -244,24 +247,30 @@ public class FtileBox extends AbstractFtile {
 		} else {
 			ug = ug.apply(borderColor);
 		}
-		ug = ug.apply(backColor.bg()).apply(thickness);
+		if (backColor == null) {
+			ug = ug.apply(new HColorNone().bg());
+		} else {
+			ug = ug.apply(backColor.bg());
+		}
+
+		ug = ug.apply(thickness);
 		rect.drawU(ug);
 
 		if (horizontalAlignment == HorizontalAlignment.LEFT) {
-			tb.drawU(ug.apply(new UTranslate(padding(), padding())));
+			tb.drawU(ug.apply(new UTranslate(padding1, paddingTop)));
 		} else if (horizontalAlignment == HorizontalAlignment.RIGHT) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimTb.getWidth() - padding(), padding())));
+			tb.drawU(ug.apply(new UTranslate(dimTotal.getWidth() - dimTb.getWidth() - padding2, paddingBottom)));
 		} else if (horizontalAlignment == HorizontalAlignment.CENTER) {
 			final Dimension2D dimTb = tb.calculateDimension(ug.getStringBounder());
-			tb.drawU(ug.apply(new UTranslate((dimTotal.getWidth() - dimTb.getWidth()) / 2, padding())));
+			tb.drawU(ug.apply(new UTranslate((dimTotal.getWidth() - dimTb.getWidth()) / 2, paddingBottom)));
 		}
 	}
 
 	@Override
 	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		Dimension2D dim = tb.calculateDimension(stringBounder);
-		dim = Dimension2DDouble.delta(dim, 2 * padding(), 2 * padding());
+		dim = Dimension2DDouble.delta(dim, padding1 + padding2, paddingBottom + paddingTop);
 		dim = Dimension2DDouble.atLeast(dim, minimumWidth, 0);
 		return new FtileGeometry(dim, dim.getWidth() / 2, 0, dim.getHeight());
 	}

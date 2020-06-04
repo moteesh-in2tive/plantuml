@@ -31,10 +31,6 @@
  */
 package net.sourceforge.plantuml.ugraphic.color;
 
-import java.awt.Color;
-
-import net.sourceforge.plantuml.StringUtils;
-
 public class HColorBackground extends HColorAbstract implements HColor {
 
 	private final HColor back;
@@ -44,19 +40,14 @@ public class HColorBackground extends HColorAbstract implements HColor {
 			throw new IllegalArgumentException();
 		}
 		this.back = back;
-
-	}
-
-	public String getSvg(ColorMapper mapper) {
-		return StringUtils.getAsHtml(((HColorSimple) back).getColor999());
 	}
 
 	public HColor getNull() {
 		return null;
 	}
 
-	public Color getActualColor(ColorMapper mapper) {
-		return mapper.getMappedColor(back);
+	final HColor getBack() {
+		return back;
 	}
 
 }

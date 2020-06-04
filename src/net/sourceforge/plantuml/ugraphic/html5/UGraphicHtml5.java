@@ -36,7 +36,6 @@ import java.io.OutputStream;
 
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.TikzFontDistortion;
-import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.AbstractCommonUGraphic;
 import net.sourceforge.plantuml.ugraphic.AbstractUGraphic;
@@ -76,16 +75,6 @@ public class UGraphicHtml5 extends AbstractUGraphic<Html5Drawer> implements Clip
 		return stringBounder;
 	}
 
-	public void startUrl(Url url) {
-		// throw new UnsupportedOperationException();
-
-	}
-
-	public void closeAction() {
-		// throw new UnsupportedOperationException();
-
-	}
-
 	// public void close() {
 	// getEpsGraphics().close();
 	// }
@@ -119,7 +108,7 @@ public class UGraphicHtml5 extends AbstractUGraphic<Html5Drawer> implements Clip
 	// }
 	//
 	// static public void copyEpsToFile(ColorMapper colorMapper, UDrawable udrawable, File f) throws IOException {
-	// final PrintWriter pw = new PrintWriter(f);
+	// final PrintWriter pw = SecurityUtils.PrintWriter(f);
 	// final EpsStrategy epsStrategy = EpsStrategy.getDefault2();
 	// pw.print(UGraphicHtml5.getEpsString(colorMapper, epsStrategy, udrawable));
 	// pw.close();

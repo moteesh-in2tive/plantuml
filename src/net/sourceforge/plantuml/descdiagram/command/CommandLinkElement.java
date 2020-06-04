@@ -27,6 +27,7 @@
  *
  *
  * Original Author:  Arnaud Roques
+ * Contribution :  Hisashi Miyashita
  *
  */
 package net.sourceforge.plantuml.descdiagram.command;
@@ -38,9 +39,6 @@ import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.Matcher2;
-import net.sourceforge.plantuml.command.regex.MyPattern;
-import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOptional;
@@ -52,7 +50,6 @@ import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
-import net.sourceforge.plantuml.cucadiagram.LinkArrow;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -78,18 +75,18 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		return RegexConcat.build(CommandLinkElement.class.getName(), RegexLeaf.start(), //
 				getGroup("ENT1"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexOptional(new RegexLeaf("LABEL1", "[%g]([^%g]+)[%g]")), //
+				new RegexOptional(new RegexLeaf("FIRST_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\||[%s]+o)?"), //
+				new RegexLeaf("HEAD2", "(0\\)|<<|[<^*+#0@)]|<\\|[\\|\\:]?|[%s]+o)?"), //
 				new RegexLeaf("BODY1", "([-=.~]+)"), //
 				new RegexLeaf("ARROW_STYLE1", "(?:\\[(" + LINE_STYLE_MUTILPLES + ")\\])?"), //
 				new RegexOptional(new RegexLeaf("DIRECTION", "(left|right|up|down|le?|ri?|up?|do?)(?=[-=.~0()])")), //
 				new RegexOptional(new RegexLeaf("INSIDE", "(0|\\(0\\)|\\(0|0\\))(?=[-=.~])")), //
 				new RegexLeaf("ARROW_STYLE2", "(?:\\[(" + LINE_STYLE + ")\\])?"), //
 				new RegexLeaf("BODY2", "([-=.~]*)"), //
-				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|\\|>|\\\\\\\\|o[%s]+)?"), //
+				new RegexLeaf("HEAD1", "(\\(0|>>|[>^*+#0@(]|[\\:\\|]?\\|>|\\\\\\\\|o[%s]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexOptional(new RegexLeaf("LABEL2", "[%g]([^%g]+)[%g]")), //
+				new RegexOptional(new RegexLeaf("SECOND_LABEL", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				getGroup("ENT2"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -133,6 +130,10 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d1 = LinkDecor.ARROW_TRIANGLE;
 		} else if (head1.equals("^")) {
 			d1 = LinkDecor.EXTENDS;
+		} else if (head1.equals(":|>")) {
+			d1 = LinkDecor.DEFINEDBY;
+		} else if (head1.equals("||>")) {
+			d1 = LinkDecor.REDEFINES;
 		} else if (head1.equals("|>")) {
 			d1 = LinkDecor.EXTENDS;
 		}
@@ -159,6 +160,10 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 			d2 = LinkDecor.ARROW_TRIANGLE;
 		} else if (head2.equals("^")) {
 			d2 = LinkDecor.EXTENDS;
+		} else if (head2.equals("<|:")) {
+			d2 = LinkDecor.DEFINEDBY;
+		} else if (head2.equals("<||")) {
+			d2 = LinkDecor.REDEFINES;
 		} else if (head2.equals("<|")) {
 			d2 = LinkDecor.EXTENDS;
 		}
@@ -207,81 +212,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 	}
 
 	private static RegexLeaf getGroup(String name) {
-		return new RegexLeaf(
-				name,
+		return new RegexLeaf(name,
 				"([\\p{L}0-9_.]+|\\(\\)[%s]*[\\p{L}0-9_.]+|\\(\\)[%s]*[%g][^%g]+[%g]|:[^:]+:|(?!\\[\\*\\])\\[[^\\[\\]]+\\]|\\((?!\\*\\))[^)]+\\))");
-	}
-
-	static class Labels {
-		private String firstLabel;
-		private String secondLabel;
-		private String labelLink;
-		private LinkArrow linkArrow = LinkArrow.NONE;
-
-		Labels(RegexResult arg) {
-			firstLabel = arg.get("LABEL1", 0);
-			secondLabel = arg.get("LABEL2", 0);
-			labelLink = arg.get("LABEL_LINK", 0);
-
-			if (labelLink != null) {
-				if (firstLabel == null && secondLabel == null) {
-					init();
-				}
-				labelLink = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(labelLink, "\"");
-
-				if ("<".equals(labelLink)) {
-					linkArrow = LinkArrow.BACKWARD;
-					labelLink = null;
-				} else if (">".equals(labelLink)) {
-					linkArrow = LinkArrow.DIRECT_NORMAL;
-					labelLink = null;
-				} else if (labelLink != null && labelLink.startsWith("< ")) {
-					linkArrow = LinkArrow.BACKWARD;
-					labelLink = StringUtils.trin(labelLink.substring(2));
-				} else if (labelLink != null && labelLink.startsWith("> ")) {
-					linkArrow = LinkArrow.DIRECT_NORMAL;
-					labelLink = StringUtils.trin(labelLink.substring(2));
-				} else if (labelLink != null && labelLink.endsWith(" >")) {
-					linkArrow = LinkArrow.DIRECT_NORMAL;
-					labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
-				} else if (labelLink != null && labelLink.endsWith(" <")) {
-					linkArrow = LinkArrow.BACKWARD;
-					labelLink = StringUtils.trin(labelLink.substring(0, labelLink.length() - 2));
-				}
-
-			}
-
-		}
-
-		private void init() {
-			final Pattern2 p1 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)[%g]([^%g]+)[%g]$");
-			final Matcher2 m1 = p1.matcher(labelLink);
-			if (m1.matches()) {
-				firstLabel = m1.group(1);
-				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
-						.trin(m1.group(2))));
-				secondLabel = m1.group(3);
-				return;
-			}
-			final Pattern2 p2 = MyPattern.cmpile("^[%g]([^%g]+)[%g]([^%g]+)$");
-			final Matcher2 m2 = p2.matcher(labelLink);
-			if (m2.matches()) {
-				firstLabel = m2.group(1);
-				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
-						.trin(m2.group(2))));
-				secondLabel = null;
-				return;
-			}
-			final Pattern2 p3 = MyPattern.cmpile("^([^%g]+)[%g]([^%g]+)[%g]$");
-			final Matcher2 m3 = p3.matcher(labelLink);
-			if (m3.matches()) {
-				firstLabel = null;
-				labelLink = StringUtils.trin(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(StringUtils
-						.trin(m3.group(1))));
-				secondLabel = m3.group(2);
-			}
-		}
-
 	}
 
 	@Override
@@ -308,18 +240,18 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		final IEntity cl1;
 		final IEntity cl2;
 		if (diagram.isGroup(code1) && diagram.isGroup(code2)) {
-			cl1 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent1String)) : diagram
-					.getGroup(diagram.buildCode(ent1String));
-			cl2 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent2String)) : diagram
-					.getGroup(diagram.buildCode(ent2String));
+			cl1 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent1String))
+					: diagram.getGroup(diagram.buildCode(ent1String));
+			cl2 = diagram.V1972() ? diagram.getGroupStrict(diagram.buildLeafIdent(ent2String))
+					: diagram.getGroup(diagram.buildCode(ent2String));
 		} else {
 			cl1 = getFoo1(diagram, code1, ident1, ident1pure);
 			cl2 = getFoo1(diagram, code2, ident2, ident2pure);
 		}
-		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.labelLink), queue.length(),
-				labels.firstLabel, labels.secondLabel, diagram.getLabeldistance(), diagram.getLabelangle(), diagram
-						.getSkinParam().getCurrentStyleBuilder());
-		link.setLinkArrow(labels.linkArrow);
+		Link link = new Link(cl1, cl2, linkType, Display.getWithNewlines(labels.getLabelLink()), queue.length(),
+				labels.getFirstLabel(), labels.getSecondLabel(), diagram.getLabeldistance(), diagram.getLabelangle(),
+				diagram.getSkinParam().getCurrentStyleBuilder());
+		link.setLinkArrow(labels.getLinkArrow());
 		if (dir == Direction.LEFT || dir == Direction.UP) {
 			link = link.getInv();
 		}
@@ -353,8 +285,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		if (codeChar == '(') {
 			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.USECASE, USymbol.USECASE, pure);
 		} else if (codeChar == ':') {
-			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, diagram.getSkinParam()
-					.getActorStyle().getUSymbol(), pure);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION,
+					diagram.getSkinParam().getActorStyle().getUSymbol(), pure);
 		} else if (codeChar == '[') {
 			final USymbol sym = diagram.getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
 			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION, sym, pure);
@@ -363,8 +295,8 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		return getOrCreateLeaf1972(diagram, ident, code, null, null, pure);
 	}
 
-	private ILeaf getOrCreateLeaf1972(DescriptionDiagram diagram, Ident ident, Code code, LeafType type,
-			USymbol symbol, Ident pure) {
+	private ILeaf getOrCreateLeaf1972(DescriptionDiagram diagram, Ident ident, Code code, LeafType type, USymbol symbol,
+			Ident pure) {
 		if (diagram.V1972()) {
 			final ILeaf result = pure.size() == 1 ? diagram.getLeafVerySmart(ident) : diagram.getLeafStrict(ident);
 			// final ILeaf result = diagram.getLeafSmart(ident);

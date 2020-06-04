@@ -39,16 +39,15 @@ import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Hideable;
-import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.entity.EntityImpl;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.posimo.Positionable;
+import net.sourceforge.plantuml.svek.image.AbstractEntityImageBorder;
 import net.sourceforge.plantuml.svek.image.EntityImageDescription;
 import net.sourceforge.plantuml.svek.image.EntityImageLollipopInterface;
-import net.sourceforge.plantuml.svek.image.EntityImageStateBorder;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 
@@ -152,7 +151,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append(",");
 		sb.append("height=" + SvekUtils.pixelToInches(getHeight()));
 		sb.append(",");
-		sb.append("color=\"" + StringUtils.getAsHtml(color) + "\"");
+		sb.append("color=\"" + DotStringFactory.sharp000000(color) + "\"");
 		sb.append("];");
 		SvekUtils.println(sb);
 	}
@@ -179,7 +178,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append("</TR>");
 		sb.append("<TR>");
 		appendTd(sb, shield.getX1(), 1);
-		sb.append("<TD BGCOLOR=\"" + StringUtils.getAsHtml(color) + "\"");
+		sb.append("<TD BGCOLOR=\"" + DotStringFactory.sharp000000(color) + "\"");
 		sb.append(" FIXEDSIZE=\"TRUE\" WIDTH=\"" + getWidth() + "\" HEIGHT=\"" + getHeight() + "\"");
 		sb.append(" PORT=\"h\">");
 		sb.append("</TD>");
@@ -201,7 +200,7 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 		sb.append("shape=plaintext,");
 		// sb.append("color=\"" + StringUtils.getAsHtml(color) + "\",");
 		sb.append("label=<");
-		sb.append("<TABLE BGCOLOR=\"" + StringUtils.getAsHtml(color)
+		sb.append("<TABLE BGCOLOR=\"" + DotStringFactory.sharp000000(color)
 				+ "\" BORDER=\"0\" CELLBORDER=\"0\" CELLSPACING=\"0\" CELLPADDING=\"0\">");
 		double position = 0;
 		for (Map.Entry<String, PortGeometry> ent : ports.getAllWithEncodedPortId().entrySet()) {
@@ -316,8 +315,13 @@ public class Node implements Positionable, IShapePseudo, Hideable {
 	}
 
 	public double getMaxWidthFromLabelForEntryExit(StringBounder stringBounder) {
-		final EntityImageStateBorder im = (EntityImageStateBorder) image;
-		return im.getMaxWidthFromLabelForEntryExit(stringBounder);
+		if (image instanceof AbstractEntityImageBorder) {
+			final AbstractEntityImageBorder im = (AbstractEntityImageBorder) image;
+			return im.getMaxWidthFromLabelForEntryExit(stringBounder);
+		} else {
+			final Dimension2D dim = image.calculateDimension(stringBounder);
+			return dim.getWidth();
+		}
 	}
 
 	public boolean isHidden() {

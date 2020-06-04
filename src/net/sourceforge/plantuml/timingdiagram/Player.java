@@ -41,18 +41,24 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.color.Colors;
-import net.sourceforge.plantuml.timingdiagram.graphic.PlayerFrame;
 
 public abstract class Player implements TimeProjected {
 
 	protected final ISkinParam skinParam;
 	protected final TimingRuler ruler;
+	private final boolean compact;
 	private final Display title;
+	protected int suggestedHeight;
 
-	public Player(String title, ISkinParam skinParam, TimingRuler ruler) {
+	public Player(String title, ISkinParam skinParam, TimingRuler ruler, boolean compact) {
 		this.skinParam = skinParam;
+		this.compact = compact;
 		this.ruler = ruler;
 		this.title = Display.getWithNewlines(title);
+	}
+
+	public boolean isCompact() {
+		return compact;
 	}
 
 	final protected FontConfiguration getFontConfiguration() {
@@ -71,12 +77,14 @@ public abstract class Player implements TimeProjected {
 
 	public abstract void createConstraint(TimeTick tick1, TimeTick tick2, String message);
 
-	public abstract PlayerFrame getPlayerFrame();
-
-	public abstract TextBlock getPart1();
+	public abstract TextBlock getPart1(double fullAvailableWidth, double specialVSpace);
 
 	public abstract UDrawable getPart2();
 
 	public abstract double getFullHeight(StringBounder stringBounder);
+
+	public final void setHeight(int height) {
+		this.suggestedHeight = height;
+	}
 
 }

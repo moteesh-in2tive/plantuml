@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml.ugraphic.color;
 
+import java.awt.Color;
+
 import net.sourceforge.plantuml.ugraphic.UChange;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 
@@ -126,6 +128,22 @@ public class HColorUtils {
 			return new HColorNone().bg();
 		}
 		return color.bg();
+	}
+
+	final private static HColorSimple TRANSPARENT = new HColorSimple(new Color(0, 0, 0, 0), false);
+
+	public static HColor transparent() {
+		return TRANSPARENT;
+	}
+
+	public static boolean isTransparent(HColor back) {
+		if (back == TRANSPARENT) {
+			return true;
+		}
+		if (back instanceof HColorBackground && ((HColorBackground) back).getBack() == TRANSPARENT) {
+			return true;
+		}
+		return false;
 	}
 
 }

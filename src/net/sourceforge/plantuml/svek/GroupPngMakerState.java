@@ -62,6 +62,7 @@ import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.TextBlockWidthAdapter;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -77,7 +78,7 @@ public final class GroupPngMakerState {
 		public Set<SuperGroup> getAllSuperGroups() {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		public IGroup getRootGroup() {
 			throw new UnsupportedOperationException();
 		}
@@ -135,7 +136,7 @@ public final class GroupPngMakerState {
 				diagram.getPragma());
 
 		final GeneralImageBuilder svek2 = new GeneralImageBuilder(false, dotData, diagram.getEntityFactory(),
-				diagram.getSource(), diagram.getPragma(), stringBounder);
+				diagram.getSource(), diagram.getPragma(), stringBounder, SName.stateDiagram);
 
 		if (group.getGroupType() == GroupType.CONCURRENT_STATE) {
 			// return new InnerStateConcurrent(svek2.createFile());

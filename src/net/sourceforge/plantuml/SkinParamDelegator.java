@@ -68,8 +68,8 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getHyperlinkColor();
 	}
 
-	public HColor getBackgroundColor() {
-		return skinParam.getBackgroundColor();
+	public HColor getBackgroundColor(boolean replaceTransparentByWhite) {
+		return skinParam.getBackgroundColor(replaceTransparentByWhite);
 	}
 
 	public int getCircledCharacterRadius() {

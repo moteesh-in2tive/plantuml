@@ -32,12 +32,13 @@
  */
 package net.sourceforge.plantuml;
 
-import java.io.File;
 import java.io.IOException;
+
+import net.sourceforge.plantuml.security.SFile;
 
 public class AParentFolderZip implements AParentFolder {
 
-	private final File zipFile;
+	private final SFile zipFile;
 	private final String parent;
 
 	@Override
@@ -45,7 +46,7 @@ public class AParentFolderZip implements AParentFolder {
 		return "AParentFolderZip::" + zipFile + " " + parent;
 	}
 
-	public AParentFolderZip(File zipFile, String entry) {
+	public AParentFolderZip(SFile zipFile, String entry) {
 		this.zipFile = zipFile;
 		final int idx = entry.lastIndexOf('/');
 		if (idx == -1) {

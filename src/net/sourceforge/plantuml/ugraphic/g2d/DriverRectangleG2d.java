@@ -38,6 +38,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.TexturePaint;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -53,6 +54,7 @@ import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Graphics2D> {
 
@@ -79,12 +81,20 @@ public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Gra
 		visible.ensureVisible(x, y);
 		visible.ensureVisible(x + rect.getWidth(), y + rect.getHeight());
 
+		final HColor back = param.getBackcolor();
+
 		// Shadow
 		if (rect.getDeltaShadow() != 0) {
-			drawShadow(g2d, shape, rect.getDeltaShadow(), dpiFactor);
+			if (HColorUtils.isTransparent(back)) {
+				drawOnlyLineShadow(g2d, new Line2D.Double(x, y + rect.getHeight(), x + rect.getWidth(), y + rect.getHeight()),
+						rect.getDeltaShadow(), dpiFactor);
+				drawOnlyLineShadow(g2d, new Line2D.Double(x + rect.getWidth(), y, x + rect.getWidth(), y + rect.getHeight()),
+						rect.getDeltaShadow(), dpiFactor);
+			} else {
+				drawShadow(g2d, shape, rect.getDeltaShadow(), dpiFactor);
+			}
 		}
 
-		final HColor back = param.getBackcolor();
 		final HColor color = param.getColor();
 		if (back instanceof HColorGradient) {
 			final GradientPaint paint = getPaintGradient(x, y, mapper, rect.getWidth(), rect.getHeight(), back);
@@ -93,7 +103,7 @@ public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Gra
 			drawBorder(param, color, mapper, rect, shape, g2d, x, y);
 		} else {
 			if (param.getBackcolor() != null) {
-				g2d.setColor(mapper.getMappedColor(param.getBackcolor()));
+				g2d.setColor(mapper.toColor(param.getBackcolor()));
 				DriverLineG2d.manageStroke(param, g2d);
 				managePattern(param, g2d);
 				g2d.fill(shape);
@@ -113,7 +123,7 @@ public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Gra
 			final GradientPaint paint = getPaintGradient(x, y, mapper, sized.getWidth(), sized.getHeight(), color);
 			g2d.setPaint(paint);
 		} else {
-			g2d.setColor(mapper.getMappedColor(color));
+			g2d.setColor(mapper.toColor(color));
 		}
 		DriverLineG2d.manageStroke(param, g2d);
 		g2d.draw(shape);
@@ -125,18 +135,18 @@ public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Gra
 		final char policy = gr.getPolicy();
 		final GradientPaint paint;
 		if (policy == '|') {
-			paint = new GradientPaint((float) x, (float) (y + height) / 2, mapper.getMappedColor(gr.getColor1()),
-					(float) (x + width), (float) (y + height) / 2, mapper.getMappedColor(gr.getColor2()));
+			paint = new GradientPaint((float) x, (float) (y + height) / 2, mapper.toColor(gr.getColor1()),
+					(float) (x + width), (float) (y + height) / 2, mapper.toColor(gr.getColor2()));
 		} else if (policy == '\\') {
-			paint = new GradientPaint((float) x, (float) (y + height), mapper.getMappedColor(gr.getColor1()),
-					(float) (x + width), (float) y, mapper.getMappedColor(gr.getColor2()));
+			paint = new GradientPaint((float) x, (float) (y + height), mapper.toColor(gr.getColor1()),
+					(float) (x + width), (float) y, mapper.toColor(gr.getColor2()));
 		} else if (policy == '-') {
-			paint = new GradientPaint((float) (x + width) / 2, (float) y, mapper.getMappedColor(gr.getColor1()),
-					(float) (x + width) / 2, (float) (y + height), mapper.getMappedColor(gr.getColor2()));
+			paint = new GradientPaint((float) (x + width) / 2, (float) y, mapper.toColor(gr.getColor1()),
+					(float) (x + width) / 2, (float) (y + height), mapper.toColor(gr.getColor2()));
 		} else {
 			// for /
-			paint = new GradientPaint((float) x, (float) y, mapper.getMappedColor(gr.getColor1()), (float) (x + width),
-					(float) (y + height), mapper.getMappedColor(gr.getColor2()));
+			paint = new GradientPaint((float) x, (float) y, mapper.toColor(gr.getColor1()), (float) (x + width),
+					(float) (y + height), mapper.toColor(gr.getColor2()));
 		}
 		return paint;
 	}

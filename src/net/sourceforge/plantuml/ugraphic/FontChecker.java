@@ -40,14 +40,12 @@ import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
 import javax.xml.transform.TransformerException;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -56,6 +54,8 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.UDrawable;
+import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
@@ -166,8 +166,8 @@ public class FontChecker {
 
 	public BufferedImage getBufferedImage(final char c) throws IOException {
 		assert c != '\t';
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), 1, null, null, null, 0, 0, null,
-				false);
+		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, null, null, 1,
+				null);
 		final double dim = 20;
 		imageBuilder.setUDrawable(new UDrawable() {
 			public void drawU(UGraphic ug) {
@@ -206,10 +206,10 @@ public class FontChecker {
 		final int size = Integer.parseInt(args[1]);
 		final int v1 = Integer.parseInt(args[2]);
 		final int v2 = Integer.parseInt(args[3]);
-		final File f = new File("fontchecker-" + name + "-" + v1 + "-" + v2 + ".html");
+		final SFile f = new SFile("fontchecker-" + name + "-" + v1 + "-" + v2 + ".html");
 
 		final FontChecker fc = new FontChecker(new UFont(name, Font.PLAIN, size));
-		final PrintWriter pw = new PrintWriter(f);
+		final PrintWriter pw = f.createPrintWriter();
 		pw.println("<html>");
 		pw.println("<h1>PROBLEM</h1>");
 		for (int i = v1; i <= v2; i++) {

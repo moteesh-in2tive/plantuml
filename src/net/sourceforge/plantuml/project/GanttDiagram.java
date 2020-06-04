@@ -87,6 +87,7 @@ import net.sourceforge.plantuml.project.time.DayOfWeek;
 import net.sourceforge.plantuml.project.time.GCalendar;
 import net.sourceforge.plantuml.project.time.Wink;
 import net.sourceforge.plantuml.project.timescale.TimeScale;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
@@ -157,13 +158,20 @@ public class GanttDiagram extends TitledDiagram implements Subject {
 	@Override
 	protected ImageData exportDiagramNow(OutputStream os, int index, FileFormatOption fileFormatOption, long seed)
 			throws IOException {
-		final double margin = 10;
-
 		final Scale scale = getScale();
 
+		final int margin1;
+		final int margin2;
+		if (SkinParam.USE_STYLES()) {
+			margin1 = SkinParam.zeroMargin(0);
+			margin2 = SkinParam.zeroMargin(0);
+		} else {
+			margin1 = 0;
+			margin2 = 0;
+		}
 		final double dpiFactor = scale == null ? 1 : scale.getScale(100, 100);
-		final ImageBuilder imageBuilder = new ImageBuilder(new ColorMapperIdentity(), dpiFactor, null, "", "", 0, 0,
-				null, false);
+		final ImageBuilder imageBuilder = ImageBuilder.buildB(new ColorMapperIdentity(), false,
+				ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), null, getMetadata(), "", dpiFactor, null);
 		final SkinParam skinParam = SkinParam.create(UmlDiagramType.TIMING);
 
 		TextBlock result = getTextBlock();
@@ -217,8 +225,7 @@ public class GanttDiagram extends TitledDiagram implements Subject {
 				drawConstraints(ug, timeHeader.getTimeScale());
 				drawTasksRect(ug);
 				drawTasksTitle(ug);
-				if (printStart == null)
-					drawResources(ug);
+				drawResources(ug);
 			}
 
 			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {

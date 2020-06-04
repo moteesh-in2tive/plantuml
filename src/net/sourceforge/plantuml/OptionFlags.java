@@ -32,14 +32,14 @@
  */
 package net.sourceforge.plantuml;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
+import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class OptionFlags {
@@ -126,7 +126,7 @@ public class OptionFlags {
 	private boolean clipboard;
 	private String fileSeparator = "_";
 	private long timeoutMs = 15 * 60 * 1000L; // 15 minutes
-	private File logData;
+	private SFile logData;
 
 	public static OptionFlags getInstance() {
 		return singleton;
@@ -190,7 +190,7 @@ public class OptionFlags {
 
 	private final AtomicBoolean logDataInitized = new AtomicBoolean(false);
 
-	public void logData(File file, Diagram system) {
+	public void logData(final SFile file, Diagram system) {
 		final String warnOrError = system.getWarningOrError();
 		if (warnOrError == null) {
 			return;
@@ -199,7 +199,7 @@ public class OptionFlags {
 			if (logData == null && logDataInitized.get() == false) {
 				final String s = GraphvizUtils.getenvLogData();
 				if (s != null) {
-					setLogData(new File(s));
+					setLogData(new SFile(s));
 				}
 				logDataInitized.set(true);
 			}
@@ -210,7 +210,7 @@ public class OptionFlags {
 			// final PSystemError systemError = (PSystemError) system;
 			PrintStream ps = null;
 			try {
-				ps = new PrintStream(new FileOutputStream(logData, true));
+				ps = SecurityUtils.createPrintStream(logData.createFileOutputStream(true));
 				ps.println("Start of " + file.getName());
 				ps.println(warnOrError);
 				ps.println("End of " + file.getName());
@@ -226,12 +226,12 @@ public class OptionFlags {
 		}
 	}
 
-	public final void setLogData(File logData) {
+	public final void setLogData(SFile logData) {
 		this.logData = logData;
 		logData.delete();
 		PrintStream ps = null;
 		try {
-			ps = new PrintStream(new FileOutputStream(logData));
+			ps = SecurityUtils.createPrintStream(logData.createFileOutputStream());
 			ps.println();
 		} catch (FileNotFoundException e) {
 			Log.error("Cannot open " + logData);

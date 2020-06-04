@@ -43,10 +43,6 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 
 public class CommandScale extends SingleLineCommand2<AbstractPSystem> {
 
-	// public CommandScale() {
-	// super("(?i)^$");
-	// }
-
 	public CommandScale() {
 		super(getRegexConcat());
 	}

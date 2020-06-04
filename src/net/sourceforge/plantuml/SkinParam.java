@@ -49,7 +49,7 @@ import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
-import net.sourceforge.plantuml.creole.command.CommandCreoleMonospaced;
+import net.sourceforge.plantuml.creole.Parser;
 import net.sourceforge.plantuml.cucadiagram.LinkStyle;
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -153,6 +153,14 @@ public class SkinParam implements ISkinParam {
 		return result;
 	}
 
+	static public void setBetaStyle(boolean betastyle) {
+		USE_STYLE2.set(betastyle);
+	}
+
+	public static int zeroMargin(int defaultValue) {
+		return defaultValue;
+	}
+
 	private static final String stereoPatternString = "\\<\\<(.*?)\\>\\>";
 	private static final Pattern2 stereoPattern = MyPattern.cmpile(stereoPatternString);
 
@@ -173,7 +181,8 @@ public class SkinParam implements ISkinParam {
 		for (String key2 : cleanForKey(key)) {
 			params.put(key2, StringUtils.trin(value));
 			if (key2.startsWith("usebetastyle")) {
-				USE_STYLE2.set("true".equalsIgnoreCase(value));
+				final boolean betastyle = "true".equalsIgnoreCase(value);
+				setBetaStyle(betastyle);
 			}
 			if (USE_STYLES()) {
 				final FromSkinparamToStyle convertor = new FromSkinparamToStyle(key2, value, getCurrentStyleBuilder());
@@ -260,9 +269,12 @@ public class SkinParam implements ISkinParam {
 		return result;
 	}
 
-	public HColor getBackgroundColor() {
+	public HColor getBackgroundColor(boolean replaceTransparentByWhite) {
 		final HColor result = getHtmlColor(ColorParam.background, null, false);
 		if (result == null) {
+			return HColorUtils.WHITE;
+		}
+		if (replaceTransparentByWhite && HColorUtils.transparent().equals(result)) {
 			return HColorUtils.WHITE;
 		}
 		return result;
@@ -307,8 +319,9 @@ public class SkinParam implements ISkinParam {
 		if (value == null) {
 			return null;
 		}
-		if (param == ColorParam.background && value.equalsIgnoreCase("transparent")) {
-			return null;
+		if ((param == ColorParam.background || param == ColorParam.arrowHead)
+				&& (value.equalsIgnoreCase("transparent") || value.equalsIgnoreCase("none"))) {
+			return HColorUtils.transparent();
 		}
 		if (param == ColorParam.background) {
 			return getIHtmlColorSet().getColorIfValid(value);
@@ -316,7 +329,7 @@ public class SkinParam implements ISkinParam {
 		assert param != ColorParam.background;
 //		final boolean acceptTransparent = param == ColorParam.background
 //				|| param == ColorParam.sequenceGroupBodyBackground || param == ColorParam.sequenceBoxBackground;
-		return getIHtmlColorSet().getColorIfValid(value, getBackgroundColor());
+		return getIHtmlColorSet().getColorIfValid(value, getBackgroundColor(false));
 	}
 
 	public char getCircledCharacter(Stereotype stereotype) {
@@ -1066,7 +1079,7 @@ public class SkinParam implements ISkinParam {
 	public String getMonospacedFamily() {
 		final String value = getValue("defaultMonospacedFontName");
 		if (value == null) {
-			return CommandCreoleMonospaced.MONOSPACED;
+			return Parser.MONOSPACED;
 		}
 		return value;
 	}

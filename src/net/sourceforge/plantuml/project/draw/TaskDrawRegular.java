@@ -138,7 +138,7 @@ public class TaskDrawRegular extends AbstractTaskDraw {
 			ug.apply(new HColorNone().bg()).draw(full);
 		}
 		if (url != null) {
-			ug.closeAction();
+			ug.closeUrl();
 		}
 	}
 

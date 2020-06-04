@@ -32,7 +32,6 @@
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
-import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.UDriver;
@@ -47,7 +46,7 @@ public class DriverDotPathSvg implements UDriver<SvgGraphics> {
 		// DriverLineG2d.manageStroke(param, g2d);
 
 		if (param.getColor() != null) {
-			final String color = StringUtils.getAsSvg(mapper, param.getColor());
+			final String color = mapper.toSvg(param.getColor());
 			svg.setStrokeColor(color);
 			svg.setFillColor(null);
 			svg.setStrokeWidth(param.getStroke().getThickness(), param.getStroke().getDasharraySvg());

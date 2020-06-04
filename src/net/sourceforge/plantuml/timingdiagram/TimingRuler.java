@@ -63,7 +63,7 @@ public class TimingRuler {
 
 	private TimingFormat format = TimingFormat.DECIMAL;
 
-	private UGraphic applyForVLines(UGraphic ug) {
+	static UGraphic applyForVLines(UGraphic ug) {
 		final UStroke stroke = new UStroke(3, 5, 0.5);
 		final HColor color = HColorSet.instance().getColorIfValid("#AAA");
 		return ug.apply(stroke).apply(color);
@@ -132,6 +132,10 @@ public class TimingRuler {
 		return time / tickUnitary() * tickIntervalInPixels;
 	}
 
+	private long tickToTime(int i) {
+		return tickUnitary * i + getMin().getTime().longValue();
+	}
+
 	public void addTime(TimeTick time) {
 		this.highestCommonFactorInternal = -1;
 		times.add(time);
@@ -176,7 +180,7 @@ public class TimingRuler {
 		} else {
 			final int nb = getNbTick(true);
 			for (int i = 0; i <= nb; i++) {
-				final long round = tickUnitary * i;
+				final long round = tickToTime(i);
 				result.add(round);
 			}
 		}
@@ -186,7 +190,7 @@ public class TimingRuler {
 		return result;
 	}
 
-	public void draw0(UGraphic ug, double height) {
+	public void drawVlines(UGraphic ug, double height) {
 		ug = applyForVLines(ug);
 		final ULine line = ULine.vline(height);
 		final int nb = getNbTick(true);

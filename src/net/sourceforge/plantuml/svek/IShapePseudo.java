@@ -40,4 +40,6 @@ public interface IShapePseudo {
 
 	void appendShape(StringBuilder sb, StringBounder stringBounder);
 
+	double getMaxWidthFromLabelForEntryExit(StringBounder stringBounder);
+
 }

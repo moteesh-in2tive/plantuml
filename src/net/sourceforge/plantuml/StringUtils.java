@@ -32,8 +32,6 @@
  */
 package net.sourceforge.plantuml;
 
-import java.awt.Color;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,16 +44,9 @@ import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorBackground;
 
 // Do not move
 public class StringUtils {
-
-	public static String getPlateformDependentAbsolutePath(File file) {
-		return file.getAbsolutePath();
-	}
 
 	final static public List<String> getSplit(Pattern2 pattern, String line) {
 		final Matcher2 m = pattern.matcher(line);
@@ -67,7 +58,6 @@ public class StringUtils {
 			result.add(m.group(i));
 		}
 		return result;
-
 	}
 
 	public static boolean isNotEmpty(String input) {
@@ -334,9 +324,9 @@ public class StringUtils {
 		if (uml.startsWith("@startuml\ndonors\n")) {
 			return false;
 		}
-		if (uml.startsWith("@startuml\ncheckversion")) {
-			return false;
-		}
+//		if (uml.startsWith("@startuml\ncheckversion")) {
+//			return false;
+//		}
 		if (uml.startsWith("@startuml\ntestdot\n")) {
 			return false;
 		}
@@ -380,30 +370,6 @@ public class StringUtils {
 			result.add(eventuallyRemoveStartingAndEndingDoubleQuote(m.group(0)));
 		}
 		return Collections.unmodifiableList(result);
-	}
-
-	public static String getAsHtml(Color color) {
-		if (color == null) {
-			return null;
-		}
-		return getAsHtml(color.getRGB());
-	}
-
-	public static String getAsSvg(ColorMapper mapper, HColor color) {
-		if (color == null) {
-			return "none";
-		}
-		if (color instanceof HColorBackground) {
-			return ((HColorBackground) color).getSvg(mapper);
-		}
-		return getAsHtml(mapper.getMappedColor(color));
-	}
-
-	public static String getAsHtml(int color) {
-		final int v = 0xFFFFFF & color;
-		String s = "000000" + Integer.toHexString(v).toUpperCase();
-		s = s.substring(s.length() - 6);
-		return "#" + s;
 	}
 
 	public static String getUid(String uid1, int uid2) {
@@ -476,18 +442,33 @@ public class StringUtils {
 		if (arg.length() == 0) {
 			return arg;
 		}
+		return trinEndingInternal(arg, getPositionStartNonSpace(arg));
+	}
+
+	private static int getPositionStartNonSpace(String arg) {
 		int i = 0;
 		while (i < arg.length() && isSpaceOrTabOrNull(arg.charAt(i))) {
 			i++;
 		}
-		int j = arg.length() - 1;
-		while (j >= i && isSpaceOrTabOrNull(arg.charAt(j))) {
-			j--;
-		}
-		if (i == 0 && j == arg.length() - 1) {
+		return i;
+	}
+
+	private static String trinEnding(String arg) {
+		if (arg.length() == 0) {
 			return arg;
 		}
-		return arg.substring(i, j + 1);
+		return trinEndingInternal(arg, 0);
+	}
+
+	private static String trinEndingInternal(String arg, int from) {
+		int j = arg.length() - 1;
+		while (j >= from && isSpaceOrTabOrNull(arg.charAt(j))) {
+			j--;
+		}
+		if (from == 0 && j == arg.length() - 1) {
+			return arg;
+		}
+		return arg.substring(from, j + 1);
 	}
 
 	private static boolean isSpaceOrTabOrNull(char c) {

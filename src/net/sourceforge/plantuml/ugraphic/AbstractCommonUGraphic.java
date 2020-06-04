@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.ugraphic;
 
+import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperTransparentWrapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -157,8 +158,19 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 		return new ColorMapperTransparentWrapper(colorMapper);
 	}
 
-	public void flushUg() {
+	final public void flushUg() {
+	}
 
+	public void startUrl(Url url) {
+	}
+
+	public void closeUrl() {
+	}
+
+	public void startGroup(String groupId) {
+	}
+
+	public void closeGroup() {
 	}
 
 	public boolean matchesProperty(String propertyName) {

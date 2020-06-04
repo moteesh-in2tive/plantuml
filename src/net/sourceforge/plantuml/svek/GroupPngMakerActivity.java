@@ -76,11 +76,11 @@ public final class GroupPngMakerActivity {
 		public IGroup getRootGroup() {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		public SuperGroup getRootSuperGroup() {
 			throw new UnsupportedOperationException();
 		}
-		
+
 		public Collection<IGroup> getChildrenGroups(IGroup parent) {
 			if (EntityUtils.groupRoot(parent)) {
 				return diagram.getChildrenGroups(group);
@@ -91,8 +91,6 @@ public final class GroupPngMakerActivity {
 		public boolean isEmpty(IGroup g) {
 			return diagram.isEmpty(g);
 		}
-
-
 
 	}
 
@@ -131,7 +129,7 @@ public final class GroupPngMakerActivity {
 				DotMode.NORMAL, diagram.getNamespaceSeparator(), diagram.getPragma());
 
 		final GeneralImageBuilder svek2 = new GeneralImageBuilder(false, dotData, diagram.getEntityFactory(),
-				diagram.getSource(), diagram.getPragma(), stringBounder);
+				diagram.getSource(), diagram.getPragma(), stringBounder, SName.activityDiagram);
 
 		if (group.getGroupType() == GroupType.INNER_ACTIVITY) {
 			final Stereotype stereo = group.getStereotype();

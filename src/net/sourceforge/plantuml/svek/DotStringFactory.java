@@ -61,6 +61,7 @@ import net.sourceforge.plantuml.cucadiagram.entity.EntityFactory;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.posimo.Moveable;
+import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.vizjs.GraphvizJs;
 import net.sourceforge.plantuml.vizjs.GraphvizJsRuntimeException;
 
@@ -292,7 +293,7 @@ public class DotStringFactory implements Moveable {
 		String dotString = createDotString(dotOptions);
 
 		if (basefile != null) {
-			final File f = basefile.getTraceFile("svek.dot");
+			final SFile f = basefile.getTraceFile("svek.dot");
 			SvekUtils.traceString(f, dotString);
 		}
 
@@ -320,7 +321,7 @@ public class DotStringFactory implements Moveable {
 		final String s = new String(result, "UTF-8");
 
 		if (basefile != null) {
-			final File f = basefile.getTraceFile("svek.svg");
+			final SFile f = basefile.getTraceFile("svek.svg");
 			SvekUtils.traceString(f, s);
 		}
 
@@ -451,7 +452,7 @@ public class DotStringFactory implements Moveable {
 	}
 
 	private int getClusterIndex(final String svg, int colorInt) {
-		final String colorString = StringUtils.goLowerCase(StringUtils.getAsHtml(colorInt));
+		final String colorString = StringUtils.goLowerCase(DotStringFactory.sharp000000(colorInt));
 		final String keyTitle1 = "=\"" + colorString + "\"";
 		int idx = svg.indexOf(keyTitle1);
 		if (idx == -1) {
@@ -462,6 +463,20 @@ public class DotStringFactory implements Moveable {
 			throw new IllegalStateException("Cannot find color " + colorString);
 		}
 		return idx;
+	}
+
+	public static String sharp000000(int color) {
+		final int v = 0xFFFFFF & color;
+		String s = "000000" + Integer.toHexString(v).toUpperCase();
+		s = s.substring(s.length() - 6);
+		return "#" + s;
+	}
+
+	public static String sharpAlpha(int color) {
+		final int v = color;
+		String s = "00000000" + Integer.toHexString(v).toUpperCase();
+		s = s.substring(s.length() - 8);
+		return "#" + s;
 	}
 
 	public void openCluster(int titleAndAttributeWidth, int titleAndAttributeHeight, TextBlock title, TextBlock stereo,

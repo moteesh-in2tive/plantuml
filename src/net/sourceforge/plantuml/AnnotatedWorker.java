@@ -94,9 +94,9 @@ public class AnnotatedWorker {
 		final double y1 = 10;
 		final double y2 = 10;
 
-		final SymbolContext symbolContext = new SymbolContext(getSkinParam().getBackgroundColor(), HColorUtils.BLACK)
+		final SymbolContext symbolContext = new SymbolContext(getBackgroundColor(), HColorUtils.BLACK)
 				.withShadow(getSkinParam().shadowing(null) ? 3 : 0);
-		final MinMax originalMinMax = TextBlockUtils.getMinMax(original, stringBounder);
+		final MinMax originalMinMax = TextBlockUtils.getMinMax(original, stringBounder, false);
 		final TextBlock title = mainFrame.create(new FontConfiguration(getSkinParam(), FontParam.CAPTION, null),
 				HorizontalAlignment.CENTER, getSkinParam());
 		final Dimension2D dimTitle = title.calculateDimension(stringBounder);
@@ -115,7 +115,7 @@ public class AnnotatedWorker {
 			}
 
 			public MinMax getMinMax(StringBounder stringBounder) {
-				return TextBlockUtils.getMinMax(this, stringBounder);
+				return TextBlockUtils.getMinMax(this, stringBounder, false);
 			}
 
 			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
@@ -132,6 +132,10 @@ public class AnnotatedWorker {
 				return symbolContext.getBackColor();
 			}
 		};
+	}
+
+	private HColor getBackgroundColor() {
+		return getSkinParam().getBackgroundColor(false);
 	}
 
 	private TextBlock addLegend(TextBlock original) {
@@ -163,8 +167,8 @@ public class AnnotatedWorker {
 			return TextBlockUtils.empty(0, 0);
 		}
 		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.caption).getMergedStyle(
-					skinParam.getCurrentStyleBuilder());
+			final Style style = StyleSignature.of(SName.root, SName.caption)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
 			return style.createTextBlockBordered(caption.getDisplay(), skinParam.getIHtmlColorSet(), skinParam);
 		}
 		return caption.getDisplay().create(new FontConfiguration(getSkinParam(), FontParam.CAPTION, null),
@@ -179,8 +183,8 @@ public class AnnotatedWorker {
 
 		final TextBlock block;
 		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.title).getMergedStyle(
-					skinParam.getCurrentStyleBuilder());
+			final Style style = StyleSignature.of(SName.root, SName.title)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
 			block = style.createTextBlockBordered(title.getDisplay(), skinParam.getIHtmlColorSet(), skinParam);
 		} else {
 			final ISkinParam skinParam = getSkinParam();
