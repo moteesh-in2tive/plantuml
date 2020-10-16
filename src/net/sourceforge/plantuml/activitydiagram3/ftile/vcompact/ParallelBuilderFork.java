@@ -228,9 +228,9 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 		public void drawU(UGraphic ug) {
 			ug = ug.apply(UTranslate.dx(x));
 			final FtileGeometry geo2 = getFtile2().calculateDimension(getStringBounder());
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D p1 = new Point2D.Double(geo2.getLeft(), 0);
 			final Point2D p2 = new Point2D.Double(geo2.getLeft(), geo2.getInY());
@@ -245,9 +245,10 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 			final Point2D p1 = new Point2D.Double(geo2.getLeft(), 0);
 			final Point2D p2 = new Point2D.Double(geo2.getLeft(), geo2.getInY());
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown())
+					.ignoreForCompression();
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);
@@ -256,7 +257,6 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 			snake.addPoint(mp1a.getX(), middle);
 			snake.addPoint(mp2b.getX(), middle);
 			snake.addPoint(mp2b);
-			snake.setIgnoreForCompression();
 			ug.draw(snake);
 		}
 	}
@@ -282,9 +282,9 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 			if (geo1.hasPointOut() == false) {
 				return;
 			}
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D p1 = new Point2D.Double(geo1.getLeft(), barHeight + geo1.getOutY());
 			final Point2D p2 = new Point2D.Double(geo1.getLeft(), justBeforeBar2);
@@ -302,9 +302,10 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 			final Point2D p1 = new Point2D.Double(geo.getLeft(), barHeight + geo.getOutY());
 			final Point2D p2 = new Point2D.Double(geo.getLeft(), justBeforeBar2);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown())
+					.ignoreForCompression();
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);
@@ -313,7 +314,6 @@ public class ParallelBuilderFork extends AbstractParallelFtilesBuilder {
 			snake.addPoint(mp1a.getX(), middle);
 			snake.addPoint(mp2b.getX(), middle);
 			snake.addPoint(mp2b);
-			snake.setIgnoreForCompression();
 			ug.draw(snake);
 		}
 

@@ -40,6 +40,7 @@ import net.sourceforge.plantuml.command.SingleLineCommand2;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 
@@ -51,11 +52,19 @@ public class CommandBackward3 extends SingleLineCommand2<ActivityDiagram3> {
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandBackward3.class.getName(), RegexLeaf.start(), //
+				new RegexOptional( //
+						new RegexLeaf("INCOMING", "\\(-\\>(.*?)\\)")), //
+				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("backward"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf(":"), //
-				new RegexLeaf("LABEL", "(.*)"), //
+				new RegexLeaf("LABEL", "(.*?)"), //
 				new RegexLeaf("STYLE", CommandActivity3.endingGroup()), //
+				RegexLeaf.spaceZeroOrMore(), //
+				new RegexOptional( //
+						new RegexLeaf("OUTCOMING", "\\(-\\>(.*?)\\)") //
+				), //
+				RegexLeaf.spaceZeroOrMore(), //
 				RegexLeaf.end());
 	}
 
@@ -63,6 +72,8 @@ public class CommandBackward3 extends SingleLineCommand2<ActivityDiagram3> {
 	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) {
 		final BoxStyle boxStyle;
 		final String styleString = arg.get("STYLE", 0);
+		final String incoming = arg.get("INCOMING", 0);
+		final String outcoming = arg.get("OUTCOMING", 0);
 		if (styleString == null) {
 			boxStyle = BoxStyle.PLAIN;
 		} else {
@@ -70,7 +81,7 @@ public class CommandBackward3 extends SingleLineCommand2<ActivityDiagram3> {
 		}
 
 		final Display label = Display.getWithNewlines(arg.get("LABEL", 0));
-		return diagram.backwardWhile(label, boxStyle);
+		return diagram.backwardWhile(label, boxStyle, incoming, outcoming);
 	}
 
 }

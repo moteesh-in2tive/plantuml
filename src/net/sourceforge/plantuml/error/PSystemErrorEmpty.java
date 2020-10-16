@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -28,37 +31,22 @@
  *
  * Original Author:  Arnaud Roques
  *
- * 
  */
-package net.sourceforge.plantuml.svek.extremity;
+package net.sourceforge.plantuml.error;
 
-import java.awt.geom.Point2D;
+import java.util.List;
 
-import net.sourceforge.plantuml.graphic.UDrawable;
-import net.sourceforge.plantuml.svek.AbstractExtremityFactory;
-import net.sourceforge.plantuml.svek.Side;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ErrorUml;
+import net.sourceforge.plantuml.StringLocated;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class ExtremityFactoryTriangle extends AbstractExtremityFactory implements ExtremityFactory {
+public class PSystemErrorEmpty extends PSystemError {
 
-	private final HColor backgroundColor;
-	private final int xWing;
-	private final int yAperture;
+	public PSystemErrorEmpty(UmlSource source, List<StringLocated> trace, ErrorUml singleError) {
+		this.setSource(source);
+		this.trace = trace;
+		this.singleError = singleError;
 
-	public ExtremityFactoryTriangle(HColor backgroundColor, int xWing, int yAperture) {
-		this.backgroundColor = backgroundColor;
-		this.xWing = xWing;
-		this.yAperture = yAperture;
-	}
-
-	@Override
-	public UDrawable createUDrawable(Point2D p0, double angle, Side side) {
-		return new ExtremityTriangle(p0, angle - Math.PI / 2, false, backgroundColor, xWing, yAperture);
-	}
-
-	public UDrawable createUDrawable(Point2D p0, Point2D p1, Point2D p2, Side side) {
-		final double ortho = atan2(p0, p2);
-		return new ExtremityTriangle(p1, ortho, true, backgroundColor, xWing, yAperture);
 	}
 
 }

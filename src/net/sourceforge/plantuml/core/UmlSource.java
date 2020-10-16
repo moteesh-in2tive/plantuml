@@ -198,6 +198,10 @@ final public class UmlSource {
 		return source.size();
 	}
 
+	public boolean getTotalLineCountLessThan5() {
+		return getTotalLineCount() < 5;
+	}
+
 	/**
 	 * Check if a source diagram description is empty. Does not take comment line
 	 * into account.

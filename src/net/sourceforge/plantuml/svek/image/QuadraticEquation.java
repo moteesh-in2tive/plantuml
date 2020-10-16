@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -27,38 +30,32 @@
  *
  *
  * Original Author:  Arnaud Roques
- *
  * 
+ *
  */
-package net.sourceforge.plantuml.svek.extremity;
+package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Point2D;
+public class QuadraticEquation {
 
-import net.sourceforge.plantuml.graphic.UDrawable;
-import net.sourceforge.plantuml.svek.AbstractExtremityFactory;
-import net.sourceforge.plantuml.svek.Side;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
+	private final double a;
+	private final double b;
+	private final double c;
 
-public class ExtremityFactoryTriangle extends AbstractExtremityFactory implements ExtremityFactory {
-
-	private final HColor backgroundColor;
-	private final int xWing;
-	private final int yAperture;
-
-	public ExtremityFactoryTriangle(HColor backgroundColor, int xWing, int yAperture) {
-		this.backgroundColor = backgroundColor;
-		this.xWing = xWing;
-		this.yAperture = yAperture;
+	public QuadraticEquation(double a, double b, double c) {
+		this.a = a;
+		this.b = b;
+		this.c = c;
 	}
 
-	@Override
-	public UDrawable createUDrawable(Point2D p0, double angle, Side side) {
-		return new ExtremityTriangle(p0, angle - Math.PI / 2, false, backgroundColor, xWing, yAperture);
+	public double[] solve() {
+		final double delta = b * b - 4 * a * c;
+		final double x0 = (-b - Math.sqrt(delta)) / 2 / a;
+		final double x1 = (-b + Math.sqrt(delta)) / 2 / a;
+		return new double[] { x0, x1 };
 	}
 
-	public UDrawable createUDrawable(Point2D p0, Point2D p1, Point2D p2, Side side) {
-		final double ortho = atan2(p0, p2);
-		return new ExtremityTriangle(p1, ortho, true, backgroundColor, xWing, yAperture);
+	public double getV(double x) {
+		return a * x * x + b * x + c;
 	}
 
 }
