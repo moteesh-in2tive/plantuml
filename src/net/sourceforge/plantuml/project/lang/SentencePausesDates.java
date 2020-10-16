@@ -30,50 +30,32 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.timescale;
+package net.sourceforge.plantuml.project.lang;
 
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.project.DaysAsDates;
+import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.project.core.Task;
 import net.sourceforge.plantuml.project.time.Day;
-import net.sourceforge.plantuml.project.time.DayOfWeek;
-import net.sourceforge.plantuml.project.time.GCalendar;
-import net.sourceforge.plantuml.project.time.Wink;
 
-public class UnusedTimeScaleWithoutWeekEnd implements TimeScale {
+public class SentencePausesDates extends SentenceSimple {
 
-	private final double scale = 16.0;
-	private final GCalendar calendar;
+	public SentencePausesDates() {
+		super(new SubjectTask(), Verbs.pauses(), new ComplementDates());
+	}
 
-	public UnusedTimeScaleWithoutWeekEnd(GCalendar calendar) {
-		if (calendar == null) {
-			throw new IllegalArgumentException();
+	@Override
+	public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
+		final Task task = (Task) subject;
+		final DaysAsDates pauses = (DaysAsDates) complement;
+		final Day startingDate = project.getStartingDate();
+		if (startingDate == null) {
+			return CommandExecutionResult.error("No starting date for the project");
 		}
-		this.calendar = calendar;
-	}
-
-	public double getStartingPosition(Wink instant) {
-		double result = 0;
-		Wink current = (Wink) instant;
-		while (current.getWink() > 0) {
-			current = current.decrement();
-			result += getWidth(current);
+		for (Day day : pauses) {
+			task.addPause(day);
 		}
-		return result;
-	}
-
-	public double getWidth(Wink instant) {
-		final Day day = calendar.toDayAsDate((Wink) instant);
-		final DayOfWeek dayOfWeek = day.getDayOfWeek();
-		if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-			return 1;
-		}
-		return scale;
-	}
-
-	public double getEndingPosition(Wink instant) {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean isBreaking(Wink instant) {
-		throw new UnsupportedOperationException();
+		return CommandExecutionResult.ok();
 	}
 
 }

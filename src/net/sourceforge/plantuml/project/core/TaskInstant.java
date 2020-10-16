@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.project.core;
 
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.time.Day;
 
 public class TaskInstant {
 
@@ -57,7 +57,7 @@ public class TaskInstant {
 		return new TaskInstant(task, attribute, newDelta);
 	}
 
-	private Wink manageDelta(Wink value) {
+	private Day manageDelta(Day value) {
 		if (delta > 0) {
 			for (int i = 0; i < delta; i++) {
 				value = value.increment();
@@ -71,7 +71,7 @@ public class TaskInstant {
 		return value;
 	}
 
-	public Wink getInstantPrecise() {
+	public Day getInstantPrecise() {
 		if (attribute == TaskAttribute.START) {
 			return manageDelta(task.getStart());
 		}
@@ -81,7 +81,7 @@ public class TaskInstant {
 		throw new IllegalStateException();
 	}
 
-	public Wink getInstantTheorical() {
+	public Day getInstantTheorical() {
 		if (attribute == TaskAttribute.START) {
 			return manageDelta(task.getStart());
 		}

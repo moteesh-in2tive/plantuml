@@ -160,7 +160,7 @@ public class PSystemBuilder {
 		factories.add(new PSystemLatexFactory(DiagramType.LATEX));
 		// factories.add(new PSystemStatsFactory());
 		factories.add(new PSystemCreoleFactory());
- 		factories.add(new GanttDiagramFactory(DiagramType.GANTT));
+		factories.add(new GanttDiagramFactory(DiagramType.GANTT));
 		factories.add(new GanttDiagramFactory(DiagramType.UML));
 		factories.add(new FlowDiagramFactory());
 		// factories.add(new PSystemTreeFactory(DiagramType.JUNGLE));

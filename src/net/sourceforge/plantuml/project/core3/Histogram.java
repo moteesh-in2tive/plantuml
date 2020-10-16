@@ -33,27 +33,10 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.draw;
+package net.sourceforge.plantuml.project.core3;
 
-public class YMovable {
+public interface Histogram extends TimeLine {
 
-	private double y;
-
-	public YMovable(double y) {
-		this.y = y;
-	}
-
-	public YMovable add(double v) {
-		return new YMovable(y + v);
-	}
-
-	public final double getValue() {
-		return y;
-	}
-
-	public void pushMe(double delta) {
-		this.y += delta;
-
-	}
+	public long getValueAt(long moment);
 
 }

@@ -74,7 +74,7 @@ public class SubjectResource implements Subject {
 		public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
 			final Resource resource = (Resource) subject;
 			final Day when = (Day) complement;
-			resource.addCloseDay(project.convert(when));
+			resource.addCloseDay(when);
 			return CommandExecutionResult.ok();
 		}
 
@@ -90,7 +90,7 @@ public class SubjectResource implements Subject {
 		public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
 			final Resource resource = (Resource) subject;
 			for (Day when : (DaysAsDates) complement) {
-				resource.addCloseDay(project.convert(when));
+				resource.addCloseDay(when);
 			}
 			return CommandExecutionResult.ok();
 		}
@@ -122,7 +122,7 @@ public class SubjectResource implements Subject {
 		public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
 			final Resource resource = (Resource) subject;
 			final Day when = (Day) complement;
-			resource.addForceOnDay(project.convert(when));
+			resource.addForceOnDay(when);
 			return CommandExecutionResult.ok();
 		}
 
@@ -138,7 +138,7 @@ public class SubjectResource implements Subject {
 		public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
 			final Resource resource = (Resource) subject;
 			for (Day when : (DaysAsDates) complement) {
-				resource.addForceOnDay(project.convert(when));
+				resource.addForceOnDay(when);
 			}
 			return CommandExecutionResult.ok();
 		}

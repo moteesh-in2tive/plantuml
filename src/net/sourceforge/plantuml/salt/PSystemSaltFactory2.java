@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -27,58 +30,45 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
+ *
  *
  */
-package net.sourceforge.plantuml.project.time;
+package net.sourceforge.plantuml.salt;
 
-import net.sourceforge.plantuml.project.Value;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Wink implements Value, Comparable<Wink> {
+import net.sourceforge.plantuml.command.Command;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.DiagramType;
 
-	private final int wink;
+public class PSystemSaltFactory2 extends PSystemCommandFactory {
 
-	public Wink(int wink) {
-		this.wink = wink;
+	public PSystemSaltFactory2(DiagramType init) {
+		super(init);
 	}
 
 	@Override
-	public String toString() {
-		return "(Wink +" + wink + ")";
-	}
+	protected List<Command> createCommands() {
 
-	public Wink increment() {
-		return new Wink(wink + 1);
-	}
-
-	public Wink decrement() {
-		return new Wink(wink - 1);
-	}
-
-	public final int getWink() {
-		return wink;
-	}
-
-	public int compareTo(Wink other) {
-		return this.wink - other.wink;
-	}
-
-	public String toShortString() {
-		return "" + (wink + 1);
-	}
-
-	public static Wink min(Wink wink1, Wink wink2) {
-		if (wink2.wink < wink1.wink) {
-			return wink2;
+		final List<Command> cmds = new ArrayList<Command>();
+		if (getDiagramType() == DiagramType.UML) {
+			cmds.add(new CommandSalt());
 		}
-		return wink1;
+		addCommonCommands2(cmds);
+		addTitleCommands(cmds);
+		cmds.add(new CommandAnything());
+
+		return cmds;
 	}
 
-	public static Wink max(Wink wink1, Wink wink2) {
-		if (wink2.wink > wink1.wink) {
-			return wink2;
+	@Override
+	public PSystemSalt createEmptyDiagram() {
+		final PSystemSalt result = new PSystemSalt();
+		if (getDiagramType() == DiagramType.SALT) {
+			result.setIamSalt(true);
 		}
-		return wink1;
+		return result;
 	}
 
 }

@@ -53,7 +53,7 @@ public class DaysAsDates implements Iterable<Day> {
 			if (gantt.isOpen(tmp)) {
 				count--;
 			}
-			tmp = tmp.next();
+			tmp = tmp.increment();
 		}
 		this.date2 = tmp;
 	}
@@ -72,7 +72,7 @@ public class DaysAsDates implements Iterable<Day> {
 
 		public Day next() {
 			final Day result = current;
-			current = current.next();
+			current = current.increment();
 			return result;
 		}
 

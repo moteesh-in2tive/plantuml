@@ -123,8 +123,6 @@ public interface ISkinParam extends ISkinSimple {
 
 	public ConditionEndStyle getConditionEndStyle();
 
-	public double minClassWidth();
-
 	public boolean sameClassWidth();
 
 	public Rankdir getRankdir();

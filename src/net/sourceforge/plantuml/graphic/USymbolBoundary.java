@@ -33,7 +33,6 @@
 package net.sourceforge.plantuml.graphic;
 
 import net.sourceforge.plantuml.svek.Boundary;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 
 class USymbolBoundary extends USymbolSimpleAbstract {
 
@@ -42,10 +41,8 @@ class USymbolBoundary extends USymbolSimpleAbstract {
 		return SkinParameter.BOUNDARY;
 	}
 
-
 	@Override
-	protected TextBlock getDrawing(final SymbolContext symbolContext) {
-		return new Boundary(symbolContext.withDeltaShadow(symbolContext.isShadowing() ? 4.0 : 0.0).withStroke(
-				new UStroke(2)));
+	protected TextBlock getDrawing(SymbolContext symbolContext) {
+		return new Boundary(symbolContext.withDeltaShadow(symbolContext.isShadowing() ? 4.0 : 0.0));
 	}
 }
