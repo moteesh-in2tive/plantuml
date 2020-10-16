@@ -30,20 +30,13 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.lang;
+package net.sourceforge.plantuml.project;
 
-import java.util.Collection;
+import net.sourceforge.plantuml.project.core.Task;
+import net.sourceforge.plantuml.project.draw.TaskDraw;
 
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.GanttDiagram;
+public interface ToTaskDraw {
 
-public interface SubjectPattern {
-
-	public Collection<VerbPattern> getVerbs();
-
-	public Subject getSubject(GanttDiagram project, RegexResult arg);
-
-	public IRegex toRegex();
+	public TaskDraw getTaskDraw(Task task);
 
 }

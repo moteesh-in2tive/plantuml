@@ -33,22 +33,33 @@
  * 
  *
  */
-package net.sourceforge.plantuml.project.lang;
+package net.sourceforge.plantuml.project.command;
 
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.Failable;
+import net.sourceforge.plantuml.command.BlocLines;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.CommandMultilines;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.project.GanttDiagram;
 
-public class ComplementOpen implements Something {
+public class CommandNoteBottom extends CommandMultilines<GanttDiagram> {
 
-	public IRegex toRegex(String suffix) {
-		return new RegexLeaf("OPEN" + suffix, "(opene?d?)");
+	public CommandNoteBottom() {
+		super("(?i)^note[%s]*bottom$");
 	}
 
-	public Failable<Object> getMe(GanttDiagram project, RegexResult arg, String suffix) {
-		return Failable.ok(new Object());
+	@Override
+	public String getPatternEnd() {
+		return "(?i)^end[%s]*note$";
+	}
+
+	public CommandExecutionResult execute(GanttDiagram diagram, BlocLines lines) {
+		lines = lines.subExtract(1, 1);
+		lines = lines.removeEmptyColumns();
+		final Display strings = lines.toDisplay();
+		if (strings.size() > 0) {
+			return diagram.addNote(strings);
+		}
+		return CommandExecutionResult.error("No note defined");
 	}
 
 }

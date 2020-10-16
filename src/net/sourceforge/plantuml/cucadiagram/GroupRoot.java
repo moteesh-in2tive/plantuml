@@ -41,6 +41,7 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.entity.EntityFactory;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -72,7 +73,7 @@ public class GroupRoot implements IGroup {
 		return Collections.unmodifiableCollection(result);
 
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ROOT";
@@ -290,6 +291,14 @@ public class GroupRoot implements IGroup {
 	}
 
 	public void setThisIsTogether() {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getCodeLine() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setCodeLine(LineLocation codeLine) {
 		throw new UnsupportedOperationException();
 	}
 }

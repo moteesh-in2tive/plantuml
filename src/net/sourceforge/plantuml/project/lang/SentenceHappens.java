@@ -7,10 +7,7 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -35,20 +32,26 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.Failable;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.project.Load;
+import net.sourceforge.plantuml.project.core.Task;
+import net.sourceforge.plantuml.project.core.TaskInstant;
 
-public class ComplementOpen implements Something {
+public class SentenceHappens extends SentenceSimple {
 
-	public IRegex toRegex(String suffix) {
-		return new RegexLeaf("OPEN" + suffix, "(opene?d?)");
+	public SentenceHappens() {
+		super(new SubjectTask(), Verbs.happens(), new ComplementBeforeOrAfterOrAtTaskStartOrEnd());
 	}
 
-	public Failable<Object> getMe(GanttDiagram project, RegexResult arg, String suffix) {
-		return Failable.ok(new Object());
+	@Override
+	public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
+		final Task task = (Task) subject;
+		task.setLoad(Load.inWinks(1));
+		final TaskInstant when = (TaskInstant) complement;
+		task.setStart(when.getInstantTheorical());
+		task.setDiamond(true);
+		return CommandExecutionResult.ok();
 	}
 
 }

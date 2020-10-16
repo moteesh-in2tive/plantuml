@@ -32,37 +32,15 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.regex.IRegex;
+import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.project.GanttDiagram;
 
-public class ComplementColors implements Complement {
+public interface Sentence {
 
-	private final HColor center;
-	private final HColor border;
+	public IRegex toRegex();
 
-	public ComplementColors(HColor center, HColor border) {
-		this.center = center;
-		this.border = border;
-	}
+	public CommandExecutionResult execute(GanttDiagram project, RegexResult arg);
 
-	public UGraphic apply(UGraphic ug) {
-		if (isOk() == false) {
-			throw new IllegalStateException();
-		}
-		ug = ug.apply(center.bg());
-		if (border == null) {
-			ug = ug.apply(center);
-		} else {
-			ug = ug.apply(border);
-		}
-		return ug;
-	}
-
-	public boolean isOk() {
-		return center != null;
-	}
-
-	public HColor getCenter() {
-		return center;
-	}
 }

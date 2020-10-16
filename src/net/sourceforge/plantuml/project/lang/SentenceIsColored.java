@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -32,7 +35,22 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.project.core.Task;
 
-public interface Complement {
+public class SentenceIsColored extends SentenceSimple {
+
+	public SentenceIsColored() {
+		super(new SubjectTask(), Verbs.isColored(), new ComplementInColors());
+	}
+
+	@Override
+	public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
+		final Task task = (Task) subject;
+		final CenterBorderColor colors = (CenterBorderColor) complement;
+		task.setColors(colors);
+		return CommandExecutionResult.ok();
+	}
 
 }

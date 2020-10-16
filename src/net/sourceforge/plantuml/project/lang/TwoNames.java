@@ -7,10 +7,7 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -35,20 +32,22 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.Failable;
-import net.sourceforge.plantuml.project.GanttDiagram;
+public class TwoNames {
 
-public class ComplementOpen implements Something {
+	private final String name1;
+	private final String name2;
 
-	public IRegex toRegex(String suffix) {
-		return new RegexLeaf("OPEN" + suffix, "(opene?d?)");
+	public TwoNames(String name1, String name2) {
+		this.name1 = name1;
+		this.name2 = name2;
 	}
 
-	public Failable<Object> getMe(GanttDiagram project, RegexResult arg, String suffix) {
-		return Failable.ok(new Object());
+	public final String getName1() {
+		return name1;
+	}
+
+	public final String getName2() {
+		return name2;
 	}
 
 }

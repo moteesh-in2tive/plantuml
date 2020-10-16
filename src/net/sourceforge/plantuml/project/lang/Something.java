@@ -7,10 +7,7 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -35,36 +32,15 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import net.sourceforge.plantuml.Url;
-import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.project.Failable;
 import net.sourceforge.plantuml.project.GanttDiagram;
-import net.sourceforge.plantuml.project.core.Task;
 
-public class VerbLinksTo implements VerbPattern {
+public interface Something {
 
-	public Collection<ComplementPattern> getComplements() {
-		return Arrays.<ComplementPattern>asList(new ComplementUrl());
-	}
+	public IRegex toRegex(String suffix);
 
-	public IRegex toRegex() {
-		return new RegexLeaf("links to");
-	}
+	public Failable<? extends Object> getMe(GanttDiagram project, RegexResult arg, String suffix);
 
-	public Verb getVerb(GanttDiagram project, RegexResult arg) {
-		return new Verb() {
-			public CommandExecutionResult execute(Subject subject, Complement complement) {
-				final Task task = (Task) subject;
-				final Url url = (Url) complement;
-				task.setUrl(url);
-				return CommandExecutionResult.ok();
-			}
-
-		};
-	}
 }

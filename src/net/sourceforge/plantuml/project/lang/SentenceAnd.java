@@ -7,10 +7,7 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- * 
- * http://plantuml.com/patreon (only 1$ per month!)
- * http://plantuml.com/paypal
- * 
+ *
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -35,58 +32,60 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexOr;
 import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.DaysAsDates;
+import net.sourceforge.plantuml.project.Failable;
 import net.sourceforge.plantuml.project.GanttDiagram;
-import net.sourceforge.plantuml.project.core.Resource;
-import net.sourceforge.plantuml.project.time.Day;
-import net.sourceforge.plantuml.project.time.DayOfWeek;
 
-public class VerbIsOff implements VerbPattern {
+public class SentenceAnd implements Sentence {
 
-	public Collection<ComplementPattern> getComplements() {
-		return Arrays
-				.<ComplementPattern> asList(new ComplementDate(), new ComplementDates(), new ComplementDayOfWeek());
+	private final SentenceSimple sentence1;
+	private final SentenceSimple sentence2;
+
+	public SentenceAnd(SentenceSimple sentence1, SentenceSimple sentence2) {
+		this.sentence1 = sentence1;
+		this.sentence2 = sentence2;
 	}
 
 	public IRegex toRegex() {
-		return new RegexConcat(new RegexLeaf("is"), //
+		return new RegexConcat(//
+				RegexLeaf.start(), //
+				sentence1.subjectii.toRegex(), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("off"), //
+				sentence1.getVerbRegex(), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexOr(//
-						new RegexLeaf("on"),//
-						new RegexLeaf("for"),//
-						new RegexLeaf("the"),//
-						new RegexLeaf("at") //
-				));
+				sentence1.complementii.toRegex("1"), //
+				RegexLeaf.spaceOneOrMore(), //
+				new RegexLeaf("and"), //
+				RegexLeaf.spaceOneOrMore(), //
+				sentence2.getVerbRegex(), //
+				RegexLeaf.spaceOneOrMore(), //
+				sentence2.complementii.toRegex("2"), //
+				RegexLeaf.end());
 	}
 
-	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
-		return new Verb() {
-			public CommandExecutionResult execute(Subject subject, Complement complement) {
-				final Resource resource = (Resource) subject;
-				if (complement instanceof DayOfWeek) {
-					resource.addCloseDay(((DayOfWeek) complement));
-				} else if (complement instanceof DaysAsDates) {
-					for (Day when : (DaysAsDates) complement) {
-						resource.addCloseDay(project.convert(when));
-					}
-				} else {
-					final Day when = (Day) complement;
-					resource.addCloseDay(project.convert(when));
-				}
-				return CommandExecutionResult.ok();
-			}
+	public final CommandExecutionResult execute(GanttDiagram project, RegexResult arg) {
+		final Failable<? extends Object> subject = sentence1.subjectii.getMe(project, arg);
+		if (subject.isFail()) {
+			return CommandExecutionResult.error(subject.getError());
+		}
+		final Failable<? extends Object> complement1 = sentence1.complementii.getMe(project, arg, "1");
+		if (complement1.isFail()) {
+			return CommandExecutionResult.error(complement1.getError());
+		}
+		final CommandExecutionResult result1 = sentence1.execute(project, subject.get(), complement1.get());
+		if (result1.isOk() == false) {
+			return result1;
+		}
+		final Failable<? extends Object> complement2 = sentence2.complementii.getMe(project, arg, "2");
+		if (complement2.isFail()) {
+			return CommandExecutionResult.error(complement2.getError());
+		}
+		return sentence2.execute(project, subject.get(), complement2.get());
 
-		};
 	}
+
 }

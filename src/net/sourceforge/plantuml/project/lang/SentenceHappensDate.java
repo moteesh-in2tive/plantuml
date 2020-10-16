@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -32,16 +35,30 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-public class ComplementName implements Complement {
+import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.project.Load;
+import net.sourceforge.plantuml.project.core.Task;
+import net.sourceforge.plantuml.project.time.Day;
 
-	private final String name;
+public class SentenceHappensDate extends SentenceSimple {
 
-	public ComplementName(String name) {
-		this.name = name;
+	public SentenceHappensDate() {
+		super(new SubjectTask(), Verbs.happens(), new ComplementDate());
 	}
 
-	public final String getName() {
-		return name;
+	@Override
+	public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
+		final Task task = (Task) subject;
+		task.setLoad(Load.inWinks(1));
+		final Day start = (Day) complement;
+		final Day startingDate = project.getStartingDate();
+		if (startingDate == null) {
+			return CommandExecutionResult.error("No starting date for the project");
+		}
+		task.setStart(start.asInstantDay(startingDate));
+		task.setDiamond(true);
+		return CommandExecutionResult.ok();
 	}
 
 }

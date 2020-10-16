@@ -32,15 +32,47 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexResult;
-import net.sourceforge.plantuml.project.Failable;
-import net.sourceforge.plantuml.project.GanttDiagram;
+import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public interface ComplementPattern {
+public class CenterBorderColor {
 
-	public Failable<Complement> getComplement(GanttDiagram system, RegexResult arg, String suffix);
+	private final HColor center;
+	private final HColor border;
+	private final String style;
 
-	public IRegex toRegex(String suffix);
+	public CenterBorderColor(HColor center, HColor border) {
+		this(center, border, null);
+	}
 
+	public CenterBorderColor(HColor center, HColor border, String style) {
+		this.center = center;
+		this.border = border;
+		this.style = style;
+	}
+
+	public UGraphic apply(UGraphic ug) {
+		if (isOk() == false) {
+			throw new IllegalStateException();
+		}
+		ug = ug.apply(center.bg());
+		if (border == null) {
+			ug = ug.apply(center);
+		} else {
+			ug = ug.apply(border);
+		}
+		return ug;
+	}
+
+	public boolean isOk() {
+		return center != null;
+	}
+
+	public final HColor getCenter() {
+		return center;
+	}
+
+	public final String getStyle() {
+		return style;
+	}
 }

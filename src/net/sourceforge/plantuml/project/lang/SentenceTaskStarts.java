@@ -32,35 +32,31 @@
  */
 package net.sourceforge.plantuml.project.lang;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.regex.IRegex;
-import net.sourceforge.plantuml.command.regex.RegexLeaf;
-import net.sourceforge.plantuml.command.regex.RegexResult;
+import net.sourceforge.plantuml.project.GanttConstraint;
 import net.sourceforge.plantuml.project.GanttDiagram;
-import net.sourceforge.plantuml.project.Today;
+import net.sourceforge.plantuml.project.core.Task;
+import net.sourceforge.plantuml.project.core.TaskAttribute;
+import net.sourceforge.plantuml.project.core.TaskInstant;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class VerbIsColoredForToday implements VerbPattern {
+public class SentenceTaskStarts extends SentenceSimple {
 
-	public Collection<ComplementPattern> getComplements() {
-		return Arrays.<ComplementPattern> asList(new ComplementInColors());
+	public SentenceTaskStarts() {
+		super(new SubjectTask(), Verbs.starts2(), new ComplementBeforeOrAfterOrAtTaskStartOrEnd());
 	}
 
-	public IRegex toRegex() {
-		return new RegexLeaf("is[%s]+colou?red");
-	}
+	@Override
+	public CommandExecutionResult execute(GanttDiagram project, Object subject, Object complement) {
+		final Task task = (Task) subject;
+		final TaskInstant when;
+		HColor color = null;
+		when = (TaskInstant) complement;
+		task.setStart(when.getInstantPrecise());
+		if (when.isTask()) {
+			project.addContraint(new GanttConstraint(when, new TaskInstant(task, TaskAttribute.START), color));
+		}
+		return CommandExecutionResult.ok();
 
-	public Verb getVerb(final GanttDiagram project, RegexResult arg) {
-		return new Verb() {
-			public CommandExecutionResult execute(Subject subject, Complement complement) {
-				final Today task = (Today) subject;
-				final ComplementColors colors = (ComplementColors) complement;
-				project.setTodayColors(colors);
-				return CommandExecutionResult.ok();
-			}
-
-		};
-	}
+	};
 }
