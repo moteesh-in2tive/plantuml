@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,41 +33,19 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.ugraphic;
 
-import java.io.File;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 
-public class GraphvizVersions {
+public interface MutableImage {
 
-	private final static GraphvizVersions singleton = new GraphvizVersions();
+	public BufferedImage getImage();
 
-	private final Map<File, GraphvizVersion> map = new ConcurrentHashMap<File, GraphvizVersion>();
+	public MutableImage withScale(double scale);
 
-	private GraphvizVersions() {
-	}
+	public MutableImage muteColor(Color newColor);
 
-	public static GraphvizVersions getInstance() {
-		return singleton;
-	}
-
-	public GraphvizVersion getVersion(File f) {
-		if (f == null) {
-			return null;
-		}
-		GraphvizVersion result = map.get(f);
-		if (result != null) {
-			return result;
-		}
-		result = checkVersionSlow(f.getAbsolutePath());
-		map.put(f, result);
-		return result;
-	}
-
-	static GraphvizVersion checkVersionSlow(String pathExecutable) {
-		final GraphvizVersionFinder finder = new GraphvizVersionFinder(new File(pathExecutable));
-		return finder.getVersion();
-	}
+	public MutableImage muteTransparentColor(Color newColor);
 
 }

@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,41 +33,21 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.ugraphic;
 
-import java.io.File;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.awt.image.AffineTransformOp;
 
-public class GraphvizVersions {
+public enum AffineTransformType {
+	TYPE_NEAREST_NEIGHBOR, TYPE_BILINEAR;
 
-	private final static GraphvizVersions singleton = new GraphvizVersions();
-
-	private final Map<File, GraphvizVersion> map = new ConcurrentHashMap<File, GraphvizVersion>();
-
-	private GraphvizVersions() {
-	}
-
-	public static GraphvizVersions getInstance() {
-		return singleton;
-	}
-
-	public GraphvizVersion getVersion(File f) {
-		if (f == null) {
-			return null;
+	public int toLegacyInt() {
+		switch (this) {
+		case TYPE_BILINEAR:
+			return AffineTransformOp.TYPE_BILINEAR;
+		case TYPE_NEAREST_NEIGHBOR:
+			return AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 		}
-		GraphvizVersion result = map.get(f);
-		if (result != null) {
-			return result;
-		}
-		result = checkVersionSlow(f.getAbsolutePath());
-		map.put(f, result);
-		return result;
-	}
-
-	static GraphvizVersion checkVersionSlow(String pathExecutable) {
-		final GraphvizVersionFinder finder = new GraphvizVersionFinder(new File(pathExecutable));
-		return finder.getVersion();
+		throw new AssertionError();
 	}
 
 }
