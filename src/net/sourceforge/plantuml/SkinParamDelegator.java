@@ -129,8 +129,8 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getSprite(name);
 	}
 
-	public boolean useUml2ForComponent() {
-		return skinParam.useUml2ForComponent();
+	public ComponentStyle componentStyle() {
+		return skinParam.componentStyle();
 	}
 
 	public boolean stereotypePositionTop() {

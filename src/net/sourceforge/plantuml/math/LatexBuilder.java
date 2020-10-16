@@ -116,11 +116,11 @@ public class LatexBuilder implements ScientificEquation {
 		}
 
 		public MutableImage muteColor(Color newColor) {
-			throw new UnsupportedOperationException();
+			return this;
 		}
 
 		public MutableImage muteTransparentColor(Color newColor) {
-			throw new UnsupportedOperationException();
+			return this;
 		}
 
 	}
