@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,38 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface Graphviz {
+public class WorkLoadVariable implements WorkLoad {
 
-	public ProcessState createFile3(OutputStream os);
+	private final List<Slice> slices = new ArrayList<Slice>();
 
-	public File getDotExe();
+	public void add(Slice slice) {
+		if (slices.size() > 0) {
+			final Slice last = slices.get(slices.size() - 1);
+			if (slice.getStart() <= last.getEnd()) {
+				throw new IllegalArgumentException();
+			}
+		}
+		slices.add(slice);
+	}
 
-	public String dotVersion();
-
-	public ExeState getExeState();
-
-	public boolean graphviz244onWindows();
+	public IteratorSlice slices(long timeBiggerThan) {
+		for (int i = 0; i < slices.size(); i++) {
+			final Slice current = slices.get(i);
+			if (current.getEnd() <= timeBiggerThan) {
+				continue;
+			}
+			assert current.getEnd() > timeBiggerThan;
+			assert current.getStart() >= timeBiggerThan;
+			final List<Slice> tmp = slices.subList(i, slices.size());
+			assert tmp.get(0).getStart() >= timeBiggerThan;
+			return new ListIteratorSlice(tmp);
+		}
+		throw new UnsupportedOperationException();
+	}
 
 }

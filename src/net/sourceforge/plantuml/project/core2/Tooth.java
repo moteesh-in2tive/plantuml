@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,40 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+import net.sourceforge.plantuml.project.time.DayOfWeek;
 
-public interface Graphviz {
+public class Tooth {
 
-	public ProcessState createFile3(OutputStream os);
+	private final long start;
+	private final long end;
+	private final long volume;
 
-	public File getDotExe();
+	public Tooth(long start, long end, long volume) {
+		if (end <= start) {
+			throw new IllegalArgumentException();
+		}
+		this.start = start;
+		this.end = end;
+		this.volume = volume;
+	}
 
-	public String dotVersion();
+	@Override
+	public String toString() {
+		return DayOfWeek.timeToString(start) + " --> " + DayOfWeek.timeToString(end) + " {" + volume + "}";
+	}
 
-	public ExeState getExeState();
+	public final long getStart() {
+		return start;
+	}
 
-	public boolean graphviz244onWindows();
+	public final long getEnd() {
+		return end;
+	}
+
+	public final long getVolume() {
+		return volume;
+	}
 
 }

@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,21 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+import java.util.Collections;
 
-public interface Graphviz {
+public class WorkLoadConstant implements WorkLoad {
 
-	public ProcessState createFile3(OutputStream os);
+	private final int value;
 
-	public File getDotExe();
+	public WorkLoadConstant(int value) {
+		this.value = value;
+	}
 
-	public String dotVersion();
-
-	public ExeState getExeState();
-
-	public boolean graphviz244onWindows();
+	public IteratorSlice slices(long timeBiggerThan) {
+		return new ListIteratorSlice(
+				Collections.singletonList(new Slice(timeBiggerThan, 1000L * Integer.MAX_VALUE, value)));
+	}
 
 }

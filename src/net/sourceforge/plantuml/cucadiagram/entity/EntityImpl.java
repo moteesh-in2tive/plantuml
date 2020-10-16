@@ -782,7 +782,6 @@ final public class EntityImpl implements ILeaf, IGroup {
 	}
 
 	public DisplayPositionned getLegend() {
-		checkGroup();
 		return legend;
 	}
 
@@ -797,6 +796,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public void setOriginalGroup(IGroup originalGroup) {
 		this.originalGroup = originalGroup;
+		this.legend = originalGroup.getLegend();
 	}
 
 	public IGroup getOriginalGroup() {

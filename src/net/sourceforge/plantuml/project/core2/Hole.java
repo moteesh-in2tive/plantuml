@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,31 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+public class Hole implements Comparable<Hole> {
 
-public interface Graphviz {
+	private final long start;
+	private final long end;
 
-	public ProcessState createFile3(OutputStream os);
+	public Hole(long start, long end) {
+		if (end <= start) {
+			throw new IllegalArgumentException();
+		}
+		this.start = start;
+		this.end = end;
+	}
 
-	public File getDotExe();
+	public final long getStart() {
+		return start;
+	}
 
-	public String dotVersion();
+	public final long getEnd() {
+		return end;
+	}
 
-	public ExeState getExeState();
-
-	public boolean graphviz244onWindows();
+	public int compareTo(Hole other) {
+		return Long.compare(this.start, other.start);
+	}
 
 }

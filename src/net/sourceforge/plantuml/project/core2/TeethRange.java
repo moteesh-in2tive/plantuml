@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,40 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface Graphviz {
+public class TeethRange {
 
-	public ProcessState createFile3(OutputStream os);
+	private final List<Tooth> list = new ArrayList<Tooth>();
 
-	public File getDotExe();
+	public void add(Tooth tooth) {
+		if (list.size() > 0) {
+			final Tooth last = list.get(list.size() - 1);
+			if (tooth.getStart() <= last.getEnd()) {
+				throw new IllegalArgumentException();
+			}
+		}
+		list.add(tooth);
+	}
 
-	public String dotVersion();
+	@Override
+	public String toString() {
+		return list.toString();
+	}
 
-	public ExeState getExeState();
+	public long getStart() {
+		return list.get(0).getStart();
+	}
 
-	public boolean graphviz244onWindows();
+	public long getEnd() {
+		return list.get(list.size() - 1).getEnd();
+	}
+
+	public long getDuration() {
+		return getEnd() - getStart();
+	}
 
 }

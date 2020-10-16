@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,40 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.core2;
 
-import java.io.File;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface Graphviz {
+public class WorkLoadWithHoles implements WorkLoad {
 
-	public ProcessState createFile3(OutputStream os);
+	private final WorkLoad source;
+	private final HolesList holes = new HolesList();
 
-	public File getDotExe();
+	public void addHole(long start, long end) {
+		this.holes.add(new Hole(start, end));
+	}
 
-	public String dotVersion();
+	public WorkLoadWithHoles(WorkLoad source) {
+		this.source = source;
+	}
 
-	public ExeState getExeState();
+	class MyIterator implements IteratorSlice {
 
-	public boolean graphviz244onWindows();
+		private final IteratorSlice slices;
+
+		public MyIterator(IteratorSlice slices) {
+			this.slices = slices;
+		}
+
+		public Slice next() {
+			final Slice candidat = slices.next();
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public IteratorSlice slices(long timeBiggerThan) {
+		return new MyIterator(source.slices(timeBiggerThan));
+	}
 
 }

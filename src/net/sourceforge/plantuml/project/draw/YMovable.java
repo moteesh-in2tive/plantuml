@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -30,21 +33,27 @@
  * 
  *
  */
-package net.sourceforge.plantuml.cucadiagram.dot;
+package net.sourceforge.plantuml.project.draw;
 
-import java.io.File;
-import java.io.OutputStream;
+public class YMovable {
 
-public interface Graphviz {
+	private double y;
 
-	public ProcessState createFile3(OutputStream os);
+	public YMovable(double y) {
+		this.y = y;
+	}
 
-	public File getDotExe();
+	public YMovable add(double v) {
+		return new YMovable(y + v);
+	}
 
-	public String dotVersion();
+	public final double getValue() {
+		return y;
+	}
 
-	public ExeState getExeState();
+	public void pushMe(double delta) {
+		this.y += delta;
 
-	public boolean graphviz244onWindows();
+	}
 
 }
