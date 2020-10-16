@@ -47,6 +47,9 @@ public class Sea {
 	private final StringBounder stringBounder;
 
 	public Sea(StringBounder stringBounder) {
+		if (stringBounder == null) {
+			throw new IllegalArgumentException();
+		}
 		this.stringBounder = stringBounder;
 	}
 
