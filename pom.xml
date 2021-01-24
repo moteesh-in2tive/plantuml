@@ -36,7 +36,7 @@
 
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2020.20-DRAWIO</version>
+    <version>1.2020.20-STRATUS</version>
     <packaging>jar</packaging>
 
     <name>PlantUML</name>
@@ -151,7 +151,9 @@
                             <goal>jar</goal>
                         </goals>
 			            <configuration>
-							<additionalparam>${javadoc.opts}</additionalparam>
+						  <javadoc.opts>-Xdoclint:none</javadoc.opts>
+						  <additionalparam>-Xdoclint:none</additionalparam>
+						  <doclint>none</doclint>
 			            </configuration>
                     </execution>
                 </executions>
@@ -163,6 +165,9 @@
                         <manifest>
                             <mainClass>net.sourceforge.plantuml.Run</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Automatic-Module-Name>net.sourceforge.plantuml</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

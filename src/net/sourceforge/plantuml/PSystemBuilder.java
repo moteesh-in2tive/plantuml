@@ -52,6 +52,7 @@ import net.sourceforge.plantuml.creole.legacy.PSystemCreoleFactory;
 import net.sourceforge.plantuml.definition.PSystemDefinitionFactory;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagramFactory;
 import net.sourceforge.plantuml.directdot.PSystemDotFactory;
+import net.sourceforge.plantuml.ditaa.PSystemDitaaFactory;
 import net.sourceforge.plantuml.error.PSystemError;
 import net.sourceforge.plantuml.error.PSystemErrorUtils;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
@@ -150,6 +151,8 @@ public class PSystemBuilder {
 		factories.add(new PSystemSaltFactory(DiagramType.UML));
 		factories.add(new PSystemDotFactory(DiagramType.DOT));
 		factories.add(new PSystemDotFactory(DiagramType.UML));
+		factories.add(new PSystemDitaaFactory(DiagramType.DITAA));
+		factories.add(new PSystemDitaaFactory(DiagramType.UML));
 		factories.add(new NwDiagramFactory());
 		factories.add(new MindMapDiagramFactory());
 		factories.add(new WBSDiagramFactory());
