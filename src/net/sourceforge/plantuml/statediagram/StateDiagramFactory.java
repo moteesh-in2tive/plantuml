@@ -43,12 +43,13 @@ import net.sourceforge.plantuml.classdiagram.command.CommandUrl;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
 import net.sourceforge.plantuml.command.CommandRankDir;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.CommandFactoryNote;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnLink;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
 import net.sourceforge.plantuml.command.regex.RegexOr;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.statediagram.command.CommandAddField;
 import net.sourceforge.plantuml.statediagram.command.CommandConcurrentState;
 import net.sourceforge.plantuml.statediagram.command.CommandCreatePackageState;
@@ -56,22 +57,16 @@ import net.sourceforge.plantuml.statediagram.command.CommandCreateState;
 import net.sourceforge.plantuml.statediagram.command.CommandEndState;
 import net.sourceforge.plantuml.statediagram.command.CommandLinkState;
 
-public class StateDiagramFactory extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public StateDiagramFactory(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class StateDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public StateDiagram createEmptyDiagram() {
-		return new StateDiagram(skinParam);
+	public StateDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new StateDiagram(source, skinParam);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandFootboxIgnored());
 		cmds.add(new CommandRankDir());
 		cmds.add(new CommandRemoveRestore());
@@ -83,7 +78,7 @@ public class StateDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandConcurrentState());
 
 		final CommandFactoryNoteOnEntity factoryNoteOnEntityCommand = new CommandFactoryNoteOnEntity("state",
-				new RegexOr("ENTITY", new RegexLeaf("[\\p{L}0-9_.]+"), //
+				new RegexOr("ENTITY", new RegexLeaf("[%pLN_.]+"), //
 						new RegexLeaf("[%g][^%g]+[%g]") //
 				));
 		cmds.add(factoryNoteOnEntityCommand.createMultiLine(true));

@@ -55,6 +55,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.statediagram.StateDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandLinkState extends SingleLineCommand2<StateDiagram> {
 
@@ -89,11 +90,12 @@ public class CommandLinkState extends SingleLineCommand2<StateDiagram> {
 
 	private static RegexLeaf getStatePattern(String name) {
 		return new RegexLeaf(name,
-				"([\\p{L}0-9_.]+|[\\p{L}0-9_.]+\\[H\\*?\\]|\\[\\*\\]|\\[H\\*?\\]|(?:==+)(?:[\\p{L}0-9_.]+)(?:==+))[%s]*(\\<\\<.*\\>\\>)?[%s]*(#\\w+)?");
+				"([%pLN_.:]+|[%pLN_.:]+\\[H\\*?\\]|\\[\\*\\]|\\[H\\*?\\]|(?:==+)(?:[%pLN_.:]+)(?:==+))[%s]*(\\<\\<.*\\>\\>)?[%s]*(#\\w+)?");
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String ent1 = arg.get("ENT1", 0);
 		final String ent2 = arg.get("ENT2", 0);
 
@@ -112,15 +114,17 @@ public class CommandLinkState extends SingleLineCommand2<StateDiagram> {
 			cl1.setStereotype(new Stereotype(arg.get("ENT1", 1)));
 		}
 		if (arg.get("ENT1", 2) != null) {
+			final String s = arg.get("ENT1", 2);
 			cl1.setSpecificColorTOBEREMOVED(ColorType.BACK,
-					diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("ENT1", 2)));
+					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		}
 		if (arg.get("ENT2", 1) != null) {
 			cl2.setStereotype(new Stereotype(arg.get("ENT2", 1)));
 		}
 		if (arg.get("ENT2", 2) != null) {
+			final String s = arg.get("ENT2", 2);
 			cl2.setSpecificColorTOBEREMOVED(ColorType.BACK,
-					diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("ENT2", 2)));
+					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		}
 
 		String queue = arg.get("ARROW_BODY1", 0) + arg.get("ARROW_BODY2", 0);
@@ -142,7 +146,7 @@ public class CommandLinkState extends SingleLineCommand2<StateDiagram> {
 		if (dir == Direction.LEFT || dir == Direction.UP) {
 			link = link.getInv();
 		}
-		link.applyStyle(arg.getLazzy("ARROW_STYLE", 0));
+		link.applyStyle(diagram.getSkinParam().getThemeStyle(), arg.getLazzy("ARROW_STYLE", 0));
 		link.setUmlDiagramType(UmlDiagramType.STATE);
 		diagram.addLink(link);
 

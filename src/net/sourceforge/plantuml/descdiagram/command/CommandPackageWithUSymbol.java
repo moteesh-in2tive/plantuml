@@ -60,6 +60,7 @@ import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntityDiagram> {
@@ -71,7 +72,7 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandPackageWithUSymbol.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("SYMBOL",
-						"(package|rectangle|node|artifact|folder|file|frame|cloud|database|storage|component|card|together|queue|stack)"), //
+						"(package|rectangle|hexagon|node|artifact|folder|file|frame|cloud|database|storage|component|card|together|queue|stack)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexOr(//
 						new RegexConcat( //
@@ -130,7 +131,8 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(AbstractEntityDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(AbstractEntityDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String codeRaw = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg.getLazzy("CODE", 0));
 		final String displayRaw = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg.getLazzy("DISPLAY", 0));
 		final String display;
@@ -157,7 +159,8 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 		if ("together".equalsIgnoreCase(symbol)) {
 			p.setThisIsTogether();
 		}
-		p.setUSymbol(USymbol.getFromString(symbol, diagram.getSkinParam().getActorStyle()));
+		p.setUSymbol(USymbol.fromString(symbol, diagram.getSkinParam().actorStyle(),
+				diagram.getSkinParam().componentStyle(), diagram.getSkinParam().packageStyle()));
 		final String stereotype = arg.getLazzy("STEREOTYPE", 0);
 		if (stereotype != null) {
 			p.setStereotype(new Stereotype(stereotype, false));
@@ -169,7 +172,8 @@ public class CommandPackageWithUSymbol extends SingleLineCommand2<AbstractEntity
 			p.addUrl(url);
 		}
 		CommandCreateClassMultilines.addTags(p, arg.get("TAGS", 0));
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		p.setColors(colors);
 		return CommandExecutionResult.ok();
 	}

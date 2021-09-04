@@ -40,30 +40,21 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sourceforge.plantuml.AnnotatedWorker;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.FileFormatOption;
-import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.Scale;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.graphic.TextBlock;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
-import net.sourceforge.plantuml.style.PName;
-import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.NoStyleAvailableException;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -84,41 +75,15 @@ public class MindMapDiagram extends UmlDiagram {
 		return new DiagramDescription("MindMap");
 	}
 
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.MINDMAP;
+	public MindMapDiagram(UmlSource source) {
+		super(source, UmlDiagramType.MINDMAP);
 	}
 
 	@Override
 	protected ImageData exportDiagramInternal(OutputStream os, int index, FileFormatOption fileFormatOption)
 			throws IOException {
-		final Scale scale = getScale();
 
-		final double dpiFactor = scale == null ? getScaleCoef(fileFormatOption) : scale.getScale(100, 100);
-		final ISkinParam skinParam = getSkinParam();
-		final int margin1;
-		final int margin2;
-		final HColor backgroundColor;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(10);
-			margin2 = SkinParam.zeroMargin(10);
-			final Style style = StyleSignature.of(SName.root, SName.document, SName.mindmapDiagram)
-					.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			backgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
-		} else {
-			margin1 = 10;
-			margin2 = 10;
-			backgroundColor = skinParam.getBackgroundColor(false);
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildBB(skinParam.getColorMapper(), skinParam.handwritten(),
-				ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), null,
-				fileFormatOption.isWithMetadata() ? getMetadata() : null, "", dpiFactor, backgroundColor);
-		TextBlock result = getTextBlock();
-
-		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
-		imageBuilder.setUDrawable(result);
-
-		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
+		return createImageBuilder(fileFormatOption).drawable(getTextBlock()).write(os);
 	}
 
 	private TextBlockBackcolored getTextBlock() {
@@ -213,19 +178,27 @@ public class MindMapDiagram extends UmlDiagram {
 
 	private CommandExecutionResult addIdeaInternal(String stereotype, HColor backColor, int level, Display label,
 			IdeaShape shape, Direction direction) {
-		if (level == 0) {
-			if (this.right.root != null) {
-				return CommandExecutionResult.error(
-						"I don't know how to draw multi-root diagram. You should suggest an image so that the PlantUML team implements it :-)");
+		try {
+			if (left.root == null && right.root == null) {
+				level = 0;
 			}
-			right.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
-			left.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
-			return CommandExecutionResult.ok();
+			if (level == 0) {
+				if (this.right.root != null) {
+					return CommandExecutionResult.error(
+							"I don't know how to draw multi-root diagram. You should suggest an image so that the PlantUML team implements it :-)");
+				}
+				right.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
+				left.initRoot(getSkinParam().getCurrentStyleBuilder(), backColor, label, shape, stereotype);
+				return CommandExecutionResult.ok();
+			}
+			if (direction == Direction.LEFT) {
+				return left.add(getSkinParam().getCurrentStyleBuilder(), backColor, level, label, shape, stereotype);
+			}
+			return right.add(getSkinParam().getCurrentStyleBuilder(), backColor, level, label, shape, stereotype);
+		} catch (NoStyleAvailableException e) {
+			// e.printStackTrace();
+			return CommandExecutionResult.error("General failure: no style available.");
 		}
-		if (direction == Direction.LEFT) {
-			return left.add(getSkinParam().getCurrentStyleBuilder(), backColor, level, label, shape, stereotype);
-		}
-		return right.add(getSkinParam().getCurrentStyleBuilder(), backColor, level, label, shape, stereotype);
 	}
 
 	static class Branch {
@@ -267,6 +240,31 @@ public class MindMapDiagram extends UmlDiagram {
 			return CommandExecutionResult.error("error42L");
 		}
 
+	}
+
+	private String first;
+
+	public int getSmartLevel(String type) {
+		if (first == null) {
+			first = type;
+		}
+		if (type.endsWith("**")) {
+			type = type.replace('\t', ' ').trim();
+		}
+		type = type.replace('\t', ' ');
+		if (type.contains(" ") == false) {
+			return type.length() - 1;
+		}
+		if (type.endsWith(first)) {
+			return type.length() - first.length();
+		}
+		if (type.trim().length() == 1) {
+			return type.length() - 1;
+		}
+		if (type.startsWith(first)) {
+			return type.length() - first.length();
+		}
+		throw new UnsupportedOperationException("type=<" + type + ">[" + first + "]");
 	}
 
 }

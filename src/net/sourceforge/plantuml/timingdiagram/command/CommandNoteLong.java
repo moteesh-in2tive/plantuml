@@ -45,6 +45,7 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.timingdiagram.Player;
 import net.sourceforge.plantuml.timingdiagram.TimeTick;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandNoteLong extends CommandMultilines2<TimingDiagram> {
 
@@ -54,11 +55,11 @@ public class CommandNoteLong extends CommandMultilines2<TimingDiagram> {
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?note$";
+		return "^end[%s]?note$";
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(final TimingDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(final TimingDiagram diagram, BlocLines lines) throws NoSuchColorException {
 
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		lines = lines.subExtract(1, 1);

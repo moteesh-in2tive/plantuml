@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import net.sourceforge.plantuml.core.Diagram;
@@ -51,12 +52,46 @@ import net.sourceforge.plantuml.graphic.Line;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.ugraphic.AffineTransformType;
+import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UImageSvg;
 import net.sourceforge.plantuml.ugraphic.UShape;
 
 public class EmbeddedDiagram implements CharSequence {
+
+	public static String getEmbeddedType(CharSequence s) {
+		if (s == null) {
+			return null;
+		}
+		s = StringUtils.trin(s.toString());
+		if (s.equals("{{")) {
+			return "uml";
+		}
+		if (s.equals("{{uml")) {
+			return "uml";
+		}
+		if (s.equals("{{wbs")) {
+			return "wbs";
+		}
+		if (s.equals("{{mindmap")) {
+			return "mindmap";
+		}
+		if (s.equals("{{gantt")) {
+			return "gantt";
+		}
+		if (s.equals("{{json")) {
+			return "json";
+		}
+		if (s.equals("{{yaml")) {
+			return "yaml";
+		}
+		if (s.equals("{{wire")) {
+			return "wire";
+		}
+		return null;
+	}
 
 	private final Display system;
 
@@ -85,9 +120,9 @@ public class EmbeddedDiagram implements CharSequence {
 		private final ISkinSimple skinParam;
 
 		public List<Atom> splitInTwo(StringBounder stringBounder, double width) {
-			throw new UnsupportedOperationException(getClass().toString());
+			return Arrays.asList((Atom) this);
 		}
-		
+
 		private Draw(ISkinSimple skinParam) {
 			this.skinParam = skinParam;
 		}
@@ -113,12 +148,12 @@ public class EmbeddedDiagram implements CharSequence {
 				final boolean isSvg = ug.matchesProperty("SVG");
 				if (isSvg) {
 					final String imageSvg = getImageSvg();
-					final SvgString svg = new SvgString(imageSvg, 1);
-					ug.draw(new UImageSvg(svg));
+					final UImageSvg svg = new UImageSvg(imageSvg, 1);
+					ug.draw(svg);
 					return;
 				}
 				final BufferedImage im = getImage();
-				final UShape image = new UImage(im);
+				final UShape image = new UImage(new PixelImage(im, AffineTransformType.TYPE_BILINEAR));
 				ug.draw(image);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -129,16 +164,20 @@ public class EmbeddedDiagram implements CharSequence {
 		}
 
 		private String getImageSvg() throws IOException, InterruptedException {
+			final boolean sav = UseStyle.useBetaStyle();
 			final Diagram system = getSystem();
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			system.exportDiagram(os, 0, new FileFormatOption(FileFormat.SVG));
 			os.close();
+			UseStyle.setBetaStyle(sav);
 			return new String(os.toByteArray());
 		}
 
 		private BufferedImage getImage() throws IOException, InterruptedException {
 			if (image == null) {
+				final boolean sav = UseStyle.useBetaStyle();
 				image = getImageSlow();
+				UseStyle.setBetaStyle(sav);
 			}
 			return image;
 		}

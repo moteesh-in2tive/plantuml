@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -54,7 +55,7 @@ public class TilesField extends AbstractTextBlock implements TextBlock {
 	private int size = 1;
 	private final Tile root = new Tile(0);
 	private final Map<Tile, Position> positions = new HashMap<Tile, Position>();
-	private final List<Path> paths = new ArrayList<Path>();
+	private final List<Path> paths = new ArrayList<>();
 
 	public TilesField() {
 		positions.put(root, new Position(0, 0, 1, 1));
@@ -152,7 +153,7 @@ public class TilesField extends AbstractTextBlock implements TextBlock {
 	}
 
 	private void moveAllToEast(Position startingPosition) {
-		final List<Position> toMove = new ArrayList<Position>();
+		final List<Position> toMove = new ArrayList<>();
 		for (Position p : positions.values()) {
 			if (p.getXmax() < startingPosition.getXmin()) {
 				continue;
@@ -178,10 +179,7 @@ public class TilesField extends AbstractTextBlock implements TextBlock {
 	}
 
 	public Position getPosition(Tile tile) {
-		final Position result = positions.get(tile);
-		if (result == null) {
-			throw new IllegalArgumentException();
-		}
+		final Position result = Objects.requireNonNull(positions.get(tile));
 		return result;
 	}
 

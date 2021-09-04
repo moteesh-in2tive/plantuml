@@ -43,15 +43,17 @@ public class ColorMapperIdentity extends AbstractColorMapper implements ColorMap
 		if (color instanceof HColorBackground) {
 			throw new UnsupportedOperationException();
 		}
-		if (color instanceof HColorUserDef) {
-			// Impact on JCCKIT
-			return Color.WHITE;
-		}
 		if (color instanceof HColorGradient) {
 			return toColor(((HColorGradient) color).getColor1());
 		}
 		if (color instanceof HColorMiddle) {
 			return ((HColorMiddle) color).getMappedColor(this);
+		}
+		if (color instanceof HColorAutomatic) {
+			throw new IllegalStateException();
+		}
+		if (color instanceof HColorAutomaticLegacy) {
+			throw new IllegalStateException();
 		}
 		return ((HColorSimple) color).getColor999();
 	}

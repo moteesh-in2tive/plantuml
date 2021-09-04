@@ -48,12 +48,68 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 // Do not move
 public class StringUtils {
 
+	public static final char USER_NEWLINE = '\uEE00';
+	public static final char USER_TAB = '\uEE01';
+
+	public static final char HR_SIMPLE = '\uEEFF';
+	public static final char HR_DOUBLE = '\uEEFE';
+	public static final char HR_DOTTED = '\uEEFD';
+	public static final char HR_BOLD = '\uEEFC';
+
+	public static final char PRIVATE_FIELD = '\uEEFB';
+	public static final char PROTECTED_FIELD = '\uEEFA';
+	public static final char PACKAGE_PRIVATE_FIELD = '\uEEF9';
+	public static final char PUBLIC_FIELD = '\uEEF8';
+	public static final char PRIVATE_METHOD = '\uEEF7';
+	public static final char PROTECTED_METHOD = '\uEEF6';
+	public static final char PACKAGE_PRIVATE_METHOD = '\uEEF5';
+	public static final char PUBLIC_METHOD = '\uEEF4';
+	public static final char IE_MANDATORY = '\uEEF3';
+
+	public static final char BOLD_START = '\uEEF2';
+	public static final char BOLD_END = '\uEEF1';
+
+	// Used in BackSlash
+	public static final char PRIVATE_BLOCK = '\uE000';
+
+	public static final char INTERNAL_BOLD = '\uE100';
+
+	public static String toInternalBoldNumber(String s) {
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			final char c = s.charAt(i);
+			if (c >= '0' && c <= '9') {
+				sb.append(Character.toChars('\uE100' + c - '0'));
+			} else {
+				sb.append(c);
+			}
+
+		}
+		return sb.toString();
+	}
+
+	public static void appendInternalToRealBoldNumber(StringBuilder sb, char c) {
+		if (c >= '\uE100' && c <= ('\uE100' + 9)) {
+			sb.append(Character.toChars(0x1d7ce + c - '\uE100'));
+		} else {
+			sb.append(c);
+		}
+	}
+
+	public static void appendInternalToPlainNumber(StringBuilder sb, char c) {
+		if (c >= '\uE100' && c <= ('\uE100' + 9)) {
+			sb.append(Character.toChars('0' + c - '\uE100'));
+		} else {
+			sb.append(c);
+		}
+	}
+
 	final static public List<String> getSplit(Pattern2 pattern, String line) {
 		final Matcher2 m = pattern.matcher(line);
 		if (m.find() == false) {
 			return null;
 		}
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (int i = 1; i <= m.groupCount(); i++) {
 			result.add(m.group(i));
 		}
@@ -308,34 +364,37 @@ public class StringUtils {
 	}
 
 	public static boolean isDiagramCacheable(String uml) {
-		uml = uml.toLowerCase();
-		if (uml.startsWith("@startuml\nversion\n")) {
+		if (uml.length() < 35) {
 			return false;
 		}
-		if (uml.startsWith("@startuml\nlicense\n")) {
-			return false;
-		}
-		if (uml.startsWith("@startuml\nlicence\n")) {
-			return false;
-		}
-		if (uml.startsWith("@startuml\nauthor\n")) {
-			return false;
-		}
-		if (uml.startsWith("@startuml\ndonors\n")) {
-			return false;
-		}
-//		if (uml.startsWith("@startuml\ncheckversion")) {
+//		uml = uml.toLowerCase();
+//		if (uml.startsWith("@startuml\nversion\n")) {
 //			return false;
 //		}
-		if (uml.startsWith("@startuml\ntestdot\n")) {
-			return false;
-		}
-		if (uml.startsWith("@startuml\nsudoku\n")) {
-			return false;
-		}
-		if (uml.startsWith("@startuml\nstdlib\n")) {
-			return false;
-		}
+//		if (uml.startsWith("@startuml\nlicense\n")) {
+//			return false;
+//		}
+//		if (uml.startsWith("@startuml\nlicence\n")) {
+//			return false;
+//		}
+//		if (uml.startsWith("@startuml\nauthor\n")) {
+//			return false;
+//		}
+//		if (uml.startsWith("@startuml\ndonors\n")) {
+//			return false;
+//		}
+////		if (uml.startsWith("@startuml\ncheckversion")) {
+////			return false;
+////		}
+//		if (uml.startsWith("@startuml\ntestdot\n")) {
+//			return false;
+//		}
+//		if (uml.startsWith("@startuml\nsudoku\n")) {
+//			return false;
+//		}
+//		if (uml.startsWith("@startuml\nstdlib\n")) {
+//			return false;
+//		}
 		return true;
 	}
 
@@ -358,13 +417,8 @@ public class StringUtils {
 
 	public static List<String> splitComma(String s) {
 		s = trin(s);
-		// if
-		// (s.matches("([\\p{L}0-9_.]+|[%g][^%g]+[%g])(\\s*,\\s*([\\p{L}0-9_.]+|[%g][^%g]+[%g]))*")
-		// == false) {
-		// throw new IllegalArgumentException();
-		// }
-		final List<String> result = new ArrayList<String>();
-		final Pattern2 p = MyPattern.cmpile("([\\p{L}0-9_.]+|[%g][^%g]+[%g])");
+		final List<String> result = new ArrayList<>();
+		final Pattern2 p = MyPattern.cmpile("([%pLN_.]+|[%g][^%g]+[%g])");
 		final Matcher2 m = p.matcher(s);
 		while (m.find()) {
 			result.add(eventuallyRemoveStartingAndEndingDoubleQuote(m.group(0)));
@@ -377,7 +431,7 @@ public class StringUtils {
 	}
 
 	public static <O> List<O> merge(List<O> l1, List<O> l2) {
-		final List<O> result = new ArrayList<O>(l1);
+		final List<O> result = new ArrayList<>(l1);
 		result.addAll(l2);
 		return Collections.unmodifiableList(result);
 	}
@@ -473,6 +527,20 @@ public class StringUtils {
 
 	private static boolean isSpaceOrTabOrNull(char c) {
 		return c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\0';
+	}
+
+	public static String manageEscapedTabs(String s) {
+		return s.replace("\\t", "\t");
+	}
+
+	public static long seed(String string) {
+		long h = 1125899906842597L; // prime
+		final int len = string.length();
+
+		for (int i = 0; i < len; i++) {
+			h = 31 * h + string.charAt(i);
+		}
+		return h;
 	}
 
 	// http://docs.oracle.com/javase/tutorial/i18n/format/dateFormat.html

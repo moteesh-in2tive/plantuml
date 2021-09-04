@@ -44,9 +44,9 @@ import net.sourceforge.plantuml.utils.Cypher;
 
 public class LanguageDescriptor {
 
-	private final Set<String> type = new TreeSet<String>();
-	private final Set<String> keyword = new TreeSet<String>();
-	private final Set<String> preproc = new TreeSet<String>();
+	private final Set<String> type = new TreeSet<>();
+	private final Set<String> keyword = new TreeSet<>();
+	private final Set<String> preproc = new TreeSet<>();
 
 	public LanguageDescriptor() {
 
@@ -80,13 +80,58 @@ public class LanguageDescriptor {
 		type.add("archimate");
 		type.add("diamond");
 		type.add("detach");
+		type.add("collections");
+		type.add("hexagon");
+		type.add("label");
+		type.add("person");
+		type.add("annotation");
 
+		keyword.add("@startwire");
+		keyword.add("@startbpm");
 		keyword.add("@startuml");
-		keyword.add("@enduml");
 		keyword.add("@startdot");
-		keyword.add("@enddot");
+		keyword.add("@startjcckit");
+		keyword.add("@startditaa");
+		keyword.add("@startproject");
 		keyword.add("@startsalt");
+		keyword.add("@startflow");
+		keyword.add("@startcreole");
+		keyword.add("@starttree");
+		keyword.add("@startcute");
+		keyword.add("@startmath");
+		keyword.add("@startlatex");
+		keyword.add("@startdef");
+		keyword.add("@startgantt");
+		keyword.add("@startnwdiag");
+		keyword.add("@startmindmap");
+		keyword.add("@startwbs");
+		keyword.add("@startjson");
+		keyword.add("@startgit");
+		keyword.add("@startboard");
+		keyword.add("@startyaml");
+		keyword.add("@endwire");
+		keyword.add("@endbpm");
+		keyword.add("@enduml");
+		keyword.add("@enddot");
+		keyword.add("@endjcckit");
+		keyword.add("@endditaa");
+		keyword.add("@endproject");
 		keyword.add("@endsalt");
+		keyword.add("@endflow");
+		keyword.add("@endcreole");
+		keyword.add("@endtree");
+		keyword.add("@endcute");
+		keyword.add("@endmath");
+		keyword.add("@endlatex");
+		keyword.add("@enddef");
+		keyword.add("@endgantt");
+		keyword.add("@endnwdiag");
+		keyword.add("@endmindmap");
+		keyword.add("@endwbs");
+		keyword.add("@endjson");
+		keyword.add("@endgit");
+		keyword.add("@endboard");
+		keyword.add("@endyaml");
 		keyword.add("as");
 		keyword.add("also");
 		keyword.add("autonumber");
@@ -125,12 +170,14 @@ public class LanguageDescriptor {
 		keyword.add("top");
 		keyword.add("bottom");
 		keyword.add("top to bottom direction");
+		keyword.add("left to right direction");
 		keyword.add("package");
 		keyword.add("namespace");
 		keyword.add("page");
 		keyword.add("up");
 		keyword.add("down");
 		keyword.add("if");
+		keyword.add("then");
 		keyword.add("else");
 		keyword.add("elseif");
 		keyword.add("endif");
@@ -158,10 +205,27 @@ public class LanguageDescriptor {
 		keyword.add("stereotype");
 		keyword.add("split");
 		keyword.add("style");
-		keyword.add("sprite");
+		keyword.add("sprite");		
+		keyword.add("circle");
+		keyword.add("empty");
+		keyword.add("members");
+		keyword.add("description");
+		keyword.add("true");
+		keyword.add("false");
+		keyword.add("normal");
+		keyword.add("italic");
+		keyword.add("bold");
+		keyword.add("plain");
+		keyword.add("color");
+		keyword.add("dotted");
+		keyword.add("dashed");
+		keyword.add("bold");
+		keyword.add("map");
+
 
 		preproc.add("!exit");
 		preproc.add("!include");
+		preproc.add("!theme");
 		preproc.add("!pragma");
 		preproc.add("!define");
 		preproc.add("!undef");

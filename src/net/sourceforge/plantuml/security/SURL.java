@@ -36,6 +36,8 @@
 package net.sourceforge.plantuml.security;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -45,6 +47,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ImageIcon;
 
@@ -110,23 +119,33 @@ public class SURL {
 			// We are UNSECURE anyway
 			return true;
 		}
-		if (isInWhiteList()) {
+		if (isInAllowList()) {
 			return true;
 		}
 		if (SecurityUtils.getSecurityProfile() == SecurityProfile.INTERNET) {
+			if (pureIP(cleanPath(internal.toString()))) {
+				return false;
+			}
 			final int port = internal.getPort();
 			// Using INTERNET profile, port 80 and 443 are ok
-			if (port == 80 || port == 443) {
+			if (port == 80 || port == 443 || port == -1) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean isInWhiteList() {
+	private boolean pureIP(String full) {
+		if (full.matches("^https?://\\d+\\.\\d+\\.\\d+\\.\\d+.*")) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isInAllowList() {
 		final String full = cleanPath(internal.toString());
-		for (String white : getWhiteList()) {
-			if (full.startsWith(cleanPath(white))) {
+		for (String allow : getAllowList()) {
+			if (full.startsWith(cleanPath(allow))) {
 				return true;
 			}
 		}
@@ -141,31 +160,77 @@ public class SURL {
 		return path;
 	}
 
-	private List<String> getWhiteList() {
-		final String env = SecurityUtils.getenv("plantuml.whitelist.url");
+	private List<String> getAllowList() {
+		final String env = SecurityUtils.getenv("plantuml.allowlist.url");
 		if (env == null) {
 			return Collections.emptyList();
 		}
 		return Arrays.asList(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(env).split(";"));
 	}
 
-	public URLConnection openConnection() {
-		if (isUrlOk())
-			try {
-				return internal.openConnection();
-			} catch (IOException e) {
-				e.printStackTrace();
+	private final static ExecutorService exe = Executors.newCachedThreadPool();
+	private final static Map<String, Long> badHosts = new ConcurrentHashMap<String, Long>();
+
+	// Added by Alain Corbiere
+	public byte[] getBytes() {
+		if (isUrlOk() == false) {
+			return null;
+		}
+		final String host = internal.getHost();
+		final Long bad = badHosts.get(host);
+		if (bad != null) {
+			final long duration = System.currentTimeMillis() - bad;
+			if (duration < 1000L * 60) {
+				// System.err.println("BAD HOST!" + host);
+				return null;
 			}
+			// System.err.println("cleaning " + host);
+			badHosts.remove(host);
+		}
+		final Future<byte[]> result = exe.submit(new Callable<byte[]>() {
+			public byte[] call() throws IOException {
+				InputStream input = null;
+				try {
+					final URLConnection connection = internal.openConnection();
+					if (connection == null) {
+						return null;
+					}
+					input = connection.getInputStream();
+					final ByteArrayOutputStream image = new ByteArrayOutputStream();
+					final byte[] buffer = new byte[1024];
+					int read;
+					while ((read = input.read(buffer)) > 0) {
+						image.write(buffer, 0, read);
+					}
+					image.close();
+					return image.toByteArray();
+				} finally {
+					if (input != null) {
+						input.close();
+					}
+				}
+			}
+		});
+
+		try {
+			byte data[] = result.get(SecurityUtils.getSecurityProfile().getTimeout(), TimeUnit.MILLISECONDS);
+			if (data != null) {
+				return data;
+			}
+		} catch (Exception e) {
+			System.err.println("issue " + host + " " + e);
+		}
+		badHosts.put(host, System.currentTimeMillis());
 		return null;
 	}
 
 	public InputStream openStream() {
-		if (isUrlOk())
-			try {
-				return internal.openStream();
-			} catch (IOException e) {
-				e.printStackTrace();
+		if (isUrlOk()) {
+			final byte data[] = getBytes();
+			if (data != null) {
+				return new ByteArrayInputStream(data);
 			}
+		}
 		return null;
 	}
 

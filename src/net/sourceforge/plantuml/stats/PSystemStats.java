@@ -32,44 +32,21 @@
 package net.sourceforge.plantuml.stats;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainStringsDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class PSystemStats extends AbstractPSystem {
+public class PSystemStats extends PlainStringsDiagram {
 
-	private final List<String> strings = new ArrayList<String>();
-
-	PSystemStats() throws IOException {
+	PSystemStats(UmlSource source) {
+		super(source);
 		final StatsImpl stats = (StatsImpl) StatsUtils.getStats();
 		strings.addAll(new CreoleConverter(stats).toCreole());
 	}
 
-	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final TextBlockBackcolored result = getGraphicStrings();
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-				false, null, getMetadata(), null, 1.0, result.getBackcolor());
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
-	}
-
-	public static PSystemStats create() throws IOException {
-		return new PSystemStats();
-	}
-
-	private TextBlockBackcolored getGraphicStrings() throws IOException {
-		return GraphicStrings.createBlackOnWhite(strings);
+	public static PSystemStats create(UmlSource source) throws IOException {
+		return new PSystemStats(source);
 	}
 
 	public DiagramDescription getDescription() {

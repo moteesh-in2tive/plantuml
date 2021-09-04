@@ -36,8 +36,8 @@ import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.NewpagedDiagram;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.SingleLineCommand2;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
@@ -45,9 +45,9 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 
 public class CommandNewpage extends SingleLineCommand2<UmlDiagram> {
 
-	private final UmlDiagramFactory factory;
+	private final PSystemCommandFactory factory;
 
-	public CommandNewpage(UmlDiagramFactory factory) {
+	public CommandNewpage(PSystemCommandFactory factory) {
 		super(getRegexConcat());
 		this.factory = factory;
 	}
@@ -60,11 +60,11 @@ public class CommandNewpage extends SingleLineCommand2<UmlDiagram> {
 	@Override
 	protected CommandExecutionResult executeArg(UmlDiagram diagram, LineLocation location, RegexResult arg) {
 		final int dpi = diagram.getSkinParam().getDpi();
-		final UmlDiagram emptyDiagram = (UmlDiagram) factory.createEmptyDiagram();
+		final UmlDiagram emptyDiagram = (UmlDiagram) factory.createEmptyDiagram(diagram.getSource(), diagram.getSkinParam());
 		if (dpi != 96) {
 			emptyDiagram.setParam("dpi", "" + dpi);
 		}
-		NewpagedDiagram result = new NewpagedDiagram(diagram, emptyDiagram);
+		NewpagedDiagram result = new NewpagedDiagram(diagram.getSource(), diagram, emptyDiagram);
 		return CommandExecutionResult.newDiagram(result);
 	}
 }

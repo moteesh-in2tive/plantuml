@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.AlignmentParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
@@ -98,11 +98,13 @@ public class FtileGroup extends AbstractFtile {
 		this.borderColor = borderColor == null ? HColorUtils.BLACK : borderColor;
 
 		final FontConfiguration fc;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinitionPartition().getMergedStyle(skinParam.getCurrentStyleBuilder());
-			fc = style.getFontConfiguration(getIHtmlColorSet());
+		final Style style;
+		if (UseStyle.useBetaStyle()) {
+			style = getDefaultStyleDefinitionPartition().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			fc = style.getFontConfiguration(skinParam.getThemeStyle(), getIHtmlColorSet());
 			this.shadowing = style.value(PName.Shadowing).asDouble();
 		} else {
+			style = null;
 			final UFont font = skinParam.getFont(null, false, FontParam.PARTITION);
 			final HColor fontColor = skinParam.getFontHtmlColor(null, FontParam.PARTITION);
 			fc = new FontConfiguration(font, fontColor, skinParam.getHyperlinkColor(),
@@ -117,7 +119,7 @@ public class FtileGroup extends AbstractFtile {
 		if (Display.isNull(displayNote)) {
 			this.headerNote = TextBlockUtils.empty(0, 0);
 		} else {
-			this.headerNote = new FloatingNote(displayNote, skinParam);
+			this.headerNote = new FloatingNote(displayNote, skinParam, style);
 		}
 
 		final UStroke thickness = skinParam.getThickness(LineParam.partitionBorder, null);
@@ -225,7 +227,7 @@ public class FtileGroup extends AbstractFtile {
 				.withStroke(stroke).withCorner(roundCorner, 0);
 
 		final HorizontalAlignment align = inner.skinParam().getHorizontalAlignment(AlignmentParam.packageTitleAlignment,
-				null, false);
+				null, false, null);
 		type.asBig(name, align, TextBlockUtils.empty(0, 0), dimTotal.getWidth(), dimTotal.getHeight(), symbolContext,
 				skinParam().getStereotypeAlignment()).drawU(ug);
 

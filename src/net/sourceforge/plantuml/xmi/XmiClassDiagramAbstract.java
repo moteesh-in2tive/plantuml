@@ -69,7 +69,7 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 	protected final Document document;
 	protected Element ownedElement;
 
-	protected final Set<IEntity> done = new HashSet<IEntity>();
+	protected final Set<IEntity> done = new HashSet<>();
 
 	public XmiClassDiagramAbstract(ClassDiagram classDiagram) throws ParserConfigurationException {
 		this.classDiagram = classDiagram;
@@ -177,7 +177,8 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 		final Element feature = document.createElement("UML:Classifier.feature");
 		cla.appendChild(feature);
 
-		for (Member m : entity.getBodier().getFieldsToDisplay()) {
+		for (CharSequence cs : entity.getBodier().getFieldsToDisplay()) {
+			final Member m = (Member) cs;
 			// <UML:Attribute xmi.id="UMLAttribute.6" name="Attribute1"
 			// visibility="public" isSpecification="false"
 			// ownerScope="instance" changeability="changeable"
@@ -192,7 +193,8 @@ abstract class XmiClassDiagramAbstract implements IXmiClassDiagram {
 			feature.appendChild(attribute);
 		}
 
-		for (Member m : entity.getBodier().getMethodsToDisplay()) {
+		for (CharSequence cs : entity.getBodier().getMethodsToDisplay()) {
+			final Member m = (Member) cs;
 			// <UML:Operation xmi.id="UMLOperation.7" name="Operation1"
 			// visibility="public" isSpecification="false"
 			// ownerScope="instance" isQuery="false" concurrency="sequential"

@@ -67,7 +67,7 @@ final public class UmlSource {
 		if (hasInitialSkinparam(source) == false) {
 			return this;
 		}
-		final List<StringLocated> copy = new ArrayList<StringLocated>(source);
+		final List<StringLocated> copy = new ArrayList<>(source);
 		while (hasInitialSkinparam(copy)) {
 			copy.remove(1);
 		}
@@ -170,14 +170,7 @@ final public class UmlSource {
 	}
 
 	public long seed() {
-		long h = 1125899906842597L; // prime
-		final String string = getPlainString();
-		final int len = string.length();
-
-		for (int i = 0; i < len; i++) {
-			h = 31 * h + string.charAt(i);
-		}
-		return h;
+		return StringUtils.seed(getPlainString());
 	}
 
 	public String getLine(LineLocation n) {
@@ -196,6 +189,10 @@ final public class UmlSource {
 	 */
 	public int getTotalLineCount() {
 		return source.size();
+	}
+
+	public boolean getTotalLineCountLessThan5() {
+		return getTotalLineCount() < 5;
 	}
 
 	/**
@@ -229,7 +226,7 @@ final public class UmlSource {
 	 * @return
 	 */
 	public Display getTitle() {
-		final Pattern2 p = MyPattern.cmpile("(?i)^[%s]*title[%s]+(.+)$");
+		final Pattern2 p = MyPattern.cmpile("^[%s]*title[%s]+(.+)$");
 		for (StringLocated s : source) {
 			final Matcher2 m = p.matcher(s.getString());
 			final boolean ok = m.matches();

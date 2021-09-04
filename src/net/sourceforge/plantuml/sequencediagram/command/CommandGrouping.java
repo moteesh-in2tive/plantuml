@@ -47,6 +47,8 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.sequencediagram.GroupingType;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandGrouping extends SingleLineCommand2<SequenceDiagram> {
 
@@ -67,12 +69,21 @@ public class CommandGrouping extends SingleLineCommand2<SequenceDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		String type = StringUtils.goLowerCase(arg.get("TYPE", 0));
-		final HColor backColorElement = diagram.getSkinParam().getIHtmlColorSet()
-				.getColorIfValid(arg.get("COLORS", 0));
-		final HColor backColorGeneral = diagram.getSkinParam().getIHtmlColorSet()
-				.getColorIfValid(arg.get("COLORS", 1), diagram.getSkinParam().getBackgroundColor(true));
+		final String s = arg.get("COLORS", 0);
+		final HColorSet colorSet = diagram.getSkinParam().getIHtmlColorSet();
+		HColor backColorElement = null;
+		if (s != null) {
+			backColorElement = colorSet.getColor(diagram.getSkinParam().getThemeStyle(), s, null);
+		}
+		final String s2 = arg.get("COLORS", 1);
+		HColor backColorGeneral = null;
+		if (s2 != null) {
+			backColorGeneral = colorSet.getColor(diagram.getSkinParam().getThemeStyle(), s2,
+					diagram.getSkinParam().getBackgroundColor(true));
+		}
 		String comment = arg.get("COMMENT", 0);
 		final GroupingType groupingType = GroupingType.getType(type);
 		if ("group".equals(type)) {

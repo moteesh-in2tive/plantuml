@@ -32,10 +32,9 @@
  */
 package net.sourceforge.plantuml.project.core;
 
-import net.sourceforge.plantuml.project.lang.Complement;
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.time.Day;
 
-public class TaskInstant implements Complement {
+public class TaskInstant {
 
 	private final Moment task;
 	private final TaskAttribute attribute;
@@ -58,7 +57,7 @@ public class TaskInstant implements Complement {
 		return new TaskInstant(task, attribute, newDelta);
 	}
 
-	private Wink manageDelta(Wink value) {
+	private Day manageDelta(Day value) {
 		if (delta > 0) {
 			for (int i = 0; i < delta; i++) {
 				value = value.increment();
@@ -72,7 +71,7 @@ public class TaskInstant implements Complement {
 		return value;
 	}
 
-	public Wink getInstantPrecise() {
+	public Day getInstantPrecise() {
 		if (attribute == TaskAttribute.START) {
 			return manageDelta(task.getStart());
 		}
@@ -82,7 +81,7 @@ public class TaskInstant implements Complement {
 		throw new IllegalStateException();
 	}
 
-	public Wink getInstantTheorical() {
+	public Day getInstantTheorical() {
 		if (attribute == TaskAttribute.START) {
 			return manageDelta(task.getStart());
 		}
@@ -102,11 +101,22 @@ public class TaskInstant implements Complement {
 	}
 
 	public final boolean isTask() {
-		return task instanceof Task;
+		return task instanceof AbstractTask;
 	}
 
 	public final TaskAttribute getAttribute() {
 		return attribute;
+	}
+
+	public boolean sameRowAs(TaskInstant dest) {
+		if (this.isTask() && dest.isTask()) {
+			final AbstractTask t1 = (AbstractTask) this.getMoment();
+			final AbstractTask t2 = (AbstractTask) dest.getMoment();
+			if (t1 == t2.getRow() || t2 == t1.getRow()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

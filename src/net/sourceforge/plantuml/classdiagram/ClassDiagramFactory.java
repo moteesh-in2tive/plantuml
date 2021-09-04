@@ -62,13 +62,14 @@ import net.sourceforge.plantuml.command.CommandPackage;
 import net.sourceforge.plantuml.command.CommandPackageEmpty;
 import net.sourceforge.plantuml.command.CommandPage;
 import net.sourceforge.plantuml.command.CommandRankDir;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.CommandConstraintOnLinks;
 import net.sourceforge.plantuml.command.note.CommandFactoryNote;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnLink;
 import net.sourceforge.plantuml.command.note.CommandFactoryTipOnEntity;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementMultilines;
 import net.sourceforge.plantuml.descdiagram.command.CommandCreateElementParenthesis;
 import net.sourceforge.plantuml.descdiagram.command.CommandNewpage;
@@ -77,22 +78,16 @@ import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObject;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateEntityObjectMultilines;
 import net.sourceforge.plantuml.objectdiagram.command.CommandCreateMap;
 
-public class ClassDiagramFactory extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public ClassDiagramFactory(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class ClassDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public ClassDiagram createEmptyDiagram() {
-		return new ClassDiagram(skinParam);
+	public ClassDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new ClassDiagram(source, skinParam);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandFootboxIgnored());
 
 		cmds.add(new CommandRankDir());

@@ -38,9 +38,9 @@ import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -54,8 +54,8 @@ import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Bibliotekon;
-import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.svek.SvekNode;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
@@ -79,9 +79,9 @@ public class EntityImageActivity extends AbstractEntityImage {
 
 		final FontConfiguration fontConfiguration;
 		final HorizontalAlignment horizontalAlignment;
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Style style = getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-			fontConfiguration = style.getFontConfiguration(skinParam.getIHtmlColorSet());
+			fontConfiguration = style.getFontConfiguration(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 			horizontalAlignment = style.getHorizontalAlignment();
 			shadowing = style.value(PName.Shadowing).asDouble();
 		} else {
@@ -117,8 +117,11 @@ public class EntityImageActivity extends AbstractEntityImage {
 	}
 
 	private UGraphic drawOctagon(UGraphic ug) {
-		final Node node = bibliotekon.getNode(getEntity());
-		final Shadowable octagon = node.getOctagon();
+		final SvekNode node = bibliotekon.getNode(getEntity());
+		final Shadowable octagon = node.getPolygon();
+		if (octagon == null) {
+			return drawNormal(ug);
+		}
 		octagon.setDeltaShadow(shadowing);
 		ug = applyColors(ug);
 		ug.apply(new UStroke(1.5)).draw(octagon);
@@ -138,7 +141,7 @@ public class EntityImageActivity extends AbstractEntityImage {
 
 		ug = applyColors(ug);
 		UStroke stroke = new UStroke(1.5);
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Style style = getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
 			stroke = style.getStroke();
 		}
@@ -159,12 +162,14 @@ public class EntityImageActivity extends AbstractEntityImage {
 			backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.activityBackground);
 		}
 
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Style style = getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
-			borderColor = style.value(PName.LineColor).asColor(getSkinParam().getIHtmlColorSet());
+			borderColor = style.value(PName.LineColor).asColor(getSkinParam().getThemeStyle(),
+					getSkinParam().getIHtmlColorSet());
 			backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 			if (backcolor == null) {
-				backcolor = style.value(PName.BackGroundColor).asColor(getSkinParam().getIHtmlColorSet());
+				backcolor = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+						getSkinParam().getIHtmlColorSet());
 			}
 		}
 		ug = ug.apply(borderColor);

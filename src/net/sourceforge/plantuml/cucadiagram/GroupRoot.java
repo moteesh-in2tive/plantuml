@@ -41,6 +41,7 @@ import java.util.Set;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.entity.EntityFactory;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -63,7 +64,7 @@ public class GroupRoot implements IGroup {
 	}
 
 	public Collection<ILeaf> getLeafsDirect() {
-		final List<ILeaf> result = new ArrayList<ILeaf>();
+		final List<ILeaf> result = new ArrayList<>();
 		for (ILeaf ent : entityFactory.leafs()) {
 			if (ent.getParentContainer() == this) {
 				result.add(ent);
@@ -71,6 +72,11 @@ public class GroupRoot implements IGroup {
 		}
 		return Collections.unmodifiableCollection(result);
 
+	}
+
+	@Override
+	public String toString() {
+		return "ROOT";
 	}
 
 	public boolean isGroup() {
@@ -139,7 +145,7 @@ public class GroupRoot implements IGroup {
 	}
 
 	public Collection<IGroup> getChildren() {
-		final List<IGroup> result = new ArrayList<IGroup>();
+		final List<IGroup> result = new ArrayList<>();
 		if (entityFactory.namespaceSeparator.V1972()) {
 			for (IGroup ent : entityFactory.groups()) {
 				if (ent.getIdent().size() == 1) {
@@ -197,7 +203,7 @@ public class GroupRoot implements IGroup {
 	}
 
 	public SingleStrategy getSingleStrategy() {
-		return SingleStrategy.SQUARRE;
+		return SingleStrategy.SQUARE;
 	}
 
 	public boolean isRemoved() {
@@ -285,6 +291,14 @@ public class GroupRoot implements IGroup {
 	}
 
 	public void setThisIsTogether() {
+		throw new UnsupportedOperationException();
+	}
+
+	public String getCodeLine() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setCodeLine(LineLocation codeLine) {
 		throw new UnsupportedOperationException();
 	}
 }

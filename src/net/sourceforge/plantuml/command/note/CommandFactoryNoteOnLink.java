@@ -53,6 +53,7 @@ import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand<CucaDiagram> {
 
@@ -62,7 +63,7 @@ public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("POSITION", "(right|left|top|bottom)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("on"), //
+				new RegexLeaf("o[nf]"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("link"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -79,7 +80,7 @@ public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("POSITION", "(right|left|top|bottom)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("on"), //
+				new RegexLeaf("o[nf]"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf("link"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -95,10 +96,11 @@ public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand
 
 			@Override
 			public String getPatternEnd() {
-				return "(?i)^end[%s]?note$";
+				return "^end[%s]?note$";
 			}
 
-			protected CommandExecutionResult executeNow(final CucaDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final CucaDiagram system, BlocLines lines)
+					throws NoSuchColorException {
 				final String line0 = lines.getFirst().getTrimmed().getString();
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
@@ -116,14 +118,16 @@ public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand
 		return new SingleLineCommand2<CucaDiagram>(getRegexConcatSingleLine()) {
 
 			@Override
-			protected CommandExecutionResult executeArg(final CucaDiagram system, LineLocation location, RegexResult arg) {
+			protected CommandExecutionResult executeArg(final CucaDiagram system, LineLocation location,
+					RegexResult arg) throws NoSuchColorException {
 				final BlocLines note = BlocLines.getWithNewlines(arg.get("NOTE", 0));
 				return executeInternal(system, note, arg);
 			}
 		};
 	}
 
-	private CommandExecutionResult executeInternal(CucaDiagram diagram, BlocLines note, final RegexResult arg) {
+	private CommandExecutionResult executeInternal(CucaDiagram diagram, BlocLines note, final RegexResult arg)
+			throws NoSuchColorException {
 		final Link link = diagram.getLastLink();
 		if (link == null) {
 			return CommandExecutionResult.error("No link defined");
@@ -137,7 +141,8 @@ public final class CommandFactoryNoteOnLink implements SingleMultiFactoryCommand
 			final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);
 			url = urlBuilder.getUrl(arg.get("URL", 0));
 		}
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		link.addNote(note.toDisplay(), position, colors);
 		return CommandExecutionResult.ok();
 	}

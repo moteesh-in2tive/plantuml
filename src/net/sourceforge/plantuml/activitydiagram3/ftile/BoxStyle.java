@@ -44,13 +44,13 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 // Created from Luc Trudeau original work
 public enum BoxStyle {
-	PLAIN {
+	PLAIN('\0', 0) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			return new URectangle(width, height).rounded(roundCorner);
 		}
 	},
-	SDL_INPUT('<') {
+	SDL_INPUT('<', 10) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
@@ -62,7 +62,7 @@ public enum BoxStyle {
 			return result;
 		}
 	},
-	SDL_OUTPUT('>') {
+	SDL_OUTPUT('>', 10) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
@@ -74,7 +74,7 @@ public enum BoxStyle {
 			return result;
 		}
 	},
-	SDL_PROCEDURE('|') {
+	SDL_PROCEDURE('|', 0) {
 		@Override
 		protected void drawInternal(UGraphic ug, double width, double height, double shadowing, double roundCorner) {
 			final URectangle rect = new URectangle(width, height);
@@ -85,7 +85,7 @@ public enum BoxStyle {
 			ug.apply(UTranslate.dx(width - PADDING)).draw(vline);
 		}
 	},
-	SDL_SAVE('\\') {
+	SDL_SAVE('\\', 0) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
@@ -96,7 +96,7 @@ public enum BoxStyle {
 			return result;
 		}
 	},
-	SDL_ANTISAVE('/') {
+	SDL_ANTISAVE('/', 0) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPolygon result = new UPolygon();
@@ -107,7 +107,7 @@ public enum BoxStyle {
 			return result;
 		}
 	},
-	SDL_CONTINUOUS('}') {
+	SDL_CONTINUOUS('}', 0) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			final UPath result = new UPath();
@@ -129,7 +129,7 @@ public enum BoxStyle {
 			return result;
 		}
 	},
-	SDL_TASK(']') {
+	SDL_TASK(']', 0) {
 		@Override
 		protected Shadowable getShape(double width, double height, double roundCorner) {
 			return new URectangle(width, height);
@@ -137,16 +137,15 @@ public enum BoxStyle {
 	};
 
 	private final char style;
+	private final double shield;
+
 	private static int DELTA_INPUT_OUTPUT = 10;
 	private static double DELTA_CONTINUOUS = 5.0;
 	private static int PADDING = 5;
 
-	private BoxStyle() {
-		this('\0');
-	}
-
-	private BoxStyle(char style) {
+	private BoxStyle(char style, double shield) {
 		this.style = style;
+		this.shield = shield;
 	}
 
 	public static BoxStyle fromChar(char style) {
@@ -162,7 +161,7 @@ public enum BoxStyle {
 			final double roundCorner) {
 		return new UDrawable() {
 			public void drawU(UGraphic ug) {
-				drawInternal(ug, width, height, shadowing, roundCorner);
+				drawInternal(ug, width - getShield(), height, shadowing, roundCorner);
 			}
 		};
 	}
@@ -176,6 +175,10 @@ public enum BoxStyle {
 		s.setDeltaShadow(shadowing);
 		ug.draw(s);
 
+	}
+
+	public final double getShield() {
+		return shield;
 	}
 
 }

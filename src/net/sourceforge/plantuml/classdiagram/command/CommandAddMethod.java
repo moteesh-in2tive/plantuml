@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandAddMethod extends SingleLineCommand2<ClassDiagram> {
 
@@ -53,7 +54,7 @@ public class CommandAddMethod extends SingleLineCommand2<ClassDiagram> {
 
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandAddMethod.class.getName(), RegexLeaf.start(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_.]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("NAME", "([%pLN_.]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexLeaf(":"), //
 				RegexLeaf.spaceOneOrMore(), //
@@ -62,7 +63,7 @@ public class CommandAddMethod extends SingleLineCommand2<ClassDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ClassDiagram diagram, LineLocation location, RegexResult arg) throws NoSuchColorException {
 		final String idShort = arg.get("NAME", 0);
 		final Ident ident = diagram.buildLeafIdent(idShort);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(idShort);

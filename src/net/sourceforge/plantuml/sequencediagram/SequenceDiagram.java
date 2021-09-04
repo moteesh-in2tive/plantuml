@@ -31,7 +31,6 @@
  */
 package net.sourceforge.plantuml.sequencediagram;
 
-import java.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
@@ -42,6 +41,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -50,12 +50,12 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.OptionFlags;
-import net.sourceforge.plantuml.Scale;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -65,20 +65,22 @@ import net.sourceforge.plantuml.sequencediagram.graphic.SequenceDiagramFileMaker
 import net.sourceforge.plantuml.sequencediagram.graphic.SequenceDiagramTxtMaker;
 import net.sourceforge.plantuml.sequencediagram.teoz.SequenceDiagramFileMakerTeoz;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class SequenceDiagram extends UmlDiagram {
 
-	private final List<Participant> participantsList = new ArrayList<Participant>();
+	private final List<Participant> participantsList = new ArrayList<>();
 
-	private final List<Event> events = new ArrayList<Event>();
+	private final List<Event> events = new ArrayList<>();
 
 	private final Map<Participant, ParticipantEnglober> participantEnglobers2 = new HashMap<Participant, ParticipantEnglober>();
 
 	private final Rose skin2 = new Rose();
 
-	public SequenceDiagram(ISkinSimple skinParam) {
-		super(skinParam);
+	public SequenceDiagram(UmlSource source, ISkinSimple skinParam) {
+		super(source, UmlDiagramType.SEQUENCE, skinParam);
 	}
 
 	@Deprecated
@@ -242,6 +244,11 @@ public class SequenceDiagram extends UmlDiagram {
 		return OptionFlags.FORCE_TEOZ || getPragma().useTeozLayout();
 	}
 
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return super.createImageBuilder(fileFormatOption).annotations(false); // they are managed in the
+																				// SequenceDiagramFileMaker* classes
+	}
+
 	@Override
 	protected ImageData exportDiagramInternal(OutputStream os, int index, FileFormatOption fileFormat)
 			throws IOException {
@@ -250,7 +257,7 @@ public class SequenceDiagram extends UmlDiagram {
 	}
 
 	// support for CommandReturn
-	private final Stack<AbstractMessage> activationState = new Stack<AbstractMessage>();
+	private final Stack<AbstractMessage> activationState = new Stack<>();
 
 	public AbstractMessage getActivatingMessage() {
 		if (activationState.empty()) {
@@ -300,7 +307,7 @@ public class SequenceDiagram extends UmlDiagram {
 		return "Activate/Deactivate already done on " + p.getCode();
 	}
 
-	private final List<GroupingStart> openGroupings = new ArrayList<GroupingStart>();
+	private final List<GroupingStart> openGroupings = new ArrayList<>();
 
 	public boolean grouping(String title, String comment, GroupingType type, HColor backColorGeneral,
 			HColor backColorElement, boolean parallel) {
@@ -385,11 +392,6 @@ public class SequenceDiagram extends UmlDiagram {
 
 	}
 
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.SEQUENCE;
-	}
-
 	private ParticipantEnglober participantEnglober;
 
 	public void boxStart(Display comment, HColor color, Stereotype stereotype) {
@@ -413,7 +415,8 @@ public class SequenceDiagram extends UmlDiagram {
 	@Override
 	public int getNbImages() {
 		try {
-			return getSequenceDiagramPngMaker(1, new FileFormatOption(FileFormat.PNG)).getNbPages();
+			// The DEBUG StringBounder is ok just to compute the number of pages here.
+			return getSequenceDiagramPngMaker(1, new FileFormatOption(FileFormat.DEBUG)).getNbPages();
 		} catch (Throwable t) {
 			t.printStackTrace();
 			return 1;
@@ -421,7 +424,7 @@ public class SequenceDiagram extends UmlDiagram {
 	}
 
 	public void removeHiddenParticipants() {
-		for (Participant p : new ArrayList<Participant>(participantsList)) {
+		for (Participant p : new ArrayList<>(participantsList)) {
 			if (isAlone(p)) {
 				remove(p);
 			}
@@ -446,10 +449,7 @@ public class SequenceDiagram extends UmlDiagram {
 	}
 
 	public void putParticipantInLast(String code) {
-		final Participant p = participantsget(code);
-		if (p == null) {
-			throw new IllegalArgumentException(code);
-		}
+		final Participant p = Objects.requireNonNull(participantsget(code), code);
 		final boolean ok = participantsList.remove(p);
 		assert ok;
 		addWithOrder(p);
@@ -499,17 +499,6 @@ public class SequenceDiagram extends UmlDiagram {
 		return true;
 	}
 
-	public double getDpiFactor(FileFormatOption fileFormatOption, Dimension2D dim) {
-		final double dpiFactor;
-		final Scale scale = getScale();
-		if (scale == null) {
-			dpiFactor = getScaleCoef(fileFormatOption);
-		} else {
-			dpiFactor = scale.getScale(dim.getWidth(), dim.getHeight());
-		}
-		return dpiFactor;
-	}
-
 	@Override
 	public String checkFinalError() {
 		if (this.isHideUnlinkedData()) {
@@ -532,7 +521,7 @@ public class SequenceDiagram extends UmlDiagram {
 		return labels.replace("%autonumber%", autoNumber.getCurrentMessageNumber(false));
 	}
 
-	private final List<LinkAnchor> linkAnchors = new ArrayList<LinkAnchor>();
+	private final List<LinkAnchor> linkAnchors = new ArrayList<>();
 
 	public CommandExecutionResult linkAnchor(String anchor1, String anchor2, String message) {
 		this.linkAnchors.add(new LinkAnchor(anchor1, anchor2, message));
@@ -541,5 +530,12 @@ public class SequenceDiagram extends UmlDiagram {
 
 	public List<LinkAnchor> getLinkAnchors() {
 		return Collections.unmodifiableList(linkAnchors);
+	}
+
+	@Override
+	public ClockwiseTopRightBottomLeft getDefaultMargins() {
+		return modeTeoz() // this is for backward compatibility
+				? ClockwiseTopRightBottomLeft.same(5)
+				: ClockwiseTopRightBottomLeft.topRightBottomLeft(5, 5, 5, 0);
 	}
 }

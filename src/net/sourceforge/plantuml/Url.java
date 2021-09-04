@@ -35,9 +35,8 @@ package net.sourceforge.plantuml;
 import java.util.Comparator;
 
 import net.sourceforge.plantuml.cucadiagram.dot.DotMaker2;
-import net.sourceforge.plantuml.project.lang.Complement;
 
-public class Url implements EnsureVisible, Complement {
+public class Url implements EnsureVisible {
 
 	private final String url;
 	private final String tooltip;
@@ -49,9 +48,6 @@ public class Url implements EnsureVisible, Complement {
 	}
 
 	public Url(String url, String tooltip, String label) {
-		if (url.contains("{")) {
-			throw new IllegalArgumentException(url);
-		}
 		url = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(url, "\"");
 		this.url = url;
 		if (tooltip == null) {

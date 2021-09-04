@@ -1,0 +1,179 @@
+/* ========================================================================
+ * PlantUML : a free UML diagram generator
+ * ========================================================================
+ *
+ * (C) Copyright 2009-2020, Arnaud Roques
+ *
+ * Project Info:  http://plantuml.com
+ * 
+ * If you like this project or if you find it useful, you can support us at:
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
+ * This file is part of PlantUML.
+ *
+ * PlantUML is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * PlantUML distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+ * USA.
+ *
+ *
+ * Original Author:  Arnaud Roques
+ *
+ */
+package net.sourceforge.plantuml.nwdiag.core;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import net.sourceforge.plantuml.ColorParam;
+import net.sourceforge.plantuml.ComponentStyle;
+import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
+import net.sourceforge.plantuml.graphic.HorizontalAlignment;
+import net.sourceforge.plantuml.graphic.SymbolContext;
+import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.nwdiag.next.LinkedElementNext;
+import net.sourceforge.plantuml.nwdiag.next.NBar;
+import net.sourceforge.plantuml.skin.ActorStyle;
+import net.sourceforge.plantuml.svek.PackageStyle;
+import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+
+public class NServer {
+
+	private final Map<Network, String> connections = new LinkedHashMap<Network, String>();
+
+	private USymbol shape = USymbol.RECTANGLE;
+	private final String name;
+	private String description;
+	private final NBar bar = new NBar();
+
+	// To be renamed in "printFirstLink"
+	private boolean hasItsOwnColumn = true;
+
+	public void doNotHaveItsOwnColumn() {
+		this.hasItsOwnColumn = false;
+	}
+
+	public final boolean hasItsOwnColumn() {
+		return hasItsOwnColumn;
+	}
+
+	public Network getMainNetworkNext() {
+		return connections.keySet().iterator().next();
+	}
+
+	public String getAdress(Network network) {
+		return connections.get(network);
+	}
+
+	protected final TextBlock toTextBlock(String s, ISkinSimple spriteContainer) {
+		if (s == null) {
+			return null;
+		}
+		if (s.length() == 0) {
+			return TextBlockUtils.empty(0, 0);
+		}
+		s = s.replace(", ", "\\n");
+		return Display.getWithNewlines(s).create(getFontConfiguration(), HorizontalAlignment.LEFT, spriteContainer);
+	}
+
+	public LinkedElementNext asTextBlockNext(double topMargin, Map<Network, String> conns, List<Network> networks,
+			ISkinSimple spriteContainer) {
+		final Map<Network, TextBlock> conns2 = new LinkedHashMap<Network, TextBlock>();
+		for (Entry<Network, String> ent : conns.entrySet()) {
+			conns2.put(ent.getKey(), toTextBlock(ent.getValue(), spriteContainer));
+		}
+		final SymbolContext symbolContext = new SymbolContext(ColorParam.activityBackground.getDefaultValue(),
+				ColorParam.activityBorder.getDefaultValue()).withShadow(3);
+		final TextBlock desc = toTextBlock(getDescription(), spriteContainer);
+		final TextBlock box = getShape().asSmall(TextBlockUtils.empty(0, 0), desc, TextBlockUtils.empty(0, 0),
+				symbolContext, HorizontalAlignment.CENTER);
+		return new LinkedElementNext(topMargin, this, box, conns2, networks);
+	}
+
+	public void connect(Network network, Map<String, String> props) {
+		String address = props.get("address");
+		if (address == null) {
+			address = "";
+		}
+		if (address.length() == 0 && connections.containsKey(network)) {
+			return;
+		}
+		connections.put(network, address);
+		if (bar.getStart() == null) {
+			bar.addStage(network.getNstage());
+		} else {
+			// Test to be removed
+			if (network.getUp() != null)
+				if (this.getMainNetworkNext() != network)
+					bar.addStage(network.getUp());
+		}
+	}
+
+	@Override
+	public final String toString() {
+		return name;
+	}
+
+	public NServer(String name) {
+		this.description = name;
+		this.name = name;
+	}
+
+	public NServer(String name, Object... unused) {
+		this.description = name;
+		this.name = name;
+	}
+
+	protected final FontConfiguration getFontConfiguration() {
+		final UFont font = UFont.serif(11);
+		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLACK, false);
+	}
+
+	public final String getDescription() {
+		return description;
+	}
+
+	public final void setDescription(String description) {
+		this.description = description;
+	}
+
+	public final String getName() {
+		return name;
+	}
+
+	public final void setShape(String shapeName) {
+		final USymbol shapeFromString = USymbol.fromString(shapeName, ActorStyle.STICKMAN, ComponentStyle.RECTANGLE,
+				PackageStyle.RECTANGLE);
+		if (shapeFromString != null) {
+			this.shape = shapeFromString;
+		}
+	}
+
+	public final USymbol getShape() {
+		return shape;
+	}
+
+	public final NBar getBar() {
+		return bar;
+	}
+
+}

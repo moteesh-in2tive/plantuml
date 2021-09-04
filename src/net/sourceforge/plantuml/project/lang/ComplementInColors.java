@@ -39,17 +39,19 @@ import net.sourceforge.plantuml.project.Failable;
 import net.sourceforge.plantuml.project.GanttDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class ComplementInColors implements ComplementPattern {
+public class ComplementInColors implements Something {
 
 	public IRegex toRegex(String suffix) {
-		return new RegexLeaf("COMPLEMENT" + suffix, "in[%s+](#?\\w+)(?:/(#?\\w+))?");
+		return new RegexLeaf("COMPLEMENT" + suffix, "in[%s]+(#?\\w+)(?:/(#?\\w+))?");
 	}
 
-	public Failable<Complement> getComplement(GanttDiagram system, RegexResult arg, String suffix) {
+	public Failable<CenterBorderColor> getMe(GanttDiagram diagram, RegexResult arg, String suffix) {
 		final String color1 = arg.get("COMPLEMENT" + suffix, 0);
 		final String color2 = arg.get("COMPLEMENT" + suffix, 1);
-		final HColor col1 = system.getIHtmlColorSet().getColorIfValid(color1);
-		final HColor col2 = system.getIHtmlColorSet().getColorIfValid(color2);
-		return Failable.<Complement> ok(new ComplementColors(col1, col2));
+		final HColor col1 = color1 == null ? null
+				: diagram.getIHtmlColorSet().getColorOrWhite(diagram.getSkinParam().getThemeStyle(), color1);
+		final HColor col2 = color2 == null ? null
+				: diagram.getIHtmlColorSet().getColorOrWhite(diagram.getSkinParam().getThemeStyle(), color2);
+		return Failable.ok(new CenterBorderColor(col1, col2));
 	}
 }

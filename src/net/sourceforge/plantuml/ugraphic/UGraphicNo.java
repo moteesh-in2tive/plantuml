@@ -33,19 +33,25 @@
 package net.sourceforge.plantuml.ugraphic;
 
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public abstract class UGraphicNo {
 
 	final public void startUrl(Url url) {
 	}
 
-	final public void startGroup(String groupId) {
+	public void startGroup(UGroupType type, String ident) {
 	}
 
 	final public void closeUrl() {
 	}
 
 	final public void closeGroup() {
+	}
+
+	public HColor getDefaultBackground() {
+		return HColorUtils.BLACK;
 	}
 
 }

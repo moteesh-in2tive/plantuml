@@ -36,7 +36,7 @@ import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -63,10 +63,9 @@ public class ComponentRoseActor extends AbstractTextualComponent {
 		super(style, stereo, LineBreakStrategy.NONE, stringsToDisplay, font, HorizontalAlignment.CENTER, 3, 3, 0,
 				spriteContainer, false, fontForStereotype, htmlColorForStereotype);
 		this.head = head;
-		if (SkinParam.USE_STYLES()) {
-			biColor = style.getSymbolContext(getIHtmlColorSet());
+		if (UseStyle.useBetaStyle()) {
+			biColor = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
 		}
-		// this.stickman = new ActorStickMan(biColor);
 		this.stickman = actorStyle.getTextBlock(biColor);
 	}
 

@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml;
 
+import static net.sourceforge.plantuml.ugraphic.ImageBuilder.plainImageBuilder;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -46,8 +48,6 @@ import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.preproc.Defines;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 
 public class SourceStringReader {
 
@@ -77,7 +77,8 @@ public class SourceStringReader {
 		this(defines, source, charset, config, FileSystem.getInstance().getCurrentDir());
 	}
 
-	public SourceStringReader(Defines defines, String source, String charset, List<String> config, SFile newCurrentDir) {
+	public SourceStringReader(Defines defines, String source, String charset, List<String> config,
+			SFile newCurrentDir) {
 		// // WARNING GLOBAL LOCK HERE
 		// synchronized (SourceStringReader.class) {
 		try {
@@ -142,7 +143,7 @@ public class SourceStringReader {
 	public DiagramDescription outputImage(OutputStream os, int numImage, FileFormatOption fileFormatOption)
 			throws IOException {
 		if (blocks.size() == 0) {
-			noStartumlFound(os, fileFormatOption, 42);
+			noStartumlFound(os, fileFormatOption);
 			return null;
 		}
 		for (BlockUml b : blocks) {
@@ -218,13 +219,12 @@ public class SourceStringReader {
 
 	}
 
-	private void noStartumlFound(OutputStream os, FileFormatOption fileFormatOption, long seed) throws IOException {
+	public ImageData noStartumlFound(OutputStream os, FileFormatOption fileFormatOption) throws IOException {
 		final TextBlockBackcolored error = GraphicStrings.createForError(Arrays.asList("No @startuml/@enduml found"),
 				fileFormatOption.isUseRedForError());
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, null, null, 1.0,
-				error.getBackcolor());
-		imageBuilder.setUDrawable(error);
-		imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed, os);
+
+		return plainImageBuilder(error, fileFormatOption)
+				.write(os);
 	}
 
 	public final List<BlockUml> getBlocks() {

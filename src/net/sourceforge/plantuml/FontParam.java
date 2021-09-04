@@ -76,6 +76,9 @@ public enum FontParam {
 	ENTITY(14, Font.PLAIN), //
 	AGENT(14, Font.PLAIN), //
 	RECTANGLE(14, Font.PLAIN), //
+	LABEL(14, Font.PLAIN), //
+	HEXAGON(14, Font.PLAIN), //
+	PERSON(14, Font.PLAIN), //
 	ARCHIMATE(14, Font.PLAIN), //
 	CARD(14, Font.PLAIN), //
 	NODE(14, Font.PLAIN), //
@@ -110,6 +113,9 @@ public enum FontParam {
 	ENTITY_STEREOTYPE(14, Font.ITALIC), //
 	AGENT_STEREOTYPE(14, Font.ITALIC), //
 	RECTANGLE_STEREOTYPE(14, Font.ITALIC), //
+	LABEL_STEREOTYPE(14, Font.ITALIC), //
+	PERSON_STEREOTYPE(14, Font.ITALIC), //
+	HEXAGON_STEREOTYPE(14, Font.ITALIC), //
 	ARCHIMATE_STEREOTYPE(14, Font.ITALIC), //
 	CARD_STEREOTYPE(14, Font.ITALIC), //
 	NODE_STEREOTYPE(14, Font.ITALIC), //
@@ -178,18 +184,25 @@ public enum FontParam {
 		return new FontConfiguration(skinParam, this, null);
 	}
 
-	public StyleSignature getStyleDefinition() {
+	public StyleSignature getStyleDefinition(SName diagramType) {
 		if (this == FOOTER) {
-			return StyleSignature.of(SName.root, SName.footer);
+			return StyleSignature.of(SName.root, SName.document, SName.footer);
 		}
 		if (this == HEADER) {
-			return StyleSignature.of(SName.root, SName.header);
+			return StyleSignature.of(SName.root, SName.document, SName.header);
 		}
 		if (this == TITLE) {
-			return StyleSignature.of(SName.root, SName.title);
+			return StyleSignature.of(SName.root, SName.document, SName.title);
 		}
-		System.err.println("Warning " + this);
-		return null;
+		if (this == CLASS_ATTRIBUTE) {
+			return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.class_);
+		}
+		if (this == RECTANGLE || this == NODE) {
+			return StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component);
+		}
+		return StyleSignature.of(SName.root, SName.element, diagramType, SName.component);
+//		System.err.println("Warning " + this);
+//		throw new UnsupportedOperationException();
 	}
 
 }

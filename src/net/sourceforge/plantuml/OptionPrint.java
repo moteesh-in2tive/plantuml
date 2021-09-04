@@ -54,7 +54,7 @@ import net.sourceforge.plantuml.version.Version;
 public class OptionPrint {
 
 	static public void printTestDot() throws InterruptedException {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		final int errorCode = GraphvizUtils.addDotStatus(result, false);
 		for (String s : result) {
 			if (errorCode == 0) {
@@ -97,7 +97,7 @@ public class OptionPrint {
 		System.out.println("    -o[utput] \"dir\"\tTo generate images in the specified directory");
 		System.out.println("    -DVAR1=value\tTo set a preprocessing variable as if '!define VAR1 value' were used");
 		System.out.println("    -Sparam1=value\tTo set a skin parameter as if 'skinparam param1 value' were used");
-		System.out.println("    -r[ecurse]\t\trecurse through directories");
+		System.out.println("    -Ppragma1=value\tTo set pragma as if '!pragma pragma1 value' were used");
 		// System.out.println(" -config \"file\"\tTo read the provided config file
 		// before each diagram");
 		final char separator = SFile.separatorChar;
@@ -105,6 +105,7 @@ public class OptionPrint {
 				+ "file\tTo include file as if '!include file' were used");
 		System.out.println(
 				"    -I" + separator + "path" + separator + "to" + separator + "*.puml\tTo include files with pattern");
+		System.out.println("    -theme xxx\t\tTo use a specific theme");
 		System.out.println("    -charset xxx\tTo use a specific charset (default is " + charset + ")");
 		System.out.println("    -e[x]clude pattern\tTo exclude files that match the provided pattern");
 		System.out.println("    -metadata\t\tTo retrieve PlantUML sources from PNG images");
@@ -129,7 +130,7 @@ public class OptionPrint {
 		System.out.println("    -checkonly\t\tTo check the syntax of files without generating images");
 		System.out.println("    -failfast\t\tTo stop processing as soon as a syntax error in diagram occurs");
 		System.out.println("    -failfast2\t\tTo do a first syntax check before processing files, to fail even faster");
-		System.out.println("    -pattern\t\tTo print the list of Regular Expression used by PlantUML");
+		System.out.println("    -noerror\t\tTo skip images when error in diagrams");
 		System.out.println("    -duration\t\tTo print the duration of complete diagrams processing");
 		System.out.println("    -nbthread N\t\tTo use (N) threads for processing");
 		System.out.println("    -nbthread auto\tTo use " + Option.defaultNbThreads() + " threads for processing");
@@ -149,9 +150,11 @@ public class OptionPrint {
 		System.out.println("    -pipeimageindex N\tTo generate the Nth image with pipe option");
 		System.out.println("    -stdlib\t\tTo print standard library info");
 		System.out.println("    -extractstdlib\tTo extract PlantUML Standard Library into stdlib folder");
+		System.out.println("    -filedir xxx\tTo behave as if the PlantUML source is in this dir (only affects '-pipe' and PicoWeb 'POST /render')");
 		System.out.println("    -filename \"example.puml\"\tTo override %filename% variable");
 		System.out.println("    -preproc\t\tTo output preprocessor text of diagrams");
 		System.out.println("    -cypher\t\tTo cypher texts of diagrams so that you can share them");
+		System.out.println("    -picoweb\t\tTo start internal HTTP Server. See https://plantuml.com/picoweb");
 		System.out.println();
 		System.out.println("If needed, you can setup the environment variable GRAPHVIZ_DOT.");
 		exit(0);
@@ -173,7 +176,7 @@ public class OptionPrint {
 			System.out.println(v);
 		}
 		System.out.println();
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		final int errorCode = GraphvizUtils.addDotStatus(result, false);
 		for (String s : result) {
 			System.out.println(s);
@@ -199,7 +202,7 @@ public class OptionPrint {
 			all = Arrays.asList("java.runtime.name", "Java Runtime", "java.vm.name", "JVM", "file.encoding",
 					"Default Encoding", "user.language", "Language", "user.country", "Country");
 		}
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (int i = 0; i < all.size(); i += 2) {
 			result.add(all.get(i + 1) + ": " + p.getProperty(all.get(i)));
 		}
@@ -207,7 +210,7 @@ public class OptionPrint {
 	}
 
 	public static Collection<String> interestingValues() {
-		final List<String> strings = new ArrayList<String>();
+		final List<String> strings = new ArrayList<>();
 //		if (withIp() == false) {
 //			strings.add("Machine: " + getHostName());
 //		}

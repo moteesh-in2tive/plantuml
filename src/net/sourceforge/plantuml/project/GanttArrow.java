@@ -33,16 +33,23 @@
 package net.sourceforge.plantuml.project;
 
 import net.sourceforge.plantuml.Direction;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.project.core.Task;
 import net.sourceforge.plantuml.project.core.TaskAttribute;
 import net.sourceforge.plantuml.project.core.TaskInstant;
+import net.sourceforge.plantuml.project.draw.TaskDraw;
 import net.sourceforge.plantuml.project.timescale.TimeScale;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class GanttArrow implements UDrawable {
 
@@ -52,12 +59,22 @@ public class GanttArrow implements UDrawable {
 	private final Direction atEnd;
 	private final TaskInstant dest;
 
-	public GanttArrow(TimeScale timeScale, TaskInstant source, TaskInstant dest) {
+	private final HColorSet colorSet;
+	private final Style style;
+	private final ToTaskDraw toTaskDraw;
+	private final StyleBuilder styleBuilder;
+
+	public GanttArrow(HColorSet colorSet, Style style, TimeScale timeScale, TaskInstant source, TaskInstant dest,
+			ToTaskDraw toTaskDraw, StyleBuilder styleBuilder) {
+		this.styleBuilder = styleBuilder;
+		this.toTaskDraw = toTaskDraw;
+		this.style = style;
+		this.colorSet = colorSet;
 		this.timeScale = timeScale;
 		this.source = source;
 		this.dest = dest;
 		if (source.getAttribute() == TaskAttribute.END && dest.getAttribute() == TaskAttribute.START) {
-			this.atStart = Direction.DOWN;
+			this.atStart = source.sameRowAs(dest) ? Direction.LEFT : Direction.DOWN;
 			this.atEnd = Direction.RIGHT;
 		} else if (source.getAttribute() == TaskAttribute.END && dest.getAttribute() == TaskAttribute.END) {
 			this.atStart = Direction.RIGHT;
@@ -66,38 +83,51 @@ public class GanttArrow implements UDrawable {
 			this.atStart = Direction.LEFT;
 			this.atEnd = Direction.RIGHT;
 		} else if (source.getAttribute() == TaskAttribute.START && dest.getAttribute() == TaskAttribute.END) {
-			this.atStart = Direction.DOWN;
+			this.atStart = source.sameRowAs(dest) ? Direction.RIGHT : Direction.DOWN;
 			this.atEnd = Direction.LEFT;
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
 
+	private TaskDraw getSource() {
+		return toTaskDraw.getTaskDraw((Task) source.getMoment());
+	}
+
+	private TaskDraw getDestination() {
+		return toTaskDraw.getTaskDraw((Task) dest.getMoment());
 	}
 
 	public void drawU(UGraphic ug) {
-		ug = ug.apply(HColorUtils.RED_DARK.bg()).apply(HColorUtils.RED_DARK)
-				.apply(new UStroke(1.5));
+		ug = style.applyStrokeAndLineColor(ug, colorSet, styleBuilder.getSkinParam().getThemeStyle());
 
-		final Task draw1 = (Task) source.getMoment();
-		final Task draw2 = (Task) dest.getMoment();
+		double x1 = getX(source.getAttribute(), getSource(), atStart);
+		final StringBounder stringBounder = ug.getStringBounder();
+		double y1 = getSource().getY(stringBounder, atStart);
 
-		double x1 = getX(source.withDelta(0), atStart);
-		double y1 = draw1.getY(atStart);
-
-		final double x2 = getX(dest, atEnd.getInv());
-		final double y2 = draw2.getY(atEnd);
+		final double x2 = getX(dest.getAttribute(), getDestination(), atEnd.getInv());
+		final double y2 = getDestination().getY(stringBounder, atEnd);
 
 		if (atStart == Direction.DOWN && y2 < y1) {
-			y1 = draw1.getY(atStart.getInv());
+			y1 = getSource().getY(stringBounder, atStart.getInv());
 		}
+
+		final double minimalWidth = 8;
+//		final Style style = getStyleSignatureTask().getMergedStyle(styleBuilder);
+//		final ClockwiseTopRightBottomLeft margin = style.getMargin();
+//		final ClockwiseTopRightBottomLeft padding = style.getPadding();
 
 		if (this.atStart == Direction.DOWN && this.atEnd == Direction.RIGHT) {
 			if (x2 > x1) {
+				if (x2 - x1 < minimalWidth) {
+					x1 = x2 - minimalWidth;
+				}
 				drawLine(ug, x1, y1, x1, y2, x2, y2);
 			} else {
-				x1 = getX(source.withDelta(0), Direction.RIGHT);
-				y1 = draw1.getY(Direction.RIGHT);
-				drawLine(ug, x1, y1, x1 + 6, y1, x1 + 6, y1 + 8, x2 - 8, y1 + 8, x2 - 8, y2, x2, y2);
+				x1 = getX(source.getAttribute(), getSource(), Direction.RIGHT);
+				y1 = getSource().getY(stringBounder, Direction.RIGHT);
+				final double y1b = getDestination().getY(stringBounder).getCurrentValue();
+				drawLine(ug, x1, y1, x1 + 6, y1, x1 + 6, y1b, x2 - 8, y1b, x2 - 8, y2, x2, y2);
 			}
 		} else if (this.atStart == Direction.RIGHT && this.atEnd == Direction.LEFT) {
 			final double xmax = Math.max(x1, x2) + 8;
@@ -111,6 +141,8 @@ public class GanttArrow implements UDrawable {
 			throw new IllegalArgumentException();
 		}
 
+		ug = ug.apply(new UStroke(1.5)).apply(
+				style.value(PName.LineColor).asColor(styleBuilder.getSkinParam().getThemeStyle(), colorSet).bg());
 		ug.apply(new UTranslate(x2, y2)).draw(Arrows.asTo(atEnd));
 
 	}
@@ -126,15 +158,17 @@ public class GanttArrow implements UDrawable {
 
 	}
 
-	private double getX(TaskInstant when, Direction direction) {
-		final double x1 = timeScale.getStartingPosition(when.getInstantTheorical());
-		final double x2 = timeScale.getEndingPosition(when.getInstantTheorical());
+	private StyleSignature getStyleSignatureTask() {
+		return StyleSignature.of(SName.root, SName.element, SName.ganttDiagram, SName.task);
+	}
+
+	private double getX(TaskAttribute taskAttribute, TaskDraw task, Direction direction) {
 		if (direction == Direction.LEFT) {
-			return x1;
+			return task.getX1(taskAttribute) - 1;
 		}
 		if (direction == Direction.RIGHT) {
-			return x2;
+			return task.getX2(taskAttribute) + 1;
 		}
-		return (x1 + x2) / 2;
+		return (task.getX1(taskAttribute) + (task.getX2(taskAttribute))) / 2;
 	}
 }

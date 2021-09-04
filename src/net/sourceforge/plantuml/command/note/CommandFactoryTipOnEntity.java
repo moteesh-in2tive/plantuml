@@ -56,6 +56,7 @@ import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkDecor;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class CommandFactoryTipOnEntity implements SingleMultiFactoryCommand<AbstractEntityDiagram> {
 
@@ -113,12 +114,12 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 			@Override
 			public String getPatternEnd() {
 				if (withBracket) {
-					return "(?i)^(\\})$";
+					return "^(\\})$";
 				}
-				return "(?i)^[%s]*(end[%s]?note)$";
+				return "^[%s]*(end[%s]?note)$";
 			}
 
-			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) throws NoSuchColorException {
 				// StringUtils.trim(lines, false);
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
@@ -137,7 +138,7 @@ public final class CommandFactoryTipOnEntity implements SingleMultiFactoryComman
 	}
 
 	private CommandExecutionResult executeInternal(RegexResult line0, AbstractEntityDiagram diagram, Url url,
-			BlocLines lines) {
+			BlocLines lines) throws NoSuchColorException {
 
 		final String pos = line0.get("POSITION", 0);
 

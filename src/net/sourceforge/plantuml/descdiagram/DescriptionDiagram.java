@@ -32,10 +32,13 @@
  */
 package net.sourceforge.plantuml.descdiagram;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.classdiagram.AbstractEntityDiagram;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Ident;
@@ -44,8 +47,8 @@ import net.sourceforge.plantuml.graphic.USymbol;
 
 public class DescriptionDiagram extends AbstractEntityDiagram {
 
-	public DescriptionDiagram(ISkinSimple skinParam) {
-		super(skinParam);
+	public DescriptionDiagram(UmlSource source, ISkinSimple skinParam) {
+		super(source, UmlDiagramType.DESCRIPTION, skinParam);
 	}
 
 	@Override
@@ -67,18 +70,18 @@ public class DescriptionDiagram extends AbstractEntityDiagram {
 
 	@Override
 	public ILeaf getOrCreateLeaf(Ident ident, Code code, LeafType type, USymbol symbol) {
-		checkNotNull(ident);
+		Objects.requireNonNull(ident);
 		if (type == null) {
 			String codeString = code.getName();
 			if (codeString.startsWith("[") && codeString.endsWith("]")) {
-				final USymbol sym = getSkinParam().useUml2ForComponent() ? USymbol.COMPONENT2 : USymbol.COMPONENT1;
+				final USymbol sym = getSkinParam().componentStyle().toUSymbol();
 				final Ident idNewLong = ident.eventuallyRemoveStartingAndEndingDoubleQuote("\"([:");
 				return getOrCreateLeafDefault(idNewLong, idNewLong.toCode(this), LeafType.DESCRIPTION, sym);
 			}
 			if (codeString.startsWith(":") && codeString.endsWith(":")) {
 				final Ident idNewLong = ident.eventuallyRemoveStartingAndEndingDoubleQuote("\"([:");
-				return getOrCreateLeafDefault(idNewLong, idNewLong.toCode(this), LeafType.DESCRIPTION, getSkinParam()
-						.getActorStyle().getUSymbol());
+				return getOrCreateLeafDefault(idNewLong, idNewLong.toCode(this), LeafType.DESCRIPTION,
+						getSkinParam().actorStyle().toUSymbol());
 			}
 			if (codeString.startsWith("()")) {
 				codeString = StringUtils.trin(codeString.substring(2));
@@ -99,7 +102,7 @@ public class DescriptionDiagram extends AbstractEntityDiagram {
 		for (ILeaf leaf : getLeafsvalues()) {
 			final LeafType type = leaf.getLeafType();
 			final USymbol usymbol = leaf.getUSymbol();
-			if (type == LeafType.USECASE || usymbol == getSkinParam().getActorStyle().getUSymbol()) {
+			if (type == LeafType.USECASE || usymbol == getSkinParam().actorStyle().toUSymbol()) {
 				return true;
 			}
 		}
@@ -110,7 +113,7 @@ public class DescriptionDiagram extends AbstractEntityDiagram {
 	public void makeDiagramReady() {
 		super.makeDiagramReady();
 		final LeafType defaultType = isUsecase() ? LeafType.DESCRIPTION : LeafType.DESCRIPTION;
-		final USymbol defaultSymbol = isUsecase() ? getSkinParam().getActorStyle().getUSymbol() : USymbol.INTERFACE;
+		final USymbol defaultSymbol = isUsecase() ? getSkinParam().actorStyle().toUSymbol() : USymbol.INTERFACE;
 		for (ILeaf leaf : getLeafsvalues()) {
 			if (leaf.getLeafType() == LeafType.STILL_UNKNOWN) {
 				leaf.muteToType(defaultType, defaultSymbol);
@@ -122,11 +125,6 @@ public class DescriptionDiagram extends AbstractEntityDiagram {
 	public String checkFinalError() {
 		this.applySingleStrategy();
 		return super.checkFinalError();
-	}
-
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.DESCRIPTION;
 	}
 
 }

@@ -33,30 +33,23 @@
 package net.sourceforge.plantuml.font;
 
 import java.awt.GraphicsEnvironment;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainStringsDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class PSystemListFonts extends AbstractPSystem {
 
-	private final List<String> strings = new ArrayList<String>();
+public class PSystemListFonts extends PlainStringsDiagram {
 
-	public PSystemListFonts(String text) {
+	public PSystemListFonts(UmlSource source, String text) {
+		super(source);
 		strings.add("   <b><size:16>Fonts available:");
 		strings.add(" ");
-		// final Font fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+		// final Font fonts[] =
+		// GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 		// for (Font f : fonts) {
-		// strings.add("f=" + f + "/" + f.getPSName() + "/" + f.getName() + "/" + f.getFontName() + "/"
+		// strings.add("f=" + f + "/" + f.getPSName() + "/" + f.getName() + "/" +
+		// f.getFontName() + "/"
 		// + f.getFamily());
 		// }
 		final String name[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
@@ -64,20 +57,6 @@ public class PSystemListFonts extends AbstractPSystem {
 			strings.add(n + " : <font:" + n + ">" + text);
 		}
 
-	}
-
-	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final TextBlockBackcolored result = getGraphicStrings();
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-				false, null, getMetadata(), null, 1.0, result.getBackcolor());
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
-	}
-
-	private TextBlockBackcolored getGraphicStrings() throws IOException {
-		return GraphicStrings.createBlackOnWhite(strings);
 	}
 
 	public DiagramDescription getDescription() {

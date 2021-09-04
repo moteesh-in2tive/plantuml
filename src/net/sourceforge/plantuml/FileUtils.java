@@ -35,11 +35,14 @@ package net.sourceforge.plantuml;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sourceforge.plantuml.security.SFile;
@@ -53,13 +56,28 @@ public class FileUtils {
 		counter = new AtomicInteger(0);
 	}
 
+	static public File createTempFileLegacy(String prefix, String suffix) throws IOException {
+		if (suffix.startsWith(".") == false) {
+			throw new IllegalArgumentException();
+		}
+		Objects.requireNonNull(prefix);
+		final File f;
+		if (counter == null) {
+			f = File.createTempFile(prefix, suffix);
+		} else {
+			final String name = prefix + counter.addAndGet(1) + suffix;
+			f = new File(name);
+		}
+		Log.info("Creating temporary file: " + f);
+		f.deleteOnExit();
+		return f;
+	}
+
 	static public SFile createTempFile(String prefix, String suffix) throws IOException {
 		if (suffix.startsWith(".") == false) {
 			throw new IllegalArgumentException();
 		}
-		if (prefix == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(prefix);
 		final SFile f;
 		if (counter == null) {
 			f = SFile.createTempFile(prefix, suffix);
@@ -72,14 +90,16 @@ public class FileUtils {
 		return f;
 	}
 
-	private static void copyInternal(final InputStream fis, final OutputStream fos) throws IOException {
+	static public void copyInternal(final InputStream fis, final OutputStream fos, boolean close) throws IOException {
 		final byte[] buf = new byte[10240];
 		int len;
 		while ((len = fis.read(buf)) > 0) {
 			fos.write(buf, 0, len);
 		}
-		fos.close();
-		fis.close();
+		if (close) {
+			fos.close();
+			fis.close();
+		}
 	}
 
 	static public void copyToFile(SFile src, SFile dest) throws IOException {
@@ -91,7 +111,7 @@ public class FileUtils {
 			throw new FileNotFoundException();
 		}
 		final OutputStream fos = dest.createBufferedOutputStream();
-		copyInternal(fis, fos);
+		copyInternal(fis, fos, true);
 	}
 
 	static public void copyToStream(SFile src, OutputStream os) throws IOException {
@@ -100,13 +120,19 @@ public class FileUtils {
 			throw new FileNotFoundException();
 		}
 		final OutputStream fos = new BufferedOutputStream(os);
-		copyInternal(fis, fos);
+		copyInternal(fis, fos, true);
+	}
+
+	static public void copyToStream(File src, OutputStream os) throws IOException {
+		final InputStream fis = new BufferedInputStream(new FileInputStream(src));
+		final OutputStream fos = new BufferedOutputStream(os);
+		copyInternal(fis, fos, true);
 	}
 
 	static public void copyToStream(InputStream is, OutputStream os) throws IOException {
 		final InputStream fis = new BufferedInputStream(is);
 		final OutputStream fos = new BufferedOutputStream(os);
-		copyInternal(fis, fos);
+		copyInternal(fis, fos, true);
 	}
 
 	static public void copyToFile(byte[] src, SFile dest) throws IOException {
@@ -126,6 +152,11 @@ public class FileUtils {
 	static public String readSvg(InputStream is) throws IOException {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(is));
 		return readSvg(br, false, false);
+	}
+
+	static public String readText(InputStream is) throws IOException {
+		final BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		return readSvg(br, true, true);
 	}
 
 	static public String readFile(SFile svgFile) throws IOException {

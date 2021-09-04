@@ -39,6 +39,7 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.SkinParamUtils;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -55,6 +56,8 @@ import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.HeaderLayout;
 import net.sourceforge.plantuml.svek.ShapeType;
@@ -75,7 +78,15 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 		final Stereotype stereotype = entity.getStereotype();
 		final boolean displayGenericWithOldFashion = skinParam.displayGenericWithOldFashion();
 		final String generic = displayGenericWithOldFashion ? null : entity.getGeneric();
-		FontConfiguration fontConfigurationName = new FontConfiguration(getSkinParam(), FontParam.CLASS, stereotype);
+		FontConfiguration fontConfigurationName;
+
+		if (UseStyle.useBetaStyle()) {
+			final Style style = FontParam.CLASS.getStyleDefinition(SName.classDiagram).with(stereotype)
+					.getMergedStyle(skinParam.getCurrentStyleBuilder());
+			fontConfigurationName = new FontConfiguration(skinParam, style);
+		} else {
+			fontConfigurationName = new FontConfiguration(getSkinParam(), FontParam.CLASS, stereotype);
+		}
 		if (italic) {
 			fontConfigurationName = fontConfigurationName.italic();
 		}
@@ -102,10 +113,9 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 				|| portionShower.showPortion(EntityPortion.STEREOTYPE, entity) == false) {
 			stereo = null;
 		} else {
-			stereo = TextBlockUtils.withMargin(
-					Display.create(stereotype.getLabels(skinParam.guillemet())).create(
-							new FontConfiguration(getSkinParam(), FontParam.CLASS_STEREOTYPE, stereotype),
-							HorizontalAlignment.CENTER, skinParam), 1, 0);
+			stereo = TextBlockUtils.withMargin(Display.create(stereotype.getLabels(skinParam.guillemet())).create(
+					new FontConfiguration(getSkinParam(), FontParam.CLASS_STEREOTYPE, stereotype),
+					HorizontalAlignment.CENTER, skinParam), 1, 0);
 		}
 
 		TextBlock genericBlock;
@@ -116,8 +126,7 @@ public class EntityImageClassHeader extends AbstractEntityImage {
 					new FontConfiguration(getSkinParam(), FontParam.CLASS_STEREOTYPE, stereotype),
 					HorizontalAlignment.CENTER, skinParam);
 			genericBlock = TextBlockUtils.withMargin(genericBlock, 1, 1);
-			final HColor classBackground = SkinParamUtils
-					.getColor(getSkinParam(), stereotype, ColorParam.background);
+			final HColor classBackground = SkinParamUtils.getColor(getSkinParam(), stereotype, ColorParam.background);
 
 			final HColor classBorder = SkinParamUtils.getFontColor(getSkinParam(), FontParam.CLASS_STEREOTYPE,
 					stereotype);

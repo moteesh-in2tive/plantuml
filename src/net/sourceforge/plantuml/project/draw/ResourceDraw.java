@@ -40,7 +40,7 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.project.GanttDiagram;
 import net.sourceforge.plantuml.project.core.Resource;
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.time.Day;
 import net.sourceforge.plantuml.project.timescale.TimeScale;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -54,11 +54,11 @@ public class ResourceDraw implements UDrawable {
 	private final Resource res;
 	private final TimeScale timeScale;
 	private final double y;
-	private final Wink min;
-	private final Wink max;
+	private final Day min;
+	private final Day max;
 	private final GanttDiagram gantt;
 
-	public ResourceDraw(GanttDiagram gantt, Resource res, TimeScale timeScale, double y, Wink min, Wink max) {
+	public ResourceDraw(GanttDiagram gantt, Resource res, TimeScale timeScale, double y, Day min, Day max) {
 		this.res = res;
 		this.timeScale = timeScale;
 		this.y = y;
@@ -72,20 +72,37 @@ public class ResourceDraw implements UDrawable {
 				HorizontalAlignment.LEFT, new SpriteContainerEmpty());
 		title.drawU(ug);
 		final ULine line = ULine.hline(timeScale.getEndingPosition(max) - timeScale.getStartingPosition(min));
-		ug.apply(HColorUtils.BLACK)
-				.apply(UTranslate.dy(title.calculateDimension(ug.getStringBounder()).getHeight())).draw(line);
-		for (Wink i = min; i.compareTo(max) <= 0; i = i.increment()) {
-			final int load = gantt.getLoadForResource(res, i);
-			if (load > 0) {
-				final FontConfiguration fontConfiguration = getFontConfiguration(9, load > 100 ? HColorUtils.RED
-						: HColorUtils.BLACK);
-				final TextBlock value = Display.getWithNewlines("" + load).create(fontConfiguration,
-						HorizontalAlignment.LEFT, new SpriteContainerEmpty());
-				final double start = (timeScale.getStartingPosition(i) + timeScale.getEndingPosition(i)) / 2
-						- value.calculateDimension(ug.getStringBounder()).getWidth() / 2;
-				value.drawU(ug.apply(new UTranslate(start, 16)));
-			}
+		ug.apply(HColorUtils.BLACK).apply(UTranslate.dy(title.calculateDimension(ug.getStringBounder()).getHeight()))
+				.draw(line);
 
+		double startingPosition = -1;
+		int totalLoad = 0;
+		int totalLimit = 0;
+		for (Day i = min; i.compareTo(max) <= 0; i = i.increment()) {
+			final boolean isBreaking = timeScale.isBreaking(i);
+			totalLoad += gantt.getLoadForResource(res, i);
+			totalLimit += 100;
+			if (isBreaking) {
+				if (totalLoad > 0) {
+					final boolean over = totalLoad > totalLimit;
+					final FontConfiguration fontConfiguration = getFontConfiguration(9,
+							over ? HColorUtils.RED : HColorUtils.BLACK);
+					final TextBlock value = Display.getWithNewlines("" + totalLoad).create(fontConfiguration,
+							HorizontalAlignment.LEFT, new SpriteContainerEmpty());
+					if (startingPosition == -1)
+						startingPosition = timeScale.getStartingPosition(i);
+					final double endingPosition = timeScale.getEndingPosition(i);
+					final double start = (startingPosition + endingPosition) / 2
+							- value.calculateDimension(ug.getStringBounder()).getWidth() / 2;
+					value.drawU(ug.apply(new UTranslate(start, 16)));
+				}
+				startingPosition = -1;
+				totalLoad = 0;
+				totalLimit = 0;
+			} else {
+				if (startingPosition == -1)
+					startingPosition = timeScale.getStartingPosition(i);
+			}
 		}
 
 	}
@@ -99,19 +116,11 @@ public class ResourceDraw implements UDrawable {
 		return new FontConfiguration(font, color, color, false);
 	}
 
-	// public void setColors(ComplementColors colors);
-	//
-	// public double getY();
-	//
-	// public double getY(Direction direction);
-	//
-	// public void drawTitle(UGraphic ug);
-
 	public double getHeight() {
 		return 16 * 2;
 	}
 
-	public double getY() {
+	public final double getY() {
 		return y;
 	}
 

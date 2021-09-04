@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractConnection;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Arrows;
@@ -74,11 +74,11 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 	@Override
 	protected Ftile doStep1(Ftile inner) {
 		Ftile result = inner;
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		final Rainbow thinColor;
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-			thinColor = Rainbow.build(style, skinParam().getIHtmlColorSet());
+			thinColor = Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle());
 		} else {
 			thinColor = result.getInLinkRendering().getRainbow(Rainbow.build(skinParam()));
 		}
@@ -95,9 +95,10 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 
 			final LinkRendering inLinkRendering = tmp.getInLinkRendering();
 			final Rainbow rainbow;
-			if (SkinParam.USE_STYLES()) {
+			if (UseStyle.useBetaStyle()) {
 				Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-				rainbow = inLinkRendering.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet()));
+				rainbow = inLinkRendering
+						.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle()));
 			} else {
 				rainbow = inLinkRendering.getRainbow(Rainbow.build(skinParam()));
 			}
@@ -123,9 +124,10 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 		for (Ftile tmp : list99) {
 			final Rainbow rainbow;
 			final LinkRendering inLinkRendering = tmp.getInLinkRendering();
-			if (SkinParam.USE_STYLES()) {
+			if (UseStyle.useBetaStyle()) {
 				Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-				rainbow = inLinkRendering.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet()));
+				rainbow = inLinkRendering
+						.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle()));
 			} else {
 				rainbow = inLinkRendering.getRainbow(Rainbow.build(skinParam()));
 			}
@@ -156,16 +158,17 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 
 		final Rainbow thinColor;
 		final LinkRendering inLinkRendering = result.getInLinkRendering();
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-			thinColor = inLinkRendering.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet()));
+			thinColor = inLinkRendering
+					.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle()));
 		} else {
 			thinColor = inLinkRendering.getRainbow(Rainbow.build(skinParam()));
 		}
 
 		final Ftile out = new FtileThinSplit(skinParam(), thinColor.getColor(), swimlaneOutForStep2());
 		result = new FtileAssemblySimple(result, out);
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		double x = 0;
 		double first = 0;
 		double last = 0;
@@ -181,14 +184,17 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 
 			final Rainbow rainbow;
 			final LinkRendering outLinkRendering = tmp.getOutLinkRendering();
-			if (SkinParam.USE_STYLES()) {
+			if (UseStyle.useBetaStyle()) {
 				Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-				rainbow = outLinkRendering.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet()));
+				rainbow = outLinkRendering
+						.getRainbow(Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle()));
 			} else {
 				rainbow = outLinkRendering.getRainbow(Rainbow.build(skinParam()));
 			}
 
-			conns.add(new ConnectionOut(translate0, tmp, out, x, rainbow, getHeightOfMiddle(inner)));
+			if (tmp.calculateDimension(getStringBounder()).hasPointOut()) {
+				conns.add(new ConnectionOut(translate0, tmp, out, x, rainbow, getHeightOfMiddle(inner)));
+			}
 			x += dim.getWidth();
 		}
 		if (last < geom.getLeft()) {
@@ -218,9 +224,9 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 		public void drawU(UGraphic ug) {
 			ug = ug.apply(UTranslate.dx(x));
 			final FtileGeometry geo = getFtile2().calculateDimension(getStringBounder());
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			snake.addPoint(geo.getLeft(), 0);
 			snake.addPoint(geo.getLeft(), geo.getInY());
@@ -233,9 +239,9 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 			final Point2D p1 = new Point2D.Double(geo.getLeft(), 0);
 			final Point2D p2 = new Point2D.Double(geo.getLeft(), geo.getInY());
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);
@@ -272,9 +278,9 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 			if (geo.hasPointOut() == false) {
 				return;
 			}
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D p1 = translate0.getTranslated(new Point2D.Double(geo.getLeft(), geo.getOutY()));
 			final Point2D p2 = translate0.getTranslated(new Point2D.Double(geo.getLeft(), height));
@@ -292,9 +298,9 @@ public class ParallelBuilderSplit extends AbstractParallelFtilesBuilder {
 			final Point2D p1 = translate0.getTranslated(new Point2D.Double(geo.getLeft(), geo.getOutY()));
 			final Point2D p2 = translate0.getTranslated(new Point2D.Double(geo.getLeft(), height));
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);

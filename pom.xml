@@ -35,7 +35,7 @@
 
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2020.12-DRAWIO</version>
+    <version>1.2021.11-DRAWIO</version>
     <packaging>jar</packaging>
 
     <name>PlantUML</name>
@@ -49,8 +49,26 @@
         * state diagram
         * object diagram
     </description>
-    <url>http://plantuml.sourceforge.net</url>
+    <url>https://plantuml.com</url>
 
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>5.7.1</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
@@ -58,6 +76,23 @@
             <version>1.10.9</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.19.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scilab.forge</groupId>
+			<artifactId>jlatexmath</artifactId>
+			<version>1.0.7</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 
     <licenses>
@@ -87,20 +122,9 @@
         </developer>
     </developers>
 
-	<profiles>
-	  <profile>
-		<id>doclint-java8-disable</id>
-		<activation>
-		  <jdk>[1.8,)</jdk>
-		</activation>
-		<properties>
-		  <javadoc.opts>-Xdoclint:none</javadoc.opts>
-		</properties>
-	  </profile>
-	</profiles>
-
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/test</testSourceDirectory>
         <resources>
             <resource>
                 <directory>${project.basedir}/src</directory>
@@ -110,6 +134,7 @@
                     <include>net/sourceforge/plantuml/openiconic/data/*.svg</include>
                     <include>sprites/archimate/*.png</include>
                     <include>net/sourceforge/plantuml/math/*.js</include>
+                    <include>net/sourceforge/plantuml/windowsdot/*.dat</include>
                 </includes>
             </resource>
             <resource>
@@ -117,6 +142,9 @@
                 <includes>
                     <include>stdlib/**/*.repx</include>
                     <include>skin/**/*.skin</include>
+                    <include>themes/**/*.puml</include>
+                    <include>svg/**/*.css</include>
+                    <include>svg/**/*.js</include>
                 </includes>
             </resource>
         </resources>        
@@ -127,11 +155,16 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                    <debug>false</debug>
+                    <debug>true</debug>
                 </configuration>
             </plugin>
             <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+            <plugin>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -143,6 +176,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -150,21 +184,39 @@
                             <goal>jar</goal>
                         </goals>
 			            <configuration>
-							<additionalparam>${javadoc.opts}</additionalparam>
+						  <javadoc.opts>-Xdoclint:none</javadoc.opts>
+						  <additionalparam>-Xdoclint:none</additionalparam>
+						  <doclint>none</doclint>
 			            </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifest>
                             <mainClass>net.sourceforge.plantuml.Run</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Automatic-Module-Name>net.sourceforge.plantuml</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<environmentVariables>
+						<PLANTUML_SECURITY_PROFILE>UNSECURE</PLANTUML_SECURITY_PROFILE>
+					</environmentVariables>
+					<systemPropertyVariables>
+						<java.awt.headless>true</java.awt.headless>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.1</version>

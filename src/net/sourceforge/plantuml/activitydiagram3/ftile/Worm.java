@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Direction;
 import net.sourceforge.plantuml.cucadiagram.LinkStyle;
@@ -62,16 +63,22 @@ public class Worm implements Iterable<Point2D.Double> {
 
 	private boolean ignoreForCompression;
 
+	public Worm cloneEmpty() {
+		final Worm result = new Worm();
+		result.ignoreForCompression = this.ignoreForCompression;
+		return result;
+	}
+
 	public final void setIgnoreForCompression() {
+		if (points.size() > 0) {
+			throw new IllegalStateException();
+		}
 		this.ignoreForCompression = true;
 	}
 
 	public void drawInternalOneColor(UPolygon startDecoration, UGraphic ug, HtmlColorAndStyle colorAndStyle,
 			double stroke, Direction emphasizeDirection, UPolygon endDecoration) {
-		final HColor arrowColor = colorAndStyle.getArrowColor();
-		if (arrowColor == null) {
-			throw new IllegalArgumentException();
-		}
+		final HColor arrowColor = Objects.requireNonNull(colorAndStyle.getArrowColor());
 		final LinkStyle style = colorAndStyle.getStyle();
 		if (style.isInvisible()) {
 			return;

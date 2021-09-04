@@ -46,7 +46,7 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.posimo.Positionable;
 import net.sourceforge.plantuml.posimo.PositionableImpl;
@@ -82,7 +82,7 @@ public class TextBlockUtils {
 	}
 
 	public static TextBlock title(FontConfiguration font, Display stringsToDisplay, ISkinParam skinParam) {
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			throw new UnsupportedOperationException();
 		}
 		UStroke stroke = skinParam.getThickness(LineParam.titleBorder, null);
@@ -104,6 +104,9 @@ public class TextBlockUtils {
 	}
 
 	public static TextBlock withMargin(TextBlock textBlock, double marginX, double marginY) {
+		if (marginX == 0 && marginY == 0) {
+			return textBlock;
+		}
 		return new TextBlockMarged(textBlock, marginY, marginX, marginY, marginX);
 	}
 
@@ -129,6 +132,11 @@ public class TextBlockUtils {
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
 				return new Dimension2DDouble(width, height);
 			}
+
+			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+				return null;
+			}
+
 		};
 	}
 
@@ -160,6 +168,13 @@ public class TextBlockUtils {
 		return new TextBlockVertical2(b1, b2, horizontalAlignment);
 	}
 
+	public static TextBlock mergeTB(TextBlock b1, UImage image, HorizontalAlignment horizontalAlignment) {
+		if (b1 == EMPTY_TEXT_BLOCK) {
+			throw new IllegalArgumentException();
+		}
+		return new TextBlockVertical2(b1, image, horizontalAlignment);
+	}
+
 	// public static TextBlockBackcolored mergeColoredTB(TextBlockBackcolored b1,
 	// TextBlockBackcolored b2,
 	// HorizontalAlignment horizontalAlignment) {
@@ -182,14 +197,6 @@ public class TextBlockUtils {
 
 	public static FontRenderContext getFontRenderContext() {
 		return FileFormat.gg.getFontRenderContext();
-	}
-
-	public static LineMetrics getLineMetrics(UFont font, String text) {
-		return font.getLineMetrics(FileFormat.gg, text);
-	}
-
-	public static FontMetrics getFontMetrics(Font font) {
-		return FileFormat.gg.getFontMetrics(font);
 	}
 
 	public static TextBlock fullInnerPosition(final TextBlock bloc, final String display) {

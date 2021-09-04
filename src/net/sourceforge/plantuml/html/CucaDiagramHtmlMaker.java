@@ -46,7 +46,6 @@ import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
-import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.security.SFile;
 
@@ -137,9 +136,9 @@ public final class CucaDiagramHtmlMaker {
 		} else {
 			pw.println("<h2>Fields:</h2>");
 			pw.println("<ul>");
-			for (Member m : entity.getBodier().getFieldsToDisplay()) {
+			for (CharSequence m : entity.getBodier().getFieldsToDisplay()) {
 				pw.println("<li>");
-				pw.println(StringUtils.unicodeForHtml(m.getDisplay(true)));
+				pw.println(StringUtils.unicodeForHtml(m.toString()));
 				pw.println("</li>");
 			}
 			pw.println("</ul>");
@@ -151,9 +150,9 @@ public final class CucaDiagramHtmlMaker {
 		} else {
 			pw.println("<h2>Methods:</h2>");
 			pw.println("<ul>");
-			for (Member m : entity.getBodier().getMethodsToDisplay()) {
+			for (CharSequence m : entity.getBodier().getMethodsToDisplay()) {
 				pw.println("<li>");
-				pw.println(StringUtils.unicodeForHtml(m.getDisplay(true)));
+				pw.println(StringUtils.unicodeForHtml(m.toString()));
 				pw.println("</li>");
 			}
 			pw.println("</ul>");
@@ -202,7 +201,7 @@ public final class CucaDiagramHtmlMaker {
 	}
 
 	private Collection<IEntity> getNotes(IEntity ent) {
-		final List<IEntity> result = new ArrayList<IEntity>();
+		final List<IEntity> result = new ArrayList<>();
 		for (Link link : diagram.getLinks()) {
 			if (link.contains(ent) == false) {
 				continue;
@@ -215,7 +214,7 @@ public final class CucaDiagramHtmlMaker {
 	}
 
 	private Collection<Link> getLinksButNotes(IEntity ent) {
-		final List<Link> result = new ArrayList<Link>();
+		final List<Link> result = new ArrayList<>();
 		for (Link link : diagram.getLinks()) {
 			if (link.contains(ent) == false) {
 				continue;

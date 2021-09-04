@@ -42,36 +42,64 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.BackSlash;
 import net.sourceforge.plantuml.ErrorUml;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.FileImageData;
 import net.sourceforge.plantuml.LineLocation;
+import net.sourceforge.plantuml.PlainDiagram;
+import net.sourceforge.plantuml.SpriteContainerEmpty;
 import net.sourceforge.plantuml.StringLocated;
-import net.sourceforge.plantuml.api.ImageDataAbstract;
 import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.asciiart.UmlCharArea;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.flashcode.FlashCodeFactory;
+import net.sourceforge.plantuml.flashcode.FlashCodeUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockRaw;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.UDrawable;
+import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.security.SecurityUtils;
+import net.sourceforge.plantuml.svek.GraphvizCrash;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
+import net.sourceforge.plantuml.ugraphic.AffineTransformType;
 import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.MinMax;
+import net.sourceforge.plantuml.ugraphic.PixelImage;
+import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UImage;
+import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
+import net.sourceforge.plantuml.version.LicenseInfo;
+import net.sourceforge.plantuml.version.PSystemVersion;
+import net.sourceforge.plantuml.version.Version;
 
-public abstract class PSystemError extends AbstractPSystem {
+public abstract class PSystemError extends PlainDiagram {
 
 	protected List<StringLocated> trace;
 	protected ErrorUml singleError;
+
+	public PSystemError(UmlSource source) {
+		super(source);
+	}
+
+	@Override
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return super.createImageBuilder(fileFormatOption).blackBackcolor().randomPixel().status(FileImageData.ERROR);
+	}
 
 	final protected StringLocated getLastLine() {
 		return trace.get(trace.size() - 1);
@@ -83,6 +111,10 @@ public abstract class PSystemError extends AbstractPSystem {
 
 	final public Collection<ErrorUml> getErrorsUml() {
 		return Collections.singleton(singleError);
+	}
+
+	final public ErrorUml getFirstError() {
+		return singleError;
 	}
 
 	final public String getWarningOrError() {
@@ -101,6 +133,7 @@ public abstract class PSystemError extends AbstractPSystem {
 		final FontConfiguration fc0 = GraphicStrings.sansSerif14(HColorUtils.BLACK).bold();
 		final FontConfiguration fc1 = GraphicStrings.sansSerif14(HColorUtils.MY_GREEN).bold();
 		final FontConfiguration fc2 = GraphicStrings.sansSerif14(HColorUtils.RED).bold();
+		final FontConfiguration fc4 = GraphicStrings.sansSerif12(HColorUtils.MY_GREEN).bold().italic();
 
 		final List<String> fullBody = getTextFullBody();
 		final TextBlock result0 = TextBlockUtils.addBackcolor(
@@ -108,15 +141,24 @@ public abstract class PSystemError extends AbstractPSystem {
 		final TextBlock result1 = new TextBlockRaw(allButLast(fullBody), fc1);
 		final TextBlock result2 = new TextBlockRaw(onlyLast(fullBody), fc1.wave(HColorUtils.RED));
 		final TextBlock result3 = new TextBlockRaw(getTextError(), fc2);
+		final TextBlock result4 = TextBlockUtils.withMargin(new TextBlockRaw(header(), fc4), 0, 2, 0, 8);
 		TextBlock result = result0;
 		result = TextBlockUtils.mergeTB(result, result1, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.mergeTB(result, result2, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.mergeTB(result, result3, HorizontalAlignment.LEFT);
+		result = TextBlockUtils.mergeTB(result4, result, HorizontalAlignment.LEFT);
 		result = TextBlockUtils.withMargin(result, 5, 5);
 		return TextBlockUtils.addBackcolor(result, HColorUtils.BLACK);
 	}
 
-	private List<String> getPureAsciiFormatted() {
+	private List<String> header() {
+		final List<String> result = new ArrayList<>();
+		result.add("PlantUML " + Version.versionString());
+		GraphvizCrash.checkOldVersionWarning(result);
+		return result;
+	}
+
+	public List<String> getPureAsciiFormatted() {
 		final List<String> result = getTextFromStack();
 		result.addAll(getTextFullBody());
 		result.add("^^^^^");
@@ -126,7 +168,7 @@ public abstract class PSystemError extends AbstractPSystem {
 
 	private List<String> getTextFromStack() {
 		LineLocation lineLocation = getLineLocation();
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		if (lineLocation != null) {
 			append(result, lineLocation);
 			while (lineLocation.getParent() != null) {
@@ -137,8 +179,8 @@ public abstract class PSystemError extends AbstractPSystem {
 		return result;
 	}
 
-	private List<String> getTextFullBody() {
-		final List<String> result = new ArrayList<String>();
+	protected List<String> getTextFullBody() {
+		final List<String> result = new ArrayList<>();
 		result.add(" ");
 		final int traceSize = trace.size();
 		if (traceSize > 40) {
@@ -173,27 +215,26 @@ public abstract class PSystemError extends AbstractPSystem {
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat)
 			throws IOException {
 		if (fileFormat.getFileFormat() == FileFormat.ATXT || fileFormat.getFileFormat() == FileFormat.UTXT) {
 			final UGraphicTxt ugt = new UGraphicTxt();
 			final UmlCharArea area = ugt.getCharArea();
-			area.drawStringsLR(getPureAsciiFormatted(), 0, 0);
+			area.drawStringsLRSimple(getPureAsciiFormatted(), 0, 0);
 			area.print(SecurityUtils.createPrintStream(os));
 			return new ImageDataSimple(1, 1);
 
 		}
+		return super.exportDiagramNow(os, num, fileFormat);
+	}
+
+	@Override
+	protected UDrawable getRootDrawable(FileFormatOption fileFormatOption) throws IOException {
 		final TextBlockBackcolored result = getGraphicalFormatted();
 
-		TextBlock udrawable;
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, getMetadata(),
-				null, 1.0, result.getBackcolor());
-		udrawable = result;
-
-		imageBuilder.setUDrawable(udrawable);
-		final ImageData imageData = imageBuilder.writeImageTOBEMOVED(fileFormat, seed(), os);
-		((ImageDataAbstract) imageData).setStatus(FileImageData.ERROR);
-		return imageData;
+		TextBlock udrawable = result;
+		
+		return udrawable;
 	}
 
 	private void append(List<String> result, LineLocation lineLocation) {

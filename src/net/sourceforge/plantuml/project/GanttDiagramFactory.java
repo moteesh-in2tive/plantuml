@@ -40,36 +40,43 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandNope;
-import net.sourceforge.plantuml.command.CommandScale;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.project.command.CommandColorTask;
+import net.sourceforge.plantuml.project.command.CommandFootbox;
 import net.sourceforge.plantuml.project.command.CommandGanttArrow;
 import net.sourceforge.plantuml.project.command.CommandGanttArrow2;
+import net.sourceforge.plantuml.project.command.CommandLabelOnColumn;
+import net.sourceforge.plantuml.project.command.CommandLanguage;
+import net.sourceforge.plantuml.project.command.CommandNoteBottom;
 import net.sourceforge.plantuml.project.command.CommandPage;
 import net.sourceforge.plantuml.project.command.CommandPrintBetween;
 import net.sourceforge.plantuml.project.command.CommandPrintScale;
 import net.sourceforge.plantuml.project.command.CommandSeparator;
+import net.sourceforge.plantuml.project.command.CommandWeekNumberStrategy;
 import net.sourceforge.plantuml.project.command.NaturalCommand;
-import net.sourceforge.plantuml.project.command.NaturalCommandAnd;
-import net.sourceforge.plantuml.project.command.NaturalCommandAndAnd;
-import net.sourceforge.plantuml.project.lang.ComplementPattern;
+import net.sourceforge.plantuml.project.lang.SentenceAnd;
+import net.sourceforge.plantuml.project.lang.SentenceAndAnd;
+import net.sourceforge.plantuml.project.lang.SentenceSimple;
+import net.sourceforge.plantuml.project.lang.Subject;
 import net.sourceforge.plantuml.project.lang.SubjectDayAsDate;
 import net.sourceforge.plantuml.project.lang.SubjectDayOfWeek;
 import net.sourceforge.plantuml.project.lang.SubjectDaysAsDates;
-import net.sourceforge.plantuml.project.lang.SubjectPattern;
 import net.sourceforge.plantuml.project.lang.SubjectProject;
 import net.sourceforge.plantuml.project.lang.SubjectResource;
 import net.sourceforge.plantuml.project.lang.SubjectTask;
 import net.sourceforge.plantuml.project.lang.SubjectToday;
-import net.sourceforge.plantuml.project.lang.VerbPattern;
+import net.sourceforge.plantuml.style.CommandStyleImport;
+import net.sourceforge.plantuml.style.CommandStyleMultilinesCSS;
 
-public class GanttDiagramFactory extends UmlDiagramFactory {
+public class GanttDiagramFactory extends PSystemCommandFactory {
 
-	static private final List<SubjectPattern> subjects() {
-		return Arrays.<SubjectPattern>asList(new SubjectTask(), new SubjectProject(), new SubjectDayOfWeek(),
+	static private final List<Subject> subjects() {
+		return Arrays.<Subject>asList(new SubjectTask(), new SubjectProject(), new SubjectDayOfWeek(),
 				new SubjectDayAsDate(), new SubjectDaysAsDates(), new SubjectResource(), new SubjectToday());
 	}
 
@@ -79,8 +86,13 @@ public class GanttDiagramFactory extends UmlDiagramFactory {
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		addTitleCommands(cmds);
+		addCommonCommands2(cmds);
+
+		cmds.add(new CommandStyleMultilinesCSS());
+		cmds.add(new CommandStyleImport());
+
 		// addCommonCommands(cmds);
 		cmds.add(new CommandNope());
 		// cmds.add(new CommandComment());
@@ -90,11 +102,16 @@ public class GanttDiagramFactory extends UmlDiagramFactory {
 		cmds.add(new CommandGanttArrow2());
 		cmds.add(new CommandColorTask());
 		cmds.add(new CommandSeparator());
+		cmds.add(new CommandWeekNumberStrategy());
 
+		cmds.add(new CommandLanguage());
 		cmds.add(new CommandPrintScale());
 		cmds.add(new CommandPrintBetween());
-		cmds.add(new CommandScale());
 		cmds.add(new CommandPage());
+		cmds.add(new CommandNoteBottom());
+		cmds.add(new CommandFootbox());
+		cmds.add(new CommandLabelOnColumn());
+
 		// cmds.add(new CommandScaleWidthAndHeight());
 		// cmds.add(new CommandScaleWidthOrHeight());
 		// cmds.add(new CommandScaleMaxWidth());
@@ -104,49 +121,37 @@ public class GanttDiagramFactory extends UmlDiagramFactory {
 		return cmds;
 	}
 
-	static private final Collection<Command> cache = new ArrayList<Command>();
+	static private final Collection<Command> cache = new ArrayList<>();
+
+	public static void clearCache() {
+		cache.clear();
+	}
 
 	private static Collection<Command> getLanguageCommands() {
+		// Useless synchronized now
 		synchronized (cache) {
 			if (cache.size() == 0) {
-				for (SubjectPattern subject : subjects()) {
-					for (VerbPattern verb : subject.getVerbs()) {
-						for (ComplementPattern complement : verb.getComplements()) {
-							cache.add(NaturalCommand.create(subject, verb, complement));
+
+				for (Subject subject : subjects()) {
+					for (SentenceSimple sentenceA : subject.getSentences()) {
+						cache.add(NaturalCommand.create(sentenceA));
+						for (SentenceSimple sentenceB : subject.getSentences()) {
+							if (sentenceA.getVerbPattern().equals(sentenceB.getVerbPattern()) == false) {
+								cache.add(NaturalCommand.create(new SentenceAnd(sentenceA, sentenceB)));
+							}
 						}
 					}
 				}
-				for (SubjectPattern subject : subjects()) {
-					final Collection<VerbPattern> verbs = subject.getVerbs();
-					for (VerbPattern verb1 : verbs) {
-						for (VerbPattern verb2 : verbs) {
-							if (verb1 == verb2) {
-								continue;
-							}
-							for (ComplementPattern complement1 : verb1.getComplements()) {
-								for (ComplementPattern complement2 : verb2.getComplements()) {
+
+				for (Subject subject : subjects()) {
+					for (SentenceSimple sentenceA : subject.getSentences()) {
+						for (SentenceSimple sentenceB : subject.getSentences()) {
+							for (SentenceSimple sentenceC : subject.getSentences()) {
+								if (sentenceA.getVerbPattern().equals(sentenceB.getVerbPattern()) == false
+										&& sentenceA.getVerbPattern().equals(sentenceC.getVerbPattern()) == false
+										&& sentenceC.getVerbPattern().equals(sentenceB.getVerbPattern()) == false) {
 									cache.add(
-											NaturalCommandAnd.create(subject, verb1, complement1, verb2, complement2));
-								}
-							}
-						}
-					}
-				}
-				for (SubjectPattern subject : subjects()) {
-					final Collection<VerbPattern> verbs = subject.getVerbs();
-					for (VerbPattern verb1 : verbs) {
-						for (VerbPattern verb2 : verbs) {
-							for (VerbPattern verb3 : verbs) {
-								if (verb1 == verb2 || verb1 == verb3 || verb2 == verb3) {
-									continue;
-								}
-								for (ComplementPattern complement1 : verb1.getComplements()) {
-									for (ComplementPattern complement2 : verb2.getComplements()) {
-										for (ComplementPattern complement3 : verb3.getComplements()) {
-											cache.add(NaturalCommandAndAnd.create(subject, verb1, complement1, verb2,
-													complement2, verb3, complement3));
-										}
-									}
+											NaturalCommand.create(new SentenceAndAnd(sentenceA, sentenceB, sentenceC)));
 								}
 							}
 						}
@@ -158,8 +163,8 @@ public class GanttDiagramFactory extends UmlDiagramFactory {
 	}
 
 	@Override
-	public GanttDiagram createEmptyDiagram() {
-		return new GanttDiagram();
+	public GanttDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new GanttDiagram(source);
 	}
 
 }

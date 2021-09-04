@@ -58,7 +58,7 @@ public class GeneratedImageImpl implements GeneratedImage {
 	}
 
 	public File getPngFile() {
-		return pngFile.internal;
+		return pngFile.conv();
 	}
 
 	public String getDescription() {

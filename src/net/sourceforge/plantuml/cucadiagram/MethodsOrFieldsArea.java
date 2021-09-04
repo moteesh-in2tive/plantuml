@@ -34,14 +34,12 @@ package net.sourceforge.plantuml.cucadiagram;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.EmbeddedDiagram;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -52,25 +50,23 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockLineBefore;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.graphic.TextBlockWidth;
 import net.sourceforge.plantuml.graphic.TextBlockWithUrl;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.skin.rose.Rose;
-import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.Ports;
 import net.sourceforge.plantuml.svek.WithPorts;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategy;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyVisibility;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Center;
 import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Left;
+import net.sourceforge.plantuml.ugraphic.PlacementStrategyY1Y2Right;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULayoutGroup;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.CharHidder;
 
-public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockWidth, TextBlock, WithPorts {
+public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlock, WithPorts {
 
 	public TextBlock asBlockMemberImpl() {
 		return new TextBlockLineBefore(TextBlockUtils.withMargin(this, 6, 4));
@@ -78,38 +74,37 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 
 	private final FontParam fontParam;
 	private final ISkinParam skinParam;
-//	private final HColor color;
-//	private final HColor hyperlinkColor;
-//	private final boolean useUnderlineForHyperlink;
 	private final Rose rose = new Rose();
-	private final List<Member> members = new ArrayList<Member>();
+	private final Display members;
 	private final HorizontalAlignment align;
 	private final Stereotype stereotype;
 	private final ILeaf leaf;
+	private final Style style;
 
-	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam, Stereotype stereotype,
-			ILeaf leaf) {
-		this(members, fontParam, skinParam, HorizontalAlignment.LEFT, stereotype, leaf);
+	public MethodsOrFieldsArea(Display members, FontParam fontParam, ISkinParam skinParam, Stereotype stereotype,
+			ILeaf leaf, Style style) {
+		this(members, fontParam, skinParam, HorizontalAlignment.LEFT, stereotype, leaf, style);
 	}
 
-	public MethodsOrFieldsArea(List<Member> members, FontParam fontParam, ISkinParam skinParam,
-			HorizontalAlignment align, Stereotype stereotype, ILeaf leaf) {
+	public MethodsOrFieldsArea(Display members, FontParam fontParam, ISkinParam skinParam, HorizontalAlignment align,
+			Stereotype stereotype, ILeaf leaf, Style style) {
+		this.style = style;
 		this.leaf = leaf;
 		this.stereotype = stereotype;
 		this.align = align;
 		this.skinParam = skinParam;
 		this.fontParam = fontParam;
-//		this.color = rose.getFontColor(skinParam, fontParam);
-//		this.hyperlinkColor = skinParam.getHyperlinkColor();
-//		this.useUnderlineForHyperlink = skinParam.useUnderlineForHyperlink();
-		this.members.addAll(members);
+		this.members = members;
 	}
 
 	private boolean hasSmallIcon() {
 		if (skinParam.classAttributeIconSize() == 0) {
 			return false;
 		}
-		for (Member m : members) {
+		for (CharSequence cs : members) {
+			if (cs instanceof Member == false)
+				continue;
+			final Member m = (Member) cs;
 			if (m.getVisibilityModifier() != null) {
 				return true;
 			}
@@ -124,8 +119,8 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		}
 		double x = 0;
 		double y = 0;
-		for (Member m : members) {
-			final TextBlock bloc = createTextBlock(m);
+		for (CharSequence cs : members) {
+			final TextBlock bloc = createTextBlock(cs);
 			final Dimension2D dim = bloc.calculateDimension(stringBounder);
 			x = Math.max(dim.getWidth(), x);
 			y += dim.getHeight();
@@ -138,14 +133,19 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		final Ports result = new Ports();
 		double y = 0;
 		final Election election = new Election();
-		for (Member m : members) {
-			election.addCandidate(m.getDisplay(false), m);
+		for (CharSequence cs : members) {
+			if (cs instanceof Member) {
+				final Member m = (Member) cs;
+				election.addCandidate(m.getDisplay(false), m);
+			} else {
+				election.addCandidate(cs.toString(), cs);
+			}
 		}
-		final Map<Member, String> memberWithPort = election.getAllElected(leaf.getPortShortNames());
-		for (Member m : members) {
-			final TextBlock bloc = createTextBlock(m);
+		final Map<CharSequence, String> memberWithPort = election.getAllElected(leaf.getPortShortNames());
+		for (CharSequence cs : members) {
+			final TextBlock bloc = createTextBlock(cs);
 			final Dimension2D dim = bloc.calculateDimension(stringBounder);
-			final String port = memberWithPort.get(m);
+			final String port = memberWithPort.get(cs);
 			if (port != null) {
 				result.add(port, y, dim.getHeight());
 			}
@@ -154,31 +154,42 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		return result;
 	}
 
-	private TextBlock createTextBlock(Member m) {
-		final boolean withVisibilityChar = skinParam.classAttributeIconSize() == 0;
-		String s = m.getDisplay(withVisibilityChar);
-		if (withVisibilityChar && s.startsWith("#")) {
-			s = CharHidder.addTileAtBegin(s);
-		}
+	private TextBlock createTextBlock(CharSequence cs) {
+
 		FontConfiguration config;
-		if (SkinParam.USE_STYLES()) {
-			final Style style = StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component)
-					.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			config = new FontConfiguration(style, skinParam, stereotype, fontParam);
+		if (style != null) {
+			config = new FontConfiguration(skinParam, style);
 		} else {
 			config = new FontConfiguration(skinParam, fontParam, stereotype);
 		}
-		if (m.isAbstract()) {
-			config = config.italic();
-		}
-		if (m.isStatic()) {
-			config = config.underline();
+
+		if (cs instanceof Member) {
+			final Member m = (Member) cs;
+			final boolean withVisibilityChar = skinParam.classAttributeIconSize() == 0;
+			String s = m.getDisplay(withVisibilityChar);
+			if (withVisibilityChar && s.startsWith("#")) {
+				s = CharHidder.addTileAtBegin(s);
+			}
+			if (m.isAbstract()) {
+				config = config.italic();
+			}
+			if (m.isStatic()) {
+				config = config.underline();
+			}
+
+			TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
+					skinParam.wrapWidth());
+			bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
+			return new TextBlockTracer(m, bloc);
 		}
 
-		TextBlock bloc = Display.getWithNewlines(s).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
+		if (cs instanceof EmbeddedDiagram) {
+			return ((EmbeddedDiagram) cs).asDraw(skinParam);
+		}
+
+		return Display.getWithNewlines(cs.toString()).create8(config, align, skinParam, CreoleMode.SIMPLE_LINE,
 				skinParam.wrapWidth());
-		bloc = TextBlockUtils.fullInnerPosition(bloc, m.getDisplay(false));
-		return new TextBlockTracer(m, bloc);
+
 	}
 
 	static class TextBlockTracer extends AbstractTextBlock implements TextBlock {
@@ -239,12 +250,9 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		return TextBlockWithUrl.withUrl(uBlock, url);
 	}
 
-	public TextBlock asTextBlock(final double widthToUse) {
-		return this;
-	}
-
 	public boolean contains(String member) {
-		for (Member att : members) {
+		for (CharSequence cs : members) {
+			final Member att = (Member) cs;
 			if (att.getDisplay(false).startsWith(member)) {
 				return true;
 			}
@@ -264,10 +272,15 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 		if (hasSmallIcon()) {
 			group = new ULayoutGroup(
 					new PlacementStrategyVisibility(stringBounder, skinParam.getCircledCharacterRadius() + 3));
-			for (Member att : members) {
-				final TextBlock bloc = createTextBlock(att);
-				final VisibilityModifier modifier = att.getVisibilityModifier();
-				group.add(getUBlock(modifier, att.getUrl()));
+			for (CharSequence cs : members) {
+				final TextBlock bloc = createTextBlock(cs);
+				if (cs instanceof EmbeddedDiagram) {
+					group.add(getUBlock(null, null));
+				} else {
+					final Member att = (Member) cs;
+					final VisibilityModifier modifier = att.getVisibilityModifier();
+					group.add(getUBlock(modifier, att.getUrl()));
+				}
 				group.add(bloc);
 			}
 		} else {
@@ -277,11 +290,11 @@ public class MethodsOrFieldsArea extends AbstractTextBlock implements TextBlockW
 			} else if (align == HorizontalAlignment.CENTER) {
 				placementStrategy = new PlacementStrategyY1Y2Center(stringBounder);
 			} else {
-				placementStrategy = new PlacementStrategyY1Y2Left(stringBounder);
+				placementStrategy = new PlacementStrategyY1Y2Right(stringBounder);
 			}
 			group = new ULayoutGroup(placementStrategy);
-			for (Member att : members) {
-				final TextBlock bloc = createTextBlock(att);
+			for (CharSequence cs : members) {
+				final TextBlock bloc = createTextBlock(cs);
 				group.add(bloc);
 			}
 		}

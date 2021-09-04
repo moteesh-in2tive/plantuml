@@ -40,16 +40,12 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Direction;
-import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamColors;
-import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileBox;
+import net.sourceforge.plantuml.activitydiagram3.ftile.vertical.FtileBoxOld;
+import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.graphic.FontConfiguration;
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
@@ -61,7 +57,6 @@ import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.style.StyleSignature;
-import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -84,13 +79,22 @@ public class FingerImpl implements Finger, UDrawable {
 	private double marginTop = 10;
 	private double marginBottom = 10;
 
-	private final List<FingerImpl> nail = new ArrayList<FingerImpl>();
+	private final List<FingerImpl> nail = new ArrayList<>();
 	private Tetris tetris = null;
 
 	private StyleSignature getDefaultStyleDefinitionNode() {
 		final String depth = SName.depth(level);
 		if (level == 0) {
 			return StyleSignature.of(SName.root, SName.element, SName.mindmapDiagram, SName.node, SName.rootNode)
+					.add(stereotype).add(depth);
+		}
+		if (shape == IdeaShape.NONE && nail.size() == 0) {
+			return StyleSignature
+					.of(SName.root, SName.element, SName.mindmapDiagram, SName.node, SName.leafNode, SName.boxless)
+					.add(stereotype).add(depth);
+		}
+		if (shape == IdeaShape.NONE) {
+			return StyleSignature.of(SName.root, SName.element, SName.mindmapDiagram, SName.node, SName.boxless)
 					.add(stereotype).add(depth);
 		}
 		if (nail.size() == 0) {
@@ -163,21 +167,13 @@ public class FingerImpl implements Finger, UDrawable {
 	}
 
 	private HColor getLinkColor() {
-		if (SkinParam.USE_STYLES()) {
-			final Style styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(styleBuilder);
-			return styleArrow.value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
-
-		}
-		return ColorParam.activityBorder.getDefaultValue();
+		final Style styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(styleBuilder);
+		return styleArrow.value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 	}
 
 	private UStroke getUStroke() {
-		if (SkinParam.USE_STYLES()) {
-			final Style styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(styleBuilder);
-			return styleArrow.getStroke();
-
-		}
-		return new UStroke();
+		final Style styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(styleBuilder);
+		return styleArrow.getStroke();
 	}
 
 	private void drawLine(UGraphic ug, Point2D p1, Point2D p2) {
@@ -239,22 +235,17 @@ public class FingerImpl implements Finger, UDrawable {
 		if (drawPhalanx == false) {
 			return TextBlockUtils.empty(0, 0);
 		}
-		final UFont font;
-		if (SkinParam.USE_STYLES()) {
-			final Style styleNode = getDefaultStyleDefinitionNode().getMergedStyle(styleBuilder);
-			font = styleNode.getUFont();
-		} else {
-			font = skinParam.getFont(null, false, FontParam.ACTIVITY);
-		}
 		if (shape == IdeaShape.BOX) {
-			// final ISkinParam foo = new
-			// SkinParamBackcolored(Colors.empty().mute(skinParam), backColor);
 			final ISkinParam foo = new SkinParamColors(skinParam, Colors.empty().add(ColorType.BACK, backColor));
-			final FtileBox box = FtileBox.createMindMap(styleBuilder, foo, label, getDefaultStyleDefinitionNode());
+			final TextBlock box = FtileBoxOld.createMindMap(styleBuilder, foo, label, getDefaultStyleDefinitionNode());
 			return TextBlockUtils.withMargin(box, 0, 0, marginTop, marginBottom);
 		}
 
-		final TextBlock text = label.create(FontConfiguration.blackBlueTrue(font), HorizontalAlignment.LEFT, skinParam);
+		assert shape == IdeaShape.NONE;
+		final Style styleNode = getDefaultStyleDefinitionNode().getMergedStyle(styleBuilder);
+		final TextBlock text = label.create0(
+				styleNode.getFontConfiguration(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet()),
+				styleNode.getHorizontalAlignment(), skinParam, styleNode.wrapWidth(), CreoleMode.FULL, null, null);
 		if (direction == Direction.RIGHT) {
 			return TextBlockUtils.withMargin(text, 3, 0, 1, 1);
 		}

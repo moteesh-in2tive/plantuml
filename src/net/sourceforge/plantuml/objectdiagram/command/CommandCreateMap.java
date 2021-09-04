@@ -60,6 +60,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDiagram> {
 
@@ -71,7 +72,7 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 		return RegexConcat.build(CommandCreateMap.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("TYPE", "map"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("NAME", "(?:[%g]([^%g]+)[%g][%s]+as[%s]+)?([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("NAME", "(?:[%g]([^%g]+)[%g][%s]+as[%s]+)?([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -85,11 +86,12 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^[%s]*\\}[%s]*$";
+		return "^[%s]*\\}[%s]*$";
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(AbstractClassOrObjectDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(AbstractClassOrObjectDiagram diagram, BlocLines lines)
+			throws NoSuchColorException {
 		lines = lines.trim().removeEmptyLines();
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final IEntity entity1 = executeArg0(diagram, line0);
@@ -108,6 +110,9 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 				final String dest = line.substring(x + linkStr.length()).trim();
 				final Ident ident2 = diagram.buildLeafIdentSpecial(dest);
 				final ILeaf entity2 = diagram.getEntityFactory().getLeafStrict(ident2);
+				if (entity2 == null) {
+					return CommandExecutionResult.error("No such entity " + ident2.getName());
+				}
 				final LinkType linkType = new LinkType(LinkDecor.ARROW, LinkDecor.NONE);
 				final int length = linkStr.length() - 2;
 				final Link link = new Link(entity1, entity2, linkType, Display.NULL, length,
@@ -119,7 +124,7 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 		return CommandExecutionResult.ok();
 	}
 
-	private IEntity executeArg0(AbstractClassOrObjectDiagram diagram, RegexResult line0) {
+	private IEntity executeArg0(AbstractClassOrObjectDiagram diagram, RegexResult line0) throws NoSuchColorException {
 		final String name = line0.get("NAME", 1);
 		final Ident ident = diagram.buildLeafIdent(name);
 		final Code code = diagram.V1972() ? ident : diagram.buildCode(name);
@@ -135,8 +140,9 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
 					diagram.getSkinParam().getIHtmlColorSet()));
 		}
-		entity.setSpecificColorTOBEREMOVED(ColorType.BACK,
-				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR", 0)));
+		final String s = line0.get("COLOR", 0);
+		entity.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		return entity;
 	}
 

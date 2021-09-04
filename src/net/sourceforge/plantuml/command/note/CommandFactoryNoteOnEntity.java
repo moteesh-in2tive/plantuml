@@ -66,6 +66,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryCommand<AbstractEntityDiagram> {
@@ -162,7 +163,7 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 
 			@Override
 			protected CommandExecutionResult executeArg(final AbstractEntityDiagram system, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				final String s = arg.get("NOTE", 0);
 				return executeInternal(arg, system, null, BlocLines.getWithNewlines(s));
 			}
@@ -176,12 +177,13 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 			@Override
 			public String getPatternEnd() {
 				if (withBracket) {
-					return "(?i)^(\\})$";
+					return "^(\\})$";
 				}
-				return "(?i)^[%s]*(end[%s]?note)$";
+				return "^[%s]*(end[%s]?note)$";
 			}
 
-			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final AbstractEntityDiagram system, BlocLines lines)
+					throws NoSuchColorException {
 				// StringUtils.trim(lines, false);
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
@@ -200,7 +202,7 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 	}
 
 	private CommandExecutionResult executeInternal(RegexResult line0, AbstractEntityDiagram diagram, Url url,
-			BlocLines strings) {
+			BlocLines strings) throws NoSuchColorException {
 
 		final String pos = line0.get("POSITION", 0);
 
@@ -232,7 +234,8 @@ public final class CommandFactoryNoteOnEntity implements SingleMultiFactoryComma
 		else
 			note = diagram.createLeaf(idNewLong, diagram.buildCode(tmp), strings.toDisplay(), LeafType.NOTE, null);
 
-		Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
 
 		final String stereotypeString = line0.get("STEREO", 0);
 		if (stereotypeString != null) {

@@ -32,14 +32,15 @@
  */
 package net.sourceforge.plantuml.sequencediagram;
 
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
 import net.sourceforge.plantuml.SpecificBackcolorable;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
@@ -73,7 +74,7 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 	}
 
 	public Style[] getUsedStyles() {
-		if (SkinParam.USE_STYLES() == false) {
+		if (UseStyle.useBetaStyle() == false) {
 			return null;
 		}
 		final StyleSignature signature = getDefaultStyleDefinition().with(stereotype);
@@ -86,24 +87,21 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 		return new Style[] { tmp, stereo };
 	}
 
-	public Participant(ParticipantType type, String code, Display display, Set<EntityPortion> hiddenPortions,
-			int order, StyleBuilder styleBuilder) {
+	public Participant(ParticipantType type, String code, Display display, Set<EntityPortion> hiddenPortions, int order,
+			StyleBuilder styleBuilder) {
 		this.hiddenPortions = hiddenPortions;
 		this.styleBuilder = styleBuilder;
 		this.order = order;
-		if (type == null) {
-			throw new IllegalArgumentException();
-		}
-		if (code == null || code.length() == 0) {
+		this.code = Objects.requireNonNull(code);
+		if (code.length() == 0) {
 			throw new IllegalArgumentException();
 		}
 		if (Display.isNull(display) || display.size() == 0) {
 			throw new IllegalArgumentException();
 		}
-		this.code = code;
-		this.type = type;
+		this.type = Objects.requireNonNull(type);
 		this.display = display;
-		// if (SkinParam.USE_STYLES()) {
+		// if (UseStyle.USE_STYLES()) {
 		// this.style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
 		// }
 	}
@@ -137,13 +135,10 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 		if (this.stereotype != null) {
 			throw new IllegalStateException();
 		}
-		if (stereotype == null) {
-			throw new IllegalArgumentException();
-		}
-		this.stereotype = stereotype;
+		this.stereotype = Objects.requireNonNull(stereotype);
 		this.stereotypePositionTop = stereotypePositionTop;
 
-		// if (SkinParam.USE_STYLES()) {
+		// if (UseStyle.USE_STYLES()) {
 		// for (Style style : stereotype.getStyles(styleBuilder)) {
 		// this.style = this.style.mergeWith(style);
 		// }
@@ -200,6 +195,7 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 	}
 
 	public SkinParamBackcolored getSkinParamBackcolored(ISkinParam skinParam) {
+		final ColorParam param = getColorParam();
 		HColor specificBackColor = getColors(skinParam).getColor(ColorType.BACK);
 		final boolean clickable = getUrl() != null;
 		final HColor stereoBackColor = skinParam.getHtmlColor(getBackgroundColorParam(), getStereotype(), clickable);
@@ -207,16 +203,36 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 			specificBackColor = stereoBackColor;
 		}
 		final SkinParamBackcolored result = new SkinParamBackcolored(skinParam, specificBackColor, clickable);
-		final HColor stereoBorderColor = skinParam.getHtmlColor(ColorParam.participantBorder, getStereotype(),
-				clickable);
+		final HColor stereoBorderColor = skinParam.getHtmlColor(param, getStereotype(), clickable);
 		if (stereoBorderColor != null) {
-			result.forceColor(ColorParam.participantBorder, stereoBorderColor);
+			result.forceColor(param, stereoBorderColor);
 		}
 		return result;
 	}
 
 	public int getOrder() {
 		return order;
+	}
+
+	private ColorParam getColorParam() {
+		if (getType() == ParticipantType.PARTICIPANT) {
+			return ColorParam.participantBorder;
+		} else if (getType() == ParticipantType.ACTOR) {
+			return ColorParam.actorBorder;
+		} else if (getType() == ParticipantType.BOUNDARY) {
+			return ColorParam.boundaryBorder;
+		} else if (getType() == ParticipantType.CONTROL) {
+			return ColorParam.controlBorder;
+		} else if (getType() == ParticipantType.ENTITY) {
+			return ColorParam.entityBorder;
+		} else if (getType() == ParticipantType.QUEUE) {
+			return ColorParam.queueBorder;
+		} else if (getType() == ParticipantType.DATABASE) {
+			return ColorParam.databaseBorder;
+		} else if (getType() == ParticipantType.COLLECTIONS) {
+			return ColorParam.collectionsBorder;
+		}
+		return ColorParam.participantBorder;
 	}
 
 }

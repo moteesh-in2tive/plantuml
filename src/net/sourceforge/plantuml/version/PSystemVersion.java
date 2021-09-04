@@ -7,7 +7,10 @@
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -31,59 +34,102 @@
  */
 package net.sourceforge.plantuml.version;
 
+import static net.sourceforge.plantuml.graphic.GraphicPosition.BACKGROUND_CORNER_BOTTOM_RIGHT;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
-import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.OptionPrint;
+import net.sourceforge.plantuml.PlainStringsDiagram;
 import net.sourceforge.plantuml.Run;
+import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
-import net.sourceforge.plantuml.graphic.GraphicPosition;
-import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.preproc.ImportedFiles;
+import net.sourceforge.plantuml.dedication.PSystemDedication;
 import net.sourceforge.plantuml.preproc.Stdlib;
 import net.sourceforge.plantuml.preproc2.PreprocessorUtils;
 import net.sourceforge.plantuml.security.ImageIO;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityProfile;
 import net.sourceforge.plantuml.security.SecurityUtils;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.svek.GraphvizCrash;
 
-public class PSystemVersion extends AbstractPSystem {
+public class PSystemVersion extends PlainStringsDiagram {
 
-	private final List<String> strings = new ArrayList<String>();
-	private BufferedImage image;
-
-	PSystemVersion(boolean withImage, List<String> args) {
+	PSystemVersion(UmlSource source, boolean withImage, List<String> args) {
+		super(source);
 		this.strings.addAll(args);
 		if (withImage) {
 			this.image = getPlantumlImage();
+			this.imagePosition = BACKGROUND_CORNER_BOTTOM_RIGHT;
 		}
+	}
+
+	private PSystemVersion(UmlSource source, List<String> args, BufferedImage image) {
+		super(source);
+		this.strings.addAll(args);
+		this.image = image;
+		this.imagePosition = BACKGROUND_CORNER_BOTTOM_RIGHT;
 	}
 
 	public static BufferedImage getPlantumlImage() {
 		return getImage("logo.png");
 	}
 
+	public static BufferedImage getCharlieImage() {
+		return getImage("charlie.png");
+	}
+
+	public static BufferedImage getTime01() {
+		return getImage("time01.png");
+	}
+
+	public static BufferedImage getTime15() {
+		return getImage("time15.png");
+	}
+
 	public static BufferedImage getPlantumlSmallIcon() {
 		return getImage("favicon.png");
+	}
+
+	public static BufferedImage getArecibo() {
+		return getImage("arecibo.png");
+	}
+
+	public static BufferedImage getDotc() {
+		return getImage("dotc.png");
+	}
+
+	public static BufferedImage getDotd() {
+		return getImage("dotd.png");
+	}
+
+	public static BufferedImage getApple2Image() {
+		return getImageWebp("apple2.png");
 	}
 
 	private static BufferedImage getImage(final String name) {
 		try {
 			final InputStream is = PSystemVersion.class.getResourceAsStream(name);
 			final BufferedImage image = ImageIO.read(is);
+			is.close();
+			return image;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+	}
+
+	private static BufferedImage getImageWebp(final String name) {
+		try {
+			final InputStream is = PSystemVersion.class.getResourceAsStream(name);
+			final BufferedImage image = PSystemDedication.getBufferedImage(is);
 			is.close();
 			return image;
 		} catch (IOException e) {
@@ -114,20 +160,11 @@ public class PSystemVersion extends AbstractPSystem {
 		return transparentIcon;
 	}
 
-	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final TextBlockBackcolored result = GraphicStrings.createBlackOnWhite(strings, image,
-				GraphicPosition.BACKGROUND_CORNER_BOTTOM_RIGHT);
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, getMetadata(),
-				null, 1.0, result.getBackcolor());
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
-	}
-
-	public static PSystemVersion createShowVersion() {
-		final List<String> strings = new ArrayList<String>();
+	public static PSystemVersion createShowVersion2(UmlSource source) {
+		final List<String> strings = new ArrayList<>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
+		strings.add("(" + License.getCurrent() + " source distribution)");
+		GraphvizCrash.checkOldVersionWarning(strings);
 		if (OptionFlags.ALLOW_INCLUDE) {
 			if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
 				strings.add("Loaded from " + Version.getJarPath());
@@ -152,28 +189,29 @@ public class PSystemVersion extends AbstractPSystem {
 		for (String v : OptionPrint.interestingValues()) {
 			strings.add(v);
 		}
-
-		return new PSystemVersion(true, strings);
+		
+		return new PSystemVersion(source, true, strings);
 	}
 
-	public static PSystemVersion createStdLib() {
-		final List<String> strings = new ArrayList<String>();
+	public static PSystemVersion createStdLib(UmlSource source) {
+		final List<String> strings = new ArrayList<>();
 		Stdlib.addInfoVersion(strings, true);
 		strings.add(" ");
 
-		return new PSystemVersion(true, strings);
+		return new PSystemVersion(source, true, strings);
 	}
 
-	public static PSystemVersion createShowAuthors() {
+	public static PSystemVersion createShowAuthors2(UmlSource source) {
 		// Duplicate in OptionPrint
 		final List<String> strings = getAuthorsStrings(true);
-		return new PSystemVersion(true, strings);
+		return new PSystemVersion(source, true, strings);
 	}
 
 	public static List<String> getAuthorsStrings(boolean withTag) {
-		final List<String> strings = new ArrayList<String>();
+		final List<String> strings = new ArrayList<>();
 		add(strings, "<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")",
 				withTag);
+		add(strings, "(" + License.getCurrent() + " source distribution)", withTag);
 		add(strings, " ", withTag);
 		add(strings, "<u>Original idea</u>: Arnaud Roques", withTag);
 		add(strings, "<u>Word Macro</u>: Alain Bertucat & Matthieu Sabatier", withTag);
@@ -189,7 +227,7 @@ public class PSystemVersion extends AbstractPSystem {
 		add(strings, "<u>Logo</u>: Benjamin Croizet", withTag);
 
 		add(strings, " ", withTag);
-		add(strings, "http://plantuml.com", withTag);
+		add(strings, "https://plantuml.com", withTag);
 		add(strings, " ", withTag);
 		return strings;
 	}
@@ -202,33 +240,49 @@ public class PSystemVersion extends AbstractPSystem {
 
 	}
 
-	public static PSystemVersion createTestDot() throws IOException {
-		final List<String> strings = new ArrayList<String>();
+	public static PSystemVersion createTestDot(UmlSource source) throws IOException {
+		final List<String> strings = new ArrayList<>();
 		strings.add(Version.fullDescription());
 		GraphvizUtils.addDotStatus(strings, true);
-		return new PSystemVersion(false, strings);
+		return new PSystemVersion(source, false, strings);
 	}
 
-	public static PSystemVersion createDumpStackTrace() throws IOException {
-		final List<String> strings = new ArrayList<String>();
-		final Throwable creationPoint = new Throwable();
-		creationPoint.fillInStackTrace();
-		for (StackTraceElement ste : creationPoint.getStackTrace()) {
-			strings.add(ste.toString());
+//	public static PSystemVersion createDumpStackTrace() throws IOException {
+//		final List<String> strings = new ArrayList<>();
+//		final Throwable creationPoint = new Throwable();
+//		creationPoint.fillInStackTrace();
+//		for (StackTraceElement ste : creationPoint.getStackTrace()) {
+//			strings.add(ste.toString());
+//		}
+//		return new PSystemVersion(false, strings);
+//	}
+
+	public static PSystemVersion createKeyDistributor(UmlSource source) throws IOException {
+		final LicenseInfo license = LicenseInfo.retrieveDistributor();
+		BufferedImage im = null;
+		final List<String> strings = new ArrayList<>();
+		if (license == null) {
+			strings.add("No license found");
+		} else {
+			strings.add(license.getOwner());
+			strings.add(license.getContext());
+			strings.add(license.getGenerationDate().toString());
+			strings.add(license.getExpirationDate().toString());
+			im = LicenseInfo.retrieveDistributorImage(license);
 		}
-		return new PSystemVersion(false, strings);
+		return new PSystemVersion(source, strings, im);
 	}
 
-	public static PSystemVersion createPath() throws IOException {
-		final List<String> strings = new ArrayList<String>();
-		strings.add("<u>Current Dir</u>: " + new SFile(".").getPrintablePath());
-		strings.add(" ");
-		strings.add("<u>Default path</u>:");
-		for (SFile f : ImportedFiles.createImportedFiles(null).getPath()) {
-			strings.add(f.getPrintablePath());
-		}
-		return new PSystemVersion(true, strings);
-	}
+//	public static PSystemVersion createPath(UmlSource source) throws IOException {
+//		final List<String> strings = new ArrayList<>();
+//		strings.add("<u>Current Dir</u>: " + new SFile(".").getPrintablePath());
+//		strings.add(" ");
+//		strings.add("<u>Default path</u>:");
+//		for (SFile f : ImportedFiles.createImportedFiles(null).getPath()) {
+//			strings.add(f.getPrintablePath());
+//		}
+//		return new PSystemVersion(source, true, strings);
+//	}
 
 	public DiagramDescription getDescription() {
 		return new DiagramDescription("(Version)");

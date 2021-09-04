@@ -54,9 +54,10 @@ import net.sourceforge.plantuml.stats.StatsUtils;
 
 public class Option {
 
-	private final List<String> excludes = new ArrayList<String>();
-	private final List<String> config = new ArrayList<String>();
+	private final List<String> excludes = new ArrayList<>();
+	private final List<String> config = new ArrayList<>();
 	private final Map<String, String> defines = new LinkedHashMap<String, String>();
+
 	private String charset;
 	private boolean computeurl = false;
 	private boolean decodeurl = false;
@@ -69,23 +70,27 @@ public class Option {
 	private OptionPreprocOutputMode preprocessorOutput = null;
 	private boolean failfast = false;
 	private boolean failfast2 = false;
-	private boolean pattern = false;
+	private boolean noerror = false;
+
 	private boolean duration = false;
 	private boolean debugsvek = false;
 	private boolean splash = false;
 	private boolean textProgressBar = false;
 	private int nbThreads = 0;
 	private int ftpPort = -1;
+	private String picowebBindAddress = null;
+	private int picowebPort = -1;
 	private boolean hideMetadata = false;
 	private boolean checkMetadata = false;
 	private int stdrpt = 0;
 	private int imageIndex = 0;
+	private String fileDir;
 
 	private File outputDir = null;
 	private File outputFile = null;
 	private String filename;
 
-	private final List<String> result = new ArrayList<String>();
+	private final List<String> result = new ArrayList<>();
 
 	public Option() {
 	}
@@ -183,11 +188,15 @@ public class Option {
 					continue;
 				}
 				filename = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg[i]);
+			} else if (s.equalsIgnoreCase("-filedir")) {
+				i++;
+				if (i == arg.length) {
+					continue;
+				}
+				fileDir = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg[i]);
 			} else if (s.startsWith("-o") && s.length() > 3) {
 				s = s.substring(2);
 				outputDir = new File(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(s));
-			} else if (s.equalsIgnoreCase("-recurse") || s.equalsIgnoreCase("-r")) {
-				// recurse = true;
 			} else if (s.equalsIgnoreCase("-exclude") || s.equalsIgnoreCase("-x")) {
 				i++;
 				if (i == arg.length) {
@@ -218,8 +227,16 @@ public class Option {
 				this.failfast = true;
 			} else if (s.equalsIgnoreCase("-failfast2")) {
 				this.failfast2 = true;
+			} else if (s.equalsIgnoreCase("-noerror")) {
+				this.noerror = true;
 			} else if (s.equalsIgnoreCase("-checkonly")) {
 				this.checkOnly = true;
+			} else if (s.equalsIgnoreCase("-theme")) {
+				i++;
+				if (i == arg.length) {
+					continue;
+				}
+				this.config.add(0, "!theme " + arg[i]);
 			} else if (s.equalsIgnoreCase("-config")) {
 				i++;
 				if (i == arg.length) {
@@ -247,8 +264,6 @@ public class Option {
 				pipeMap = true;
 			} else if (s.equalsIgnoreCase("-pipenostderr")) {
 				pipeNoStdErr = true;
-			} else if (s.equalsIgnoreCase("-pattern")) {
-				pattern = true;
 			} else if (s.equalsIgnoreCase("-syntax")) {
 				syntax = true;
 				OptionFlags.getInstance().setQuiet(true);
@@ -286,6 +301,8 @@ public class Option {
 				manageDefine(s.substring(2));
 			} else if (s.startsWith("-S")) {
 				manageSkinParam(s.substring(2));
+			} else if (s.startsWith("-P")) {
+				managePragma(s.substring(2));
 			} else if (s.equalsIgnoreCase("-testdot")) {
 				OptionPrint.printTestDot();
 			} else if (s.equalsIgnoreCase("-about") || s.equalsIgnoreCase("-author")
@@ -299,8 +316,6 @@ public class Option {
 				OptionFlags.getInstance().setGui(true);
 			} else if (s.equalsIgnoreCase("-encodesprite")) {
 				OptionFlags.getInstance().setEncodesprite(true);
-				// } else if (s.equalsIgnoreCase("-nosuggestengine")) {
-				// OptionFlags.getInstance().setUseSuggestEngine(false);
 			} else if (s.equalsIgnoreCase("-printfonts")) {
 				OptionFlags.getInstance().setPrintFonts(true);
 			} else if (s.equalsIgnoreCase("-dumphtmlstats")) {
@@ -343,8 +358,10 @@ public class Option {
 				checkMetadata = true;
 			} else if (s.equalsIgnoreCase("-stdrpt:1")) {
 				stdrpt = 1;
+			} else if (s.equalsIgnoreCase("-stdrpt:2")) {
+				stdrpt = 2;
 			} else if (s.equalsIgnoreCase("-stdrpt")) {
-				stdrpt = 1;
+				stdrpt = 2;
 			} else if (s.equalsIgnoreCase("-pipeimageindex")) {
 				i++;
 				if (i == arg.length) {
@@ -361,6 +378,10 @@ public class Option {
 				} else {
 					this.ftpPort = Integer.parseInt(s.substring(x + 1));
 				}
+			} else if (StringUtils.goLowerCase(s).startsWith("-picoweb")) {
+				final String[] parts = s.split(":");
+				this.picowebPort = parts.length > 1 ? Integer.parseInt(parts[1]) : 8080;
+				this.picowebBindAddress = parts.length > 2 ? parts[2] : null;
 			} else if (s.startsWith("-c")) {
 				s = s.substring(2);
 				config.add(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(s));
@@ -374,6 +395,9 @@ public class Option {
 		if (stdrpt == 1) {
 			return new StdrptV1();
 		}
+		if (stdrpt == 2) {
+			return new StdrptV2();
+		}
 		// Legacy case
 		if (isPipe() || isPipeMap() || isSyntax()) {
 			return new StdrptPipe0();
@@ -383,6 +407,14 @@ public class Option {
 
 	public int getFtpPort() {
 		return ftpPort;
+	}
+
+	public String getPicowebBindAddress() {
+		return picowebBindAddress;
+	}
+
+	public int getPicowebPort() {
+		return picowebPort;
 	}
 
 	private void addInConfig(BufferedReader br) throws IOException {
@@ -431,19 +463,28 @@ public class Option {
 		}
 	}
 
+	private void managePragma(String s) {
+		final Pattern2 p = MyPattern.cmpile("^(\\w+)(?:=(.*))?$");
+		final Matcher2 m = p.matcher(s);
+		if (m.find()) {
+			final String var = m.group(1);
+			final String value = StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(m.group(2));
+			if (var != null && value != null) {
+				config.add("!pragma " + var + " " + value);
+			}
+		}
+	}
+
 	private void manageSkinParam(String s) {
 		final Pattern2 p = MyPattern.cmpile("^(\\w+)(?:=(.*))?$");
 		final Matcher2 m = p.matcher(s);
 		if (m.find()) {
-			skinParam(m.group(1), m.group(2));
+			final String var = m.group(1);
+			final String value = m.group(2);
+			if (var != null && value != null) {
+				config.add("skinparamlocked " + var + " " + value);
+			}
 		}
-	}
-
-	private void skinParam(String var, String value) {
-		if (var != null && value != null) {
-			config.add("skinparamlocked " + var + " " + value);
-		}
-
 	}
 
 	public final File getOutputDir() {
@@ -536,10 +577,6 @@ public class Option {
 		return syntax;
 	}
 
-	public final boolean isPattern() {
-		return pattern;
-	}
-
 	public FileFormatOption getFileFormatOption() {
 		if (debugsvek) {
 			fileFormatOption.setDebugSvek(true);
@@ -588,6 +625,14 @@ public class Option {
 
 	public final void setFailfast2(boolean failfast2) {
 		this.failfast2 = failfast2;
+	}
+
+	public final void setNoerror(boolean noerror) {
+		this.noerror = noerror;
+	}
+
+	public final boolean isNoerror() {
+		return noerror;
 	}
 
 	public final File getOutputFile() {
@@ -642,4 +687,7 @@ public class Option {
 	// this.preprocessorOutput = preprocessorOutput;
 	// }
 
+	public String getFileDir() {
+		return fileDir;
+	}
 }

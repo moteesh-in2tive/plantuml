@@ -87,16 +87,21 @@ public class StyleLoader {
 			}
 		}
 		if (internalIs == null) {
-			return null;
+			Log.error("No .skin file seems to be available");
+			throw new NoStyleAvailableException();
 		}
 		final BlocLines lines2 = BlocLines.load(internalIs, new LineLocationImpl(filename, null));
 		loadSkinInternal(lines2);
-		return styleBuilder;
+		if (this.styleBuilder == null) {
+			Log.error("No .skin file seems to be available");
+			throw new NoStyleAvailableException();
+		}
+		return this.styleBuilder;
 	}
 
 	private void loadSkinInternal(final BlocLines lines) {
 		for (Style newStyle : getDeclaredStyles(lines, styleBuilder)) {
-			this.styleBuilder.put(newStyle.getSignature(), newStyle);
+			this.styleBuilder.loadInternal(newStyle.getSignature(), newStyle);
 		}
 	}
 
@@ -107,9 +112,9 @@ public class StyleLoader {
 
 	public static Collection<Style> getDeclaredStyles(BlocLines lines, AutomaticCounter counter) {
 		lines = lines.eventuallyMoveAllEmptyBracket();
-		final List<Style> result = new ArrayList<Style>();
+		final List<Style> result = new ArrayList<>();
 
-		final List<String> context = new ArrayList<String>();
+		final List<String> context = new ArrayList<>();
 		final List<Map<PName, Value>> maps = new ArrayList<Map<PName, Value>>();
 		boolean inComment = false;
 		for (StringLocated s : lines) {
@@ -144,7 +149,7 @@ public class StyleLoader {
 			if (mPropertyAndValue.find()) {
 				final PName key = PName.getFromName(mPropertyAndValue.group(1));
 				final String value = mPropertyAndValue.group(2);
-				if (key != null) {
+				if (key != null && maps.size() > 0) {
 					maps.get(maps.size() - 1).put(key, new ValueImpl(value, counter));
 				}
 				continue;

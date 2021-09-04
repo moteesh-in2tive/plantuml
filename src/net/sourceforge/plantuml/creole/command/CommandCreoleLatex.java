@@ -41,16 +41,13 @@ import net.sourceforge.plantuml.math.ScientificEquationSafe;
 
 public class CommandCreoleLatex implements Command {
 
-	private final Pattern2 pattern;
-	private final double scale;
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + Splitter.latexPattern + ")");
 
-	private CommandCreoleLatex(String p, double scale) {
-		this.pattern = MyPattern.cmpile(p);
-		this.scale = scale;
+	private CommandCreoleLatex() {
 	}
 
-	public static Command create(double scale) {
-		return new CommandCreoleLatex("^(?i)(" + Splitter.latexPattern + ")", scale);
+	public static Command create() {
+		return new CommandCreoleLatex();
 	}
 
 	public int matchingSize(String line) {
@@ -67,7 +64,7 @@ public class CommandCreoleLatex implements Command {
 			throw new IllegalStateException();
 		}
 		final String latex = m.group(2);
-		stripe.addMath(ScientificEquationSafe.fromLatex(latex), scale);
+		stripe.addMath(ScientificEquationSafe.fromLatex(latex));
 		return line.substring(m.group(1).length());
 	}
 

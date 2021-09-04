@@ -55,6 +55,7 @@ import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.ParticipantType;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.UFont;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiagram> {
 
@@ -79,7 +80,8 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 	}
 
 	@Override
-	final protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
+	final protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String code = arg.get("CODE", 0);
 		if (diagram.participantsContainsKey(code)) {
 			diagram.putParticipantInLast(code);
@@ -115,11 +117,12 @@ public abstract class CommandParticipant extends SingleLineCommand2<SequenceDiag
 			final ISkinParam skinParam = diagram.getSkinParam();
 			final boolean stereotypePositionTop = skinParam.stereotypePositionTop();
 			final UFont font = skinParam.getFont(null, false, FontParam.CIRCLED_CHARACTER);
-			participant.setStereotype(new Stereotype(stereotype, skinParam.getCircledCharacterRadius(), font, diagram
-					.getSkinParam().getIHtmlColorSet()), stereotypePositionTop);
+			participant.setStereotype(new Stereotype(stereotype, skinParam.getCircledCharacterRadius(), font,
+					diagram.getSkinParam().getIHtmlColorSet()), stereotypePositionTop);
 		}
-		participant.setSpecificColorTOBEREMOVED(ColorType.BACK, diagram.getSkinParam().getIHtmlColorSet()
-				.getColorIfValid(arg.get("COLOR", 0)));
+		final String s = arg.get("COLOR", 0);
+		participant.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {

@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.command.Position;
-import net.sourceforge.plantuml.cucadiagram.BodyEnhanced2;
+import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -57,8 +57,8 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Bibliotekon;
-import net.sourceforge.plantuml.svek.Node;
 import net.sourceforge.plantuml.svek.ShapeType;
+import net.sourceforge.plantuml.svek.SvekNode;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -117,9 +117,13 @@ public class EntityImageTips extends AbstractEntityImage {
 
 		final IEntity other = bibliotekon.getOnlyOther(getEntity());
 
-		final Node nodeMe = bibliotekon.getNode(getEntity());
-		final Node nodeOther = bibliotekon.getNode(other);
+		final SvekNode nodeMe = bibliotekon.getNode(getEntity());
+		final SvekNode nodeOther = bibliotekon.getNode(other);
 		final Point2D positionMe = nodeMe.getPosition();
+		if (nodeOther == null) {
+			System.err.println("Error in EntityImageTips");
+			return;
+		}
 		final Point2D positionOther = nodeOther.getPosition();
 		bibliotekon.getNode(getEntity());
 		final Position position = getPosition();
@@ -156,11 +160,10 @@ public class EntityImageTips extends AbstractEntityImage {
 	}
 
 	private Opale getOpale(final Display display) {
-		// final HtmlColor fontColor = rose.getFontColor(skinParam, FontParam.NOTE);
-		// final UFont fontNote = skinParam.getFont(FontParam.NOTE, null, false);
-		final TextBlock textBlock = new BodyEnhanced2(display, FontParam.NOTE, skinParam, HorizontalAlignment.LEFT,
-				new FontConfiguration(skinParam, FontParam.NOTE, null), LineBreakStrategy.NONE);
-		final double shadowing = skinParam.shadowing(getEntity().getStereotype())?4:0;
+		final FontConfiguration fc = new FontConfiguration(skinParam, FontParam.NOTE, null);
+		final TextBlock textBlock = BodyFactory.create3(display, FontParam.NOTE, skinParam, HorizontalAlignment.LEFT,
+				fc, LineBreakStrategy.NONE);
+		final double shadowing = skinParam.shadowing(getEntity().getStereotype()) ? 4 : 0;
 		final Opale opale = new Opale(shadowing, borderColor, noteBackgroundColor, textBlock, true);
 		return opale;
 	}

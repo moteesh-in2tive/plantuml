@@ -83,20 +83,15 @@ import net.sourceforge.plantuml.activitydiagram3.command.CommandWhileEnd3;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandDecoratorMultine;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class ActivityDiagramFactory3 extends UmlDiagramFactory {
-
-	private final ISkinSimple skinParam;
-
-	public ActivityDiagramFactory3(ISkinSimple skinParam) {
-		this.skinParam = skinParam;
-	}
+public class ActivityDiagramFactory3 extends PSystemCommandFactory {
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandFootboxIgnored());
 
 		addCommonCommands1(cmds);
@@ -160,8 +155,8 @@ public class ActivityDiagramFactory3 extends UmlDiagramFactory {
 	}
 
 	@Override
-	public ActivityDiagram3 createEmptyDiagram() {
-		return new ActivityDiagram3(skinParam);
+	public ActivityDiagram3 createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new ActivityDiagram3(source, skinParam);
 	}
 
 }

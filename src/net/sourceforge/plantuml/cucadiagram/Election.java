@@ -42,15 +42,15 @@ import java.util.Map;
 
 class Election {
 
-	private final Map<String, Member> all = new HashMap<String, Member>();
+	private final Map<String, CharSequence> all = new HashMap<String, CharSequence>();
 
-	public void addCandidate(String display, Member candidate) {
+	public void addCandidate(String display, CharSequence candidate) {
 		all.put(display, candidate);
 
 	}
 
-	private Member getCandidate(String shortName) {
-		List<Member> list = getAllCandidateContains(shortName);
+	private CharSequence getCandidate(String shortName) {
+		List<CharSequence> list = getAllCandidateContains(shortName);
 		if (list.size() == 1) {
 			return list.get(0);
 		}
@@ -61,9 +61,9 @@ class Election {
 		return null;
 	}
 
-	private List<Member> getAllCandidateContains(String shortName) {
-		final List<Member> result = new ArrayList<Member>();
-		for (Map.Entry<String, Member> ent : all.entrySet()) {
+	private List<CharSequence> getAllCandidateContains(String shortName) {
+		final List<CharSequence> result = new ArrayList<>();
+		for (Map.Entry<String, CharSequence> ent : all.entrySet()) {
 			if (ent.getKey().contains(shortName)) {
 				result.add(ent.getValue());
 			}
@@ -71,9 +71,9 @@ class Election {
 		return result;
 	}
 
-	private List<Member> getAllCandidateContainsStrict(String shortName) {
-		final List<Member> result = new ArrayList<Member>();
-		for (Map.Entry<String, Member> ent : all.entrySet()) {
+	private List<CharSequence> getAllCandidateContainsStrict(String shortName) {
+		final List<CharSequence> result = new ArrayList<>();
+		for (Map.Entry<String, CharSequence> ent : all.entrySet()) {
 			final String key = ent.getKey();
 			if (key.matches(".*\\b" + shortName + "\\b.*")) {
 				result.add(ent.getValue());
@@ -82,10 +82,10 @@ class Election {
 		return result;
 	}
 
-	public Map<Member, String> getAllElected(Collection<String> shortNames) {
-		final Map<Member, String> memberWithPort = new HashMap<Member, String>();
-		for (String shortName : new HashSet<String>(shortNames)) {
-			final Member m = getCandidate(shortName);
+	public Map<CharSequence, String> getAllElected(Collection<String> shortNames) {
+		final Map<CharSequence, String> memberWithPort = new HashMap<CharSequence, String>();
+		for (String shortName : new HashSet<>(shortNames)) {
+			final CharSequence m = getCandidate(shortName);
 			if (m != null) {
 				memberWithPort.put(m, shortName);
 				shortNames.remove(shortName);

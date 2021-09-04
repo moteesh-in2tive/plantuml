@@ -33,38 +33,28 @@
 package net.sourceforge.plantuml.sprite;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.FileFormatOption;
+import net.sourceforge.plantuml.PlainDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
-import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.AbstractTextBlock;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockHorizontal;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class PSystemListInternalSprites extends AbstractPSystem {
+public class PSystemListInternalSprites extends PlainDiagram {
 
-	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
-			throws IOException {
-		final UDrawable result = getGraphicStrings();
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(),
-				false, null, getMetadata(), null, 1.0, HColorUtils.WHITE);
-		imageBuilder.setUDrawable(result);
-		return imageBuilder.writeImageTOBEMOVED(fileFormat, seed, os);
+	public PSystemListInternalSprites(UmlSource source) {
+		super(source);
 	}
 
-	private UDrawable getGraphicStrings() throws IOException {
-		final List<String> lines = new ArrayList<String>();
-		lines.add("<b>List Current Sprits");
+	@Override
+	protected UDrawable getRootDrawable(FileFormatOption fileFormatOption) throws IOException {
+		final List<String> lines = new ArrayList<>();
+		lines.add("<b>List Current Sprites");
 		lines.add("<i>Credit to");
 		lines.add("http://www.archimatetool.com");
 		lines.add(" ");

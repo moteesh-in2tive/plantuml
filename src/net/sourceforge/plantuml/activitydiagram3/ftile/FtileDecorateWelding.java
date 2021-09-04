@@ -44,7 +44,7 @@ public class FtileDecorateWelding extends FtileDecorate {
 
 	public FtileDecorateWelding(final Ftile ftile, final List<WeldingPoint> breaks) {
 		super(ftile);
-		this.breaks = new ArrayList<WeldingPoint>(breaks);
+		this.breaks = new ArrayList<>(breaks);
 	}
 
 	@Override

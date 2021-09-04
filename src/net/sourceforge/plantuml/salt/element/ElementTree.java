@@ -48,7 +48,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class ElementTree extends AbstractElement {
 
-	private final List<ElementTreeEntry> entries = new ArrayList<ElementTreeEntry>();
+	private final List<ElementTreeEntry> entries = new ArrayList<>();
 	private final UFont font;
 	private final ISkinSimple spriteContainer;
 	private final double margin = 10;
@@ -121,8 +121,8 @@ public class ElementTree extends AbstractElement {
 		final ListWidth otherWidth = getWidthOther(stringBounder);
 		final Skeleton skeleton = new Skeleton();
 		double yvar = 0;
-		final List<Double> rows = new ArrayList<Double>();
-		final List<Double> cols = new ArrayList<Double>();
+		final List<Double> rows = new ArrayList<>();
+		final List<Double> cols = new ArrayList<>();
 		rows.add(yvar);
 		double xvar = 0;
 		cols.add(xvar);
@@ -141,7 +141,7 @@ public class ElementTree extends AbstractElement {
 			yvar += h;
 			rows.add(yvar);
 		}
-		ug = ug.apply(HColorSet.instance().getColorIfValid("#888888"));
+		ug = ug.apply(HColorSet.instance().getColorOrWhite(getThemeStyle(), "#888888"));
 		skeleton.draw(ug, 0, 0);
 		if (strategy != TableStrategy.DRAW_NONE) {
 			final Grid2 grid = new Grid2(rows, cols, strategy);

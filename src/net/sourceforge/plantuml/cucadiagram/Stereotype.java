@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +62,7 @@ import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class Stereotype implements CharSequence {
 	private final static RegexComposed circleChar = new RegexConcat( //
@@ -105,7 +107,7 @@ public class Stereotype implements CharSequence {
 	private String spriteName;
 	private double spriteScale;
 
-	public Stereotype(String label, double radius, UFont circledFont, HColorSet htmlColorSet) {
+	public Stereotype(String label, double radius, UFont circledFont, HColorSet htmlColorSet) throws NoSuchColorException {
 		this(label, radius, circledFont, true, htmlColorSet);
 	}
 
@@ -126,10 +128,8 @@ public class Stereotype implements CharSequence {
 	}
 
 	public Stereotype(String label, double radius, UFont circledFont, boolean automaticPackageStyle,
-			HColorSet htmlColorSet) {
-		if (label == null) {
-			throw new IllegalArgumentException();
-		}
+			HColorSet htmlColorSet) throws NoSuchColorException {
+		Objects.requireNonNull(label);
 		if (label.startsWith("<<") == false || label.endsWith(">>") == false) {
 			throw new IllegalArgumentException(label);
 		}
@@ -150,7 +150,7 @@ public class Stereotype implements CharSequence {
 					local = null;
 				}
 				final String colName = mCircleSprite.get("COLOR", 0);
-				final HColor col = htmlColorSet.getColorIfValid(colName);
+				final HColor col = colName == null ? null : htmlColorSet.getColorLEGACY(colName);
 				this.htmlColor = col == null ? HColorUtils.BLACK : col;
 				this.spriteName = mCircleSprite.get("NAME", 0);
 				this.character = '\0';
@@ -162,7 +162,7 @@ public class Stereotype implements CharSequence {
 					local = null;
 				}
 				final String colName = mCircleChar.get("COLOR", 0);
-				this.htmlColor = htmlColorSet.getColorIfValid(colName);
+				this.htmlColor = colName == null ? null : htmlColorSet.getColorLEGACY(colName);
 				this.character = mCircleChar.get("CHAR", 0).charAt(0);
 				this.spriteName = null;
 			}
@@ -203,7 +203,7 @@ public class Stereotype implements CharSequence {
 	}
 
 	public List<String> getMultipleLabels() {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		if (label != null) {
 			final Pattern p = Pattern.compile("\\<\\<\\s?((?:\\<&\\w+\\>|[^<>])+?)\\s?\\>\\>");
 			final Matcher m = p.matcher(label);
@@ -269,7 +269,7 @@ public class Stereotype implements CharSequence {
 	}
 
 	public List<Style> getStyles(StyleBuilder builder) {
-		final List<Style> result = new ArrayList<Style>();
+		final List<Style> result = new ArrayList<>();
 		for (String s : getStyleNames()) {
 			final Style style = builder.createStyle(s);
 			assert (style != null);
@@ -287,7 +287,7 @@ public class Stereotype implements CharSequence {
 	}
 
 	private static List<String> cutLabels(final String label, Guillemet guillemet) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		final Pattern2 p = MyPattern.cmpile("\\<\\<.*?\\>\\>");
 		final Matcher2 m = p.matcher(label);
 		while (m.find()) {

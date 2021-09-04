@@ -35,21 +35,24 @@ package net.sourceforge.plantuml.graphic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.ThemeStyle;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class Rainbow {
 
 	private final static Rose rose = new Rose();
 
-	private final List<HtmlColorAndStyle> colors = new ArrayList<HtmlColorAndStyle>();
+	private final List<HtmlColorAndStyle> colors = new ArrayList<>();
 	private final int colorArrowSeparationSpace;
 
 	private Rainbow(int colorArrowSeparationSpace) {
@@ -73,7 +76,7 @@ public class Rainbow {
 	}
 
 	public static Rainbow build(ISkinParam skinParam) {
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			throw new IllegalStateException();
 		}
 		final HColor arrow = rose.getHtmlColor(skinParam, ColorParam.arrow);
@@ -81,8 +84,8 @@ public class Rainbow {
 		return fromColor(arrow, arrowHead);
 	}
 
-	public static Rainbow build(Style style, HColorSet set) {
-		final HColor color = style.value(PName.LineColor).asColor(set);
+	public static Rainbow build(Style style, HColorSet set, ThemeStyle themeStyle) {
+		final HColor color = style.value(PName.LineColor).asColor(themeStyle, set);
 		return fromColor(color, null);
 	}
 
@@ -94,15 +97,13 @@ public class Rainbow {
 	}
 
 	public static Rainbow build(HtmlColorAndStyle color) {
-		if (color == null) {
-			throw new IllegalArgumentException();
-		}
 		final Rainbow result = new Rainbow(0);
-		result.colors.add(color);
+		result.colors.add(Objects.requireNonNull(color));
 		return result;
 	}
 
-	public static Rainbow build(ISkinParam skinParam, String colorString, int colorArrowSeparationSpace) {
+	public static Rainbow build(ISkinParam skinParam, String colorString, int colorArrowSeparationSpace)
+			throws NoSuchColorException {
 		if (colorString == null) {
 			return Rainbow.none();
 		}

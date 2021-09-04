@@ -41,22 +41,28 @@ import net.sourceforge.plantuml.graphic.USymbol;
 
 public enum ActorStyle {
 
-	STICKMAN, AWESOME;
+	STICKMAN, STICKMAN_BUSINESS, AWESOME, HOLLOW;
 
-	public USymbol getUSymbol() {
+	public USymbol toUSymbol() {
 		if (this == STICKMAN) {
 			return USymbol.ACTOR_STICKMAN;
 		} else if (this == AWESOME) {
 			return USymbol.ACTOR_AWESOME;
+		} else if (this == HOLLOW) {
+			return USymbol.ACTOR_HOLLOW;
 		}
 		throw new IllegalStateException();
 	}
 
 	public TextBlock getTextBlock(SymbolContext symbolContext) {
 		if (this == STICKMAN) {
-			return new ActorStickMan(symbolContext);
+			return new ActorStickMan(symbolContext, false);
+		} else if (this == STICKMAN_BUSINESS) {
+			return new ActorStickMan(symbolContext, true);
 		} else if (this == AWESOME) {
 			return new ActorAwesome(symbolContext);
+		} else if (this == HOLLOW) {
+			return new ActorHollow(symbolContext);
 		}
 		throw new IllegalStateException();
 	}

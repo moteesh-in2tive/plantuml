@@ -33,9 +33,11 @@
 package net.sourceforge.plantuml.cucadiagram;
 
 import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Hideable;
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.OptionFlags;
 import net.sourceforge.plantuml.Removeable;
 import net.sourceforge.plantuml.UmlDiagramType;
@@ -94,19 +96,20 @@ public class Link extends WithLinkType implements Hideable, Removeable {
 	private String sametail;
 	private VisibilityModifier visibilityModifier;
 	private final StyleBuilder styleBuilder;
+	private Stereotype stereotype;
 
 	private Url url;
 
 	public String idCommentForSvg() {
 		if (type.looksLikeRevertedForSvg()) {
-			final String comment = getEntity1().getCodeGetName() + "<-" + getEntity2().getCodeGetName();
+			final String comment = getEntity1().getCodeGetName() + "-backto-" + getEntity2().getCodeGetName();
 			return comment;
 		}
 		if (type.looksLikeNoDecorAtAllSvg()) {
 			final String comment = getEntity1().getCodeGetName() + "-" + getEntity2().getCodeGetName();
 			return comment;
 		}
-		final String comment = getEntity1().getCodeGetName() + "->" + getEntity2().getCodeGetName();
+		final String comment = getEntity1().getCodeGetName() + "-to-" + getEntity2().getCodeGetName();
 		return comment;
 	}
 
@@ -133,16 +136,9 @@ public class Link extends WithLinkType implements Hideable, Removeable {
 		if (length < 1) {
 			throw new IllegalArgumentException();
 		}
-		if (cl1 == null) {
-			throw new IllegalArgumentException();
-		}
-		if (cl2 == null) {
-			throw new IllegalArgumentException();
-		}
-
 		this.styleBuilder = styleBuilder;
-		this.cl1 = cl1;
-		this.cl2 = cl2;
+		this.cl1 = Objects.requireNonNull(cl1);
+		this.cl2 = Objects.requireNonNull(cl2);
 		this.type = type;
 		if (Display.isNull(label)) {
 			this.label = Display.NULL;
@@ -193,6 +189,7 @@ public class Link extends WithLinkType implements Hideable, Removeable {
 		result.port2 = this.port1;
 		result.url = this.url;
 		result.linkConstraint = this.linkConstraint;
+		result.stereotype = stereotype;
 		return result;
 	}
 
@@ -576,6 +573,27 @@ public class Link extends WithLinkType implements Hideable, Removeable {
 
 	public final LinkConstraint getLinkConstraint() {
 		return linkConstraint;
+	}
+
+	private LineLocation codeLine;
+
+	public String getCodeLine() {
+		if (codeLine == null) {
+			return null;
+		}
+		return "" + codeLine.getPosition();
+	}
+
+	public void setCodeLine(LineLocation location) {
+		this.codeLine = location;
+	}
+
+	public void setStereotype(Stereotype stereotype) {
+		this.stereotype = stereotype;
+	}
+
+	public final Stereotype getStereotype() {
+		return stereotype;
 	}
 
 }

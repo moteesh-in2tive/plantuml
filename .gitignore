@@ -20,7 +20,6 @@ vagrant/.vagrant/rgloader/loader.rb
 .idea
 *.iml
 out
-gen
 
 # Ant result file
 plantuml.jar
@@ -32,3 +31,6 @@ target/
 .settings/
 .classpath
 .project
+
+# for jenv users
+.java-version

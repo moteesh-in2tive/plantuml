@@ -42,7 +42,6 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.UPath;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 // https://stackoverflow.com/questions/39552127/algorithm-for-drawing-random-comic-style-clouds
 // http://martin-oehm.de/data/cloud.html
@@ -62,14 +61,14 @@ class USymbolCloud extends USymbol {
 	private void drawCloud(UGraphic ug, double width, double height, boolean shadowing) {
 		final UPath shape = getSpecificFrontierForCloud(width, height);
 		if (shadowing) {
-			// shape.setDeltaShadow(3.0);
+			 shape.setDeltaShadow(3.0);
 		}
 		ug.apply(UTranslate.dy(0)).draw(shape);
 	}
 
 	private UPath getSpecificFrontierForCloudNew(double width, double height) {
 		final Random rnd = new Random((long) width + 7919L * (long) height);
-		final List<Point2D> points = new ArrayList<Point2D>();
+		final List<Point2D> points = new ArrayList<>();
 
 		double bubbleSize = 11;
 		if (Math.max(width, height) / bubbleSize > 16) {
@@ -222,7 +221,7 @@ class USymbolCloud extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
 				drawCloud(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing());
 				final Margin margin = getMargin();
@@ -260,11 +259,6 @@ class USymbolCloud extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.sequencediagram.InGroupableList;
 
@@ -41,10 +43,7 @@ abstract class GroupingGraphicalElement extends GraphicalElement {
 
 	public GroupingGraphicalElement(double currentY, InGroupableList inGroupableList) {
 		super(currentY);
-		this.inGroupableList = inGroupableList;
-		if (inGroupableList == null) {
-			throw new IllegalArgumentException();
-		}
+		this.inGroupableList = Objects.requireNonNull(inGroupableList);
 	}
 
 	final public double getActualWidth(StringBounder stringBounder) {

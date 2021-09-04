@@ -35,20 +35,22 @@ package net.sourceforge.plantuml.help;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class HelpFactory extends UmlDiagramFactory {
+public class HelpFactory extends PSystemCommandFactory {
 
 	@Override
-	public Help createEmptyDiagram() {
-		return new Help();
+	public Help createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new Help(source);
 	}
 
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 
 		cmds.add(new CommandHelp());
 		cmds.add(new CommandHelpColor());
@@ -56,6 +58,7 @@ public class HelpFactory extends UmlDiagramFactory {
 		cmds.add(new CommandHelpKeyword());
 		cmds.add(new CommandHelpSkinparam());
 		cmds.add(new CommandHelpType());
+		cmds.add(new CommandHelpTheme());
 
 		return cmds;
 	}

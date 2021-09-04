@@ -43,8 +43,9 @@ public final class RegexConcat extends RegexComposed implements IRegex {
 
 	private static final ConcurrentMap<Object, RegexConcat> cache = new ConcurrentHashMap<Object, RegexConcat>();
 	private final AtomicLong foxRegex = new AtomicLong(-1L);
+	private int limitSize;
 
-	// private static final Set<String> PRINTED2 = new HashSet<String>();
+	// private static final Set<String> PRINTED2 = new HashSet<>();
 
 	public static void printCacheInfo() {
 		int nbCompiled = 0;
@@ -90,7 +91,8 @@ public final class RegexConcat extends RegexComposed implements IRegex {
 			// } else {
 			// synchronized (PRINTED2) {
 			// if (PRINTED2.contains(key) == false) {
-			// System.err.println("if (key.equals(\"" + key + "\")) return buildInternal(partials);");
+			// System.err.println("if (key.equals(\"" + key + "\")) return
+			// buildInternal(partials);");
 			// }
 			// PRINTED2.add(key);
 		}
@@ -110,11 +112,15 @@ public final class RegexConcat extends RegexComposed implements IRegex {
 
 	@Override
 	public boolean match(StringLocated s) {
+		if (limitSize != 0 && s.getString().length() > limitSize) {
+			return false;
+		}
 		final long foxRegex = foxRegex();
 		if (foxRegex != 0L) {
 			final long foxLine = s.getFoxSignature();
 			final long check = foxRegex & foxLine;
-			// System.err.println("r=" + getFullSlow() + " s=" + s + " line=" + foxLine + " regex" + foxRegex + " "
+			// System.err.println("r=" + getFullSlow() + " s=" + s + " line=" + foxLine + "
+			// regex" + foxRegex + " "
 			// + check + " <" + FoxSignature.backToString(check) + ">");
 			if (check != foxRegex) {
 				return false;
@@ -131,6 +137,11 @@ public final class RegexConcat extends RegexComposed implements IRegex {
 			sb.append(p.getPattern());
 		}
 		return sb.toString();
+	}
+
+	public RegexConcat protectSize(int size) {
+		limitSize = size;
+		return this;
 	}
 
 }

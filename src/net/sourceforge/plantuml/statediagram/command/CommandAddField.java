@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.statediagram.StateDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandAddField extends SingleLineCommand2<StateDiagram> {
 
@@ -54,7 +55,7 @@ public class CommandAddField extends SingleLineCommand2<StateDiagram> {
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandAddField.class.getName(), RegexLeaf.start(), //
 				new RegexOr( //
-						new RegexLeaf("CODE3", "([\\p{L}0-9_.]+)"), //
+						new RegexLeaf("CODE3", "([%pLN_.]+)"), //
 						new RegexLeaf("CODE4", "[%g]([^%g]+)[%g]")), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf(":"), //
@@ -63,7 +64,7 @@ public class CommandAddField extends SingleLineCommand2<StateDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(StateDiagram diagram, LineLocation location, RegexResult arg) throws NoSuchColorException {
 		final String codeString = arg.getLazzy("CODE", 0);
 		final String field = arg.get("FIELD", 0);
 

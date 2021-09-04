@@ -39,7 +39,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractConnection;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Arrows;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Connection;
@@ -69,7 +69,7 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 	@Override
 	protected Ftile doStep1(Ftile inner) {
 		Ftile result = inner;
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		final HColor colorBar = getRose().getHtmlColor(skinParam(), ColorParam.activityBar);
 
 		final Ftile black = new FtileBlackBlock(skinParam(), colorBar, list99.get(0).getSwimlaneIn());
@@ -77,9 +77,9 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 		for (Ftile tmp : list99) {
 			final Dimension2D dim = tmp.calculateDimension(getStringBounder());
 			final Rainbow def;
-			if (SkinParam.USE_STYLES()) {
+			if (UseStyle.useBetaStyle()) {
 				Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-				def = Rainbow.build(style, skinParam().getIHtmlColorSet());
+				def = Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle());
 			} else {
 				def = Rainbow.build(skinParam());
 			}
@@ -101,60 +101,63 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 		final HColor backColor = getRose().getHtmlColor(skinParam(), ColorParam.activityDiamondBackground);
 		final Ftile out = new FtileDiamond(skinParam(), backColor, borderColor, swimlaneOutForStep2());
 		result = new FtileAssemblySimple(result, out);
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		final UTranslate diamondTranslate = result.getTranslateFor(out, getStringBounder());
-		int i = 0;
+
 		double x = 0;
 		for (Ftile tmp : list99) {
 			final Dimension2D dim = tmp.calculateDimension(getStringBounder());
 			final UTranslate translate0 = new UTranslate(x, barHeight);
 			final Rainbow def;
-			if (SkinParam.USE_STYLES()) {
+			if (UseStyle.useBetaStyle()) {
 				Style style = getDefaultStyleDefinition().getMergedStyle(skinParam().getCurrentStyleBuilder());
-				def = Rainbow.build(style, skinParam().getIHtmlColorSet());
+				def = Rainbow.build(style, skinParam().getIHtmlColorSet(), skinParam().getThemeStyle());
 			} else {
 				def = Rainbow.build(skinParam());
 			}
 			final Rainbow rainbow = tmp.getOutLinkRendering().getRainbow(def);
-			conns.add(new ConnectionHorizontalThenVertical(tmp, out, rainbow, translate0, diamondTranslate, i));
+			if (tmp.calculateDimension(getStringBounder()).hasPointOut()) {
+				conns.add(new ConnectionHorizontalThenVertical(tmp, out, rainbow, translate0, diamondTranslate));
+			}
 			x += dim.getWidth();
-			i++;
+
 		}
 		return FtileUtils.addConnection(result, conns);
 	}
 
-	class ConnectionHorizontalThenVertical extends AbstractConnection /* implements ConnectionTranslatable */{
+	class ConnectionHorizontalThenVertical extends AbstractConnection /* implements ConnectionTranslatable */ {
 
 		private final Rainbow arrowColor;
 		private final UTranslate diamondTranslate;
 		private final UTranslate translate0;
-		private final int counter;
 
 		public ConnectionHorizontalThenVertical(Ftile tile, Ftile diamond, Rainbow arrowColor, UTranslate translate0,
-				UTranslate diamondTranslate, int counter) {
+				UTranslate diamondTranslate) {
 			super(tile, diamond);
 			this.arrowColor = arrowColor;
 			this.diamondTranslate = diamondTranslate;
 			this.translate0 = translate0;
-			this.counter = counter;
 		}
 
 		public void drawU(UGraphic ug) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			final Point2D p1 = getP1(stringBounder);
-			final Point2D p2 = getP2(stringBounder);
+			final Point2D p2 = getP2(stringBounder, p1.getX());
 			final double x1 = p1.getX();
 			final double y1 = p1.getY();
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			UPolygon endDecoration = null;
-			if (counter == 0) {
+			final UTranslate arrival = arrivalOnDiamond(stringBounder, p1.getX());
+			final UPolygon endDecoration;
+			if (arrival.getDx() < 0) {
 				endDecoration = Arrows.asToRight();
-			} else if (counter == 1) {
+			} else if (arrival.getDx() > 0) {
 				endDecoration = Arrows.asToLeft();
+			} else {
+				endDecoration = Arrows.asToDown();
 			}
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, endDecoration);
+			final Snake snake = Snake.create(arrowColor, endDecoration);
 			snake.addPoint(x1, y1);
 			snake.addPoint(x1, y2);
 			snake.addPoint(x2, y2);
@@ -166,17 +169,30 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 			return translate0.getTranslated(getFtile1().calculateDimension(stringBounder).getPointOut());
 		}
 
-		private Point2D getP2(final StringBounder stringBounder) {
-			final Point2D result = diamondTranslate.getTranslated(getFtile2().calculateDimension(stringBounder)
-					.getPointOut());
+		private Point2D getP2(StringBounder stringBounder, double startX) {
+			final UTranslate arrival = arrivalOnDiamond(stringBounder, startX);
+			return arrival.getTranslated(getDiamondOut(stringBounder));
+		}
+
+		public Point2D getDiamondOut(StringBounder stringBounder) {
+			return diamondTranslate.getTranslated(getFtile2().calculateDimension(stringBounder).getPointOut());
+		}
+
+		public UTranslate arrivalOnDiamond(StringBounder stringBounder, double startX) {
+			final Point2D result = getDiamondOut(stringBounder);
 			final Dimension2D dim = getFtile2().calculateDimension(stringBounder);
-			UTranslate arrival = new UTranslate();
-			if (counter == 0) {
+			final double a = result.getX() - dim.getWidth() / 2;
+			final double b = result.getX() + dim.getWidth() / 2;
+
+			final UTranslate arrival;
+			if (startX < a) {
 				arrival = new UTranslate(-dim.getWidth() / 2, -dim.getHeight() / 2);
-			} else if (counter == 1) {
+			} else if (startX > b) {
 				arrival = new UTranslate(dim.getWidth() / 2, -dim.getHeight() / 2);
+			} else {
+				arrival = new UTranslate(0, -dim.getHeight());
 			}
-			return arrival.getTranslated(result);
+			return arrival;
 		}
 
 	}
@@ -197,9 +213,9 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 		public void drawU(UGraphic ug) {
 			ug = ug.apply(UTranslate.dx(x));
 			final FtileGeometry geo = getFtile2().calculateDimension(getStringBounder());
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			snake.addPoint(geo.getLeft(), 0);
 			snake.addPoint(geo.getLeft(), geo.getInY());
@@ -212,9 +228,9 @@ public class ParallelBuilderMerge extends AbstractParallelFtilesBuilder {
 			final Point2D p1 = new Point2D.Double(geo.getLeft(), 0);
 			final Point2D p2 = new Point2D.Double(geo.getLeft(), geo.getInY());
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), arrowColor, Arrows.asToDown());
+			Snake snake = Snake.create(arrowColor, Arrows.asToDown());
 			if (Display.isNull(label) == false) {
-				snake.setLabel(getTextBlock(label));
+				snake = snake.withLabel(getTextBlock(label), arrowHorizontalAlignment());
 			}
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);

@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.graphic;
 
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
@@ -42,7 +43,6 @@ import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class USymbolFolder extends USymbol {
@@ -60,6 +60,11 @@ public class USymbolFolder extends USymbol {
 	public USymbolFolder(SkinParameter skinParameter, boolean showTitle) {
 		this.skinParameter = skinParameter;
 		this.showTitle = showTitle;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " " + skinParameter + " " + showTitle;
 	}
 
 	@Override
@@ -132,14 +137,12 @@ public class USymbolFolder extends USymbol {
 	@Override
 	public TextBlock asSmall(final TextBlock name, final TextBlock label, final TextBlock stereotype,
 			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
-		if (name == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(name);
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
 				final Dimension2D dimName = showTitle ? name.calculateDimension(ug.getStringBounder())
 						: new Dimension2DDouble(40, 15);
@@ -164,7 +167,8 @@ public class USymbolFolder extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext,
+			final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {
@@ -186,11 +190,6 @@ public class USymbolFolder extends USymbol {
 			}
 
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

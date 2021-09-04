@@ -47,27 +47,30 @@ import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.Reference;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandReferenceMultilinesOverSeveral extends CommandMultilines<SequenceDiagram> {
 
 	public CommandReferenceMultilinesOverSeveral() {
-		super(
-				"(?i)^ref(#\\w+)?[%s]+over[%s]+((?:[\\p{L}0-9_.@]+|[%g][^%g]+[%g])(?:[%s]*,[%s]*(?:[\\p{L}0-9_.@]+|[%g][^%g]+[%g]))*)[%s]*(#\\w+)?$");
+		super("^ref(#\\w+)?[%s]+over[%s]+((?:[%pLN_.@]+|[%g][^%g]+[%g])(?:[%s]*,[%s]*(?:[%pLN_.@]+|[%g][^%g]+[%g]))*)[%s]*(#\\w+)?$");
 	}
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?(ref)?$";
+		return "^end[%s]?(ref)?$";
 	}
 
-	public CommandExecutionResult execute(final SequenceDiagram diagram, BlocLines lines) {
-		final List<String> line0 = StringUtils.getSplit(getStartingPattern(), lines.getFirst().getTrimmed()
-				.getString());
-		final HColor backColorElement = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get(0));
-		// final HtmlColor backColorGeneral = HtmlColorSetSimple.instance().getColorIfValid(line0.get(1));
+	public CommandExecutionResult execute(final SequenceDiagram diagram, BlocLines lines) throws NoSuchColorException {
+		final List<String> line0 = StringUtils.getSplit(getStartingPattern(),
+				lines.getFirst().getTrimmed().getString());
+		final String s1 = line0.get(0);
+		final HColor backColorElement = s1 == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s1);
+		// final HtmlColor backColorGeneral =
+		// HtmlColorSetSimple.instance().getColorIfValid(line0.get(1));
 
 		final List<String> participants = StringUtils.splitComma(line0.get(1));
-		final List<Participant> p = new ArrayList<Participant>();
+		final List<Participant> p = new ArrayList<>();
 		for (String s : participants) {
 			p.add(diagram.getOrCreateParticipant(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(s)));
 		}
@@ -86,8 +89,8 @@ public class CommandReferenceMultilinesOverSeveral extends CommandMultilines<Seq
 		}
 
 		final HColor backColorGeneral = null;
-		final Reference ref = new Reference(p, u, strings, backColorGeneral, backColorElement, diagram.getSkinParam()
-				.getCurrentStyleBuilder());
+		final Reference ref = new Reference(p, u, strings, backColorGeneral, backColorElement,
+				diagram.getSkinParam().getCurrentStyleBuilder());
 		diagram.addReference(ref);
 		return CommandExecutionResult.ok();
 	}

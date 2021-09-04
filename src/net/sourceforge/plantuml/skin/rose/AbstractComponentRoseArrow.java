@@ -35,7 +35,7 @@ package net.sourceforge.plantuml.skin.rose;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -62,8 +62,9 @@ public abstract class AbstractComponentRoseArrow extends AbstractTextualComponen
 			HorizontalAlignment textHorizontalAlignment, LineBreakStrategy maxMessageSize) {
 		super(style, maxMessageSize, stringsToDisplay, font, textHorizontalAlignment, 7, 7, 1, spriteContainer, false,
 				null, null);
-		if (SkinParam.USE_STYLES()) {
-			this.foregroundColor = style.value(PName.LineColor).asColor(getIHtmlColorSet());
+		if (UseStyle.useBetaStyle()) {
+			this.foregroundColor = style.value(PName.LineColor).asColor(spriteContainer.getThemeStyle(),
+					getIHtmlColorSet());
 			final UStroke stroke = style.getStroke();
 			this.arrowConfiguration = arrowConfiguration.withThickness(stroke.getThickness());
 		} else {
@@ -74,8 +75,9 @@ public abstract class AbstractComponentRoseArrow extends AbstractTextualComponen
 
 	@Override
 	final protected TextBlock getTextBlock() {
-		final Padder padder = getISkinSimple() instanceof ISkinParam ? ((ISkinParam) getISkinSimple())
-				.getSequenceDiagramPadder() : Padder.NONE;
+		final Padder padder = getISkinSimple() instanceof ISkinParam
+				? ((ISkinParam) getISkinSimple()).sequenceDiagramPadder()
+				: Padder.NONE;
 
 		return padder.apply(super.getTextBlock());
 	}

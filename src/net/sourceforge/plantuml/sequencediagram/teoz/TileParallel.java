@@ -38,29 +38,25 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.real.Real;
 import net.sourceforge.plantuml.real.RealUtils;
 import net.sourceforge.plantuml.sequencediagram.Event;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
-public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbackY {
+public class TileParallel extends CommonTile {
 
-	private final List<Tile> tiles = new ArrayList<Tile>();
-
-	public void callbackY(double y) {
-		for (Tile tile : tiles) {
-			if (tile instanceof TileWithCallbackY) {
-				((TileWithCallbackY) tile).callbackY(y);
-			}
-		}
+	public TileParallel(StringBounder stringBounder) {
+		super(stringBounder);
 	}
 
-	public void updateStairs(StringBounder stringBounder, double y) {
+	private final List<Tile> tiles = new ArrayList<>();
+
+	@Override
+	final protected void callbackY_internal(double y) {
 		for (Tile tile : tiles) {
-			if (tile instanceof TileWithUpdateStairs) {
-				((TileWithUpdateStairs) tile).updateStairs(stringBounder, y);
-			}
+			tile.callbackY(y);
 		}
 	}
 
@@ -69,44 +65,40 @@ public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbac
 	}
 
 	public void drawU(UGraphic ug) {
-		final StringBounder stringBounder = ug.getStringBounder();
-		// final double totalHeight = getPreferredHeight(stringBounder);
-		final double yPointAll = getYPoint(stringBounder);
+		final double yPointAll = getContactPointRelative();
 		for (Tile tile : tiles) {
-			final double yPoint = tile.getYPoint(stringBounder);
-			// tile.drawU(ug.apply(UTranslate.dy(totalHeight -
-			// tile.getPreferredHeight(stringBounder))));
-			tile.drawU(ug.apply(UTranslate.dy(yPointAll - yPoint)));
+			final double yPoint = tile.getContactPointRelative();
+			((UDrawable) tile).drawU(ug.apply(UTranslate.dy(yPointAll - yPoint)));
 		}
 	}
 
-	public double getYPoint(StringBounder stringBounder) {
+	public double getContactPointRelative() {
 		double result = 0;
 		for (Tile tile : tiles) {
-			result = Math.max(result, tile.getYPoint(stringBounder));
+			result = Math.max(result, tile.getContactPointRelative());
 		}
 		return result;
 	}
 
-	public double getZ(StringBounder stringBounder) {
+	public double getZZZ() {
 		double result = 0;
 		for (Tile tile : tiles) {
-			result = Math.max(result, tile.getZ(stringBounder));
+			result = Math.max(result, tile.getZZZ());
 		}
 		return result;
 	}
 
-	public double getPreferredHeight(StringBounder stringBounder) {
-		return getYPoint(stringBounder) + getZ(stringBounder);
+	public double getPreferredHeight() {
+		return getContactPointRelative() + getZZZ();
 	}
 
-	public void addConstraints(StringBounder stringBounder) {
+	public void addConstraints() {
 		for (Tile tile : tiles) {
-			tile.addConstraints(stringBounder);
+			tile.addConstraints();
 		}
 	}
 
-	public Real getMinX(final StringBounder stringBounder) {
+	public Real getMinX() {
 		return RealUtils.min(new AbstractCollection<Real>() {
 			public Iterator<Real> iterator() {
 				return new Iterator<Real>() {
@@ -117,7 +109,7 @@ public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbac
 					}
 
 					public Real next() {
-						return source.next().getMinX(stringBounder);
+						return source.next().getMinX();
 					}
 
 					public void remove() {
@@ -132,7 +124,7 @@ public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbac
 		});
 	}
 
-	public Real getMaxX(final StringBounder stringBounder) {
+	public Real getMaxX() {
 		return RealUtils.max(new AbstractCollection<Real>() {
 			public Iterator<Real> iterator() {
 				return new Iterator<Real>() {
@@ -143,7 +135,7 @@ public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbac
 					}
 
 					public Real next() {
-						return source.next().getMaxX(stringBounder);
+						return source.next().getMaxX();
 					}
 
 					public void remove() {
@@ -162,9 +154,9 @@ public class TileParallel implements Tile, TileWithUpdateStairs, TileWithCallbac
 		return null;
 	}
 
-	public boolean matchAnchorV1(String anchor) {
+	public boolean matchAnchor(String anchor) {
 		for (Tile tile : tiles) {
-			if (tile.matchAnchorV1(anchor)) {
+			if (tile.matchAnchor(anchor)) {
 				return true;
 			}
 		}

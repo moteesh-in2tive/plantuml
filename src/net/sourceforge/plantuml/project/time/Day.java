@@ -32,15 +32,19 @@
  */
 package net.sourceforge.plantuml.project.time;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 
-import net.sourceforge.plantuml.project.lang.Complement;
-import net.sourceforge.plantuml.project.lang.Subject;
+import net.sourceforge.plantuml.project.Value;
 
-public class Day implements Complement, Comparable<Day>, Subject {
+public class Day implements Comparable<Day>, Value {
+
+	static final public long MILLISECONDS_PER_DAY = 1000L * 3600L * 24;
+	static final private Calendar gmt = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
 	private final int dayOfMonth;
 	private final MonthYear monthYear;
+	private final long ms1;
 
 	public static Day create(int year, String month, int dayOfMonth) {
 		return new Day(year, Month.fromString(month), dayOfMonth);
@@ -50,21 +54,66 @@ public class Day implements Complement, Comparable<Day>, Subject {
 		return new Day(year, Month.values()[month - 1], dayOfMonth);
 	}
 
+	public static Day create(long ms) {
+		return new Day(ms);
+	}
+
 	public static Day today() {
-		final Date now = new Date();
-		final int year = now.getYear() + 1900;
-		final int month = now.getMonth() + 1;
-		final int dayOfMonth = now.getDate();
-		return create(year, month, dayOfMonth);
+		return create(System.currentTimeMillis());
+	}
+
+	public int getWeekOfYear(WeekNumberStrategy strategy) {
+		synchronized (gmt) {
+			gmt.clear();
+			gmt.setTimeInMillis(ms1);
+			gmt.setFirstDayOfWeek(strategy.getFirstDayOfWeekAsLegacyInt());
+			gmt.setMinimalDaysInFirstWeek(strategy.getMinimalDaysInFirstWeek());
+			return gmt.get(Calendar.WEEK_OF_YEAR);
+		}
 	}
 
 	private Day(int year, Month month, int dayOfMonth) {
-		this(MonthYear.create(year, month), dayOfMonth);
+		this.dayOfMonth = dayOfMonth;
+		this.monthYear = MonthYear.create(year, month);
+		synchronized (gmt) {
+			gmt.clear();
+			gmt.set(year, month.ordinal(), dayOfMonth);
+			this.ms1 = gmt.getTimeInMillis();
+		}
 	}
 
-	private Day(MonthYear monthYear, int dayOfMonth) {
-		this.dayOfMonth = dayOfMonth;
-		this.monthYear = monthYear;
+	private Day(long ms) {
+		this.ms1 = ms;
+		synchronized (gmt) {
+			gmt.clear();
+			gmt.setTimeInMillis(ms);
+			final int year = gmt.get(Calendar.YEAR);
+			final int month = gmt.get(Calendar.MONTH);
+			final int dayOfMonth = gmt.get(Calendar.DAY_OF_MONTH);
+			this.dayOfMonth = dayOfMonth;
+			this.monthYear = MonthYear.create(year, Month.values()[month]);
+		}
+
+	}
+
+	public Day increment() {
+		return addDays(1);
+	}
+
+	public Day decrement() {
+		return addDays(-1);
+	}
+
+	public Day addDays(int nday) {
+		return create(MILLISECONDS_PER_DAY * (getAbsoluteDayNum() + nday));
+	}
+
+	public final int getAbsoluteDayNum() {
+		return (int) (ms1 / MILLISECONDS_PER_DAY);
+	}
+
+	public final long getMillis() {
+		return ms1;
 	}
 
 	public int year() {
@@ -99,15 +148,6 @@ public class Day implements Complement, Comparable<Day>, Subject {
 		return month().getDaysPerMonth(year());
 	}
 
-	public Day next() {
-		int newDayOfMonth = dayOfMonth + 1;
-		if (newDayOfMonth <= daysPerMonth()) {
-			return new Day(year(), month(), newDayOfMonth);
-		}
-		assert newDayOfMonth > daysPerMonth();
-		return new Day(monthYear.next(), 1);
-	}
-
 	public Month month() {
 		return monthYear.month();
 	}
@@ -127,53 +167,22 @@ public class Day implements Complement, Comparable<Day>, Subject {
 		return DayOfWeek.fromH(h);
 	}
 
-	public Wink asInstantDay(Day reference) {
-		// if (this.compareTo(reference) < 0) {
-		// throw new IllegalArgumentException();
-		// }
-		int cmp = 0;
-		Day current = reference;
-		while (current.compareTo(this) < 0) {
-			current = current.next();
-			cmp++;
-		}
-		return new Wink(cmp);
-	}
-
-	// http://www.proesite.com/timex/wkcalc.htm
-	public int ISO_WN() {
-		final int y = year();
-		int m = month().ordinal() + 1;
-		int d = dayOfMonth;
-		int dow = DOW(y, m, d);
-		int dow0101 = DOW(y, 1, 1);
-
-		if (m == 1 && 3 < dow0101 && dow0101 < 7 - (d - 1)) {
-			// days before week 1 of the current year have the same week number as
-			// the last day of the last week of the previous year
-
-			dow = dow0101 - 1;
-			dow0101 = DOW(y - 1, 1, 1);
-			m = 12;
-			d = 31;
-		} else if (m == 12 && 30 - (d - 1) < DOW(y + 1, 1, 1) && DOW(y + 1, 1, 1) < 4) {
-			// days after the last week of the current year have the same week number as
-			// the first day of the next year, (i.e. 1)
-
-			return 1;
-		}
-
-		return (DOW(y, 1, 1) < 4) ? 1 : 0 + 4 * (m - 1) + (2 * (m - 1) + (d - 1) + dow0101 - dow + 6) * 36 / 256;
-
-	}
-
-	private int DOW(int y, int m, int d) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	public int compareTo(Day other) {
 		return this.internalNumber() - other.internalNumber();
+	}
+
+	public static Day min(Day wink1, Day wink2) {
+		if (wink2.internalNumber() < wink1.internalNumber()) {
+			return wink2;
+		}
+		return wink1;
+	}
+
+	public static Day max(Day wink1, Day wink2) {
+		if (wink2.internalNumber() > wink1.internalNumber()) {
+			return wink2;
+		}
+		return wink1;
 	}
 
 }

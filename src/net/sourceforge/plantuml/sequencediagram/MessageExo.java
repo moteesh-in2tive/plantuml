@@ -55,7 +55,7 @@ public class MessageExo extends AbstractMessage {
 	}
 
 	@Override
-	protected NotePosition overideNotePosition(NotePosition notePosition) {
+	protected NotePosition overrideNotePosition(NotePosition notePosition) {
 		if (type == MessageExoType.FROM_LEFT || type == MessageExoType.TO_LEFT) {
 			return NotePosition.RIGHT;
 		}

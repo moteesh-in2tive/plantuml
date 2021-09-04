@@ -37,13 +37,14 @@ import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.compositediagram.command.CommandCreateBlock;
 import net.sourceforge.plantuml.compositediagram.command.CommandCreatePackageBlock;
 import net.sourceforge.plantuml.compositediagram.command.CommandEndPackageBlock;
 import net.sourceforge.plantuml.compositediagram.command.CommandLinkBlock;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class CompositeDiagramFactory extends UmlDiagramFactory {
+public class CompositeDiagramFactory extends PSystemCommandFactory {
 
 	private final ISkinSimple skinParam;
 
@@ -53,7 +54,7 @@ public class CompositeDiagramFactory extends UmlDiagramFactory {
 
 	@Override
 	protected List<Command> createCommands() {
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		cmds.add(new CommandCreateBlock());
 		cmds.add(new CommandLinkBlock());
 		cmds.add(new CommandCreatePackageBlock());
@@ -64,7 +65,7 @@ public class CompositeDiagramFactory extends UmlDiagramFactory {
 	}
 
 	@Override
-	public CompositeDiagram createEmptyDiagram() {
-		return new CompositeDiagram(skinParam);
+	public CompositeDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new CompositeDiagram(source, skinParam);
 	}
 }

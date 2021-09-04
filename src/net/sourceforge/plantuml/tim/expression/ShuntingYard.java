@@ -45,7 +45,7 @@ import net.sourceforge.plantuml.tim.EaterExceptionLocated;
 public class ShuntingYard {
 
 	final private TokenStack ouputQueue = new TokenStack();
-	final private Deque<Token> operatorStack = new ArrayDeque<Token>();
+	final private Deque<Token> operatorStack = new ArrayDeque<>();
 
 	private static final boolean TRACE = false;
 
@@ -73,7 +73,10 @@ public class ShuntingYard {
 				final String name = token.getSurface();
 				final TValue variable = knowledge.getVariable(name);
 				if (variable == null) {
-					ouputQueue.add(new Token("undefined", TokenType.QUOTED_STRING, null));
+					if (isVariableName(name) == false) {
+						throw EaterException.unlocated("Parsing syntax error about " + name);
+					}
+					ouputQueue.add(new Token(name, TokenType.QUOTED_STRING, null));
 				} else {
 					ouputQueue.add(variable.toToken());
 				}
@@ -116,6 +119,10 @@ public class ShuntingYard {
 		}
 
 		// System.err.println("ouputQueue=" + ouputQueue);
+	}
+
+	private boolean isVariableName(String name) {
+		return name.matches("[a-zA-Z0-9.$_]+");
 	}
 
 	private boolean thereIsAFunctionAtTheTopOfTheOperatorStack(Token token) {

@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.LineConfigurable;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.creole.Stencil;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
@@ -54,6 +55,10 @@ import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Margins;
 import net.sourceforge.plantuml.svek.Ports;
@@ -63,6 +68,7 @@ import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
+import net.sourceforge.plantuml.ugraphic.UGroupType;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -90,7 +96,7 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		final boolean showMethods = portionShower.showPortion(EntityPortion.METHOD, entity);
 		final boolean showFields = portionShower.showPortion(EntityPortion.FIELD, entity);
 		this.body = entity.getBodier().getBody(FontParam.CLASS_ATTRIBUTE, getSkinParam(), showMethods, showFields,
-				entity.getStereotype());
+				entity.getStereotype(), getStyle());
 
 		header = new EntityImageClassHeader(entity, getSkinParam(), portionShower);
 		this.url = entity.getUrl99();
@@ -123,11 +129,23 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		if (url != null) {
 			ug.startUrl(url);
 		}
+
+		ug.startGroup(UGroupType.CLASS, "elem " + getEntity().getCode() + " selected");
 		drawInternal(ug);
+		ug.closeGroup();
 
 		if (url != null) {
 			ug.closeUrl();
 		}
+	}
+
+	private Style getStyle() {
+		return getDefaultStyleDefinition().with(getEntity().getStereotype())
+				.getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+	}
+
+	private StyleSignature getDefaultStyleDefinition() {
+		return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.class_);
 	}
 
 	private void drawInternal(UGraphic ug) {
@@ -138,32 +156,47 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 		final double widthTotal = dimTotal.getWidth();
 		final double heightTotal = dimTotal.getHeight();
 		final Shadowable rect = new URectangle(widthTotal, heightTotal).rounded(roundCorner)
-				.withComment(getEntity().getCodeGetName());
+				.withCommentAndCodeLine(getEntity().getCodeGetName(), getEntity().getCodeLine());
 		if (getSkinParam().shadowing(getEntity().getStereotype())) {
 			rect.setDeltaShadow(4);
 		}
 
 		HColor classBorder = lineConfig.getColors(getSkinParam()).getColor(ColorType.LINE);
+		HColor headerBackcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.HEADER);
+
 		if (classBorder == null) {
-			classBorder = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder);
+			if (UseStyle.useBetaStyle())
+				classBorder = getStyle().value(PName.LineColor).asColor(getSkinParam().getThemeStyle(),
+						getSkinParam().getIHtmlColorSet());
+			else
+				classBorder = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBorder);
 		}
-		ug = ug.apply(classBorder);
 		HColor backcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.BACK);
 		if (backcolor == null) {
-			if (leafType == LeafType.ENUM) {
-				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.enumBackground,
-						ColorParam.classBackground);
-			} else {
-				backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground);
+			if (UseStyle.useBetaStyle())
+				backcolor = getStyle().value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+						getSkinParam().getIHtmlColorSet());
+			else {
+				if (leafType == LeafType.ENUM) {
+					backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.enumBackground,
+							ColorParam.classBackground);
+				} else {
+					backcolor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.classBackground);
+				}
 			}
 		}
+
+		ug = ug.apply(classBorder);
 		ug = ug.apply(backcolor.bg());
 
 		final UStroke stroke = getStroke();
 
-		HColor headerBackcolor = getEntity().getColors(getSkinParam()).getColor(ColorType.HEADER);
 		if (headerBackcolor == null) {
-			headerBackcolor = getSkinParam().getHtmlColor(ColorParam.classHeaderBackground, getStereo(), false);
+			if (UseStyle.useBetaStyle())
+				headerBackcolor = getStyle().value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
+						getSkinParam().getIHtmlColorSet());
+			else
+				headerBackcolor = getSkinParam().getHtmlColor(ColorParam.classHeaderBackground, getStereo(), false);
 		}
 		UGraphic ugHeader = ug;
 		if (roundCorner == 0 && headerBackcolor != null && backcolor.equals(headerBackcolor) == false) {
@@ -197,7 +230,9 @@ public class EntityImageClass extends AbstractEntityImage implements Stencil, Wi
 
 	public Ports getPorts(StringBounder stringBounder) {
 		final Dimension2D dimHeader = header.calculateDimension(stringBounder);
-		return ((WithPorts) body).getPorts(stringBounder).translateY(dimHeader.getHeight());
+		if (body instanceof WithPorts)
+			return ((WithPorts) body).getPorts(stringBounder).translateY(dimHeader.getHeight());
+		return new Ports();
 	}
 
 	private UStroke getStroke() {

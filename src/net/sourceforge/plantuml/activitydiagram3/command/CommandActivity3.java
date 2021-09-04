@@ -52,6 +52,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 
@@ -65,7 +66,7 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 				+ "|" //
 				+ "(?<![/|}\\]])\\]" // About ]
 				+ "|" //
-				+ "(?<!\\</?\\w{1,5})(?<!\\<img[^>]{1,999})(?<!\\<[&$]\\w{1,999})(?<!\\>)\\>"  // About >
+				+ "(?<!\\</?\\w{1,5})(?<!\\<img[^>]{1,999})(?<!\\<[&$]\\w{1,999})(?<!\\>)\\>" // About >
 				+ "|" //
 				+ "(?<!\\|.{1,999})\\|" // About |
 				+ ")";
@@ -98,7 +99,8 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 
 		final Url url;
 		if (arg.get("URL", 0) == null) {
@@ -108,15 +110,17 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 			url = urlBuilder.getUrl(arg.get("URL", 0));
 		}
 
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		final String stereo = arg.get("STEREO", 0);
+		Stereotype stereotype = null;
 		if (stereo != null) {
-			final Stereotype stereotype = new Stereotype(stereo);
+			stereotype = new Stereotype(stereo);
 			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.activityBackground);
 		}
 		final BoxStyle style = BoxStyle.fromChar(arg.get("STYLE", 0).charAt(0));
-		diagram.addActivity(Display.getWithNewlines(arg.get("LABEL", 0)), style, url, colors);
-		return CommandExecutionResult.ok();
+		final Display display = Display.getWithNewlines2(arg.get("LABEL", 0));
+		return diagram.addActivity(display, style, url, colors, stereotype);
 	}
 
 }

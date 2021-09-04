@@ -36,8 +36,8 @@ import java.awt.Font;
 import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.SpriteContainerEmpty;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.DisplaySection;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -61,18 +61,17 @@ public class PngTitler {
 	private final HColorSet set;
 	private final ISkinSimple spriteContainer;
 
-	public PngTitler(HColor textColor, DisplaySection text, int fontSize, String fontFamily,
-			HColor hyperlinkColor, boolean useUnderlineForHyperlink, Style style, HColorSet set,
-			ISkinSimple spriteContainer) {
+	public PngTitler(HColor textColor, DisplaySection text, int fontSize, String fontFamily, HColor hyperlinkColor,
+			boolean useUnderlineForHyperlink, Style style, HColorSet set, ISkinSimple spriteContainer) {
 		this.style = style;
 		this.set = set;
 		this.spriteContainer = spriteContainer;
 
-		if (SkinParam.USE_STYLES()) {
-			textColor = style.value(PName.FontColor).asColor(set);
+		if (UseStyle.useBetaStyle()) {
+			textColor = style.value(PName.FontColor).asColor(spriteContainer.getThemeStyle(), set);
 			fontSize = style.value(PName.FontSize).asInt();
 			fontFamily = style.value(PName.FontName).asString();
-			hyperlinkColor = style.value(PName.HyperLinkColor).asColor(set);
+			hyperlinkColor = style.value(PName.HyperLinkColor).asColor(spriteContainer.getThemeStyle(), set);
 		}
 		this.textColor = textColor;
 		this.text = text;
@@ -92,7 +91,7 @@ public class PngTitler {
 	}
 
 	public TextBlock getRibbonBlock() {
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Display display = text.getDisplay();
 			if (display == null) {
 				return null;
@@ -100,8 +99,7 @@ public class PngTitler {
 			return style.createTextBlockBordered(display, set, spriteContainer);
 		}
 		final UFont normalFont = new UFont(fontFamily, Font.PLAIN, fontSize);
-		return text.createRibbon(
-				new FontConfiguration(normalFont, textColor, hyperlinkColor, useUnderlineForHyperlink),
-				new SpriteContainerEmpty());
+		return text.createRibbon(new FontConfiguration(normalFont, textColor, hyperlinkColor, useUnderlineForHyperlink),
+				new SpriteContainerEmpty(), null);
 	}
 }

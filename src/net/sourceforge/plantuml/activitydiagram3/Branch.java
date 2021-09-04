@@ -33,13 +33,15 @@
 package net.sourceforge.plantuml.activitydiagram3;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.WeldingPoint;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.color.Colors;
@@ -56,10 +58,14 @@ public class Branch {
 
 	private final InstructionList list;
 	private final Display labelTest;
-	private final Display labelPositive;
-	private final Display inlabel;
-	private final HColor color;
+
+	private final LinkRendering labelPositive;
+
 	private LinkRendering inlinkRendering = LinkRendering.none();
+	private final LinkRendering inlabel;
+	private LinkRendering special;
+
+	private final HColor color;
 
 	private Ftile ftile;
 
@@ -75,37 +81,31 @@ public class Branch {
 		return list.containsBreak();
 	}
 
-	public Branch(StyleBuilder styleBuilder, Swimlane swimlane, Display labelPositive, Display labelTest,
-			HColor color, Display inlabel) {
-		if (labelPositive == null) {
-			throw new IllegalArgumentException();
-		}
-		if (labelTest == null) {
-			throw new IllegalArgumentException();
-		}
-		if (inlabel == null) {
-			throw new IllegalArgumentException();
-		}
-		if (SkinParam.USE_STYLES()) {
+	public Branch(StyleBuilder styleBuilder, Swimlane swimlane, LinkRendering labelPositive, Display labelTest,
+			HColor color, LinkRendering inlabel) {
+		this.inlabel = Objects.requireNonNull(inlabel);
+		this.labelTest = Objects.requireNonNull(labelTest);
+		this.labelPositive = Objects.requireNonNull(labelPositive);
+		if (UseStyle.useBetaStyle()) {
 			final Style style = getDefaultStyleDefinitionDiamond().getMergedStyle(styleBuilder);
-			this.color = color == null ? style.value(PName.BackGroundColor).asColor(
-					styleBuilder.getSkinParam().getIHtmlColorSet()) : color;
+			this.color = color == null
+					? style.value(PName.BackGroundColor).asColor(styleBuilder.getSkinParam().getThemeStyle(),
+							styleBuilder.getSkinParam().getIHtmlColorSet())
+					: color;
 		} else {
 			this.color = color;
 		}
 
-		this.inlabel = inlabel;
 		this.list = new InstructionList(swimlane);
-		this.labelTest = labelTest;
-		this.labelPositive = labelPositive;
 	}
 
 	public Collection<WeldingPoint> getWeldingPoints() {
 		return ftile.getWeldingPoints();
 	}
 
-	public void add(Instruction ins) {
+	public CommandExecutionResult add(Instruction ins) {
 		list.add(ins);
+		return CommandExecutionResult.ok();
 	}
 
 	public boolean kill() {
@@ -117,10 +117,7 @@ public class Branch {
 	}
 
 	public final void setInlinkRendering(LinkRendering inlinkRendering) {
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
-		this.inlinkRendering = inlinkRendering;
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 	}
 
 	public void updateFtile(FtileFactory factory) {
@@ -136,19 +133,51 @@ public class Branch {
 		if (in != null && Display.isNull(in.getDisplay()) == false) {
 			return in.getDisplay();
 		}
-		return labelPositive;
+		return labelPositive.getDisplay();
 	}
 
 	public final Display getLabelTest() {
 		return labelTest;
 	}
 
-	public final Rainbow getInlinkRenderingColorAndStyle() {
-		return inlinkRendering == null ? null : inlinkRendering.getRainbow();
+	public final Rainbow getOut() {
+		if (special != null) {
+			return special.getRainbow();
+		}
+//		if (labelPositive.getRainbow().size() > 0) {
+//			return labelPositive.getRainbow();
+//		}
+		if (inlinkRendering == null) {
+			return null;
+		}
+		return inlinkRendering.getRainbow();
+	}
+
+	public Rainbow getInColor(Rainbow arrowColor) {
+		if (isEmpty()) {
+			return getFtile().getOutLinkRendering().getRainbow(arrowColor);
+		}
+		if (labelPositive.getRainbow().size() > 0) {
+			return labelPositive.getRainbow();
+		}
+		final LinkRendering linkIn = getFtile().getInLinkRendering();
+		final Rainbow color = linkIn.getRainbow(arrowColor);
+		if (color.size() == 0) {
+			return arrowColor;
+		}
+		return color;
 	}
 
 	public Display getInlabel() {
-		return inlabel;
+		return inlabel.getDisplay();
+	}
+
+	public Rainbow getInRainbow(Rainbow defaultColor) {
+		return inlabel.getRainbow(defaultColor);
+	}
+
+	public Rainbow getLabelPositiveRainbow(Rainbow defaultColor) {
+		return labelPositive.getRainbow(defaultColor);
 	}
 
 	public final Ftile getFtile() {
@@ -174,8 +203,6 @@ public class Branch {
 	public boolean isOnlySingleStopOrSpot() {
 		return list.isOnlySingleStopOrSpot();
 	}
-
-	private LinkRendering special;
 
 	public void setSpecial(LinkRendering link) {
 		this.special = link;

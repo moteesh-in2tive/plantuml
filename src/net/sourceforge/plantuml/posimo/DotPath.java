@@ -27,6 +27,7 @@
  *
  *
  * Original Author:  Arnaud Roques
+ * Contribution:  Miguel Esteves
  *
  * 
  */
@@ -51,7 +52,6 @@ import java.util.Set;
 import net.sourceforge.plantuml.EnsureVisible;
 import net.sourceforge.plantuml.asciiart.BasicCharArea;
 import net.sourceforge.plantuml.eps.EpsGraphics;
-import net.sourceforge.plantuml.geom.LineSegmentDouble;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.ClusterPosition;
 import net.sourceforge.plantuml.svek.MinFinder;
@@ -91,6 +91,7 @@ public class DotPath implements UShape, Moveable {
 
 	private final List<CubicCurve2D.Double> beziers = new ArrayList<CubicCurve2D.Double>();
 	private String comment;
+	private String codeLine;
 
 	public DotPath() {
 		this(new ArrayList<CubicCurve2D.Double>());
@@ -136,7 +137,7 @@ public class DotPath implements UShape, Moveable {
 		}
 		final Point2D start = fullSvg.substring(1, posC).getNextPoint();
 
-		final List<TriPoints> triPoints = new ArrayList<TriPoints>();
+		final List<TriPoints> triPoints = new ArrayList<>();
 		for (Iterator<Point2D.Double> it = fullSvg.substring(posC + 1).getPoints(" ").iterator(); it.hasNext();) {
 			final Point2D.Double p1 = it.next();
 			final Point2D.Double p2 = it.next();
@@ -168,7 +169,7 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	public Set<Point2D> sample() {
-		final Set<Point2D> result = new HashSet<Point2D>();
+		final Set<Point2D> result = new HashSet<>();
 		for (CubicCurve2D.Double bez : beziers) {
 			sample(bez, result);
 		}
@@ -424,7 +425,7 @@ public class DotPath implements UShape, Moveable {
 	}
 
 	public UPath toUPath() {
-		final UPath result = new UPath(comment);
+		final UPath result = new UPath(comment, codeLine);
 		boolean start = true;
 		for (CubicCurve2D.Double bez : beziers) {
 			if (start) {
@@ -675,19 +676,9 @@ public class DotPath implements UShape, Moveable {
 		return true;
 	}
 
-	public List<LineSegmentDouble> getLineSegments() {
-		final List<LineSegmentDouble> result = new ArrayList<LineSegmentDouble>();
-		for (CubicCurve2D.Double curve : beziers) {
-			if (curve.getFlatnessSq() <= 0.001) {
-				result.add(new LineSegmentDouble(curve));
-
-			}
-		}
-		return Collections.unmodifiableList(result);
-	}
-
-	public void setComment(String comment) {
+	public void setCommentAndCodeLine(String comment, String codeLine) {
 		this.comment = comment;
+		this.codeLine = codeLine;
 	}
 
 }

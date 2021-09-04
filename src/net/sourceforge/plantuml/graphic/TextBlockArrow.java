@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.graphic;
 
 import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Direction;
@@ -48,10 +49,7 @@ public class TextBlockArrow extends AbstractTextBlock implements TextBlock {
 	private final HColor color;
 
 	public TextBlockArrow(Direction arrow, FontConfiguration fontConfiguration) {
-		if (arrow == null) {
-			throw new IllegalArgumentException();
-		}
-		this.arrow = arrow;
+		this.arrow = Objects.requireNonNull(arrow);
 		// this.size = fontConfiguration.getFont().getSize2D() * 0 + 30;
 		this.size = fontConfiguration.getFont().getSize2D();
 		this.color = fontConfiguration.getColor();
@@ -66,11 +64,7 @@ public class TextBlockArrow extends AbstractTextBlock implements TextBlock {
 			triSize--;
 		}
 		final UPolygon triangle = getTriangle(triSize);
-		if (arrow == Direction.RIGHT || arrow == Direction.LEFT) {
-			ug.apply(new UTranslate(2, (size - triSize) - 2)).draw(triangle);
-		} else {
-			ug.apply(new UTranslate(2, (size - triSize) - 2)).draw(triangle);
-		}
+		ug.apply(new UTranslate(2, (size - triSize) - 2)).draw(triangle);
 	}
 
 	private UPolygon getTriangle(int triSize) {

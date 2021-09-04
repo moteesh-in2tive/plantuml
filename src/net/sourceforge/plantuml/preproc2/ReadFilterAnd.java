@@ -39,7 +39,7 @@ import net.sourceforge.plantuml.preproc.ReadLine;
 
 public class ReadFilterAnd implements ReadFilter {
 
-	private final Collection<ReadFilter> all = new ArrayList<ReadFilter>();
+	private final Collection<ReadFilter> all = new ArrayList<>();
 
 	public void add(ReadFilter filter) {
 		all.add(filter);

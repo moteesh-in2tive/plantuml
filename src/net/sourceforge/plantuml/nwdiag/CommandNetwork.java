@@ -51,7 +51,7 @@ public class CommandNetwork extends SingleLineCommand2<NwDiagram> {
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("network"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("NAME", "([\\p{L}0-9_]+)?"), //
+				new RegexLeaf("NAME", "([%pLN_]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("\\{"), RegexLeaf.end());
 	}

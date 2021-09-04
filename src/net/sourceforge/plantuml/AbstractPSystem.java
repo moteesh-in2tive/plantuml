@@ -32,8 +32,11 @@
  */
 package net.sourceforge.plantuml;
 
+import static net.sourceforge.plantuml.ugraphic.ImageBuilder.imageBuilder;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
@@ -47,12 +50,19 @@ import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.stats.StatsUtilsIncrement;
+import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.ugraphic.ImageBuilder;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.version.Version;
 
 public abstract class AbstractPSystem implements Diagram {
 
-	private UmlSource source;
+	private final UmlSource source;
 	private Scale scale;
+
+	public AbstractPSystem(UmlSource source) {
+		this.source = Objects.requireNonNull(source);
+	}
 
 	private String getVersion() {
 		final StringBuilder toAppend = new StringBuilder();
@@ -89,10 +99,6 @@ public abstract class AbstractPSystem implements Diagram {
 		return getSource().seed();
 	}
 
-	final public void setSource(UmlSource source) {
-		this.source = source;
-	}
-
 	public int getNbImages() {
 		return 1;
 	}
@@ -121,7 +127,11 @@ public abstract class AbstractPSystem implements Diagram {
 
 	public CommandExecutionResult executeCommand(Command cmd, BlocLines lines) {
 		cmd = new ProtectedCommand(cmd);
-		return cmd.execute(this, lines);
+		try {
+			return cmd.execute(this, lines);
+		} catch (NoSuchColorException e) {
+			return CommandExecutionResult.badColor();
+		}
 	}
 
 	public boolean hasUrl() {
@@ -132,7 +142,14 @@ public abstract class AbstractPSystem implements Diagram {
 			throws IOException {
 		final long now = System.currentTimeMillis();
 		try {
-			return exportDiagramNow(os, index, fileFormatOption, seed());
+//			if (this instanceof TitledDiagram) {
+//				final TitledDiagram titledDiagram = (TitledDiagram) this;
+//				final StyleBuilder styleBuilder = titledDiagram.getCurrentStyleBuilder();
+//				if (styleBuilder != null) {
+//					styleBuilder.printMe();
+//				}
+//			}
+			return exportDiagramNow(os, index, fileFormatOption);
 		} finally {
 			if (OptionFlags.getInstance().isEnableStats()) {
 				StatsUtilsIncrement.onceMoreGenerate(System.currentTimeMillis() - now, getClass(),
@@ -149,7 +166,16 @@ public abstract class AbstractPSystem implements Diagram {
 		return scale;
 	}
 
-	protected abstract ImageData exportDiagramNow(OutputStream os, int index, FileFormatOption fileFormatOption,
-			long seed) throws IOException;
+	public ImageBuilder createImageBuilder(FileFormatOption fileFormatOption) throws IOException {
+		return imageBuilder(fileFormatOption);
+	}
+
+	// TODO "index" isnt really being used
+	protected abstract ImageData exportDiagramNow(OutputStream os, int index, FileFormatOption fileFormatOption)
+			throws IOException;
+
+	public ClockwiseTopRightBottomLeft getDefaultMargins() {
+		return ClockwiseTopRightBottomLeft.same(0);
+	}
 
 }

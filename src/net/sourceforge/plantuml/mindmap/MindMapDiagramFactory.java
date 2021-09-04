@@ -38,11 +38,13 @@ package net.sourceforge.plantuml.mindmap;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.command.Command;
-import net.sourceforge.plantuml.command.UmlDiagramFactory;
+import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.core.DiagramType;
+import net.sourceforge.plantuml.core.UmlSource;
 
-public class MindMapDiagramFactory extends UmlDiagramFactory {
+public class MindMapDiagramFactory extends PSystemCommandFactory {
 
 	public MindMapDiagramFactory() {
 		super(DiagramType.MINDMAP);
@@ -51,25 +53,21 @@ public class MindMapDiagramFactory extends UmlDiagramFactory {
 	@Override
 	protected List<Command> createCommands() {
 
-		final List<Command> cmds = new ArrayList<Command>();
+		final List<Command> cmds = new ArrayList<>();
 		addCommonCommands1(cmds);
-		cmds.add(new CommandMindMapTabulation());
+		// cmds.add(new CommandMindMapTabulation());
 		cmds.add(new CommandMindMapOrgmode());
 		cmds.add(new CommandMindMapOrgmodeMultiline());
 		cmds.add(new CommandMindMapRoot());
 		cmds.add(new CommandMindMapPlus());
 		cmds.add(new CommandMindMapDirection());
-//		cmds.add(new CommandMindMapRight());
-//		cmds.add(new CommandMindMapRightNumber());
-//		cmds.add(new CommandMindMapLeft());
-//		cmds.add(new CommandMindMapLeftNumber());
 
 		return cmds;
 	}
 
 	@Override
-	public MindMapDiagram createEmptyDiagram() {
-		return new MindMapDiagram();
+	public MindMapDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
+		return new MindMapDiagram(source);
 	}
 
 }

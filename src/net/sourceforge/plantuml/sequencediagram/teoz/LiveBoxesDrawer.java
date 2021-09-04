@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.SkinParamBackcolored;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -65,15 +66,18 @@ public class LiveBoxesDrawer {
 	private final Collection<Segment> delays;
 
 	public LiveBoxesDrawer(Context2D context, Rose skin, ISkinParam skinParam, Map<Double, Double> delays) {
-		this.cross = skin.createComponent(new Style[] { ComponentType.DESTROY.getDefaultStyleDefinition()
-				.getMergedStyle(skinParam.getCurrentStyleBuilder()) }, ComponentType.DESTROY, null, skinParam, null);
-		this.compForWidth = skin.createComponent(new Style[] { ComponentType.ALIVE_BOX_CLOSE_CLOSE
-				.getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder()) },
+		this.cross = skin.createComponent(
+				new Style[] { ComponentType.DESTROY.getDefaultStyleDefinition()
+						.getMergedStyle(skinParam.getCurrentStyleBuilder()) },
+				ComponentType.DESTROY, null, skinParam, null);
+		this.compForWidth = skin.createComponent(
+				new Style[] { ComponentType.ALIVE_BOX_CLOSE_CLOSE.getDefaultStyleDefinition()
+						.getMergedStyle(skinParam.getCurrentStyleBuilder()) },
 				ComponentType.ALIVE_BOX_CLOSE_CLOSE, null, skinParam, null);
 		this.context = context;
 		this.skin = skin;
 		this.skinParam = skinParam;
-		this.delays = new HashSet<Segment>();
+		this.delays = new HashSet<>();
 		for (Map.Entry<Double, Double> ent : delays.entrySet()) {
 			this.delays.add(new Segment(ent.getKey(), ent.getKey() + ent.getValue()));
 		}
@@ -88,8 +92,8 @@ public class LiveBoxesDrawer {
 		this.symbolContext = symbolContext;
 	}
 
-	public void doDrawing(UGraphic ug, StairsPosition yposition) {
-		final Segment full = new Segment(y1, yposition.getValue());
+	public void doDrawing(UGraphic ug, double yposition) {
+		final Segment full = new Segment(y1, yposition);
 		final Collection<Segment> segments = full.cutSegmentIfNeed(delays);
 		ComponentType type = ComponentType.ALIVE_BOX_CLOSE_CLOSE;
 		if (segments.size() > 1) {
@@ -100,28 +104,30 @@ public class LiveBoxesDrawer {
 			if (it.hasNext() == false && type != ComponentType.ALIVE_BOX_CLOSE_CLOSE) {
 				type = ComponentType.ALIVE_BOX_OPEN_CLOSE;
 			}
-			drawInternal(ug, yposition, seg.getPos1(), seg.getPos2(), type);
+			drawInternal(ug, seg.getPos1(), seg.getPos2(), type);
 			type = ComponentType.ALIVE_BOX_OPEN_OPEN;
 		}
 		y1 = Double.MAX_VALUE;
 	}
 
-	public void drawDestroyIfNeeded(UGraphic ug, StairsPosition yposition) {
-		if (yposition.isDestroy()) {
+	public void drawDestroyIfNeeded(UGraphic ug, Step step) {
+		if (step.isDestroy()) {
 			final Dimension2D dimCross = cross.getPreferredDimension(ug.getStringBounder());
-			cross.drawU(
-					ug.apply(new UTranslate(-dimCross.getWidth() / 2, yposition.getValue() - dimCross.getHeight() / 2)),
+			cross.drawU(ug.apply(new UTranslate(-dimCross.getWidth() / 2, step.getValue() - dimCross.getHeight() / 2)),
 					null, context);
 		}
 	}
 
-	private void drawInternal(UGraphic ug, StairsPosition yposition, double ya, double yb, ComponentType type) {
+	private void drawInternal(UGraphic ug, double ya, double yb, ComponentType type) {
 		final double width = getWidth(ug.getStringBounder());
 		final Area area = new Area(width, yb - ya);
-		ISkinParam skinParam2 = new SkinParamBackcolored(skinParam, symbolContext == null ? null
-				: symbolContext.getBackColor());
+		SkinParamBackcolored skinParam2 = new SkinParamBackcolored(skinParam,
+				symbolContext == null ? null : symbolContext.getBackColor());
 		Style style = type.getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
-		if (style != null) {
+		if (style == null) {
+			if (symbolContext != null)
+				skinParam2.forceColor(ColorParam.sequenceLifeLineBorder, symbolContext.getForeColor());
+		} else {
 			style = style.eventuallyOverride(symbolContext);
 		}
 		final Component comp = skin.createComponent(new Style[] { style }, type, null, skinParam2, null);

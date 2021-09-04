@@ -41,14 +41,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.cucadiagram.Bodier;
-import net.sourceforge.plantuml.cucadiagram.BodierImpl;
 import net.sourceforge.plantuml.cucadiagram.BodierMap;
+import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -75,7 +77,7 @@ public final class EntityFactory {
 	/* private */final Map<Ident, ILeaf> leafs2 = new LinkedHashMap<Ident, ILeaf>();
 	/* private */final Map<Ident, IGroup> groups2 = new LinkedHashMap<Ident, IGroup>();
 
-	private final List<Link> links = new ArrayList<Link>();
+	private final List<Link> links = new ArrayList<>();
 
 	private int rawLayout;
 
@@ -104,7 +106,7 @@ public final class EntityFactory {
 	}
 
 	public void buildSuperGroups() {
-		superGroups = new HashSet<SuperGroup>();
+		superGroups = new HashSet<>();
 		for (IGroup g : groups2.values()) {
 			final SuperGroup sg = new SuperGroup(g);
 			superGroups.add(sg);
@@ -119,22 +121,28 @@ public final class EntityFactory {
 		final USymbol symbol = g.getUSymbol();
 		folder.setUSymbol(symbol);
 		folder.setStereotype(g.getStereotype());
+		folder.setColors(g.getColors(skinParam));
 		if (g.getUrl99() != null) {
 			folder.addUrl(g.getUrl99());
 		}
-		if (g.getColors(skinParam).getColor(ColorType.BACK) == null) {
-			final ColorParam param = symbol == null ? ColorParam.packageBackground : symbol.getColorParamBack();
-			final HColor c1 = skinParam.getHtmlColor(param, g.getStereotype(), false);
-			folder.setSpecificColorTOBEREMOVED(ColorType.BACK, c1 == null ? skinParam.getBackgroundColor(false) : c1);
+		if (UseStyle.useBetaStyle()) {
+			// System.err.println("Backcolor ?");
 		} else {
-			folder.setSpecificColorTOBEREMOVED(ColorType.BACK, g.getColors(skinParam).getColor(ColorType.BACK));
+			if (g.getColors(skinParam).getColor(ColorType.BACK) == null) {
+				final ColorParam param = symbol == null ? ColorParam.packageBackground : symbol.getColorParamBack();
+				final HColor c1 = skinParam.getHtmlColor(param, g.getStereotype(), false);
+				folder.setSpecificColorTOBEREMOVED(ColorType.BACK,
+						c1 == null ? skinParam.getBackgroundColor(false) : c1);
+			} else {
+				folder.setSpecificColorTOBEREMOVED(ColorType.BACK, g.getColors(skinParam).getColor(ColorType.BACK));
+			}
 		}
 		emptyGroupsAsNode.put(g, folder);
 		return folder;
 	}
 
 	public Display getIntricatedDisplay(Ident ident) {
-		final Set<Ident> known = new HashSet<Ident>(groups2.keySet());
+		final Set<Ident> known = new HashSet<>(groups2.keySet());
 		known.removeAll(hiddenBecauseOfIntrication);
 		String sep = namespaceSeparator.getNamespaceSeparator();
 		if (sep == null) {
@@ -150,7 +158,7 @@ public final class EntityFactory {
 		return Display.getWithNewlines(ident.toString(sep)).withCreoleMode(CreoleMode.SIMPLE_LINE);
 	}
 
-	private final Collection<Ident> hiddenBecauseOfIntrication = new ArrayList<Ident>();
+	private final Collection<Ident> hiddenBecauseOfIntrication = new ArrayList<>();
 
 	public IGroup isIntricated(IGroup parent) {
 		final int leafs = parent.getLeafsDirect().size();
@@ -212,10 +220,7 @@ public final class EntityFactory {
 
 	public ILeaf createLeaf(Ident ident, Code code, Display display, LeafType entityType, IGroup parentContainer,
 			Set<VisibilityModifier> hides, String namespaceSeparator) {
-		if (entityType == null) {
-			throw new IllegalArgumentException();
-		}
-		final Bodier bodier = entityType == LeafType.MAP ? new BodierMap() : new BodierImpl(entityType, hides);
+		final Bodier bodier = Objects.requireNonNull(entityType) == LeafType.MAP ? new BodierMap() : BodyFactory.createLeaf(entityType, hides);
 		final EntityImpl result = new EntityImpl(ident, code, this, bodier, parentContainer, entityType,
 				namespaceSeparator, rawLayout);
 		bodier.setLeaf(result);
@@ -225,10 +230,13 @@ public final class EntityFactory {
 
 	public IGroup createGroup(Ident ident, Code code, Display display, Code namespace, GroupType groupType,
 			IGroup parentContainer, Set<VisibilityModifier> hides, String namespaceSeparator) {
-		if (groupType == null) {
-			throw new IllegalArgumentException();
+		Objects.requireNonNull(groupType);
+		for (Entry<Ident, IGroup> ent : groups2.entrySet()) {
+			if (ent.getKey().equals(ident)) {
+				return ent.getValue();
+			}
 		}
-		final Bodier bodier = new BodierImpl(null, hides);
+		final Bodier bodier = BodyFactory.createGroup(hides);
 		final EntityImpl result = new EntityImpl(ident, code, this, bodier, parentContainer, groupType, namespace,
 				namespaceSeparator, rawLayout);
 		if (Display.isNull(display) == false) {
@@ -262,10 +270,7 @@ public final class EntityFactory {
 	void removeGroup(String name) {
 		if (namespaceSeparator.V1972())
 			throw new UnsupportedOperationException();
-		final IEntity removed = groupsByCode.remove(name);
-		if (removed == null) {
-			throw new IllegalArgumentException();
-		}
+		final IEntity removed = Objects.requireNonNull(groupsByCode.remove(name));
 		final IEntity removed2 = groups2.remove(removed.getIdent());
 		if (removed != removed2) {
 			bigError();
@@ -273,10 +278,7 @@ public final class EntityFactory {
 	}
 
 	void removeGroup(Ident ident) {
-		final IEntity removed = groups2.remove(ident);
-		if (removed == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(groups2.remove(Objects.requireNonNull(ident)));
 	}
 
 	public static void bigError() {
@@ -288,10 +290,7 @@ public final class EntityFactory {
 	void removeLeaf(String name) {
 		if (namespaceSeparator.V1972())
 			throw new UnsupportedOperationException();
-		final IEntity removed = leafsByCode.remove(name);
-		if (removed == null) {
-			throw new IllegalArgumentException();
-		}
+		final IEntity removed = Objects.requireNonNull(leafsByCode.remove(Objects.requireNonNull(name)));
 		final IEntity removed2 = leafs2.remove(removed.getIdent());
 		if (removed != removed2) {
 			bigError();
@@ -299,7 +298,7 @@ public final class EntityFactory {
 	}
 
 	void removeLeaf(Ident ident) {
-		final IEntity removed = leafs2.remove(ident);
+		final IEntity removed = leafs2.remove(Objects.requireNonNull(ident));
 		if (removed == null) {
 			System.err.println("leafs2=" + leafs2.keySet());
 			throw new IllegalArgumentException(ident.toString());
@@ -430,7 +429,7 @@ public final class EntityFactory {
 		if (namespaceSeparator.V1972())
 			return leafs2();
 		final Collection<ILeaf> result = Collections.unmodifiableCollection(leafsByCode.values());
-		if (new ArrayList<ILeaf>(result).equals(new ArrayList<ILeaf>(leafs2())) == false) {
+		if (new ArrayList<>(result).equals(new ArrayList<>(leafs2())) == false) {
 			bigError();
 		}
 		return result;
@@ -440,7 +439,7 @@ public final class EntityFactory {
 		if (namespaceSeparator.V1972())
 			return groups2();
 		final Collection<IGroup> result = Collections.unmodifiableCollection(groupsByCode.values());
-		if (new ArrayList<IGroup>(result).equals(new ArrayList<IGroup>(groups2())) == false) {
+		if (new ArrayList<>(result).equals(new ArrayList<>(groups2())) == false) {
 			bigError();
 		}
 		return result;
@@ -504,10 +503,7 @@ public final class EntityFactory {
 			addGroup(result);
 			return result;
 		}
-		if (parentContainer == null) {
-			throw new IllegalArgumentException();
-		}
-		return parentContainer;
+		return Objects.requireNonNull(parentContainer);
 	}
 
 }

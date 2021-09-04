@@ -34,11 +34,13 @@ package net.sourceforge.plantuml.activitydiagram3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
@@ -46,7 +48,7 @@ import net.sourceforge.plantuml.sequencediagram.NoteType;
 
 public class InstructionSplit implements Instruction {
 
-	private final List<InstructionList> splits = new ArrayList<InstructionList>();
+	private final List<InstructionList> splits = new ArrayList<>();
 	private final Instruction parent;
 	private final LinkRendering inlinkRendering;
 	private final Swimlane swimlaneIn;
@@ -57,10 +59,7 @@ public class InstructionSplit implements Instruction {
 		this.swimlaneIn = swimlane;
 
 		this.splits.add(new InstructionList(swimlane));
-		this.inlinkRendering = inlinkRendering;
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
+		this.inlinkRendering = Objects.requireNonNull(inlinkRendering);
 	}
 
 	public boolean containsBreak() {
@@ -76,12 +75,12 @@ public class InstructionSplit implements Instruction {
 		return splits.get(splits.size() - 1);
 	}
 
-	public void add(Instruction ins) {
-		getLast().add(ins);
+	public CommandExecutionResult add(Instruction ins) {
+		return getLast().add(ins);
 	}
 
 	public Ftile createFtile(FtileFactory factory) {
-		final List<Ftile> all = new ArrayList<Ftile>();
+		final List<Ftile> all = new ArrayList<>();
 		for (InstructionList list : splits) {
 			all.add(list.createFtile(factory));
 		}

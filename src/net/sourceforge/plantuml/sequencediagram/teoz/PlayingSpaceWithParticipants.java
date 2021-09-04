@@ -34,6 +34,7 @@ package net.sourceforge.plantuml.sequencediagram.teoz;
 
 import java.awt.geom.Dimension2D;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
@@ -57,10 +58,7 @@ public class PlayingSpaceWithParticipants extends AbstractTextBlock implements T
 	private double ymax;
 
 	public PlayingSpaceWithParticipants(PlayingSpace playingSpace) {
-		if (playingSpace == null) {
-			throw new IllegalArgumentException();
-		}
-		this.playingSpace = playingSpace;
+		this.playingSpace = Objects.requireNonNull(playingSpace);
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -69,8 +67,8 @@ public class PlayingSpaceWithParticipants extends AbstractTextBlock implements T
 					- playingSpace.getMinX(stringBounder).getCurrentValue();
 
 			final int factor = playingSpace.isShowFootbox() ? 2 : 1;
-			final double height = playingSpace.getPreferredHeight(stringBounder) + factor
-					* playingSpace.getLivingSpaces().getHeadHeight(stringBounder);
+			final double height = playingSpace.getPreferredHeight(stringBounder)
+					+ factor * playingSpace.getLivingSpaces().getHeadHeight(stringBounder);
 
 			cacheDimension = new Dimension2DDouble(width, height);
 		}
@@ -103,7 +101,8 @@ public class PlayingSpaceWithParticipants extends AbstractTextBlock implements T
 			playingSpace.drawForeground(ug.apply(UTranslate.dy(headHeight)));
 		} else {
 			final UClip clip = new UClip(-1000, ymin, Double.MAX_VALUE, ymax - ymin + 1);
-			// playingSpace.drawForeground(new UGraphicNewpages(ug.apply(UTranslate.dy(headHeight)), ymin, ymax));
+			// playingSpace.drawForeground(new
+			// UGraphicNewpages(ug.apply(UTranslate.dy(headHeight)), ymin, ymax));
 			playingSpace.drawForeground(ug.apply(UTranslate.dy(headHeight)).apply(clip));
 		}
 		// drawNewPages(ug.apply(UTranslate.dy(headHeight)));

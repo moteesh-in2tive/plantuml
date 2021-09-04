@@ -39,13 +39,14 @@ import java.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineBreakStrategy;
 import net.sourceforge.plantuml.Pragma;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.Instruction;
 import net.sourceforge.plantuml.activitydiagram3.InstructionList;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
@@ -92,9 +93,9 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 	private final ISkinParam skinParam;;
 	private final Pragma pragma;
 
-	private final List<Swimlane> swimlanesRaw = new ArrayList<Swimlane>();
-	private final List<Swimlane> swimlanesSpecial = new ArrayList<Swimlane>();
-	private final List<LaneDivider> dividers = new ArrayList<LaneDivider>();
+	private final List<Swimlane> swimlanesRaw = new ArrayList<>();
+	private final List<Swimlane> swimlanesSpecial = new ArrayList<>();
+	private final List<LaneDivider> dividers = new ArrayList<>();
 	private Swimlane currentSwimlane = null;
 
 	private final Instruction root = new InstructionList();
@@ -118,7 +119,7 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 	}
 
 	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.swimlane);
+		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
 	}
 
 	public Swimlanes(ISkinParam skinParam, Pragma pragma) {
@@ -228,8 +229,9 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 	private TextBlock getTitle(Swimlane swimlane) {
 		final HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 		FontConfiguration fontConfiguration = new FontConfiguration(skinParam, FontParam.SWIMLANE_TITLE, null);
-		if (SkinParam.USE_STYLES()) {
-			fontConfiguration = getStyle().getFontConfiguration(skinParam.getIHtmlColorSet());
+		if (UseStyle.useBetaStyle()) {
+			fontConfiguration = getStyle().getFontConfiguration(skinParam.getThemeStyle(),
+					skinParam.getIHtmlColorSet());
 		}
 		LineBreakStrategy wrap = getWrap();
 		if (wrap.isAuto()) {
@@ -302,8 +304,9 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 
 	private void drawTitlesBackground(UGraphic ug) {
 		HColor color = skinParam.getHtmlColor(ColorParam.swimlaneTitleBackground, null, false);
-		if (SkinParam.USE_STYLES()) {
-			color = getStyle().value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
+		if (UseStyle.useBetaStyle()) {
+			color = getStyle().value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
+					skinParam.getIHtmlColorSet());
 		}
 		if (color != null) {
 			final double titleHeight = getTitlesHeight(ug.getStringBounder());
@@ -411,10 +414,7 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 	}
 
 	public void setNextLinkRenderer(LinkRendering link) {
-		if (link == null) {
-			throw new IllegalArgumentException();
-		}
-		this.nextLinkRenderer = link;
+		this.nextLinkRenderer = Objects.requireNonNull(link);
 	}
 
 	public Swimlane getCurrentSwimlane() {

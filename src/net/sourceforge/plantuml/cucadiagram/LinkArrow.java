@@ -58,6 +58,10 @@ public enum LinkArrow {
 				public Direction getArrowDirection() {
 					return guide.getArrowDirection().getInv();
 				}
+
+				public double getArrowDirection2() {
+					return Math.PI + guide.getArrowDirection2();
+				}
 			};
 
 		}

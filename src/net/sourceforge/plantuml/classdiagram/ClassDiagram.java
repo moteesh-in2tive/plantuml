@@ -34,12 +34,13 @@ package net.sourceforge.plantuml.classdiagram;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.ISkinSimple;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -53,21 +54,16 @@ import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.objectdiagram.AbstractClassOrObjectDiagram;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.svek.image.EntityImageClass;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class ClassDiagram extends AbstractClassOrObjectDiagram {
 
-	public ClassDiagram(ISkinSimple skinParam) {
-		super(skinParam);
+	public ClassDiagram(UmlSource source, ISkinSimple skinParam) {
+		super(source, UmlDiagramType.CLASS, skinParam);
 	}
 
 	private Code getShortName1972(Code code) {
-		final String separator = getNamespaceSeparator();
-		if (separator == null) {
-			throw new IllegalArgumentException();
-		}
+		final String separator = Objects.requireNonNull(getNamespaceSeparator());
 		final String codeString = code.getName();
 		final String namespace = getNamespace1972(code, getNamespaceSeparator());
 		if (namespace == null) {
@@ -78,7 +74,7 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 
 	@Override
 	public ILeaf getOrCreateLeaf(Ident ident, Code code, LeafType type, USymbol symbol) {
-		checkNotNull(ident);
+		Objects.requireNonNull(ident);
 		if (this.V1972()) {
 			if (type == null) {
 				type = LeafType.CLASS;
@@ -109,7 +105,7 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 
 	@Override
 	public ILeaf createLeaf(Ident idNewLong, Code code, Display display, LeafType type, USymbol symbol) {
-		checkNotNull(idNewLong);
+		Objects.requireNonNull(idNewLong);
 		if (type != LeafType.ABSTRACT_CLASS && type != LeafType.ANNOTATION && type != LeafType.CLASS
 				&& type != LeafType.INTERFACE && type != LeafType.ENUM && type != LeafType.LOLLIPOP_FULL
 				&& type != LeafType.LOLLIPOP_HALF && type != LeafType.NOTE) {
@@ -132,7 +128,7 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 			USymbol symbol) {
 		if (this.V1972())
 			throw new UnsupportedOperationException();
-		checkNotNull(id);
+		Objects.requireNonNull(id);
 		final IGroup backupCurrentGroup = getCurrentGroup();
 		final IGroup group = backupCurrentGroup;
 		final String namespaceString = getNamespace1972(fullyCode, getNamespaceSeparator());
@@ -141,6 +137,7 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 			final Code namespace = buildCode(namespaceString);
 			final Display tmp = Display.getWithNewlines(namespaceString);
 			final Ident newIdLong = buildLeafIdentSpecial(namespaceString);
+			// final Ident newIdLong = buildLeafIdentSpecial2(namespaceString);
 			gotoGroupExternal(newIdLong, namespace, tmp, namespace, GroupType.PACKAGE, getRootGroup());
 		}
 		final Display tmpDisplay;
@@ -160,11 +157,6 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 			return super.leafExist(code);
 		}
 		return super.leafExist(getFullyQualifiedCode1972(code));
-	}
-
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.CLASS;
 	}
 
 	private boolean allowMixing;
@@ -200,19 +192,10 @@ public class ClassDiagram extends AbstractClassOrObjectDiagram {
 			final RowLayout rawLayout = getRawLayout(i);
 			fullLayout.addRowLayout(rawLayout);
 		}
-		final int margin1;
-		final int margin2;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(0);
-			margin2 = SkinParam.zeroMargin(10);
-		} else {
-			margin1 = 0;
-			margin2 = 10;
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildD(getSkinParam(), ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2), null, null,
-		null, (double) 1);
-		imageBuilder.setUDrawable(fullLayout);
-		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
+		return createImageBuilder(fileFormatOption)
+				.annotations(false) // Backwards compatibility - this only applies when "layout_new_line" is used
+				.drawable(fullLayout)
+				.write(os);
 	}
 
 	private RowLayout getRawLayout(int raw) {

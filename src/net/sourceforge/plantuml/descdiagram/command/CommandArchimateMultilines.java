@@ -55,6 +55,7 @@ import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntityDiagram> {
 
@@ -64,7 +65,7 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^(.*)\\]$";
+		return "^(.*)\\]$";
 	}
 
 	private static IRegex getRegexConcat() {
@@ -73,7 +74,7 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 				RegexLeaf.spaceOneOrMore(), //
 				color().getRegex(), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+				new RegexLeaf("CODE", "([%pLN_.]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexOptional( //
 						new RegexConcat( //
@@ -95,7 +96,8 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines)
+			throws NoSuchColorException {
 		lines = lines.trim();
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final String codeRaw = line0.getLazzy("CODE", 0);
@@ -113,12 +115,14 @@ public class CommandArchimateMultilines extends CommandMultilines2<AbstractEntit
 		entity.setDisplay(display);
 		entity.setUSymbol(USymbol.RECTANGLE);
 		if (icon != null) {
-			entity.setStereotype(new Stereotype("<<$archimate/" + icon + ">>", diagram.getSkinParam()
-					.getCircledCharacterRadius(), diagram.getSkinParam().getFont(null, false,
-					FontParam.CIRCLED_CHARACTER), diagram.getSkinParam().getIHtmlColorSet()));
+			entity.setStereotype(
+					new Stereotype("<<$archimate/" + icon + ">>", diagram.getSkinParam().getCircledCharacterRadius(),
+							diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
+							diagram.getSkinParam().getIHtmlColorSet()));
 		}
 
-		final Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
 		entity.setColors(colors);
 
 		return CommandExecutionResult.ok();

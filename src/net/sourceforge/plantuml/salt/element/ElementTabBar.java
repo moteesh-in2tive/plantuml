@@ -47,7 +47,7 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 public class ElementTabBar extends AbstractElement {
 
-	private final Collection<Element> tabs = new ArrayList<Element>();
+	private final Collection<Element> tabs = new ArrayList<>();
 	private final UFont font;
 	private final ISkinSimple spriteContainer;
 

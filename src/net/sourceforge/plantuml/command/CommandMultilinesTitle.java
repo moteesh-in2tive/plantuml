@@ -37,19 +37,20 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandMultilinesTitle extends CommandMultilines<TitledDiagram> {
 
 	public CommandMultilinesTitle() {
-		super("(?i)^title$");
+		super("^title$");
 	}
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^end[%s]?title$";
+		return "^end[%s]?title$";
 	}
 
-	public CommandExecutionResult execute(final TitledDiagram diagram, BlocLines lines) {
+	public CommandExecutionResult execute(final TitledDiagram diagram, BlocLines lines) throws NoSuchColorException {
 		lines = lines.subExtract(1, 1);
 		lines = lines.removeEmptyColumns();
 		final Display strings = lines.toDisplay();

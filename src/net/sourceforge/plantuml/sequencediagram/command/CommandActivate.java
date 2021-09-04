@@ -45,6 +45,7 @@ import net.sourceforge.plantuml.sequencediagram.LifeEventType;
 import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandActivate extends SingleLineCommand2<SequenceDiagram> {
 
@@ -56,7 +57,7 @@ public class CommandActivate extends SingleLineCommand2<SequenceDiagram> {
 		return RegexConcat.build(CommandActivate.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("TYPE", "(activate|deactivate|destroy|create)"), //
 				RegexLeaf.spaceOneOrMore(), //
-				new RegexLeaf("WHO", "([\\p{L}0-9_.@]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("WHO", "([%pLN_.@]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("BACK", "(#\\w+)?"), //
 				new RegexOptional( //
@@ -67,12 +68,17 @@ public class CommandActivate extends SingleLineCommand2<SequenceDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final LifeEventType type = LifeEventType.valueOf(StringUtils.goUpperCase(arg.get("TYPE", 0)));
-		final Participant p = diagram.getOrCreateParticipant(StringUtils
-				.eventuallyRemoveStartingAndEndingDoubleQuote(arg.get("WHO", 0)));
-		final HColor backColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("BACK", 0));
-		final HColor lineColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINE", 0));
+		final Participant p = diagram
+				.getOrCreateParticipant(StringUtils.eventuallyRemoveStartingAndEndingDoubleQuote(arg.get("WHO", 0)));
+		String s = arg.get("BACK", 0);
+		final HColor backColor = s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s);
+		String s1 = arg.get("LINE", 0);
+		final HColor lineColor = s1 == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s1);
 		final String error = diagram.activate(p, type, backColor, lineColor);
 		if (error == null) {
 			return CommandExecutionResult.ok();

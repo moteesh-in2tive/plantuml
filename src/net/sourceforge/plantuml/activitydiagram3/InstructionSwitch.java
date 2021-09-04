@@ -39,18 +39,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.sequencediagram.NotePosition;
+import net.sourceforge.plantuml.sequencediagram.NoteType;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class InstructionSwitch extends WithNote implements Instruction, InstructionCollection {
 
-	private final List<Branch> branches = new ArrayList<Branch>();
+	private final List<Branch> branches = new ArrayList<>();
 	private final ISkinParam skinParam;
 
 	private final Instruction parent;
@@ -73,40 +78,29 @@ public class InstructionSwitch extends WithNote implements Instruction, Instruct
 
 	public InstructionSwitch(Swimlane swimlane, Instruction parent, Display labelTest, LinkRendering inlinkRendering,
 			HColor color, ISkinParam skinParam) {
-		this.topInlinkRendering = inlinkRendering;
+		this.topInlinkRendering = Objects.requireNonNull(inlinkRendering);
 		this.parent = parent;
 		this.skinParam = skinParam;
 		this.labelTest = labelTest;
-		if (inlinkRendering == null) {
-			throw new IllegalArgumentException();
-		}
 		this.swimlane = swimlane;
 	}
 
-	public void add(Instruction ins) {
-		current.add(ins);
+	public CommandExecutionResult add(Instruction ins) {
+		if (current == null) {
+			return CommandExecutionResult.error("No 'case' in this switch");
+		}
+		return current.add(ins);
 	}
 
 	public Ftile createFtile(FtileFactory factory) {
 		for (Branch branch : branches) {
 			branch.updateFtile(factory);
 		}
-		Ftile result = factory.createSwitch(swimlane, branches, afterEndwhile, topInlinkRendering, labelTest);
-		// if (getPositionedNotes().size() > 0) {
-		// result = FtileWithNoteOpale.create(result, getPositionedNotes(), skinParam, false);
-		// }
-		// final List<WeldingPoint> weldingPoints = new ArrayList<WeldingPoint>();
-		// for (Branch branch : branches) {
-		// weldingPoints.addAll(branch.getWeldingPoints());
-		// }
-		// if (weldingPoints.size() > 0) {
-		// result = new FtileDecorateWelding(result, weldingPoints);
-		// }
-		return result;
+		return factory.createSwitch(swimlane, branches, afterEndwhile, topInlinkRendering, labelTest);
 	}
 
 	final public boolean kill() {
-		throw new UnsupportedOperationException();
+		return current.kill();
 	}
 
 	public LinkRendering getInLinkRendering() {
@@ -114,7 +108,7 @@ public class InstructionSwitch extends WithNote implements Instruction, Instruct
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		if (swimlane != null) {
 			result.add(swimlane);
 		}
@@ -137,7 +131,9 @@ public class InstructionSwitch extends WithNote implements Instruction, Instruct
 	}
 
 	public boolean switchCase(Display labelCase, LinkRendering nextLinkRenderer) {
-		this.current = new Branch(skinParam.getCurrentStyleBuilder(), swimlane, labelCase, labelCase, null, labelCase);
+		this.current = new Branch(skinParam.getCurrentStyleBuilder(), swimlane,
+				LinkRendering.none().withDisplay(labelCase), labelCase, null,
+				LinkRendering.none().withDisplay(labelCase));
 		this.branches.add(this.current);
 		return true;
 	}
@@ -151,8 +147,13 @@ public class InstructionSwitch extends WithNote implements Instruction, Instruct
 
 	}
 
-	// public void afterEndwhile(LinkRendering linkRenderer) {
-	// this.afterEndwhile = linkRenderer;
-	// }
+	@Override
+	public boolean addNote(Display note, NotePosition position, NoteType type, Colors colors, Swimlane swimlaneNote) {
+		if (current.isEmpty()) {
+			return super.addNote(note, position, type, colors, swimlaneNote);
+		} else {
+			return current.addNote(note, position, type, colors, swimlaneNote);
+		}
+	}
 
 }

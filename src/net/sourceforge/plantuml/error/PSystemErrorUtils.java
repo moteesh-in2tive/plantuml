@@ -45,21 +45,22 @@ import net.sourceforge.plantuml.core.UmlSource;
 
 public class PSystemErrorUtils {
 
-	// public static AbstractPSystemError buildV1(UmlSource source, ErrorUml singleError, List<String> debugLines) {
-	// return new PSystemErrorV1(source, singleError, debugLines);
-	// }
-
 	public static PSystemError buildV2(UmlSource source, ErrorUml singleError, List<String> debugLines,
 			List<StringLocated> list) {
-		// return new PSystemErrorV1(source, singleError, debugLines);
+//		if (source.isEmpty()) {
+//			return new PSystemErrorEmpty(source, list, singleError);
+//		}
 		return new PSystemErrorV2(source, list, singleError);
 	}
 
 	public static PSystemError merge(Collection<PSystemError> ps) {
+		if (ps.size() == 0) {
+			throw new IllegalStateException();
+		}
 		UmlSource source = null;
-		final List<ErrorUml> errors = new ArrayList<ErrorUml>();
-		// final List<String> debugs = new ArrayList<String>();
-		final List<PSystemErrorV2> errorsV2 = new ArrayList<PSystemErrorV2>();
+		final List<ErrorUml> errors = new ArrayList<>();
+		// final List<String> debugs = new ArrayList<>();
+		final List<PSystemErrorV2> errorsV2 = new ArrayList<>();
 		for (PSystemError system : ps) {
 			if (system == null) {
 				continue;
@@ -68,12 +69,6 @@ public class PSystemErrorUtils {
 				source = system.getSource();
 			}
 			errors.addAll(system.getErrorsUml());
-			// if (system instanceof PSystemErrorV1) {
-			// debugs.addAll(((PSystemErrorV1) system).debugLines);
-			// if (((PSystemErrorV1) system).debugLines.size() > 0) {
-			// debugs.add("-");
-			// }
-			// }
 			if (system instanceof PSystemErrorV2) {
 				errorsV2.add((PSystemErrorV2) system);
 			}
@@ -85,13 +80,12 @@ public class PSystemErrorUtils {
 			return mergeV2(errorsV2);
 		}
 		throw new IllegalStateException();
-		// return new PSystemErrorV1(source, errors, debugs);
 	}
 
 	private static PSystemErrorV2 mergeV2(List<PSystemErrorV2> errorsV2) {
 		PSystemErrorV2 result = null;
 		for (PSystemErrorV2 err : errorsV2) {
-			if (result == null || result.size() < err.size()) {
+			if (result == null || result.score() < err.score()) {
 				result = err;
 			}
 		}
@@ -100,7 +94,6 @@ public class PSystemErrorUtils {
 
 	public static boolean isDiagramError(Class<? extends Diagram> type) {
 		return PSystemError.class.isAssignableFrom(type);
-		// return type == PSystemErrorV1.class;
 	}
 
 }

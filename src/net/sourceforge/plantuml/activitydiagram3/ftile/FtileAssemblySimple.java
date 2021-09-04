@@ -144,7 +144,7 @@ public class FtileAssemblySimple extends AbstractTextBlock implements Ftile {
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		result.addAll(tile1.getSwimlanes());
 		result.addAll(tile2.getSwimlanes());
 		return Collections.unmodifiableSet(result);
@@ -159,7 +159,7 @@ public class FtileAssemblySimple extends AbstractTextBlock implements Ftile {
 	}
 
 	public List<WeldingPoint> getWeldingPoints() {
-		final List<WeldingPoint> result = new ArrayList<WeldingPoint>(tile1.getWeldingPoints());
+		final List<WeldingPoint> result = new ArrayList<>(tile1.getWeldingPoints());
 		result.addAll(tile2.getWeldingPoints());
 		return Collections.unmodifiableList(result);
 	}

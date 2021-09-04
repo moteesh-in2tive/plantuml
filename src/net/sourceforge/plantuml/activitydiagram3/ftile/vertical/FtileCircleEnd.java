@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
@@ -51,12 +51,12 @@ import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class FtileCircleEnd extends AbstractFtile {
 
 	private static final int SIZE = 20;
 
+	private final HColor borderColor;
 	private final HColor backColor;
 	private final Swimlane swimlane;
 	private double shadowing;
@@ -66,11 +66,12 @@ public class FtileCircleEnd extends AbstractFtile {
 		return Collections.emptyList();
 	}
 
-	public FtileCircleEnd(ISkinParam skinParam, HColor backColor, Swimlane swimlane, Style style) {
+	public FtileCircleEnd(ISkinParam skinParam, HColor backColor, HColor borderColor, Swimlane swimlane, Style style) {
 		super(skinParam);
+		this.borderColor = borderColor;
 		this.backColor = backColor;
 		this.swimlane = swimlane;
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			this.shadowing = style.value(PName.Shadowing).asDouble();
 		} else {
 			if (skinParam().shadowing(null)) {
@@ -102,10 +103,10 @@ public class FtileCircleEnd extends AbstractFtile {
 
 		final UEllipse circle = new UEllipse(SIZE, SIZE);
 		circle.setDeltaShadow(shadowing);
-		ug = ug.apply(backColor);
+		ug = ug.apply(borderColor);
 		final double thickness = 2.5;
-		ug.apply(HColorUtils.WHITE.bg()).apply(new UStroke(1.5))
-				.apply(new UTranslate(xTheoricalPosition, yTheoricalPosition)).draw(circle);
+		ug.apply(backColor.bg()).apply(new UStroke(1.5)).apply(new UTranslate(xTheoricalPosition, yTheoricalPosition))
+				.draw(circle);
 
 		final double size2 = (SIZE - thickness) / Math.sqrt(2);
 		final double delta = (SIZE - size2) / 2;

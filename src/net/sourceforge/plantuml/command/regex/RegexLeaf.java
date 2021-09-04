@@ -91,7 +91,7 @@ public class RegexLeaf implements IRegex {
 
 	public int count() {
 		if (count == -1) {
-			count = MyPattern.cmpile(pattern, Pattern.CASE_INSENSITIVE).matcher("").groupCount();
+			count = MyPattern.cmpile(pattern).matcher("").groupCount();
 		}
 		return count;
 	}
@@ -116,7 +116,7 @@ public class RegexLeaf implements IRegex {
 		throw new UnsupportedOperationException();
 	}
 
-	static private final Set<String> UNKNOWN = new HashSet<String>();
+	static private final Set<String> UNKNOWN = new HashSet<>();
 
 	static private final Pattern p1 = Pattern.compile("^[-0A-Za-z_!:@;/=,\"]+$");
 	static private final Pattern p2 = Pattern.compile("^[-0A-Za-z_!:@;/=,\"]+\\?$");
@@ -146,10 +146,12 @@ public class RegexLeaf implements IRegex {
 		}
 		if (p3.matcher(pattern).matches()) {
 			// System.err.println("special " + pattern);
-			// System.err.println("result " + FoxSignature.backToString(getSignatureP3(pattern)));
+			// System.err.println("result " +
+			// FoxSignature.backToString(getSignatureP3(pattern)));
 			return getSignatureP3(pattern);
 		}
-		if (pattern.length() == 2 && pattern.startsWith("\\") && Character.isLetterOrDigit(pattern.charAt(1)) == false) {
+		if (pattern.length() == 2 && pattern.startsWith("\\")
+				&& Character.isLetterOrDigit(pattern.charAt(1)) == false) {
 			return FoxSignature.getFoxSignature(pattern.substring(1));
 		}
 		if (pattern.equals("\\<\\>") || pattern.equals("(\\<\\<.*\\>\\>)")) {

@@ -38,7 +38,6 @@ package net.sourceforge.plantuml.style;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +47,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 
 public class StyleSignature {
 
-	private final Set<String> names = new LinkedHashSet<String>();
+	private final Set<String> names = new LinkedHashSet<>();
 
 	public StyleSignature(String s) {
 		if (s.contains("*") || s.contains("&") || s.contains("-")) {
@@ -72,7 +71,7 @@ public class StyleSignature {
 		if (url == null) {
 			return this;
 		}
-		final Set<String> result = new HashSet<String>(names);
+		final Set<String> result = new LinkedHashSet<>(names);
 		result.add(SName.clickable.name());
 		return new StyleSignature(result);
 
@@ -85,13 +84,17 @@ public class StyleSignature {
 		if (s.contains("*") || s.contains("&") || s.contains("-")) {
 			throw new IllegalArgumentException();
 		}
-		final Set<String> result = new HashSet<String>(names);
+		final Set<String> result = new LinkedHashSet<>(names);
 		result.add(clean(s));
 		return new StyleSignature(result);
 	}
 
+	public StyleSignature add(SName name) {
+		return add(name.name().toLowerCase().replace("_", ""));
+	}
+
 	public StyleSignature addStar() {
-		final Set<String> result = new HashSet<String>(names);
+		final Set<String> result = new LinkedHashSet<>(names);
 		result.add("*");
 		return new StyleSignature(result);
 	}
@@ -143,7 +146,7 @@ public class StyleSignature {
 	}
 
 	public static StyleSignature of(SName... names) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (SName name : names) {
 			result.add(name.name().toLowerCase().replace("_", ""));
 		}
@@ -151,7 +154,7 @@ public class StyleSignature {
 	}
 
 	public StyleSignature withStereotype(Stereotype stereotype) {
-		final List<String> result = new ArrayList<String>(names);
+		final List<String> result = new ArrayList<>(names);
 		if (stereotype != null) {
 			for (String name : stereotype.getStyleNames()) {
 				result.add(clean(name));
@@ -162,7 +165,7 @@ public class StyleSignature {
 	}
 
 	public StyleSignature with(Stereotype stereotype) {
-		final List<String> result = new ArrayList<String>(names);
+		final List<String> result = new ArrayList<>(names);
 		if (stereotype != null) {
 			for (String name : stereotype.getStyleNames()) {
 				result.add(clean(name));
@@ -176,7 +179,7 @@ public class StyleSignature {
 	}
 
 	public StyleSignature mergeWith(List<Style> others) {
-		final List<String> copy = new ArrayList<String>(names);
+		final List<String> copy = new ArrayList<>(names);
 		for (Style other : others) {
 			for (String s : other.getSignature().getNames()) {
 				copy.add(s);
@@ -186,7 +189,7 @@ public class StyleSignature {
 	}
 
 	public StyleSignature mergeWith(StyleSignature other) {
-		final List<String> copy = new ArrayList<String>(names);
+		final List<String> copy = new ArrayList<>(names);
 		copy.addAll(other.names);
 		return new StyleSignature(copy);
 	}

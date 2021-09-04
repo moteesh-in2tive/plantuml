@@ -34,9 +34,8 @@ package net.sourceforge.plantuml.command;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.LineLocation;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.TitledDiagram;
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
@@ -61,21 +60,23 @@ public class CommandFooter extends SingleLineCommand2<TitledDiagram> {
 				new RegexOr( //
 						new RegexConcat(RegexLeaf.spaceZeroOrMore(), new RegexLeaf(":"), RegexLeaf.spaceZeroOrMore()), //
 						RegexLeaf.spaceOneOrMore()), //
-				new RegexLeaf("LABEL", "(.*[\\p{L}0-9_.].*)"), RegexLeaf.end()); //
+				new RegexOr(//
+						new RegexLeaf("LABEL1", "[%g](.*)[%g]"), //
+						new RegexLeaf("LABEL2", "(.*[%pLN_.].*)")), //
+				RegexLeaf.end()); //
 	}
 
 	@Override
 	protected CommandExecutionResult executeArg(TitledDiagram diagram, LineLocation location, RegexResult arg) {
 		final String align = arg.get("POSITION", 0);
 		HorizontalAlignment ha = HorizontalAlignment.fromString(align, HorizontalAlignment.CENTER);
-		if (SkinParam.USE_STYLES() && align == null) {
-			ha = FontParam.FOOTER.getStyleDefinition()
-					.getMergedStyle(((UmlDiagram) diagram).getSkinParam().getCurrentStyleBuilder())
+		if (UseStyle.useBetaStyle() && align == null) {
+			ha = FontParam.FOOTER.getStyleDefinition(null).getMergedStyle(diagram.getCurrentStyleBuilder())
 					.getHorizontalAlignment();
 		}
-		diagram.getFooter().putDisplay(Display.getWithNewlines(arg.get("LABEL", 0)), ha);
+		final Display s = Display.getWithNewlines(arg.getLazzy("LABEL", 0));
+		diagram.getFooter().putDisplay(s, ha);
 
-		
 		return CommandExecutionResult.ok();
 	}
 }

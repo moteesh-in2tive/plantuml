@@ -27,7 +27,8 @@
  *
  *
  * Original Author:  Arnaud Roques
- * Contribution :  Hisashi Miyashita  * 
+ * Contribution:  Hisashi Miyashita
+ * Contribution:  Miguel Esteves
  *
  */
 package net.sourceforge.plantuml.cucadiagram.entity;
@@ -40,11 +41,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.Guillemet;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.Bodier;
@@ -104,15 +107,16 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	// Other
 	private boolean nearDecoration = false;
-	private final Collection<String> portShortNames = new HashSet<String>();
+	private final Collection<String> portShortNames = new HashSet<>();
 	private int xposition;
 	private IEntityImage svekImage;
 
 	private USymbol symbol;
 	private final int rawLayout;
 	private char concurrentSeparator;
+	private LineLocation codeLine;
 
-	private Set<Stereotag> tags = new LinkedHashSet<Stereotag>();
+	private Set<Stereotag> tags = new LinkedHashSet<>();
 
 	public void addStereotag(Stereotag tag) {
 		this.tags.add(tag);
@@ -135,25 +139,21 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	private EntityImpl(Ident ident, EntityFactory entityFactory, Code code, Bodier bodier, IGroup parentContainer,
 			String namespaceSeparator, int rawLayout) {
-		checkNotNull(ident);
+		this.ident = Objects.requireNonNull(ident);
 		if (entityFactory.namespaceSeparator.V1972()) {
 			code = ident;
 		}
-		if (code == null) {
-			throw new IllegalArgumentException();
-		}
-		this.ident = ident;
+		this.code = Objects.requireNonNull(code);
 		this.entityFactory = entityFactory;
 		this.bodier = bodier;
-		this.code = code;
 		this.parentContainer = parentContainer;
 		this.rawLayout = rawLayout;
 	}
 
 	EntityImpl(Ident ident, Code code, EntityFactory entityFactory, Bodier bodier, IGroup parentContainer,
 			LeafType leafType, String namespaceSeparator, int rawLayout) {
-		this(ident, entityFactory, code, bodier, parentContainer, namespaceSeparator, rawLayout);
-		checkNotNull(ident);
+		this(Objects.requireNonNull(ident), entityFactory, code, bodier, parentContainer, namespaceSeparator,
+				rawLayout);
 		// System.err.println("ID for leaf=" + code + " " + ident);
 		// ident.checkSameAs(code, namespaceSeparator);
 		this.leafType = leafType;
@@ -161,26 +161,17 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	EntityImpl(Ident ident, Code code, EntityFactory entityFactory, Bodier bodier, IGroup parentContainer,
 			GroupType groupType, Code namespace, String namespaceSeparator, int rawLayout) {
-		this(ident, entityFactory, code, bodier, parentContainer, namespaceSeparator, rawLayout);
-		checkNotNull(ident);
+		this(Objects.requireNonNull(ident), entityFactory, code, bodier, parentContainer, namespaceSeparator,
+				rawLayout);
 		// System.err.println("ID for group=" + code + " " + ident);
 		ident.checkSameAs(code, namespaceSeparator, entityFactory.namespaceSeparator);
 		this.groupType = groupType;
 		this.namespace = namespace;
 	}
 
-	private void checkNotNull(Ident id) {
-		if (id == null) {
-			throw new IllegalArgumentException();
-		}
-	}
-
 	public void setContainer(IGroup container) {
 		checkNotGroup();
-		if (container == null) {
-			throw new IllegalArgumentException();
-		}
-		this.parentContainer = container;
+		this.parentContainer = Objects.requireNonNull(container);
 	}
 
 	public LeafType getLeafType() {
@@ -189,9 +180,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public boolean muteToType(LeafType newType, USymbol newSymbol) {
 		checkNotGroup();
-		if (newType == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(newType);
 		if (leafType != LeafType.STILL_UNKNOWN) {
 			if (newType == this.leafType) {
 				return true;
@@ -252,9 +241,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public final IGroup getParentContainer() {
 		return entityFactory.getParentContainer(ident, parentContainer);
-		// if (parentContainer == null) {
-		// throw new IllegalArgumentException();
-		// }
+		// Objects.requireNonNull(parentContainer);
 		// return parentContainer;
 	}
 
@@ -265,7 +252,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 		// + getUid();
 		if (entityFactory.namespaceSeparator.V1972())
 			return getUid() + " " + ident + " " + display + "(" + leafType + ")[" + groupType + "]";
-		return super.toString() + code + ident + " " + display + "(" + leafType + ")[" + groupType + "] " + getUid();
+		return "EntityImpl " + code + ident + " " + display + "(" + leafType + ")[" + groupType + "] " + getUid();
 	}
 
 	public final Url getUrl99() {
@@ -370,10 +357,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 	}
 
 	public boolean containsLeafRecurse(ILeaf leaf) {
-		if (leaf == null) {
-			throw new IllegalArgumentException();
-		}
-		if (leaf.isGroup()) {
+		if (Objects.requireNonNull(leaf).isGroup()) {
 			throw new IllegalArgumentException();
 		}
 		checkGroup();
@@ -390,7 +374,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public Collection<ILeaf> getLeafsDirect() {
 		checkGroup();
-		final List<ILeaf> result = new ArrayList<ILeaf>();
+		final List<ILeaf> result = new ArrayList<>();
 		for (ILeaf ent : entityFactory.leafs()) {
 			if (ent.isGroup()) {
 				throw new IllegalStateException();
@@ -404,7 +388,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public Collection<IGroup> getChildren() {
 		checkGroup();
-		final Collection<IGroup> result = new ArrayList<IGroup>();
+		final Collection<IGroup> result = new ArrayList<>();
 		for (IGroup g : entityFactory.groups()) {
 			if (g != this && g.getParentContainer() == this) {
 				result.add(g);
@@ -455,7 +439,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 		}
 		// System.err.println("moveEntitiesTo1972::before2::groups2=" +
 		// entityFactory.groups2());
-		for (ILeaf ent : new ArrayList<ILeaf>(entityFactory.leafs2())) {
+		for (ILeaf ent : new ArrayList<>(entityFactory.leafs2())) {
 			Ident ident = ent.getIdent();
 			if (ident.equals(firstIdent) == false && ident.startsWith(firstIdent)
 					&& ident.startsWith(destIdent) == false) {
@@ -470,7 +454,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 		}
 		// System.err.println("moveEntitiesTo1972::before3::groups2=" +
 		// entityFactory.groups2());
-		for (IGroup ent : new ArrayList<IGroup>(entityFactory.groups2())) {
+		for (IGroup ent : new ArrayList<>(entityFactory.groups2())) {
 			Ident ident = ent.getIdent();
 			// System.err.println("found=" + ident + " " + ident.startsWith(firstIdent) + "
 			// "
@@ -547,7 +531,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 		this.svekImage = img;
 		this.url = null;
 
-		for (final Link link : new ArrayList<Link>(entityFactory.getLinks())) {
+		for (final Link link : new ArrayList<>(entityFactory.getLinks())) {
 			if (EntityUtils.isPureInnerLink12(this, link)) {
 				entityFactory.removeLink(link);
 			}
@@ -555,14 +539,14 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 		if (entityFactory.namespaceSeparator.V1972()) {
 			entityFactory.removeGroup(getIdent());
-			for (ILeaf ent : new ArrayList<ILeaf>(entityFactory.leafs())) {
+			for (ILeaf ent : new ArrayList<>(entityFactory.leafs())) {
 				if (this != ent && getIdent().equals(ent.getIdent().parent())) {
 					entityFactory.removeLeaf(ent.getIdent());
 				}
 			}
 		} else {
 			entityFactory.removeGroup(getCodeGetName());
-			for (ILeaf ent : new ArrayList<ILeaf>(entityFactory.leafs())) {
+			for (ILeaf ent : new ArrayList<>(entityFactory.leafs())) {
 				if (this != ent && this == ent.getParentContainer()) {
 					entityFactory.removeLeaf(ent.getCodeGetName());
 				}
@@ -600,7 +584,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 	}
 
 	public SingleStrategy getSingleStrategy() {
-		return SingleStrategy.SQUARRE;
+		return SingleStrategy.SQUARE;
 	}
 
 	public boolean isHidden() {
@@ -645,7 +629,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 			if (entityFactory.isRemoved(this)) {
 				return true;
 			}
-			if (getLeafsDirect().size() == 0) {
+			if (getLeafsDirect().size() == 0 && getChildren().size() == 0) {
 				return false;
 			}
 			for (ILeaf leaf : getLeafsDirect()) {
@@ -779,7 +763,6 @@ final public class EntityImpl implements ILeaf, IGroup {
 	}
 
 	public DisplayPositionned getLegend() {
-		checkGroup();
 		return legend;
 	}
 
@@ -794,17 +777,28 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public void setOriginalGroup(IGroup originalGroup) {
 		this.originalGroup = originalGroup;
+		this.legend = originalGroup.getLegend();
 	}
 
 	public IGroup getOriginalGroup() {
 		return originalGroup;
 	}
-	
+
 	private boolean together;
 
 	public void setThisIsTogether() {
 		this.together = true;
-		// System.err.println("setThisIsTogether");
+	}
+
+	public String getCodeLine() {
+		if (this.codeLine == null) {
+			return null;
+		}
+		return "" + this.codeLine.getPosition();
+	}
+
+	public void setCodeLine(LineLocation codeLine) {
+		this.codeLine = codeLine;
 	}
 
 }

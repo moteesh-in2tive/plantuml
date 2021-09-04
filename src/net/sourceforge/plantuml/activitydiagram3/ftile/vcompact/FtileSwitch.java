@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -74,13 +75,13 @@ class FtileSwitch extends AbstractFtile {
 
 	private FtileSwitch(List<Double> inlabelSizes, List<Ftile> tiles, Rainbow arrowColor) {
 		super(tiles.get(0).skinParam());
-		this.tiles = new ArrayList<Ftile>(tiles);
+		this.tiles = new ArrayList<>(tiles);
 		this.arrowColor = arrowColor;
 
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		if (getSwimlaneIn() != null) {
 			result.add(getSwimlaneIn());
 		}
@@ -98,16 +99,14 @@ class FtileSwitch extends AbstractFtile {
 	static Ftile create(Swimlane swimlane, HColor borderColor, HColor backColor, Rainbow arrowColor,
 			FtileFactory ftileFactory, ConditionStyle conditionStyle, List<Branch> thens, FontConfiguration fcArrow,
 			LinkRendering topInlinkRendering, LinkRendering afterEndwhile, FontConfiguration fcTest) {
-		if (afterEndwhile == null) {
-			throw new IllegalArgumentException();
-		}
-		final List<Ftile> tiles = new ArrayList<Ftile>();
+		Objects.requireNonNull(afterEndwhile);
+		final List<Ftile> tiles = new ArrayList<>();
 
 		for (Branch branch : thens) {
 			tiles.add(new FtileMinWidthCentered(branch.getFtile(), 30));
 		}
 
-		List<Double> inlabelSizes = new ArrayList<Double>();
+		List<Double> inlabelSizes = new ArrayList<>();
 		for (Branch branch : thens) {
 			final TextBlock tb1 = branch.getLabelPositive().create(fcArrow, HorizontalAlignment.LEFT,
 					ftileFactory.skinParam());
@@ -135,7 +134,7 @@ class FtileSwitch extends AbstractFtile {
 
 	@Override
 	public Collection<Ftile> getMyChildren() {
-		final List<Ftile> result = new ArrayList<Ftile>(tiles);
+		final List<Ftile> result = new ArrayList<>(tiles);
 		return Collections.unmodifiableList(result);
 	}
 
@@ -180,7 +179,7 @@ class FtileSwitch extends AbstractFtile {
 	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		final Dimension2D dimTotal = calculateDimensionInternal(stringBounder);
 
-		final List<Ftile> all = new ArrayList<Ftile>(tiles);
+		final List<Ftile> all = new ArrayList<>(tiles);
 		for (Ftile tmp : all) {
 			if (tmp.calculateDimension(stringBounder).hasPointOut()) {
 				return new FtileGeometry(dimTotal, dimTotal.getWidth() / 2, 0, dimTotal.getHeight());

@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.posimo;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
@@ -161,7 +162,7 @@ public class PathDrawerInterface implements PathDrawer {
 		// // final double theta = Math.atan2(
 		// // -direction.getX() + position.getX(), direction.getY()
 		// // - position.getY());
-		// if (decor == LinkDecor.SQUARRE) {
+		// if (decor == LinkDecor.SQUARE) {
 		// middle1 = drawSquare(ug, position.getX(), position.getY());
 		// } else if (decor == LinkDecor.EXTENDS) {
 		// middle1 = drawExtends(ug, position.getX(), position.getY(), theta);
@@ -204,10 +205,7 @@ public class PathDrawerInterface implements PathDrawer {
 				farest = candidat;
 			}
 		}
-		if (result == null) {
-			throw new IllegalArgumentException();
-		}
-		return result;
+		return Objects.requireNonNull(result);
 	}
 
 	private Point2D drawSquare(UGraphic ug, double centerX, double centerY) {

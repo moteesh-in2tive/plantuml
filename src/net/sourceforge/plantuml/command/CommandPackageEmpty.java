@@ -48,6 +48,7 @@ import net.sourceforge.plantuml.cucadiagram.IGroup;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.NamespaceStrategy;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 import net.sourceforge.plantuml.utils.UniqueSequence;
 
 public class CommandPackageEmpty extends SingleLineCommand2<AbstractEntityDiagram> {
@@ -66,7 +67,7 @@ public class CommandPackageEmpty extends SingleLineCommand2<AbstractEntityDiagra
 								RegexLeaf.spaceOneOrMore(), //
 								new RegexLeaf("as"), //
 								RegexLeaf.spaceOneOrMore(), //
-								new RegexLeaf("CODE", "([\\p{L}0-9_.]+)") //
+								new RegexLeaf("CODE", "([%pLN_.]+)") //
 						)), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("COLOR", "(#[0-9a-fA-F]{6}|#?\\w+)?"), //
@@ -78,7 +79,8 @@ public class CommandPackageEmpty extends SingleLineCommand2<AbstractEntityDiagra
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(AbstractEntityDiagram diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(AbstractEntityDiagram diagram, LineLocation location, RegexResult arg)
+			throws NoSuchColorException {
 		final String idShort;
 		final String display;
 		if (arg.get("CODE", 0) == null) {
@@ -102,7 +104,7 @@ public class CommandPackageEmpty extends SingleLineCommand2<AbstractEntityDiagra
 		final String color = arg.get("COLOR", 0);
 		if (color != null) {
 			p.setSpecificColorTOBEREMOVED(ColorType.BACK,
-					diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(color));
+					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), color));
 		}
 		diagram.endGroup();
 		return CommandExecutionResult.ok();

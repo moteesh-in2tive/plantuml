@@ -52,6 +52,8 @@ public enum LineParam {
 	titleBorder,
 	diagramBorder,
 	rectangleBorder,
+	hexagonBorder,
+	personBorder,
 	archimateBorder,
 	componentBorder,
 	cardBorder,

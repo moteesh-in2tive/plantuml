@@ -39,7 +39,6 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UShape;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolComponent1 extends USymbol {
@@ -78,7 +77,7 @@ class USymbolComponent1 extends USymbol {
 			public void drawU(UGraphic ug) {
 				final StringBounder stringBounder = ug.getStringBounder();
 				final Dimension2D dimTotal = calculateDimension(stringBounder);
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dimTotal), new UStroke());
+				ug = UGraphicStencil.create(ug, dimTotal);
 				ug = symbolContext.apply(ug);
 				drawComponent1(ug, dimTotal.getWidth(), dimTotal.getHeight(), symbolContext.isShadowing(),
 						symbolContext.getRoundCorner());
@@ -96,14 +95,10 @@ class USymbolComponent1 extends USymbol {
 	}
 
 	@Override
-	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
+	public TextBlock asBig(TextBlock title, HorizontalAlignment labelAlignment, TextBlock stereotype, double width,
+			double height, SymbolContext symbolContext, HorizontalAlignment stereoAlignment) {
+		return USymbol.COMPONENT2.asBig(title, labelAlignment, stereotype, width, height, symbolContext,
+				stereoAlignment);
 	}
 
 }

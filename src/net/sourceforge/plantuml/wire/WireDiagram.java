@@ -39,68 +39,48 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import net.sourceforge.plantuml.AnnotatedWorker;
+import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
-import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.Scale;
-import net.sourceforge.plantuml.SkinParam;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
-import net.sourceforge.plantuml.command.Position;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.graphic.TextBlock;
-import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
+import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class WireDiagram extends UmlDiagram {
 
-	private final Block root = new Block(getSkinParam());
-	private Block current = root;
-	private Block last;
+	private final WBlock root = new WBlock("", new UTranslate(), 0, 0, null);
+	private final List<Spot> spots = new ArrayList<>();
+	private final List<WLinkHorizontal> hlinks = new ArrayList<>();
+	private final List<WLinkVertical> vlinks = new ArrayList<>();
 
 	public DiagramDescription getDescription() {
 		return new DiagramDescription("Wire Diagram");
 	}
 
-	@Override
-	public UmlDiagramType getUmlDiagramType() {
-		return UmlDiagramType.WIRE;
+	public WireDiagram(UmlSource source) {
+		super(source, UmlDiagramType.WIRE);
 	}
 
 	@Override
 	protected ImageData exportDiagramInternal(OutputStream os, int index, FileFormatOption fileFormatOption)
 			throws IOException {
-		final Scale scale = getScale();
 
-		final double dpiFactor = scale == null ? getScaleCoef(fileFormatOption) : scale.getScale(100, 100);
-		final ISkinParam skinParam = getSkinParam();
-		
-		final int margin1;
-		final int margin2;
-		if (SkinParam.USE_STYLES()) {
-			margin1 = SkinParam.zeroMargin(10);
-			margin2 = SkinParam.zeroMargin(10);
-		} else {
-			margin1 = 10;
-			margin2 = 10;
-		}
-		final ImageBuilder imageBuilder = ImageBuilder.buildB(skinParam.getColorMapper(), skinParam.handwritten(), ClockwiseTopRightBottomLeft.margin1margin2((double) margin1, (double) margin2),
-		null, fileFormatOption.isWithMetadata() ? getMetadata() : null, "", dpiFactor, skinParam.getBackgroundColor(false));
-		TextBlock result = getTextBlock();
-
-		result = new AnnotatedWorker(this, skinParam, fileFormatOption.getDefaultStringBounder()).addAdd(result);
-		imageBuilder.setUDrawable(result);
-
-		return imageBuilder.writeImageTOBEMOVED(fileFormatOption, seed(), os);
+		return createImageBuilder(fileFormatOption)
+				.drawable(getTextBlock())
+				.write(os);
 	}
 
 	private TextBlockBackcolored getTextBlock() {
@@ -115,7 +95,8 @@ public class WireDiagram extends UmlDiagram {
 			}
 
 			public Dimension2D calculateDimension(StringBounder stringBounder) {
-				return getDrawingElement().calculateDimension(stringBounder);
+				// return getDrawingElement().calculateDimension(stringBounder);
+				throw new UnsupportedOperationException();
 
 			}
 
@@ -130,45 +111,97 @@ public class WireDiagram extends UmlDiagram {
 	}
 
 	private void drawMe(UGraphic ug) {
-		getDrawingElement().drawU(ug);
+		root.drawMe(ug);
+		for (Spot spot : spots) {
+			spot.drawMe(ug);
+		}
+		for (WLinkHorizontal link : hlinks) {
+			link.drawMe(ug);
+		}
+		for (WLinkVertical link : vlinks) {
+			link.drawMe(ug);
+		}
 
 	}
 
-	private TextBlock getDrawingElement() {
-		return current;
+	public CommandExecutionResult addComponent(String indent, String name, int width, int height, HColor color) {
+		final int level = computeIndentationLevel(indent);
+		return this.root.addBlock(level, name, width, height, color);
 	}
 
-	public CommandExecutionResult addComponent(String name) {
-		return addComponent(name, 100, 100);
+	public CommandExecutionResult newColumn(String indent) {
+		final int level = computeIndentationLevel(indent);
+		return this.root.newColumn(level);
 	}
 
-	public CommandExecutionResult addComponent(String name, int width, int height) {
-		this.last = current.addNewBlock(name, width, height);
+	public CommandExecutionResult spot(String name, HColor color, String x, String y) {
+		final WBlock block = this.root.getBlock(name);
+		if (block == null) {
+			return CommandExecutionResult.error("No such element " + name);
+		}
+		final Spot spot = new Spot(block, color, x, y);
+		this.spots.add(spot);
 		return CommandExecutionResult.ok();
 	}
 
-	public CommandExecutionResult vspace(int vspace) {
-		current.vspace(vspace);
+	public CommandExecutionResult wgoto(String indent, double x, double y) {
+		final int level = computeIndentationLevel(indent);
+		return this.root.wgoto(level, x, y);
+	}
+
+	public CommandExecutionResult wmove(String indent, double x, double y) {
+		final int level = computeIndentationLevel(indent);
+		return this.root.wmove(level, x, y);
+	}
+
+	public CommandExecutionResult print(String indent, String text) {
+		final int level = computeIndentationLevel(indent);
+
+		final StringBounder stringBounder = FileFormat.PNG.getDefaultStringBounder();
+		return this.root.print(stringBounder, getSkinParam(), level, text);
+	}
+
+	private int computeIndentationLevel(String indent) {
+		final int level = indent.replace("    ", "\t").length();
+		return level;
+	}
+
+	public CommandExecutionResult vlink(String name1, String x1, String y1, String name2, WLinkType type,
+			WArrowDirection direction, HColor color, Display label) {
+		final WBlock block1 = this.root.getBlock(name1);
+		if (block1 == null) {
+			return CommandExecutionResult.error("No such element " + name1);
+		}
+		final WBlock block2 = this.root.getBlock(name2);
+		if (block2 == null) {
+			return CommandExecutionResult.error("No such element " + name2);
+		}
+
+		final UTranslate start = block1.getNextOutVertical(x1, y1, type);
+		final double destination = block2.getAbsolutePosition("0", "0").getDy();
+
+		this.vlinks.add(new WLinkVertical(getSkinParam(), start, destination, type, direction, color, label));
+
 		return CommandExecutionResult.ok();
 	}
 
-	public CommandExecutionResult newColumn() {
-		current.newColumn();
-		return CommandExecutionResult.ok();
-	}
+	public CommandExecutionResult hlink(String name1, String x1, String y1, String name2, WLinkType type,
+			WArrowDirection direction, HColor color, Display label) {
+		final WBlock block1 = this.root.getBlock(name1);
+		if (block1 == null) {
+			return CommandExecutionResult.error("No such element " + name1);
+		}
+		final WBlock block2 = this.root.getBlock(name2);
+		if (block2 == null) {
+			return CommandExecutionResult.error("No such element " + name2);
+		}
 
-	public CommandExecutionResult addStartContainer(String name) {
-		current = current.createContainer(name);
-		return CommandExecutionResult.ok();
-	}
+		final UTranslate start = block1.getNextOutHorizontal(x1, y1, type);
+		final double destination = block2.getAbsolutePosition("0", "0").getDx();
 
-	public CommandExecutionResult componentEnd() {
-		current = current.componentEnd();
-		return CommandExecutionResult.ok();
-	}
+		this.hlinks.add(new WLinkHorizontal(getSkinParam(), start, destination, type, direction, color, label));
 
-	public void addPin(Position position, String pin) {
-		last.addPin(position, pin);
+		return CommandExecutionResult.ok();
 	}
 
 }

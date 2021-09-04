@@ -92,7 +92,7 @@ class FtileIfAndStop extends AbstractFtile {
 	}
 
 	public Set<Swimlane> getSwimlanes() {
-		final Set<Swimlane> result = new HashSet<Swimlane>();
+		final Set<Swimlane> result = new HashSet<>();
 		if (getSwimlaneIn() != null) {
 			result.add(getSwimlaneIn());
 		}
@@ -135,10 +135,10 @@ class FtileIfAndStop extends AbstractFtile {
 				tileNonStop.getThickness());
 
 		final Ftile diamond1;
-		if (conditionStyle == ConditionStyle.INSIDE) {
+		if (conditionStyle == ConditionStyle.INSIDE_HEXAGON) {
 			diamond1 = new FtileDiamondInside(tileNonStop.skinParam(), backColor, borderColor, swimlane, tbTest);
 			// .withWest(tb1).withEast(tb2);
-		} else if (conditionStyle == ConditionStyle.DIAMOND) {
+		} else if (conditionStyle == ConditionStyle.EMPTY_DIAMOND) {
 			diamond1 = new FtileDiamond(tileNonStop.skinParam(), backColor, borderColor, swimlane).withNorth(tbTest);
 			// .withWest(tb1).withEast(tb2).withNorth(tbTest);
 		} else {
@@ -157,7 +157,7 @@ class FtileIfAndStop extends AbstractFtile {
 		// }
 		final FtileIfAndStop result = new FtileIfAndStop(diamond1, tileNonStop, arrowColor, stopFtile);
 
-		final List<Connection> conns = new ArrayList<Connection>();
+		final List<Connection> conns = new ArrayList<>();
 		conns.add(result.new ConnectionHorizontal(arrowColor));
 		// conns.add(result.new ConnectionHorizontalThenVertical(tile2));
 		// if (tile1.calculateDimension(stringBounder).hasPointOut()
@@ -230,7 +230,7 @@ class FtileIfAndStop extends AbstractFtile {
 			final Point2D p1 = getP1(stringBounder);
 			final Point2D p2 = getP2(stringBounder);
 
-			final Snake snake = new Snake(arrowHorizontalAlignment(), color, Arrows.asToRight());
+			final Snake snake = Snake.create(color, Arrows.asToRight());
 			snake.addPoint(p1);
 			snake.addPoint(p2);
 			ug.draw(snake);

@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.command;
 import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.ErrorUml;
 import net.sourceforge.plantuml.ErrorUmlType;
+import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.core.Diagram;
@@ -46,13 +47,14 @@ import net.sourceforge.plantuml.version.IteratorCounter2;
 
 public abstract class PSystemSingleLineFactory extends PSystemAbstractFactory {
 
-	protected abstract AbstractPSystem executeLine(String line);
+	protected abstract AbstractPSystem executeLine(UmlSource source, String line);
 
 	protected PSystemSingleLineFactory() {
 		super(DiagramType.UML);
 	}
 
-	final public Diagram createSystem(UmlSource source) {
+	@Override
+	final public Diagram createSystem(UmlSource source, ISkinSimple skinParam) {
 
 		if (source.getTotalLineCount() != 3) {
 			return null;
@@ -75,13 +77,12 @@ public abstract class PSystemSingleLineFactory extends PSystemAbstractFactory {
 		if (StartUtils.isArobaseEndDiagram(s.getString())) {
 			return buildEmptyError(source, s.getLocation(), it.getTrace());
 		}
-		final AbstractPSystem sys = executeLine(s.getString());
+		final AbstractPSystem sys = executeLine(source, s.getString());
 		if (sys == null) {
-			final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, "Syntax Error?", s.getLocation());
+			final ErrorUml err = new ErrorUml(ErrorUmlType.SYNTAX_ERROR, "Syntax Error?", 0, s.getLocation());
 			// return PSystemErrorUtils.buildV1(source, err, null);
 			return PSystemErrorUtils.buildV2(source, err, null, it.getTrace());
 		}
-		sys.setSource(source);
 		return sys;
 
 	}

@@ -37,17 +37,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ColorParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.UseStyle;
+import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotData;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
-import net.sourceforge.plantuml.posimo.Moveable;
+import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
 import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UHidden;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -55,16 +59,14 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public final class SvekResult extends AbstractTextBlock implements IEntityImage, Moveable {
+public final class SvekResult extends AbstractTextBlock implements IEntityImage {
 
 	private final Rose rose = new Rose();
 
-	private ClusterPosition dim;
 	private final DotData dotData;
 	private final DotStringFactory dotStringFactory;
 
-	public SvekResult(ClusterPosition dim, DotData dotData, DotStringFactory dotStringFactory) {
-		this.dim = dim;
+	public SvekResult(DotData dotData, DotStringFactory dotStringFactory) {
 		this.dotData = dotData;
 		this.dotStringFactory = dotStringFactory;
 	}
@@ -76,14 +78,10 @@ public final class SvekResult extends AbstractTextBlock implements IEntityImage,
 		}
 
 		HColor color = rose.getHtmlColor(dotData.getSkinParam(), null, getArrowColorParam());
-		if (SkinParam.USE_STYLES()) {
-			final Style style = getDefaultStyleDefinition()
-					.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
-			color = style.value(PName.LineColor).asColor(dotData.getSkinParam().getIHtmlColorSet());
-		}
 		color = HColorUtils.noGradient(color);
+		UStroke stroke = null;
 
-		for (Node node : dotStringFactory.getBibliotekon().allNodes()) {
+		for (SvekNode node : dotStringFactory.getBibliotekon().allNodes()) {
 			final double minX = node.getMinX();
 			final double minY = node.getMinY();
 			final UGraphic ug2 = node.isHidden() ? ug.apply(UHidden.HIDDEN) : ug;
@@ -95,11 +93,21 @@ public final class SvekResult extends AbstractTextBlock implements IEntityImage,
 			// shape.getImage().drawNeighborhood(ug2, minX, minY);
 		}
 
-		final Set<String> ids = new HashSet<String>();
+		final Set<String> ids = new HashSet<>();
 
-		for (Line line : dotStringFactory.getBibliotekon().allLines()) {
+		for (SvekLine line : dotStringFactory.getBibliotekon().allLines()) {
 			final UGraphic ug2 = line.isHidden() ? ug.apply(UHidden.HIDDEN) : ug;
-			line.drawU(ug2, color, ids);
+
+			if (UseStyle.useBetaStyle()) {
+				final StyleBuilder currentStyleBuilder = line.getCurrentStyleBuilder();
+				final Style style = getDefaultStyleDefinition(line.getStereotype()).getMergedStyle(currentStyleBuilder);
+				color = style.value(PName.LineColor).asColor(dotData.getSkinParam().getThemeStyle(),
+						dotData.getSkinParam().getIHtmlColorSet());
+				stroke = style.getStroke();
+				color = HColorUtils.noGradient(color);
+			}
+
+			line.drawU(ug2, stroke, color, ids);
 		}
 
 	}
@@ -119,21 +127,34 @@ public final class SvekResult extends AbstractTextBlock implements IEntityImage,
 		throw new IllegalStateException();
 	}
 
-	private StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, dotData.getUmlDiagramType().getStyleName(), SName.arrow);
+	private StyleSignature getDefaultStyleDefinition(Stereotype stereotype) {
+		StyleSignature result = StyleSignature.of(SName.root, SName.element, dotData.getUmlDiagramType().getStyleName(),
+				SName.arrow);
+		if (stereotype != null) {
+			result = result.with(stereotype);
+		}
+		return result;
 	}
 
+	// Duplicate SvekResult / GeneralImageBuilder
 	public HColor getBackcolor() {
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Style style = StyleSignature.of(SName.root, SName.document)
 					.getMergedStyle(dotData.getSkinParam().getCurrentStyleBuilder());
-			return style.value(PName.BackGroundColor).asColor(dotData.getSkinParam().getIHtmlColorSet());
+			return style.value(PName.BackGroundColor).asColor(dotData.getSkinParam().getThemeStyle(),
+					dotData.getSkinParam().getIHtmlColorSet());
 		}
 		return dotData.getSkinParam().getBackgroundColor(false);
 	}
 
+	private MinMax minMax;
+
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
-		return dim.getDimension();
+		if (minMax == null) {
+			minMax = TextBlockUtils.getMinMax(this, stringBounder, false);
+			dotStringFactory.moveSvek(6 - minMax.getMinX(), 6 - minMax.getMinY());
+		}
+		return Dimension2DDouble.delta(minMax.getDimension(), 0, 12);
 	}
 
 	public ShapeType getShapeType() {
@@ -142,11 +163,6 @@ public final class SvekResult extends AbstractTextBlock implements IEntityImage,
 
 	public Margins getShield(StringBounder stringBounder) {
 		return Margins.NONE;
-	}
-
-	public void moveSvek(double deltaX, double deltaY) {
-		dotStringFactory.moveSvek(deltaX, deltaY);
-		dim = dim.delta(deltaX > 0 ? deltaX : 0, deltaY > 0 ? deltaY : 0);
 	}
 
 	public boolean isHidden() {

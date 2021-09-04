@@ -61,6 +61,7 @@ import net.sourceforge.plantuml.sequencediagram.Note;
 import net.sourceforge.plantuml.sequencediagram.NoteStyle;
 import net.sourceforge.plantuml.sequencediagram.Participant;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactoryCommand<SequenceDiagram> {
 
@@ -77,7 +78,7 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 				color().getRegex(), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("URL", "(" + UrlBuilder.getRegexp() + ")?"), RegexLeaf.end() //
-				);
+		);
 	}
 
 	private IRegex getRegexConcatSingleLine() {
@@ -108,7 +109,7 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 
 			@Override
 			protected CommandExecutionResult executeArg(final SequenceDiagram system, LineLocation location,
-					RegexResult arg) {
+					RegexResult arg) throws NoSuchColorException {
 				final BlocLines strings = BlocLines.getWithNewlines(arg.get("NOTE", 0));
 
 				return executeInternal(system, arg, strings);
@@ -123,10 +124,11 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 
 			@Override
 			public String getPatternEnd() {
-				return "(?i)^end[%s]?(note|hnote|rnote)$";
+				return "^end[%s]?(note|hnote|rnote)$";
 			}
 
-			protected CommandExecutionResult executeNow(final SequenceDiagram system, BlocLines lines) {
+			protected CommandExecutionResult executeNow(final SequenceDiagram system, BlocLines lines)
+					throws NoSuchColorException {
 				final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 				lines = lines.subExtract(1, 1);
 				lines = lines.removeEmptyColumns();
@@ -136,7 +138,8 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 		};
 	}
 
-	private CommandExecutionResult executeInternal(SequenceDiagram diagram, final RegexResult line0, BlocLines lines) {
+	private CommandExecutionResult executeInternal(SequenceDiagram diagram, final RegexResult line0, BlocLines lines)
+			throws NoSuchColorException {
 		// final Participant p1 = diagram.getOrCreateParticipant(StringUtils
 		// .eventuallyRemoveStartingAndEndingDoubleQuote(line0.get("P1", 0)));
 		// final Participant p2 = diagram.getOrCreateParticipant(StringUtils
@@ -150,8 +153,10 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 		if (lines.size() > 0) {
 			final boolean tryMerge = line0.get("VMERGE", 0) != null;
 			final Display display = diagram.manageVariable(lines.toDisplay());
-			final Note note = new Note((Participant) null, (Participant) null, display, diagram.getSkinParam().getCurrentStyleBuilder());
-			Colors colors = color().getColor(line0, diagram.getSkinParam().getIHtmlColorSet());
+			final Note note = new Note((Participant) null, (Participant) null, display,
+					diagram.getSkinParam().getCurrentStyleBuilder());
+			Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+					diagram.getSkinParam().getIHtmlColorSet());
 			final String stereotypeString = line0.get("STEREO", 0);
 			if (stereotypeString != null) {
 				final Stereotype stereotype = new Stereotype(stereotypeString);
@@ -161,7 +166,8 @@ public final class FactorySequenceNoteAcrossCommand implements SingleMultiFactor
 			}
 			note.setColors(colors);
 			// note.setSpecificColorTOBEREMOVED(ColorType.BACK,
-			// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR", 0)));
+			// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR",
+			// 0)));
 			note.setNoteStyle(NoteStyle.getNoteStyle(line0.get("STYLE", 0)));
 			if (line0.get("URL", 0) != null) {
 				final UrlBuilder urlBuilder = new UrlBuilder(diagram.getSkinParam().getValue("topurl"), ModeUrl.STRICT);

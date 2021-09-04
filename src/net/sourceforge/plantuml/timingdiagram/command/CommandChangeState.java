@@ -47,6 +47,7 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.timingdiagram.Player;
 import net.sourceforge.plantuml.timingdiagram.TimeTick;
 import net.sourceforge.plantuml.timingdiagram.TimingDiagram;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 abstract class CommandChangeState extends SingleLineCommand2<TimingDiagram> {
 
@@ -54,16 +55,17 @@ abstract class CommandChangeState extends SingleLineCommand2<TimingDiagram> {
 		super(pattern);
 	}
 
-	static final String STATE_CODE = "([\\p{L}0-9_][\\p{L}0-9_.]*)";
+	static final String STATE_CODE = "([%pLN_][%pLN_.]*)";
 
 	static ColorParser color() {
 		return ColorParser.simpleColor(ColorType.BACK);
 	}
 
 	protected CommandExecutionResult addState(TimingDiagram diagram, RegexResult arg, final Player player,
-			final TimeTick now) {
+			final TimeTick now) throws NoSuchColorException {
 		final String comment = arg.get("COMMENT", 0);
-		final Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
 		player.setState(now, comment, colors, getStates(arg));
 		return CommandExecutionResult.ok();
 	}

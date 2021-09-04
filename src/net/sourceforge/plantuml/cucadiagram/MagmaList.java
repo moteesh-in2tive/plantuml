@@ -37,7 +37,7 @@ import java.util.List;
 
 class MagmaList {
 
-	private final List<Magma> all = new ArrayList<Magma>();
+	private final List<Magma> all = new ArrayList<>();
 
 	public void add(Magma magma) {
 		all.add(magma);

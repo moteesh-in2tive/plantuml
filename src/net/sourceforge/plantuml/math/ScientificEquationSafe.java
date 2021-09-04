@@ -32,6 +32,9 @@
  */
 package net.sourceforge.plantuml.math;
 
+import static net.sourceforge.plantuml.ugraphic.ImageBuilder.plainImageBuilder;
+import static net.sourceforge.plantuml.ugraphic.ImageBuilder.plainPngBuilder;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -43,15 +46,16 @@ import java.util.Arrays;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.Log;
-import net.sourceforge.plantuml.SvgString;
 import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.eps.EpsGraphics;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.security.ImageIO;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.svek.TextBlockBackcolored;
+import net.sourceforge.plantuml.ugraphic.AffineTransformType;
+import net.sourceforge.plantuml.ugraphic.MutableImage;
+import net.sourceforge.plantuml.ugraphic.PixelImage;
+import net.sourceforge.plantuml.ugraphic.UImageSvg;
 
 public class ScientificEquationSafe {
 
@@ -85,38 +89,36 @@ public class ScientificEquationSafe {
 
 	private ImageData dimSvg;
 
-	public SvgString getSvg(double scale, Color foregroundColor, Color backgroundColor) {
-
-		try {
-			final SvgString svg = equation.getSvg(scale, foregroundColor, backgroundColor);
-			dimSvg = new ImageDataSimple(equation.getDimension());
-			return svg;
-		} catch (Exception e) {
-			printTrace(e);
-			final ImageBuilder imageBuilder = getRollback();
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public UImageSvg getSvg(double scale, Color foregroundColor, Color backgroundColor) {
+		if (equation != null)
 			try {
-				dimSvg = imageBuilder.writeImageTOBEMOVED(new FileFormatOption(FileFormat.SVG), 42, baos);
-			} catch (IOException e1) {
-				return null;
+				final UImageSvg svg = equation.getSvg(scale, foregroundColor, backgroundColor);
+				dimSvg = new ImageDataSimple(equation.getDimension());
+				return svg;
+			} catch (Exception e) {
+				printTrace(e);
 			}
-			return new SvgString(new String(baos.toByteArray()), scale);
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			dimSvg = plainImageBuilder(getRollback(), new FileFormatOption(FileFormat.SVG)).write(baos);
+		} catch (IOException e1) {
+			return null;
 		}
+		return new UImageSvg(new String(baos.toByteArray()), scale);
 	}
 
-	public BufferedImage getImage(double scale, Color foregroundColor, Color backgroundColor) {
-		try {
-			return equation.getImage(scale, foregroundColor, backgroundColor);
-		} catch (Exception e) {
-			printTrace(e);
-			final ImageBuilder imageBuilder = getRollback();
-			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	public MutableImage getImage(Color foregroundColor, Color backgroundColor) {
+		if (equation != null)
 			try {
-				imageBuilder.writeImageTOBEMOVED(new FileFormatOption(FileFormat.PNG), 42, baos);
-				return ImageIO.read(new ByteArrayInputStream(baos.toByteArray()));
-			} catch (IOException e1) {
-				return null;
+				return equation.getImage(foregroundColor, backgroundColor);
+			} catch (Exception e) {
+				printTrace(e);
 			}
+		try {
+			final byte[] bytes = plainPngBuilder(getRollback()).writeByteArray();
+			return new PixelImage(ImageIO.read(new ByteArrayInputStream(bytes)), AffineTransformType.TYPE_BILINEAR);
+		} catch (IOException e1) {
+			return null;
 		}
 	}
 
@@ -128,18 +130,14 @@ public class ScientificEquationSafe {
 		e.printStackTrace();
 	}
 
-	private ImageBuilder getRollback() {
-		final TextBlock block = GraphicStrings.createBlackOnWhiteMonospaced(Arrays.asList(formula));
-		final ImageBuilder imageBuilder = ImageBuilder.buildA(new ColorMapperIdentity(), false, null, null, null,
-				1.0, null);
-		imageBuilder.setUDrawable(block);
-		return imageBuilder;
+	private TextBlockBackcolored getRollback() {
+		return GraphicStrings.createBlackOnWhiteMonospaced(Arrays.asList(formula));
 	}
 
 	public ImageData export(OutputStream os, FileFormatOption fileFormat, float scale, Color foregroundColor,
 			Color backgroundColor) throws IOException {
 		if (fileFormat.getFileFormat() == FileFormat.PNG) {
-			final BufferedImage image = getImage(scale, foregroundColor, backgroundColor);
+			final BufferedImage image = getImage(foregroundColor, backgroundColor).withScale(scale).getImage();
 			ImageIO.write(image, "png", os);
 			return new ImageDataSimple(image.getWidth(), image.getHeight());
 		}
@@ -148,7 +146,7 @@ public class ScientificEquationSafe {
 			return dimSvg;
 		}
 		if (fileFormat.getFileFormat() == FileFormat.EPS) {
-			final BufferedImage image = getImage(scale, foregroundColor, backgroundColor);
+			final BufferedImage image = getImage(foregroundColor, backgroundColor).withScale(scale).getImage();
 			final EpsGraphics out = new EpsGraphics();
 			out.drawImage(image, 0, 0);
 			out.close();

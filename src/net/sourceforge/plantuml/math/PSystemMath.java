@@ -41,6 +41,7 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
+import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
@@ -52,7 +53,8 @@ public class PSystemMath extends AbstractPSystem {
 	private Color color = Color.BLACK;
 	private Color backColor = Color.WHITE;
 
-	public PSystemMath() {
+	public PSystemMath(UmlSource source) {
+		super(source);
 	}
 
 	public DiagramDescription getDescription() {
@@ -60,7 +62,7 @@ public class PSystemMath extends AbstractPSystem {
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat)
 			throws IOException {
 		final ScientificEquationSafe asciiMath = ScientificEquationSafe.fromAsciiMath(math);
 		return asciiMath.export(os, fileFormat, scale, color, backColor);
@@ -107,7 +109,7 @@ public class PSystemMath extends AbstractPSystem {
 	}
 
 	private Color getColor(final String col) {
-		final HColor col2 = HColorSet.instance().getColorIfValid(col);
+		final HColor col2 = col == null ? null : HColorSet.instance().getColorOrWhite(col);
 		final Color col3 = new ColorMapperIdentity().toColor(col2);
 		return col3;
 	}

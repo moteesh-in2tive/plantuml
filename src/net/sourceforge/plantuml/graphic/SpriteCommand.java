@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.StringUtils;
 
 public class SpriteCommand implements HtmlCommand {
@@ -39,9 +41,7 @@ public class SpriteCommand implements HtmlCommand {
 	private final String sprite;
 
 	SpriteCommand(String sprite) {
-		if (sprite == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(sprite);
 		if (sprite.startsWith("<$") == false) {
 			throw new IllegalArgumentException();
 		}

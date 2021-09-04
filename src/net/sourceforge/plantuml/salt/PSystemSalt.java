@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.salt;
 
 import java.awt.geom.Dimension2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -40,13 +41,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sourceforge.plantuml.AbstractPSystem;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.ScaleSimple;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.WithSprite;
 import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.command.BlocLines;
@@ -55,7 +56,9 @@ import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.command.CommandFactorySprite;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
-import net.sourceforge.plantuml.graphic.UDrawable;
+import net.sourceforge.plantuml.core.UmlSource;
+import net.sourceforge.plantuml.graphic.InnerStrategy;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.salt.element.Element;
 import net.sourceforge.plantuml.salt.factory.AbstractElementFactoryComplex;
 import net.sourceforge.plantuml.salt.factory.ElementFactory;
@@ -78,23 +81,26 @@ import net.sourceforge.plantuml.salt.factory.ElementFactoryTextField;
 import net.sourceforge.plantuml.salt.factory.ElementFactoryTree;
 import net.sourceforge.plantuml.sprite.Sprite;
 import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
+import net.sourceforge.plantuml.svek.TextBlockBackcolored;
+import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
-public class PSystemSalt extends AbstractPSystem implements WithSprite {
+public class PSystemSalt extends TitledDiagram implements WithSprite {
 
 	private final List<String> data;
 	private final Dictionary dictionary = new Dictionary();
 
 	@Deprecated
-	public PSystemSalt(List<String> data) {
+	public PSystemSalt(UmlSource source, List<String> data) {
+		super(source, UmlDiagramType.SALT);
 		this.data = data;
 	}
 
-	public PSystemSalt() {
-		this(new ArrayList<String>());
+	public PSystemSalt(UmlSource source) {
+		this(source, new ArrayList<String>());
 	}
 
 	public void add(String s) {
@@ -102,45 +108,48 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 	}
 
 	@Override
-	final protected ImageData exportDiagramNow(OutputStream os, int num, FileFormatOption fileFormat, long seed)
+	final protected ImageData exportDiagramNow(OutputStream os, int index, FileFormatOption fileFormatOption)
 			throws IOException {
 		try {
 			final Element salt = createElement(manageSprite());
-
-			final Dimension2D size = salt.getPreferredDimension(fileFormat.getDefaultStringBounder(), 0, 0);
-
-			double scale = 1;
-			if (getScale() != null) {
-				scale = getScale().getScale(size.getWidth(), size.getHeight());
-			}
-
-			final int margin1;
-			final int margin2;
-			if (SkinParam.USE_STYLES()) {
-				margin1 = SkinParam.zeroMargin(5);
-				margin2 = SkinParam.zeroMargin(5);
-			} else {
-				margin1 = 5;
-				margin2 = 5;
-			}
-
-			final ImageBuilder builder = ImageBuilder.buildB(new ColorMapperIdentity(), false,
-					ClockwiseTopRightBottomLeft.margin1margin2(margin1, margin2), null, getMetadata(), null, scale,
-					HColorUtils.WHITE);
-			builder.setUDrawable(new UDrawable() {
-
-				public void drawU(UGraphic ug) {
-					ug = ug.apply(HColorUtils.BLACK);
-					salt.drawU(ug, 0, new Dimension2DDouble(size.getWidth(), size.getHeight()));
-					salt.drawU(ug, 1, new Dimension2DDouble(size.getWidth(), size.getHeight()));
-				}
-			});
-			return builder.writeImageTOBEMOVED(fileFormat, seed, os);
+			final StringBounder stringBounder = fileFormatOption.getDefaultStringBounder(getSkinParam());
+			final Dimension2D size = salt.getPreferredDimension(stringBounder, 0, 0);
+			return createImageBuilder(fileFormatOption)
+					.drawable(getTextBlock(salt, size))
+					.write(os);
 		} catch (Exception e) {
 			e.printStackTrace();
-			UmlDiagram.exportDiagramError(os, e, fileFormat, seed, getMetadata(), "none", new ArrayList<String>());
+			UmlDiagram.exportDiagramError(os, e, fileFormatOption, seed(), getMetadata(), "none",
+					new ArrayList<String>());
 			return ImageDataSimple.error();
 		}
+	}
+
+	private TextBlockBackcolored getTextBlock(final Element salt, final Dimension2D size) {
+		return new TextBlockBackcolored() {
+
+			public void drawU(UGraphic ug) {
+				ug = ug.apply(HColorUtils.BLACK);
+				salt.drawU(ug, 0, new Dimension2DDouble(size.getWidth(), size.getHeight()));
+				salt.drawU(ug, 1, new Dimension2DDouble(size.getWidth(), size.getHeight()));
+			}
+
+			public Dimension2D calculateDimension(StringBounder stringBounder) {
+				return size;
+			}
+
+			public MinMax getMinMax(StringBounder stringBounder) {
+				throw new UnsupportedOperationException();
+			}
+
+			public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+				return null;
+			}
+
+			public HColor getBackcolor() {
+				return getSkinParam().getBackgroundColor(false);
+			}
+		};
 	}
 
 	public DiagramDescription getDescription() {
@@ -155,7 +164,7 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 
 		final Command<WithSprite> cmd = new CommandFactorySprite().createMultiLine(false);
 
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (Iterator<String> it = data.iterator(); it.hasNext();) {
 			String s = it.next();
 			if (s.equals("hide stereotype")) {
@@ -172,7 +181,10 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 					s = it.next();
 					bloc = bloc.addString(s);
 				} while (s.equals("}") == false);
-				final CommandExecutionResult cmdResult = cmd.execute(this, bloc);
+				try {
+					final CommandExecutionResult cmdResult = cmd.execute(this, bloc);
+				} catch (NoSuchColorException e) {
+				}
 			} else {
 				result.add(s);
 			}
@@ -184,7 +196,7 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 
 		final DataSourceImpl source = new DataSourceImpl(data);
 
-		final Collection<AbstractElementFactoryComplex> cpx = new ArrayList<AbstractElementFactoryComplex>();
+		final Collection<AbstractElementFactoryComplex> cpx = new ArrayList<>();
 
 		// cpx.add(new ElementFactorySimpleFrame(source, dictionnary));
 		cpx.add(new ElementFactoryPyramid(source, dictionary));
@@ -230,4 +242,18 @@ public class PSystemSalt extends AbstractPSystem implements WithSprite {
 		cpxFactory.addFactory(new ElementFactoryText(source, dictionary));
 	}
 
+	private boolean iamSalt;
+
+	public void setIamSalt(boolean iamSalt) {
+		this.iamSalt = true;
+	}
+
+	public final boolean isIamSalt() {
+		return iamSalt;
+	}
+
+	@Override
+	public ClockwiseTopRightBottomLeft getDefaultMargins() {
+		return ClockwiseTopRightBottomLeft.same(5);
+	}
 }

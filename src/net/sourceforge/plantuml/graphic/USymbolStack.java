@@ -40,7 +40,6 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 
@@ -53,11 +52,10 @@ class USymbolStack extends USymbol {
 
 	private void drawQueue(UGraphic ug, double width, double height, boolean shadowing, double roundCorner) {
 		final double border = 15;
+
 		final URectangle rect = new URectangle(width - 2 * border, height).rounded(roundCorner);
-		if (shadowing) {
-			rect.setDeltaShadow(3.0);
-		}
 		ug.apply(new HColorNone()).apply(UTranslate.dx(border)).draw(rect);
+
 		final UPath path = new UPath();
 		if (roundCorner == 0) {
 			path.moveTo(0, 0);
@@ -78,6 +76,9 @@ class USymbolStack extends USymbol {
 			path.arcTo(new Point2D.Double(width - border + roundCorner / 2, 0), roundCorner / 2, 0, 1);
 			path.lineTo(width, 0);
 		}
+		if (shadowing) {
+			path.setDeltaShadow(3.0);
+		}
 		ug.apply(new HColorNone().bg()).draw(path);
 	}
 
@@ -92,7 +93,7 @@ class USymbolStack extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
 				drawQueue(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
 						symbolContext.getRoundCorner());
@@ -132,11 +133,6 @@ class USymbolStack extends USymbol {
 				return new Dimension2DDouble(width, height);
 			}
 		};
-	}
-
-	@Override
-	public boolean manageHorizontalLine() {
-		return true;
 	}
 
 }

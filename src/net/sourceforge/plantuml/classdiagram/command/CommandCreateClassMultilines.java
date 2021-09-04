@@ -65,11 +65,12 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagram> {
 
-	private static final String CODE = CommandLinkClass.getSeparator() + "?[\\p{L}0-9_]+" + "(?:"
-			+ CommandLinkClass.getSeparator() + "[\\p{L}0-9_]+)*";
+	private static final String CODE = CommandLinkClass.getSeparator() + "?[%pLN_]+" + "(?:"
+			+ CommandLinkClass.getSeparator() + "[%pLN_]+)*";
 	public static final String CODES = CODE + "(?:\\s*,\\s*" + CODE + ")*";
 
 	enum Mode {
@@ -82,13 +83,13 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 
 	@Override
 	public String getPatternEnd() {
-		return "(?i)^[%s]*\\}[%s]*$";
+		return "^[%s]*\\}[%s]*$";
 	}
 
 	private static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandCreateClassMultilines.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("VISIBILITY", "(" + VisibilityModifier.regexForVisibilityCharacterInClassName() + ")?"), //
-				new RegexLeaf("TYPE", "(interface|enum|abstract[%s]+class|abstract|class|entity)"), //
+				new RegexLeaf("TYPE", "(interface|enum|annotation|abstract[%s]+class|abstract|class|entity)"), //
 				RegexLeaf.spaceOneOrMore(), //
 				new RegexOr(//
 						new RegexConcat(//
@@ -139,7 +140,7 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(ClassDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(ClassDiagram diagram, BlocLines lines) throws NoSuchColorException {
 		lines = lines.trimSmart(1);
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final IEntity entity = executeArg0(diagram, line0);
@@ -147,6 +148,7 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 			return CommandExecutionResult.error("No such entity");
 		}
 		if (lines.size() > 1) {
+			entity.setCodeLine(lines.getAt(0).getLocation());
 			lines = lines.subExtract(1, 1);
 			// final Url url = null;
 			// if (lines.size() > 0) {
@@ -216,7 +218,7 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 		}
 	}
 
-	private IEntity executeArg0(ClassDiagram diagram, RegexResult arg) {
+	private IEntity executeArg0(ClassDiagram diagram, RegexResult arg) throws NoSuchColorException {
 
 		final LeafType type = LeafType.getLeafType(StringUtils.goUpperCase(arg.get("TYPE", 0)));
 		final String visibilityString = arg.get("VISIBILITY", 0);
@@ -271,9 +273,12 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 			result.addUrl(url);
 		}
 
-		Colors colors = color().getColor(arg, diagram.getSkinParam().getIHtmlColorSet());
+		Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), arg,
+				diagram.getSkinParam().getIHtmlColorSet());
+		final String s = arg.get("LINECOLOR", 1);
 
-		final HColor lineColor = diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(arg.get("LINECOLOR", 1));
+		final HColor lineColor = s == null ? null
+				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s);
 		if (lineColor != null) {
 			colors = colors.add(ColorType.LINE, lineColor);
 		}

@@ -40,16 +40,18 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.graphic.TextBlock;
+import net.sourceforge.plantuml.style.Style;
 
 public class BodierMap implements Bodier {
 
-	private final List<String> rawBody = new ArrayList<String>();
+	private final List<CharSequence> rawBody = new ArrayList<>();
 	private final Map<String, String> map = new LinkedHashMap<String, String>();
 	private ILeaf leaf;
 
@@ -61,10 +63,7 @@ public class BodierMap implements Bodier {
 	}
 
 	public void setLeaf(ILeaf leaf) {
-		if (leaf == null) {
-			throw new IllegalArgumentException();
-		}
-		this.leaf = leaf;
+		this.leaf = Objects.requireNonNull(leaf);
 
 	}
 
@@ -88,11 +87,11 @@ public class BodierMap implements Bodier {
 		}
 	}
 
-	public List<Member> getMethodsToDisplay() {
+	public Display getMethodsToDisplay() {
 		throw new UnsupportedOperationException();
 	}
 
-	public List<Member> getFieldsToDisplay() {
+	public Display getFieldsToDisplay() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -101,11 +100,11 @@ public class BodierMap implements Bodier {
 	}
 
 	public TextBlock getBody(FontParam fontParam, ISkinParam skinParam, final boolean showMethods,
-			final boolean showFields, Stereotype stereotype) {
+			final boolean showFields, Stereotype stereotype, Style style) {
 		return new TextBlockMap(fontParam, skinParam, map);
 	}
 
-	public List<String> getRawBody() {
+	public List<CharSequence> getRawBody() {
 		return Collections.unmodifiableList(rawBody);
 	}
 

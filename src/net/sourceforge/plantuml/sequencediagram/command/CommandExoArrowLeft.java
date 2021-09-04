@@ -50,7 +50,8 @@ public class CommandExoArrowLeft extends CommandExoArrowAny {
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandExoArrowLeft.class.getName(), RegexLeaf.start(), //
 				new RegexLeaf("PARALLEL", "(&[%s]*)?"), //
-				new RegexLeaf("SHORT", "([?\\[\\]][ox]?)?"), //
+				new RegexLeaf("ANCHOR", CommandArrow.ANCHOR), //
+				new RegexLeaf(ARROW_SUPPCIRCLE2, "([?\\[\\]][ox]?)?"), //
 				new RegexOr( //
 						new RegexConcat( //
 								new RegexLeaf("ARROW_BOTHDRESSING", "(<<?|//?|\\\\\\\\?)?"), //
@@ -63,9 +64,9 @@ public class CommandExoArrowLeft extends CommandExoArrowAny {
 								new RegexLeaf("ARROW_BODYB2", "(-*)"), //
 								new RegexLeaf("ARROW_STYLE2", CommandArrow.getColorOrStylePattern()), //
 								new RegexLeaf("ARROW_BODYA2", "(-+)"))), //
-				new RegexLeaf("ARROW_SUPPCIRCLE", "([ox][%s]+)?"), //
+				new RegexLeaf(ARROW_SUPPCIRCLE1, "([ox][%s]+)?"), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("PARTICIPANT", "([\\p{L}0-9_.@]+|[%g][^%g]+[%g])"), //
+				new RegexLeaf("PARTICIPANT", "([%pLN_.@]+|[%g][^%g]+[%g])"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("ACTIVATION", "(?:([+*!-]+)?)"), //
 				RegexLeaf.spaceZeroOrMore(), //
@@ -83,7 +84,7 @@ public class CommandExoArrowLeft extends CommandExoArrowAny {
 
 	@Override
 	MessageExoType getMessageExoType(RegexResult arg2) {
-		final String start = arg2.get("SHORT", 0);
+		final String start = arg2.get(ARROW_SUPPCIRCLE2, 0);
 		final String dressing1 = arg2.get("ARROW_DRESSING1", 0);
 		final String dressing2 = arg2.get("ARROW_DRESSING2", 0);
 		if (start != null && start.contains("]")) {

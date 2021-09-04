@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.posimo;
 
 import java.awt.geom.Dimension2D;
+import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.cucadiagram.Link;
@@ -50,9 +51,7 @@ public class LabelImage {
 	final private TextBlock name;
 
 	public LabelImage(Link link, Rose rose, ISkinParam param) {
-		if (link == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(link);
 		// this.entity = entity;
 		this.param = param;
 		this.rose = rose;

@@ -47,7 +47,7 @@ import net.sourceforge.plantuml.tim.TMemory;
 public class Sub {
 
 	private final String name;
-	private final List<StringLocated> lines = new ArrayList<StringLocated>();
+	private final List<StringLocated> lines = new ArrayList<>();
 //	private boolean indentationDone = false;
 
 	public Sub(String name) {
@@ -99,7 +99,6 @@ public class Sub {
 				result.add(s);
 			}
 		}
-		reader.close();
 		return result;
 	}
 

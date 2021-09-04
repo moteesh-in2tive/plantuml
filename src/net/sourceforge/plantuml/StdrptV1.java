@@ -12,6 +12,7 @@
  */
 package net.sourceforge.plantuml;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import net.sourceforge.plantuml.command.PSystemAbstractFactory;
@@ -26,13 +27,17 @@ public class StdrptV1 implements Stdrpt {
 		}
 	}
 
+	public void errorLine(int lineError, File file) {
+		Log.error("Error line " + (lineError + 1) + " in file: " + file.getPath());
+	}
+
 	private void out(final PrintStream output, final PSystemError err) {
 		output.println("protocolVersion=1");
 		if (empty(err)) {
 			output.println("status=NO_DATA");
 		} else {
 			output.println("status=ERROR");
-			output.println("lineNumber=" + err.getLineLocation().getPosition());
+			output.println("lineNumber=" + (err.getLineLocation().getPosition() + 1));
 			for (ErrorUml er : err.getErrorsUml()) {
 				output.println("label=" + er.getError());
 			}
@@ -49,6 +54,15 @@ public class StdrptV1 implements Stdrpt {
 				return true;
 		}
 		return false;
+	}
+
+	public void finalMessage(ErrorStatus error) {
+		if (error.hasError()) {
+			Log.error("Some diagram description contains errors");
+		}
+		if (error.isNoData()) {
+			Log.error("No diagram found");
+		}
 	}
 
 }

@@ -40,7 +40,6 @@ import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SecurityUtils;
-import net.sourceforge.plantuml.ugraphic.ImageBuilder;
 
 public class OptionFlags {
 
@@ -57,7 +56,6 @@ public class OptionFlags {
 	}
 
 	static public void setMaxPixel(int max) {
-		ImageBuilder.setMaxPixel(max);
 	}
 
 	static public final boolean USE_HECTOR = false;
@@ -70,7 +68,7 @@ public class OptionFlags {
 	static public final boolean USE_INTERFACE_EYE2 = false;
 	// static public final boolean SWI2 = false;
 	// static public final boolean USE_COMPOUND = false;
-	static public final boolean OMEGA_CROSSING = false;
+	// static public final boolean OMEGA_CROSSING = false;
 
 	// static public final boolean LINK_BETWEEN_FIELDS = true;
 
@@ -121,6 +119,7 @@ public class OptionFlags {
 	private boolean enableStats = false;
 	private boolean stdLib;
 	private boolean silentlyCompletelyIgnoreErrors;
+	private boolean replaceWhiteBackgroundByTransparent;
 	private boolean extractStdLib;
 	private boolean clipboardLoop;
 	private boolean clipboard;
@@ -365,5 +364,13 @@ public class OptionFlags {
 
 	public final void setSilentlyCompletelyIgnoreErrors(boolean silentlyCompletelyIgnoreErrors) {
 		this.silentlyCompletelyIgnoreErrors = silentlyCompletelyIgnoreErrors;
+	}
+
+	public final boolean isReplaceWhiteBackgroundByTransparent() {
+		return replaceWhiteBackgroundByTransparent;
+	}
+
+	public final void setReplaceWhiteBackgroundByTransparent(boolean replaceWhiteBackgroundByTransparent) {
+		this.replaceWhiteBackgroundByTransparent = replaceWhiteBackgroundByTransparent;
 	}
 }

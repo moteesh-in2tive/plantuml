@@ -95,7 +95,7 @@ public enum SpriteGrayLevel {
 		final int height = img.getHeight();
 		// final int type = img.getType();
 
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 
 		for (int y = 0; y < height; y++) {
 			final StringBuilder sb = new StringBuilder();
@@ -114,7 +114,7 @@ public enum SpriteGrayLevel {
 		final int height = img.getHeight();
 		// final int type = img.getType();
 
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 
 		for (int y = 0; y < height; y += 2) {
 			final StringBuilder sb = new StringBuilder();
@@ -136,7 +136,7 @@ public enum SpriteGrayLevel {
 		final int height = img.getHeight();
 		// final int type = img.getType();
 
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 
 		for (int y = 0; y < height; y += 3) {
 			final StringBuilder sb = new StringBuilder();
@@ -270,7 +270,7 @@ public enum SpriteGrayLevel {
 	}
 
 	private List<String> cut(String s) {
-		final List<String> result = new ArrayList<String>();
+		final List<String> result = new ArrayList<>();
 		for (int i = 0; i < s.length(); i += 120) {
 			final int j = Math.min(i + 120, s.length());
 			result.add(s.substring(i, j));

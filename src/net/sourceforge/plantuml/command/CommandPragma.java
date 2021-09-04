@@ -32,9 +32,11 @@
  */
 package net.sourceforge.plantuml.command;
 
+import java.util.StringTokenizer;
+
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringUtils;
-import net.sourceforge.plantuml.UmlDiagram;
+import net.sourceforge.plantuml.TitledDiagram;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexConcat;
 import net.sourceforge.plantuml.command.regex.RegexLeaf;
@@ -42,7 +44,7 @@ import net.sourceforge.plantuml.command.regex.RegexOptional;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 
-public class CommandPragma extends SingleLineCommand2<UmlDiagram> {
+public class CommandPragma extends SingleLineCommand2<TitledDiagram> {
 
 	public CommandPragma() {
 		super(getRegexConcat());
@@ -61,15 +63,33 @@ public class CommandPragma extends SingleLineCommand2<UmlDiagram> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(UmlDiagram system, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(TitledDiagram system, LineLocation location, RegexResult arg) {
 		final String name = StringUtils.goLowerCase(arg.get("NAME", 0));
 		final String value = arg.get("VALUE", 0);
-		system.getPragma().define(name, value);
-		if (name.equalsIgnoreCase("graphviz_dot") && value.equalsIgnoreCase("jdot")) {
-			system.setUseJDot(true);
-		}
-		if (name.equalsIgnoreCase("graphviz_dot") && value.equalsIgnoreCase(GraphvizUtils.VIZJS)) {
-			system.getSkinParam().setUseVizJs(true);
+		if (name.equalsIgnoreCase("svgsize")) {
+			if (value.contains(" ")) {
+				final StringTokenizer st = new StringTokenizer(value);
+				system.getSkinParam().setSvgSize(st.nextToken(), st.nextToken());
+			}
+		} else {
+			system.getPragma().define(name, value);
+			if (name.equalsIgnoreCase("graphviz_dot") && value.equalsIgnoreCase("jdot")) {
+				return CommandExecutionResult.error(
+						"This directive has been renamed to '!pragma layout smetana'. Please update your diagram.");
+			}
+			if (name.equalsIgnoreCase("graphviz_dot")) {
+				return CommandExecutionResult.error("This directive has been renamed to '!pragma layout " + value
+						+ "'. Please update your diagram.");
+			}
+			if (name.equalsIgnoreCase("layout") && value.equalsIgnoreCase("smetana")) {
+				system.setUseSmetana(true);
+			}
+			if (name.equalsIgnoreCase("layout") && value.equalsIgnoreCase("elk")) {
+				system.setUseElk(true);
+			}
+			if (name.equalsIgnoreCase("layout") && value.equalsIgnoreCase(GraphvizUtils.VIZJS)) {
+				system.getSkinParam().setUseVizJs(true);
+			}
 		}
 		return CommandExecutionResult.ok();
 	}

@@ -172,8 +172,4 @@ class USymbolQueue extends USymbol {
 		};
 	}
 
-	public boolean manageHorizontalLine() {
-		return true;
-	}
-
 }

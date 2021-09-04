@@ -44,6 +44,7 @@ import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.descdiagram.command.CommandLinkElement;
 import net.sourceforge.plantuml.graphic.Rainbow;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandArrow3 extends SingleLineCommand2<ActivityDiagram3> {
 
@@ -64,12 +65,12 @@ public class CommandArrow3 extends SingleLineCommand2<ActivityDiagram3> {
 	}
 
 	@Override
-	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) {
+	protected CommandExecutionResult executeArg(ActivityDiagram3 diagram, LineLocation location, RegexResult arg) throws NoSuchColorException {
 
 		final String colorString = arg.get("COLOR", 0);
 		if (colorString != null) {
-			Rainbow rainbow = Rainbow.build(diagram.getSkinParam(), colorString, diagram.getSkinParam()
-					.colorArrowSeparationSpace());
+			final Rainbow rainbow = Rainbow.build(diagram.getSkinParam(), colorString,
+					diagram.getSkinParam().colorArrowSeparationSpace());
 			diagram.setColorNextArrow(rainbow);
 		}
 		final String label = arg.get("LABEL", 0);

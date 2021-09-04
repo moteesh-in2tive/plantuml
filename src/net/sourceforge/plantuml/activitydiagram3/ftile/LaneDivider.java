@@ -41,7 +41,7 @@ import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.LineParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.rose.Rose;
@@ -74,7 +74,7 @@ public class LaneDivider extends AbstractTextBlock {
 	}
 
 	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.swimlane);
+		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
 	}
 
 	private Style getStyle() {
@@ -99,8 +99,8 @@ public class LaneDivider extends AbstractTextBlock {
 			color = ColorParam.swimlaneBorder.getDefaultValue();
 		}
 		UStroke thickness = Rose.getStroke(skinParam, LineParam.swimlaneBorder, 2);
-		if (SkinParam.USE_STYLES()) {
-			color = getStyle().value(PName.LineColor).asColor(skinParam.getIHtmlColorSet());
+		if (UseStyle.useBetaStyle()) {
+			color = getStyle().value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 			thickness = getStyle().getStroke();
 		}
 		ug.apply(UTranslate.dx(x1)).apply(thickness).apply(color).draw(ULine.vline(height));

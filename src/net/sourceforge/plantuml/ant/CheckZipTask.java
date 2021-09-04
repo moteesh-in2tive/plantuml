@@ -52,8 +52,8 @@ import net.sourceforge.plantuml.security.SecurityUtils;
 public class CheckZipTask extends Task {
 
 	private String zipfile = null;
-	private List<FileSet> filesets = new ArrayList<FileSet>();
-	private List<FileList> filelists = new ArrayList<FileList>();
+	private List<FileSet> filesets = new ArrayList<>();
+	private List<FileList> filelists = new ArrayList<>();
 
 	/**
 	 * Add a set of files to touch
@@ -104,7 +104,7 @@ public class CheckZipTask extends Task {
 		return entries.contains(s);
 	}
 
-	private final List<String> entries = new ArrayList<String>();
+	private final List<String> entries = new ArrayList<>();
 
 	private void loadZipFile(SFile file) throws IOException {
 

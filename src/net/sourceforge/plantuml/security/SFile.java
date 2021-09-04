@@ -75,7 +75,7 @@ public class SFile implements Comparable<SFile> {
 
 	public static char separatorChar = File.separatorChar;
 
-	public final File internal;
+	private final File internal;
 
 	@Override
 	public String toString() {
@@ -114,7 +114,7 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean exists() {
-		if (isFileOk())
+		if (internal != null && isFileOk())
 			return internal.exists();
 		return false;
 	}
@@ -124,11 +124,11 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean isAbsolute() {
-		return internal.isAbsolute();
+		return internal != null && internal.isAbsolute();
 	}
 
 	public boolean isDirectory() {
-		return internal.exists() && internal.isDirectory();
+		return internal != null && internal.exists() && internal.isDirectory();
 	}
 
 	public String getName() {
@@ -136,7 +136,7 @@ public class SFile implements Comparable<SFile> {
 	}
 
 	public boolean isFile() {
-		return internal.isFile();
+		return internal != null && internal.isFile();
 	}
 
 	public long lastModified() {
@@ -169,7 +169,7 @@ public class SFile implements Comparable<SFile> {
 
 	public Collection<SFile> listFiles() {
 		final File[] tmp = internal.listFiles();
-		final List<SFile> result = new ArrayList<SFile>(tmp.length);
+		final List<SFile> result = new ArrayList<>(tmp.length);
 		for (File f : tmp) {
 			result.add(new SFile(f));
 		}
@@ -245,26 +245,24 @@ public class SFile implements Comparable<SFile> {
 			// In SANDBOX, we cannot read any files
 			return false;
 		}
-		// Files in "plantuml.include.path" and "plantuml.whitelist.path" are ok.
-		if (isIn(SecurityUtils.getPath("plantuml.include.path"))) {
+		// Files in "plantuml.include.path" and "plantuml.allowlist.path" are ok.
+		if (isInAllowList(SecurityUtils.getPath("plantuml.include.path"))) {
 			return true;
 		}
-		if (isIn(SecurityUtils.getPath("plantuml.whitelist.path"))) {
+		if (isInAllowList(SecurityUtils.getPath("plantuml.allowlist.path"))) {
 			return true;
 		}
 		if (SecurityUtils.getSecurityProfile() == SecurityProfile.INTERNET) {
 			return false;
 		}
-		if (SecurityUtils.getSecurityProfile() == SecurityProfile.WHITELIST) {
+		if (SecurityUtils.getSecurityProfile() == SecurityProfile.ALLOWLIST) {
 			return false;
 		}
 		if (SecurityUtils.getSecurityProfile() != SecurityProfile.UNSECURE) {
 			// For UNSECURE, we did not do those checks
 			final String path = getCleanPathSecure();
-			if (path.startsWith("/etc/")) {
-				return false;
-			}
-			if (path.startsWith("/dev/")) {
+			if (path.startsWith("/etc/") || path.startsWith("/dev/") || path.startsWith("/boot/")
+					|| path.startsWith("/proc/") || path.startsWith("/sys/")) {
 				return false;
 			}
 			if (path.startsWith("//")) {
@@ -274,11 +272,11 @@ public class SFile implements Comparable<SFile> {
 		return true;
 	}
 
-	private boolean isIn(List<SFile> whiteList) {
+	private boolean isInAllowList(List<SFile> allowlist) {
 		final String path = getCleanPathSecure();
-		for (SFile white : whiteList) {
-			if (path.startsWith(white.getCleanPathSecure())) {
-				// File directory is in the whiteList
+		for (SFile allow : allowlist) {
+			if (path.startsWith(allow.getCleanPathSecure())) {
+				// File directory is in the allowlist
 				return true;
 			}
 		}
@@ -317,7 +315,7 @@ public class SFile implements Comparable<SFile> {
 		return null;
 	}
 
-	public File conv() throws FileNotFoundException {
+	public File conv() {
 		return internal;
 	}
 

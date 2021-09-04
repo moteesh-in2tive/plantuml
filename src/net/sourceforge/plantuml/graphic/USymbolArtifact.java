@@ -40,7 +40,6 @@ import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
 class USymbolArtifact extends USymbol {
@@ -50,7 +49,8 @@ class USymbolArtifact extends USymbol {
 		return SkinParameter.ARTIFACT;
 	}
 
-	private void drawArtifact(UGraphic ug, double widthTotal, double heightTotal, boolean shadowing, double roundCorner) {
+	private void drawArtifact(UGraphic ug, double widthTotal, double heightTotal, boolean shadowing,
+			double roundCorner) {
 
 		final URectangle form = new URectangle(widthTotal, heightTotal).rounded(roundCorner);
 		if (shadowing) {
@@ -85,11 +85,6 @@ class USymbolArtifact extends USymbol {
 	private Margin getMargin() {
 		return new Margin(10, 10 + 10, 10 + 3, 10);
 	}
-
-	public boolean manageHorizontalLine() {
-		return true;
-	}
-
 	@Override
 	public TextBlock asSmall(TextBlock name, final TextBlock label, final TextBlock stereotype,
 			final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
@@ -97,7 +92,7 @@ class USymbolArtifact extends USymbol {
 
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
-				ug = UGraphicStencil.create(ug, getRectangleStencil(dim), new UStroke());
+				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
 				drawArtifact(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
 						symbolContext.getRoundCorner());
@@ -116,7 +111,8 @@ class USymbolArtifact extends USymbol {
 
 	@Override
 	public TextBlock asBig(final TextBlock title, HorizontalAlignment labelAlignment, final TextBlock stereotype,
-			final double width, final double height, final SymbolContext symbolContext, final HorizontalAlignment stereoAlignment) {
+			final double width, final double height, final SymbolContext symbolContext,
+			final HorizontalAlignment stereoAlignment) {
 		return new AbstractTextBlock() {
 
 			public void drawU(UGraphic ug) {

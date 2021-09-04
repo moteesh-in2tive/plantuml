@@ -35,32 +35,20 @@
  */
 package net.sourceforge.plantuml.project.core;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.TreeSet;
-
-import net.sourceforge.plantuml.project.LoadPlanable;
+import net.sourceforge.plantuml.project.OpenClose;
 import net.sourceforge.plantuml.project.draw.ResourceDraw;
-import net.sourceforge.plantuml.project.lang.Subject;
 import net.sourceforge.plantuml.project.time.Day;
 import net.sourceforge.plantuml.project.time.DayOfWeek;
-import net.sourceforge.plantuml.project.time.GCalendar;
-import net.sourceforge.plantuml.project.time.Wink;
 
-public class Resource implements Subject {
+public class Resource {
 
 	private final String name;
 	private ResourceDraw draw;
-	private final Set<Wink> closed = new TreeSet<Wink>();
-	private final Set<Wink> forcedOn = new TreeSet<Wink>();
-	private final GCalendar calendar;
 
-	private final Collection<DayOfWeek> closedDayOfWeek = EnumSet.noneOf(DayOfWeek.class);
+	private final OpenClose openClose = new OpenClose();
 
-	public Resource(String name, LoadPlanable loadPlanable, GCalendar calendar) {
+	public Resource(String name) {
 		this.name = name;
-		this.calendar = calendar;
 	}
 
 	@Override
@@ -91,28 +79,19 @@ public class Resource implements Subject {
 		this.draw = draw;
 	}
 
-	public boolean isClosedAt(Wink instant) {
-		if (this.forcedOn.contains(instant)) {
-			return false;
-		}
-		if (closedDayOfWeek.size() > 0 && calendar != null) {
-			final Day d = calendar.toDayAsDate((Wink) instant);
-			if (closedDayOfWeek.contains(d.getDayOfWeek())) {
-				return true;
-			}
-		}
-		return this.closed.contains(instant);
+	public boolean isClosedAt(Day day) {
+		return openClose.isClosed(day);
 	}
 
-	public void addCloseDay(Wink instant) {
-		this.closed.add(instant);
+	public void addCloseDay(Day day) {
+		openClose.close(day);
 	}
 
-	public void addForceOnDay(Wink instant) {
-		this.forcedOn.add(instant);
+	public void addForceOnDay(Day day) {
+		openClose.open(day);
 	}
 
-	public void addCloseDay(DayOfWeek dayOfWeek) {
-		closedDayOfWeek.add(dayOfWeek);
+	public void addCloseDay(DayOfWeek day) {
+		openClose.close(day);
 	}
 }

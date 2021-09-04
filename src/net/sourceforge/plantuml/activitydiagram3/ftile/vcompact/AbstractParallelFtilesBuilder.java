@@ -37,7 +37,7 @@ import java.util.List;
 
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.LinkRendering;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileHeightFixedCentered;
@@ -62,7 +62,7 @@ public abstract class AbstractParallelFtilesBuilder {
 
 	private final ISkinParam skinParam;
 	private final StringBounder stringBounder;
-	protected final List<Ftile> list99 = new ArrayList<Ftile>();
+	protected final List<Ftile> list99 = new ArrayList<>();
 
 	public StyleSignature getDefaultStyleDefinition() {
 		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.activity);
@@ -80,7 +80,7 @@ public abstract class AbstractParallelFtilesBuilder {
 
 	protected List<Ftile> getFoo2(List<Ftile> all) {
 		final double maxHeight = computeMaxHeight(all);
-		final List<Ftile> result = new ArrayList<Ftile>();
+		final List<Ftile> result = new ArrayList<>();
 		for (Ftile ftile : all) {
 			final Ftile newFtile = computeNewFtile(ftile, maxHeight);
 			result.add(newFtile);
@@ -132,9 +132,9 @@ public abstract class AbstractParallelFtilesBuilder {
 			return null;
 		}
 		final FontConfiguration fontConfiguration;
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			final Style style = getDefaultStyleDefinitionArrow().getMergedStyle(skinParam().getCurrentStyleBuilder());
-			fontConfiguration = style.getFontConfiguration(skinParam().getIHtmlColorSet());
+			fontConfiguration = style.getFontConfiguration(skinParam().getThemeStyle(), skinParam().getIHtmlColorSet());
 		} else {
 			fontConfiguration = new FontConfiguration(skinParam(), FontParam.ARROW, null);
 		}

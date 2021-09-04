@@ -32,76 +32,121 @@
  */
 package net.sourceforge.plantuml.project.core;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.project.Load;
 import net.sourceforge.plantuml.project.LoadPlanable;
+import net.sourceforge.plantuml.project.OpenClose;
 import net.sourceforge.plantuml.project.PlanUtils;
-import net.sourceforge.plantuml.project.Solver3;
-import net.sourceforge.plantuml.project.lang.ComplementColors;
-import net.sourceforge.plantuml.project.time.Wink;
+import net.sourceforge.plantuml.project.lang.CenterBorderColor;
+import net.sourceforge.plantuml.project.solver.Solver;
+import net.sourceforge.plantuml.project.solver.SolverImpl;
+import net.sourceforge.plantuml.project.time.Day;
+import net.sourceforge.plantuml.project.time.DayOfWeek;
+import net.sourceforge.plantuml.style.StyleBuilder;
 
 public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 
-	private final Solver3 solver;
-	private final Map<Resource, Integer> resources2 = new LinkedHashMap<Resource, Integer>();
+	private final SortedSet<Day> pausedDay = new TreeSet<>();
+	private final Set<DayOfWeek> pausedDayOfWeek = new HashSet<>();
+	private final Solver solver;
+	private final Map<Resource, Integer> resources = new LinkedHashMap<Resource, Integer>();
 	private final LoadPlanable defaultPlan;
 	private boolean diamond;
 
+	private int completion = 100;
+	private Display note;
+
 	private Url url;
-	private ComplementColors colors;
+	private CenterBorderColor[] colors;
 
 	public void setUrl(Url url) {
 		this.url = url;
 	}
 
-	public TaskImpl(TaskCode code, LoadPlanable defaultPlan) {
-		super(code);
-		this.defaultPlan = defaultPlan;
-		this.solver = new Solver3(this);
-		setStart(new Wink(0));
+	public TaskImpl(StyleBuilder styleBuilder, TaskCode code, OpenClose openClose) {
+		super(styleBuilder, code);
+		this.defaultPlan = openClose;
+		this.solver = new SolverImpl(this);
+		if (openClose.getCalendar() == null) {
+			setStart(Day.create(0));
+		} else {
+			setStart(openClose.getCalendar());
+		}
 		setLoad(Load.inWinks(1));
 	}
 
-	public int getLoadAt(Wink instant) {
+	public int getLoadAt(Day instant) {
+		if (isPaused(instant)) {
+			return 0;
+		}
+
 		LoadPlanable result = defaultPlan;
-		if (resources2.size() > 0) {
+		if (resources.size() > 0) {
 			result = PlanUtils.multiply(defaultPlan, getRessourcePlan());
 		}
 		return result.getLoadAt(instant);
-		// return PlanUtils.minOf(getLoad(), plan1).getLoadAt(instant);
 	}
 
-	public int loadForResource(Resource res, Wink instant) {
-		if (resources2.keySet().contains(res) && instant.compareTo(getStart()) >= 0
+	private boolean isPaused(Day instant) {
+		if (pausedDay.contains(instant)) {
+			return true;
+		}
+		if (pausedDayOfWeek(instant)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean pausedDayOfWeek(Day instant) {
+		for (DayOfWeek dayOfWeek : pausedDayOfWeek) {
+			if (instant.getDayOfWeek() == dayOfWeek) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int loadForResource(Resource res, Day instant) {
+		if (resources.keySet().contains(res) && instant.compareTo(getStart()) >= 0
 				&& instant.compareTo(getEnd()) <= 0) {
+			if (isPaused(instant)) {
+				return 0;
+			}
 			if (res.isClosedAt(instant)) {
 				return 0;
 			}
-			// int size = 0;
-			return resources2.get(res);
-			// for (Resource r : resources) {
-			// if (r.getLoadAt(i) > 0) {
-			// size++;
-			// }
-			// }
-			// return getLoadAt(instant) / size;
+			return resources.get(res);
 		}
 		return 0;
 	}
 
+	public void addPause(Day pause) {
+		this.pausedDay.add(pause);
+	}
+
+	public void addPause(DayOfWeek pause) {
+		this.pausedDayOfWeek.add(pause);
+	}
+
 	private LoadPlanable getRessourcePlan() {
-		if (resources2.size() == 0) {
+		if (resources.size() == 0) {
 			throw new IllegalStateException();
 		}
 		return new LoadPlanable() {
-
-			public int getLoadAt(Wink instant) {
+			public int getLoadAt(Day instant) {
 				int result = 0;
-				for (Map.Entry<Resource, Integer> ent : resources2.entrySet()) {
+				for (Map.Entry<Resource, Integer> ent : resources.entrySet()) {
 					final Resource res = ent.getKey();
 					if (res.isClosedAt(instant)) {
 						continue;
@@ -115,10 +160,10 @@ public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 	}
 
 	public String getPrettyDisplay() {
-		if (resources2.size() > 0) {
-			final StringBuilder result = new StringBuilder(code.getSimpleDisplay());
+		if (resources.size() > 0) {
+			final StringBuilder result = new StringBuilder(getCode().getSimpleDisplay());
 			result.append(" ");
-			for (Iterator<Map.Entry<Resource, Integer>> it = resources2.entrySet().iterator(); it.hasNext();) {
+			for (Iterator<Map.Entry<Resource, Integer>> it = resources.entrySet().iterator(); it.hasNext();) {
 				final Map.Entry<Resource, Integer> ent = it.next();
 				result.append("{");
 				result.append(ent.getKey().getName());
@@ -133,32 +178,28 @@ public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 			}
 			return result.toString();
 		}
-		return code.getSimpleDisplay();
+		return getCode().getSimpleDisplay();
 	}
 
 	@Override
 	public String toString() {
-		return code.toString();
+		return getCode().toString();
 	}
 
 	public String debug() {
 		return "" + getStart() + " ---> " + getEnd() + "   [" + getLoad() + "]";
 	}
 
-	public TaskCode getCode() {
-		return code;
-	}
-
-	public Wink getStart() {
-		Wink result = (Wink) solver.getData(TaskAttribute.START);
+	public Day getStart() {
+		Day result = (Day) solver.getData(TaskAttribute.START);
 		while (getLoadAt(result) == 0) {
 			result = result.increment();
 		}
 		return result;
 	}
 
-	public Wink getEnd() {
-		return (Wink) solver.getData(TaskAttribute.END);
+	public Day getEnd() {
+		return (Day) solver.getData(TaskAttribute.END);
 	}
 
 	public Load getLoad() {
@@ -169,20 +210,20 @@ public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 		solver.setData(TaskAttribute.LOAD, load);
 	}
 
-	public void setStart(Wink start) {
+	public void setStart(Day start) {
 		solver.setData(TaskAttribute.START, start);
 	}
 
-	public void setEnd(Wink end) {
+	public void setEnd(Day end) {
 		solver.setData(TaskAttribute.END, end);
 	}
 
-	public void setColors(ComplementColors colors) {
+	public void setColors(CenterBorderColor... colors) {
 		this.colors = colors;
 	}
 
 	public void addResource(Resource resource, int percentage) {
-		this.resources2.put(resource, percentage);
+		this.resources.put(resource, percentage);
 	}
 
 	public void setDiamond(boolean diamond) {
@@ -193,8 +234,6 @@ public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 		return this.diamond;
 	}
 
-	private int completion = 100;
-
 	public void setCompletion(int completion) {
 		this.completion = completion;
 	}
@@ -203,12 +242,44 @@ public class TaskImpl extends AbstractTask implements Task, LoadPlanable {
 		return url;
 	}
 
-	public final ComplementColors getColors() {
-		return colors;
+	public final CenterBorderColor getColors() {
+		if (colors == null) {
+			return null;
+		}
+		if (colors.length == 1) {
+			return colors[0];
+		}
+		return colors[0].unlinearTo(colors[1], completion);
 	}
 
 	public final int getCompletion() {
 		return completion;
+	}
+
+	public final Collection<Day> getAllPaused() {
+		final SortedSet<Day> result = new TreeSet<>(pausedDay);
+		for (DayOfWeek dayOfWeek : pausedDayOfWeek) {
+			addAll(result, dayOfWeek);
+		}
+		return Collections.unmodifiableCollection(result);
+	}
+
+	private void addAll(SortedSet<Day> result, DayOfWeek dayOfWeek) {
+		final Day start = getStart();
+		final Day end = getEnd();
+		for (Day current = start; current.compareTo(end) <= 0; current = current.increment()) {
+			if (current.getDayOfWeek() == dayOfWeek) {
+				result.add(current);
+			}
+		}
+	}
+
+	public void setNote(Display note) {
+		this.note = note;
+	}
+
+	public Display getNote() {
+		return note;
 	}
 
 }

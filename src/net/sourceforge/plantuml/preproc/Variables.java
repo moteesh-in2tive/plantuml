@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 
 public class Variables {
 
-	private final List<DefineVariable> all = new ArrayList<DefineVariable>();
+	private final List<DefineVariable> all = new ArrayList<>();
 	private final String fonctionName;
 	private final String definitionQuoted;
 

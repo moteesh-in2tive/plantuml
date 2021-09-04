@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.skin;
 
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.style.Styleable;
@@ -109,7 +109,7 @@ public enum ComponentType implements Styleable {
 //			return StyleSignature.of(SName.root, SName.element,
 //					SName.sequenceDiagram, SName.reference);
 //		}
-		if (SkinParam.USE_STYLES()) {
+		if (UseStyle.useBetaStyle()) {
 			throw new UnsupportedOperationException(toString());
 
 		}

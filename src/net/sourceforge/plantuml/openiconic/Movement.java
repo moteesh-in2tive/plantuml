@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class Movement {
 
@@ -126,9 +127,7 @@ public class Movement {
 	// }
 
 	public Movement toAbsoluteUpperCase(SvgPosition delta) {
-		if (delta == null) {
-			throw new IllegalArgumentException();
-		}
+		Objects.requireNonNull(delta);
 		if (letter.isUpperCase()) {
 			return this;
 		}

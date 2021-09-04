@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -84,10 +85,7 @@ public class FtpServer {
 	}
 
 	public synchronized FtpConnexion getFtpConnexion(String user) {
-		if (user == null) {
-			throw new IllegalArgumentException();
-		}
-		FtpConnexion data = datas.get(user);
+		FtpConnexion data = datas.get(Objects.requireNonNull(user));
 		if (data == null) {
 			data = new FtpConnexion(user, defaultfileFormat);
 			datas.put(user, data);

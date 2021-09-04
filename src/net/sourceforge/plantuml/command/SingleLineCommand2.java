@@ -32,28 +32,28 @@
  */
 package net.sourceforge.plantuml.command;
 
+import java.util.Objects;
+
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.command.regex.IRegex;
 import net.sourceforge.plantuml.command.regex.RegexResult;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.error.PSystemError;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public abstract class SingleLineCommand2<S extends Diagram> implements Command<S> {
 
 	private final IRegex pattern;
 	private final boolean doTrim;
-	
+
 	public SingleLineCommand2(IRegex pattern) {
 		this(true, pattern);
 	}
 
 	public SingleLineCommand2(boolean doTrim, IRegex pattern) {
 		this.doTrim = doTrim;
-		if (pattern == null) {
-			throw new IllegalArgumentException();
-		}
-		this.pattern = pattern;
+		this.pattern = Objects.requireNonNull(pattern);
 	}
 
 	public boolean syntaxWithFinalBracket() {
@@ -143,13 +143,18 @@ public abstract class SingleLineCommand2<S extends Diagram> implements Command<S
 		}
 		// System.err.println("lines="+lines);
 		// System.err.println("pattern="+pattern.getPattern());
-		return executeArg(system, first.getLocation(), arg);
+		try {
+			return executeArg(system, first.getLocation(), arg);
+		} catch (NoSuchColorException e) {
+			return CommandExecutionResult.badColor();
+		}
 	}
 
 	protected boolean isForbidden(CharSequence line) {
 		return false;
 	}
 
-	protected abstract CommandExecutionResult executeArg(S system, LineLocation location, RegexResult arg);
+	protected abstract CommandExecutionResult executeArg(S system, LineLocation location, RegexResult arg)
+			throws NoSuchColorException;
 
 }

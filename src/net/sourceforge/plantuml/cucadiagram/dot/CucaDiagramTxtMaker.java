@@ -50,7 +50,6 @@ import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.IEntity;
 import net.sourceforge.plantuml.cucadiagram.Link;
-import net.sourceforge.plantuml.cucadiagram.Member;
 import net.sourceforge.plantuml.cucadiagram.PortionShower;
 import net.sourceforge.plantuml.posimo.Block;
 import net.sourceforge.plantuml.posimo.Cluster;
@@ -103,7 +102,7 @@ public final class CucaDiagramTxtMaker {
 
 		final GraphvizSolverB solver = new GraphvizSolverB();
 
-		final Collection<Path> paths = new ArrayList<Path>();
+		final Collection<Path> paths = new ArrayList<>();
 		for (Link link : diagram.getLinks()) {
 			final Block b1 = blocks.get(link.getEntity1());
 			final Block b2 = blocks.get(link.getEntity2());
@@ -129,23 +128,28 @@ public final class CucaDiagramTxtMaker {
 		final int w = getWidth(ent);
 		final int h = getHeight(ent);
 		ug.getCharArea().drawBoxSimple(0, 0, w, h);
-		ug.getCharArea().drawStringsLR(ent.getDisplay().as(), 1, 1);
+		ug.getCharArea().drawStringsLRSimple(ent.getDisplay().asList(), 1, 1);
 		if (showMember(ent)) {
 			int y = 2;
 			ug.getCharArea().drawHLine('-', y, 1, w - 1);
 			y++;
-			for (Member att : ent.getBodier().getFieldsToDisplay()) {
-				final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
-				ug.getCharArea().drawStringsLR(disp, 1, y);
+			for (CharSequence att : ent.getBodier().getRawBody()) {
+				final List<String> disp = BackSlash.getWithNewlines(att.toString());
+				ug.getCharArea().drawStringsLRSimple(disp, 1, y);
 				y += StringUtils.getHeight(disp);
 			}
-			ug.getCharArea().drawHLine('-', y, 1, w - 1);
-			y++;
-			for (Member att : ent.getBodier().getMethodsToDisplay()) {
-				final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
-				ug.getCharArea().drawStringsLR(disp, 1, y);
-				y += StringUtils.getHeight(disp);
-			}
+//			for (Member att : ent.getBodier().getFieldsToDisplay()) {
+//				final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
+//				ug.getCharArea().drawStringsLR(disp, 1, y);
+//				y += StringUtils.getHeight(disp);
+//			}
+//			ug.getCharArea().drawHLine('-', y, 1, w - 1);
+//			y++;
+//			for (Member att : ent.getBodier().getMethodsToDisplay()) {
+//				final List<String> disp = BackSlash.getWithNewlines(att.getDisplay(true));
+//				ug.getCharArea().drawStringsLR(disp, 1, y);
+//				y += StringUtils.getHeight(disp);
+//			}
 		}
 	}
 
@@ -161,33 +165,42 @@ public final class CucaDiagramTxtMaker {
 	private int getHeight(IEntity entity) {
 		int result = StringUtils.getHeight(entity.getDisplay());
 		if (showMember(entity)) {
-			for (Member att : entity.getBodier().getMethodsToDisplay()) {
-				result += StringUtils.getHeight(Display.getWithNewlines(att.getDisplay(true)));
+			for (CharSequence att : entity.getBodier().getRawBody()) {
+				result += StringUtils.getHeight(Display.getWithNewlines(att.toString()));
 			}
-			result++;
-			for (Member att : entity.getBodier().getFieldsToDisplay()) {
-				result += StringUtils.getHeight(Display.getWithNewlines(att.getDisplay(true)));
-			}
-			result++;
+//			for (Member att : entity.getBodier().getMethodsToDisplay()) {
+//				result += StringUtils.getHeight(Display.getWithNewlines(att.getDisplay(true)));
+//			}
+//			result++;
+//			for (Member att : entity.getBodier().getFieldsToDisplay()) {
+//				result += StringUtils.getHeight(Display.getWithNewlines(att.getDisplay(true)));
+//			}
+//			result++;
 		}
-		return result + 2;
+		return result + 3;
 	}
 
 	private int getWidth(IEntity entity) {
 		int result = StringUtils.getWcWidth(entity.getDisplay());
 		if (showMember(entity)) {
-			for (Member att : entity.getBodier().getMethodsToDisplay()) {
-				final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
+			for (CharSequence att : entity.getBodier().getRawBody()) {
+				final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.toString()));
 				if (w > result) {
 					result = w;
 				}
 			}
-			for (Member att : entity.getBodier().getFieldsToDisplay()) {
-				final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
-				if (w > result) {
-					result = w;
-				}
-			}
+//			for (Member att : entity.getBodier().getMethodsToDisplay()) {
+//			final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
+//			if (w > result) {
+//				result = w;
+//			}
+//		}
+//			for (Member att : entity.getBodier().getFieldsToDisplay()) {
+//				final int w = StringUtils.getWcWidth(Display.getWithNewlines(att.getDisplay(true)));
+//				if (w > result) {
+//					result = w;
+//				}
+//			}
 		}
 		return result + 2;
 	}

@@ -34,6 +34,8 @@ package net.sourceforge.plantuml.ugraphic.color;
 
 import java.awt.Color;
 
+import net.sourceforge.plantuml.svek.DotStringFactory;
+
 public class HColorSimple extends HColorAbstract implements HColor {
 
 	private final Color color;
@@ -46,10 +48,54 @@ public class HColorSimple extends HColorAbstract implements HColor {
 
 	@Override
 	public String toString() {
-		if (color.getAlpha() == 0) {
+		if (isTransparent()) {
 			return "transparent";
 		}
 		return color.toString() + " alpha=" + color.getAlpha() + " monochrome=" + monochrome;
+	}
+
+	@Override
+	public String asString() {
+		if (isTransparent()) {
+			return "transparent";
+		}
+		if (color.getAlpha() == 255) {
+			return DotStringFactory.sharp000000(color.getRGB());
+		}
+		return "#" + Integer.toHexString(color.getRGB());
+	}
+
+	@Override
+	public HColor lighten(int ratio) {
+		final float[] hsl = new HSLColor(color).getHSL();
+		hsl[2] += hsl[2] * (ratio / 100.0);
+		return new HColorSimple(new HSLColor(hsl).getRGB(), false);
+	}
+
+	@Override
+	public HColor darken(int ratio) {
+		final float[] hsl = new HSLColor(color).getHSL();
+		hsl[2] -= hsl[2] * (ratio / 100.0);
+		return new HColorSimple(new HSLColor(hsl).getRGB(), false);
+	}
+
+	@Override
+	public HColor reverseHsluv() {
+		return new HColorSimple(ColorUtils.reverseHsluv(color), false);
+	}
+
+	@Override
+	public HColor reverse() {
+		return new HColorSimple(ColorOrder.RGB.getReverse(color), false);
+	}
+
+	@Override
+	public boolean isDark() {
+		return ColorUtils.getGrayScale(color) < 128;
+	}
+
+	public boolean isTransparent() {
+		return color.getAlpha() == 0;
 	}
 
 	@Override
@@ -87,6 +133,37 @@ public class HColorSimple extends HColorAbstract implements HColor {
 		final int diffGreen = Math.abs(this.color.getGreen() - other.color.getGreen());
 		final int diffBlue = Math.abs(this.color.getBlue() - other.color.getBlue());
 		return diffRed * .3 + diffGreen * .59 + diffBlue * .11;
+	}
+
+	public final boolean isMonochrome() {
+		return monochrome;
+	}
+
+	public static HColorSimple unlinear(HColorSimple color1, HColorSimple color2, int completionInt) {
+		final HSLColor col1 = new HSLColor(color1.color);
+		final HSLColor col2 = new HSLColor(color2.color);
+
+		final float[] hsl1 = col1.getHSL();
+		final float[] hsl2 = col2.getHSL();
+
+		float completion = (float) (completionInt / 100.0);
+		completion = completion * completion * completion;
+		final float[] hsl = linear(completion, hsl1, hsl2);
+
+		final HSLColor col = new HSLColor(hsl);
+
+		return new HColorSimple(col.getRGB(), color1.monochrome);
+	}
+
+	private static float[] linear(float factor, float[] hsl1, float[] hsl2) {
+		final float h = linear(factor, hsl1[0], hsl2[0]);
+		final float s = linear(factor, hsl1[1], hsl2[1]);
+		final float l = linear(factor, hsl1[2], hsl2[2]);
+		return new float[] { h, s, l };
+	}
+
+	private static float linear(float factor, float x, float y) {
+		return (x + (y - x) * factor);
 	}
 
 }

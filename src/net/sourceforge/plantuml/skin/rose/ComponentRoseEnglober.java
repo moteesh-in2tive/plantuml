@@ -36,7 +36,7 @@ import java.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineBreakStrategy;
-import net.sourceforge.plantuml.SkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -57,11 +57,11 @@ public class ComponentRoseEnglober extends AbstractTextualComponent {
 
 	public ComponentRoseEnglober(Style style, SymbolContext symbolContext, Display strings, FontConfiguration font,
 			ISkinSimple spriteContainer, double roundCorner) {
-		super(style, LineBreakStrategy.NONE, strings, font, HorizontalAlignment.CENTER, 3, 3, 1, spriteContainer,
-				false, null, null);
-		if (SkinParam.USE_STYLES()) {
+		super(style, LineBreakStrategy.NONE, strings, font, HorizontalAlignment.CENTER, 3, 3, 1, spriteContainer, false,
+				null, null);
+		if (UseStyle.useBetaStyle()) {
 			roundCorner = style.value(PName.RoundCorner).asDouble();
-			symbolContext = style.getSymbolContext(getIHtmlColorSet());
+			symbolContext = style.getSymbolContext(spriteContainer.getThemeStyle(), getIHtmlColorSet());
 		}
 		this.roundCorner = roundCorner;
 		this.symbolContext = symbolContext;

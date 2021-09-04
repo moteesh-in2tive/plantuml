@@ -57,6 +57,8 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.USymbol;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
+import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateElementMultilines extends CommandMultilines2<AbstractEntityDiagram> {
 
@@ -74,10 +76,10 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 	@Override
 	public String getPatternEnd() {
 		if (type == 0) {
-			return "(?i)^(.*)[%g]$";
+			return "^(.*)[%g]$";
 		}
 		if (type == 1) {
-			return "(?i)^(.*)\\]$";
+			return "^([^\\[\\]]*)\\]$";
 		}
 		throw new IllegalArgumentException();
 	}
@@ -86,7 +88,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		if (type == 0) {
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
 					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+					new RegexLeaf("CODE", "([%pLN_.]+)"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					RegexLeaf.spaceZeroOrMore(), //
@@ -103,7 +105,7 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 		if (type == 1) {
 			return RegexConcat.build(CommandCreateElementMultilines.class.getName() + type, RegexLeaf.start(), //
 					new RegexLeaf("TYPE", "(" + CommandCreateElementFull.ALL_TYPES + ")[%s]+"), //
-					new RegexLeaf("CODE", "([\\p{L}0-9_.]+)"), //
+					new RegexLeaf("CODE", "([%pLN_.]+)"), //
 					RegexLeaf.spaceZeroOrMore(), //
 					new RegexLeaf("STEREO", "(\\<\\<.+\\>\\>)?"), //
 					RegexLeaf.spaceZeroOrMore(), //
@@ -119,7 +121,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 	}
 
 	@Override
-	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines) {
+	protected CommandExecutionResult executeNow(AbstractEntityDiagram diagram, BlocLines lines)
+			throws NoSuchColorException {
 		lines = lines.trimSmart(1);
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final String symbol = StringUtils.goUpperCase(line0.get("TYPE", 0));
@@ -130,7 +133,8 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 			type = LeafType.USECASE;
 			usymbol = null;
 		} else {
-			usymbol = USymbol.getFromString(symbol, diagram.getSkinParam().getActorStyle());
+			usymbol = USymbol.fromString(symbol, diagram.getSkinParam().actorStyle(),
+					diagram.getSkinParam().componentStyle(), diagram.getSkinParam().packageStyle());
 			if (usymbol == null) {
 				throw new IllegalStateException();
 			}
@@ -176,9 +180,19 @@ public class CommandCreateElementMultilines extends CommandMultilines2<AbstractE
 			result.addUrl(url);
 		}
 
-		result.setSpecificColorTOBEREMOVED(ColorType.BACK,
-				diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR", 0)));
+		// final HColor backColor =
+		// diagram.getSkinParam().getIHtmlColorSet().getColorIfValid(line0.get("COLOR",
+		// 0));
+		final Colors colors = color().getColor(diagram.getSkinParam().getThemeStyle(), line0,
+				diagram.getSkinParam().getIHtmlColorSet());
+		result.setColors(colors);
+		// result.setSpecificColorTOBEREMOVED(ColorType.BACK, backColor);
 
 		return CommandExecutionResult.ok();
 	}
+
+	private static ColorParser color() {
+		return ColorParser.simpleColor(ColorType.BACK);
+	}
+
 }
