@@ -42,4 +42,3 @@ Furthermore:
  * [AsciiMath mathematical expressions](http://plantuml.com/ascii-math)
 
 To know more about PlantUML, please visit http://plantuml.com/
->>>>>>> 9238bacd65a9cd11ba755d9d05bc9db45676281e

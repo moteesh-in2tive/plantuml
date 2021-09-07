@@ -51,6 +51,7 @@ import net.sourceforge.plantuml.graphic.TextBlockHorizontal;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.openiconic.data.DummyIcon;
+import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 
 public class PSystemListOpenIconic extends PlainDiagram {
 

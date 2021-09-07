@@ -40,7 +40,6 @@ import java.io.PrintStream;
 
 import net.sourceforge.plantuml.command.PSystemAbstractFactory;
 import net.sourceforge.plantuml.core.Diagram;
-import net.sourceforge.plantuml.eggs.PSystemWelcome;
 import net.sourceforge.plantuml.error.PSystemError;
 
 public class StdrptV2 implements Stdrpt {
@@ -55,9 +54,6 @@ public class StdrptV2 implements Stdrpt {
 	}
 
 	public void printInfo(final PrintStream output, Diagram sys) {
-		if (sys instanceof PSystemWelcome) {
-			sys = null;
-		}
 		if (sys == null || sys instanceof PSystemError) {
 			out(output, (PSystemError) sys);
 		}

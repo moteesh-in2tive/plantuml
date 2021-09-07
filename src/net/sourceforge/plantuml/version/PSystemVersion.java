@@ -51,7 +51,6 @@ import net.sourceforge.plantuml.StringLocated;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
-import net.sourceforge.plantuml.dedication.PSystemDedication;
 import net.sourceforge.plantuml.preproc.Stdlib;
 import net.sourceforge.plantuml.preproc2.PreprocessorUtils;
 import net.sourceforge.plantuml.security.ImageIO;
@@ -127,14 +126,6 @@ public class PSystemVersion extends PlainStringsDiagram {
 	}
 
 	private static BufferedImage getImageWebp(final String name) {
-		try {
-			final InputStream is = PSystemVersion.class.getResourceAsStream(name);
-			final BufferedImage image = PSystemDedication.getBufferedImage(is);
-			is.close();
-			return image;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		return new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
 	}
 
@@ -163,7 +154,6 @@ public class PSystemVersion extends PlainStringsDiagram {
 	public static PSystemVersion createShowVersion2(UmlSource source) {
 		final List<String> strings = new ArrayList<>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
-		strings.add("(" + License.getCurrent() + " source distribution)");
 		GraphvizCrash.checkOldVersionWarning(strings);
 		if (OptionFlags.ALLOW_INCLUDE) {
 			if (SecurityUtils.getSecurityProfile() == SecurityProfile.UNSECURE) {
@@ -211,7 +201,6 @@ public class PSystemVersion extends PlainStringsDiagram {
 		final List<String> strings = new ArrayList<>();
 		add(strings, "<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")",
 				withTag);
-		add(strings, "(" + License.getCurrent() + " source distribution)", withTag);
 		add(strings, " ", withTag);
 		add(strings, "<u>Original idea</u>: Arnaud Roques", withTag);
 		add(strings, "<u>Word Macro</u>: Alain Bertucat & Matthieu Sabatier", withTag);
@@ -258,19 +247,8 @@ public class PSystemVersion extends PlainStringsDiagram {
 //	}
 
 	public static PSystemVersion createKeyDistributor(UmlSource source) throws IOException {
-		final LicenseInfo license = LicenseInfo.retrieveDistributor();
-		BufferedImage im = null;
 		final List<String> strings = new ArrayList<>();
-		if (license == null) {
-			strings.add("No license found");
-		} else {
-			strings.add(license.getOwner());
-			strings.add(license.getContext());
-			strings.add(license.getGenerationDate().toString());
-			strings.add(license.getExpirationDate().toString());
-			im = LicenseInfo.retrieveDistributorImage(license);
-		}
-		return new PSystemVersion(source, strings, im);
+		return new PSystemVersion(source, strings, null);
 	}
 
 //	public static PSystemVersion createPath(UmlSource source) throws IOException {

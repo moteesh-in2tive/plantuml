@@ -85,41 +85,7 @@ public class PSystemKeygen extends PlainDiagram {
 	}
 
 	private void drawInternal(UGraphic ug) throws IOException {
-		final LicenseInfo installed = LicenseInfo.retrieveNamedSlow();
-		if (key.length() == 0) {
-			drawFlash(ug, installed);
-			return;
-		}
-		final LicenseInfo info = LicenseInfo.retrieveNamed(key);
-		if (info.isNone()) {
-			drawFlash(ug, installed);
-			return;
-		}
 		final List<String> strings = header();
-		strings.add("<u>Provided license information</u>:");
-		License.addLicenseInfo(strings, info);
-		strings.add(" ");
-		strings.add("========================================================================");
-		try {
-			LicenseInfo.persistMe(key);
-		} catch (BackingStoreException e) {
-			strings.add("<i>Error: Cannot store license key.</i>");
-		}
-
-		if (installed.isNone()) {
-			strings.add("No license currently installed.");
-			strings.add(" ");
-			strings.add("<b>Please copy license.txt to one of those files</b>:");
-			for (SFile f : LicenseInfo.fileCandidates()) {
-				strings.add(f.getAbsolutePath());
-			}
-			strings.add(" ");
-		} else {
-			strings.add("<u>Installed license</u>:");
-			License.addLicenseInfo(strings, installed);
-			strings.add(" ");
-		}
-
 		final TextBlock disp = GraphicStrings.createBlackOnWhite(strings);
 		disp.drawU(ug);
 	}
@@ -127,41 +93,10 @@ public class PSystemKeygen extends PlainDiagram {
 	private ArrayList<String> header() {
 		final ArrayList<String> strings = new ArrayList<>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
-		strings.add("(" + License.getCurrent() + " source distribution)");
 //		if (OptionFlags.ALLOW_INCLUDE) {
 //			strings.add("Loaded from " + Version.getJarPath());
 //		}
 		strings.add(" ");
 		return strings;
-	}
-
-	private void drawFlash(UGraphic ug, LicenseInfo info) throws IOException {
-		final List<String> strings = header();
-		strings.add("To get your <i>Professional Edition License</i>,");
-		strings.add("please send this qrcode to <b>plantuml@gmail.com</b> :");
-
-		TextBlock disp = GraphicStrings.createBlackOnWhite(strings);
-		disp.drawU(ug);
-
-		ug = ug.apply(UTranslate.dy(disp.calculateDimension(ug.getStringBounder()).getHeight()));
-		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-		final BufferedImage im = utils.exportFlashcode(
-				Version.versionString() + "\n" + SignatureUtils.toHexString(PLSSignature.signature()), Color.BLACK,
-				Color.WHITE);
-		if (im != null) {
-			final UImage flash = new UImage(new PixelImage(im, AffineTransformType.TYPE_NEAREST_NEIGHBOR)).scale(4);
-			ug.draw(flash);
-			ug = ug.apply(UTranslate.dy(flash.getHeight()));
-		}
-
-		if (info.isNone() == false) {
-			strings.clear();
-			strings.add("<u>Installed license</u>:");
-			License.addLicenseInfo(strings, info);
-			strings.add(" ");
-			disp = GraphicStrings.createBlackOnWhite(strings);
-			disp.drawU(ug);
-		}
-
 	}
 }

@@ -69,7 +69,7 @@ import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.style.NoStyleAvailableException;
 import net.sourceforge.plantuml.svek.EmptySvgException;
 import net.sourceforge.plantuml.svek.GraphvizCrash;
-import net.sourceforge.plantuml.svek.TextBlockBackcolored;
+import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.AffineTransformType;
 import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -183,8 +183,7 @@ public abstract class UmlDiagram extends TitledDiagram implements Diagram, Annot
 			}
 		}
 		final BufferedImage im = im2;
-		final TextBlockBackcolored graphicStrings = GraphicStrings.createBlackOnWhite(strings, IconLoader.getRandom(),
-				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
+		final TextBlock graphicStrings = GraphicStrings.createBlackOnWhite(strings);
 
 		final UDrawable drawable = (im == null) ? graphicStrings : new UDrawable() {
 				public void drawU(UGraphic ug) {

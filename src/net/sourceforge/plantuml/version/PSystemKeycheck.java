@@ -88,16 +88,6 @@ public class PSystemKeycheck extends PlainDiagram {
 
 	private void drawInternal(UGraphic ug) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		final List<String> strings = header();
-		try {
-			final LicenseInfo info = PLSSignature.retrieveNamed(sig, key, false);
-			strings.add("<u>Provided license information</u>:");
-			License.addLicenseInfo(strings, info);
-			strings.add(" ");
-		} catch (Exception e) {
-			e.printStackTrace();
-			strings.add("<i>Error:</i> " + e);
-		}
-
 		final TextBlock disp = GraphicStrings.createBlackOnWhite(strings);
 		disp.drawU(ug);
 	}
@@ -105,41 +95,10 @@ public class PSystemKeycheck extends PlainDiagram {
 	private ArrayList<String> header() {
 		final ArrayList<String> strings = new ArrayList<>();
 		strings.add("<b>PlantUML version " + Version.versionString() + "</b> (" + Version.compileTimeString() + ")");
-		strings.add("(" + License.getCurrent() + " source distribution)");
 //		if (OptionFlags.ALLOW_INCLUDE) {
 //			strings.add("Loaded from " + Version.getJarPath());
 //		}
 		strings.add(" ");
 		return strings;
-	}
-
-	private void drawFlash(UGraphic ug, LicenseInfo info) throws IOException {
-		final List<String> strings = header();
-		strings.add("To get your <i>Professional Edition License</i>,");
-		strings.add("please send this qrcode to <b>plantuml@gmail.com</b> :");
-
-		TextBlock disp = GraphicStrings.createBlackOnWhite(strings);
-		disp.drawU(ug);
-
-		ug = ug.apply(UTranslate.dy(disp.calculateDimension(ug.getStringBounder()).getHeight()));
-		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
-		final BufferedImage im = utils.exportFlashcode(
-				Version.versionString() + "\n" + SignatureUtils.toHexString(PLSSignature.signature()), Color.BLACK,
-				Color.WHITE);
-		if (im != null) {
-			final UImage flash = new UImage(new PixelImage(im, AffineTransformType.TYPE_NEAREST_NEIGHBOR)).scale(4);
-			ug.draw(flash);
-			ug = ug.apply(UTranslate.dy(flash.getHeight()));
-		}
-
-		if (info.isNone() == false) {
-			strings.clear();
-			strings.add("<u>Installed license</u>:");
-			License.addLicenseInfo(strings, info);
-			strings.add(" ");
-			disp = GraphicStrings.createBlackOnWhite(strings);
-			disp.drawU(ug);
-		}
-
 	}
 }

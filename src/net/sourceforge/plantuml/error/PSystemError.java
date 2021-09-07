@@ -83,7 +83,6 @@ import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 import net.sourceforge.plantuml.ugraphic.txt.UGraphicTxt;
-import net.sourceforge.plantuml.version.LicenseInfo;
 import net.sourceforge.plantuml.version.PSystemVersion;
 import net.sourceforge.plantuml.version.Version;
 
@@ -258,4 +257,10 @@ public abstract class PSystemError extends PlainDiagram {
 	public int size() {
 		return trace.size();
 	}
+
+	public int score() {
+		final int result = trace.size() * 10 + singleError.score();
+		return result;
+	}
+
 }

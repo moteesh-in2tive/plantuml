@@ -74,8 +74,7 @@ public class GraphvizCrash extends AbstractTextBlock implements IEntityImage {
 		this.graphviz244onWindows = graphviz244onWindows;
 		final FlashCodeUtils utils = FlashCodeFactory.getFlashCodeUtils();
 		this.flashCode = utils.exportFlashcode(text, Color.BLACK, Color.WHITE);
-		this.text1 = GraphicStrings.createBlackOnWhite(init(rootCause), IconLoader.getRandom(),
-				GraphicPosition.BACKGROUND_CORNER_TOP_RIGHT);
+		this.text1 = GraphicStrings.createBlackOnWhite(init(rootCause));
 	}
 
 	public static List<String> anErrorHasOccured(Throwable exception, String text) {

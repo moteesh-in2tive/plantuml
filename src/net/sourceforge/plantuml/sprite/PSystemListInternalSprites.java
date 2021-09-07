@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockHorizontal;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
-
+import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 public class PSystemListInternalSprites extends PlainDiagram {
 
 	public PSystemListInternalSprites(UmlSource source) {
