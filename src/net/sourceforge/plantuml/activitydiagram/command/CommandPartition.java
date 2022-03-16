@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -98,7 +98,7 @@ public class CommandPartition extends SingleLineCommand2<ActivityDiagram> {
 			p.setColors(colors);
 		}
 		if (arg.get("STEREOTYPE", 0) != null) {
-			p.setStereotype(new Stereotype(arg.get("STEREOTYPE", 0)));
+			p.setStereotype(Stereotype.build(arg.get("STEREOTYPE", 0)));
 		}
 
 		return CommandExecutionResult.ok();

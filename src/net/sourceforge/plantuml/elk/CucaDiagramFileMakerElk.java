@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,7 +35,7 @@
  */
 package net.sourceforge.plantuml.elk;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -111,7 +111,7 @@ import net.sourceforge.plantuml.graphic.QuoteUtils;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
-import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
@@ -261,22 +261,22 @@ public class CucaDiagramFileMakerElk implements CucaDiagramFileMaker {
 			final double shadowing;
 			final UStroke stroke;
 			if (UseStyle.useBetaStyle()) {
-				final Style style = Cluster.getDefaultStyleDefinition(umlDiagramType.getStyleName())
+				final Style style = Cluster.getDefaultStyleDefinition(umlDiagramType.getStyleName(), group.getUSymbol())
 						.getMergedStyle(skinParam.getCurrentStyleBuilder());
 				shadowing = style.value(PName.Shadowing).asDouble();
-				stroke = style.getStroke();
+				stroke = Cluster.getStrokeInternal(group, skinParam, style);
 			} else {
 				if (group.getUSymbol() == null) {
-					shadowing = skinParam.shadowing2(group.getStereotype(), USymbol.PACKAGE.getSkinParameter()) ? 3 : 0;
+					shadowing = skinParam.shadowing2(group.getStereotype(), USymbols.PACKAGE.getSkinParameter()) ? 3 : 0;
 				} else {
 					shadowing = skinParam.shadowing2(group.getStereotype(), group.getUSymbol().getSkinParameter()) ? 3
 							: 0;
 				}
-				stroke = Cluster.getStrokeInternal(group, skinParam);
+				stroke = Cluster.getStrokeInternal(group, skinParam, null);
 			}
 			HColor backColor = getBackColor(umlDiagramType);
-			backColor = Cluster.getBackColor(backColor, skinParam, group.getStereotype(),
-					umlDiagramType.getStyleName());
+			backColor = Cluster.getBackColor(backColor, skinParam, group.getStereotype(), umlDiagramType.getStyleName(),
+					group.getUSymbol());
 
 			final double roundCorner = group.getUSymbol() == null ? 0
 					: group.getUSymbol().getSkinParameter().getRoundCorner(skinParam, group.getStereotype());
@@ -290,7 +290,7 @@ public class CucaDiagramFileMakerElk implements CucaDiagramFileMaker {
 			final HColor borderColor = HColorUtils.BLACK;
 			decoration.drawU(ug.apply(new UTranslate(corner)), backColor, borderColor, shadowing, roundCorner,
 					skinParam.getHorizontalAlignment(AlignmentParam.packageTitleAlignment, null, false, null),
-					skinParam.getStereotypeAlignment());
+					skinParam.getStereotypeAlignment(), 0);
 
 //			// Print a simple rectangle right now
 //			ug.apply(HColorUtils.BLACK).apply(new UStroke(1.5)).apply(new UTranslate(corner)).draw(rect);

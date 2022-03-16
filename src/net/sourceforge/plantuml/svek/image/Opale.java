@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -42,6 +42,7 @@ import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPath;
+import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.utils.MathUtils;
@@ -60,16 +61,18 @@ public class Opale extends AbstractTextBlock implements TextBlock {
 	private Point2D pp2;
 	private final boolean withLink;
 	private double roundCorner;
+	private final UStroke stroke;
 
 	private final TextBlock textBlock;
 
 	public Opale(double shadowing, HColor borderColor, HColor noteBackgroundColor, TextBlock textBlock,
-			boolean withLink) {
+			boolean withLink, UStroke stroke) {
 		this.noteBackgroundColor = noteBackgroundColor;
 		this.withLink = withLink;
 		this.shadowing2 = shadowing;
 		this.borderColor = borderColor;
 		this.textBlock = textBlock;
+		this.stroke = stroke;
 	}
 
 	public void setRoundCorner(double roundCorner) {
@@ -115,6 +118,8 @@ public class Opale extends AbstractTextBlock implements TextBlock {
 			throw new IllegalArgumentException();
 		}
 		polygon.setDeltaShadow(shadowing2);
+		if (stroke != null)
+			ug = ug.apply(stroke);
 		ug.draw(polygon);
 		ug.draw(getCorner(getWidth(stringBounder), roundCorner));
 		textBlock.drawU(ug.apply(new UTranslate(marginX1, marginY)));

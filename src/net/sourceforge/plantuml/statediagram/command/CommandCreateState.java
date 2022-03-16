@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -120,7 +120,7 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 		ent.setDisplay(Display.getWithNewlines(display));
 
 		if (stereotype != null) {
-			ent.setStereotype(new Stereotype(stereotype));
+			ent.setStereotype(Stereotype.build(stereotype));
 		}
 		final String urlString = arg.get("URL", 0);
 		if (urlString != null) {
@@ -167,6 +167,9 @@ public class CommandCreateState extends SingleLineCommand2<StateDiagram> {
 		}
 		if ("<<join>>".equalsIgnoreCase(stereotype)) {
 			return LeafType.STATE_FORK_JOIN;
+		}
+		if ("<<start>>".equalsIgnoreCase(stereotype)) {
+			return LeafType.CIRCLE_START;
 		}
 		if ("<<end>>".equalsIgnoreCase(stereotype)) {
 			return LeafType.CIRCLE_END;

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -34,8 +34,6 @@ package net.sourceforge.plantuml.ugraphic.tikz;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.TikzFontDistortion;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.creole.legacy.AtomText;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -46,7 +44,6 @@ import net.sourceforge.plantuml.ugraphic.AbstractUGraphic;
 import net.sourceforge.plantuml.ugraphic.ClipContainer;
 import net.sourceforge.plantuml.ugraphic.UCenteredCharacter;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
-import net.sourceforge.plantuml.ugraphic.UGraphic2;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UImageSvg;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -57,24 +54,11 @@ import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class UGraphicTikz extends AbstractUGraphic<TikzGraphics> implements ClipContainer, UGraphic2 {
+public class UGraphicTikz extends AbstractUGraphic<TikzGraphics> implements ClipContainer {
 
-	private final StringBounder stringBounder;
-	private final TikzFontDistortion tikzFontDistortion;
-
-	private UGraphicTikz(HColor defaultBackground, ColorMapper colorMapper, TikzGraphics tikz,
-			TikzFontDistortion tikzFontDistortion) {
-		super(defaultBackground, colorMapper, tikz);
-		this.tikzFontDistortion = tikzFontDistortion;
-		this.stringBounder = FileFormat.LATEX.getDefaultStringBounder(tikzFontDistortion);
+	public UGraphicTikz(HColor defaultBackground, ColorMapper colorMapper, StringBounder stringBounder, double scale, boolean withPreamble) {
+		super(defaultBackground, colorMapper, stringBounder, new TikzGraphics(scale, withPreamble));
 		register();
-
-	}
-
-	public UGraphicTikz(HColor defaultBackground, ColorMapper colorMapper, double scale, boolean withPreamble,
-			TikzFontDistortion tikzFontDistortion) {
-		this(defaultBackground, colorMapper, new TikzGraphics(scale, withPreamble), tikzFontDistortion);
-
 	}
 
 	@Override
@@ -84,43 +68,36 @@ public class UGraphicTikz extends AbstractUGraphic<TikzGraphics> implements Clip
 
 	private UGraphicTikz(UGraphicTikz other) {
 		super(other);
-		this.tikzFontDistortion = other.tikzFontDistortion;
-		this.stringBounder = other.stringBounder;
 		register();
 	}
 
 	private void register() {
 		registerDriver(URectangle.class, new DriverRectangleTikz());
-		registerDriver(UText.class, new DriverUTextTikz());
+		registerDriver(UText.class, new DriverTextTikz());
 		registerDriver(AtomText.class, new DriverAtomTextTikz());
 		registerDriver(ULine.class, new DriverLineTikz());
 		registerDriver(UPolygon.class, new DriverPolygonTikz());
 		registerDriver(UEllipse.class, new DriverEllipseTikz());
 		registerDriver(UImage.class, new DriverImageTikz());
-		registerDriver(UImageSvg.class, new DriverNoneTikz());
-		registerDriver(UPath.class, new DriverUPathTikz());
+		ignoreShape(UImageSvg.class);
+		registerDriver(UPath.class, new DriverPathTikz());
 		registerDriver(DotPath.class, new DriverDotPathTikz());
 		// registerDriver(UCenteredCharacter.class, new DriverCenteredCharacterTikz());
 		registerDriver(UCenteredCharacter.class, new DriverCenteredCharacterTikz2());
 	}
 
-	public StringBounder getStringBounder() {
-		return stringBounder;
-	}
-
+	@Override
 	public void startUrl(Url url) {
 		getGraphicObject().openLink(url.getUrl(), url.getTooltip());
 	}
 
+	@Override
 	public void closeUrl() {
 		getGraphicObject().closeLink();
 	}
 
-	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {
-		createTikz(os);
-	}
-
-	public void createTikz(OutputStream os) throws IOException {
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
 		getGraphicObject().createData(os);
 	}
 

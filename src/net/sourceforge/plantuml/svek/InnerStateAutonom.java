@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.Url;
@@ -52,13 +52,14 @@ public final class InnerStateAutonom extends AbstractTextBlock implements IEntit
 	private final TextBlock attribute;
 	private final HColor borderColor;
 	private final HColor backColor;
-	private final boolean shadowing;
 	private final Url url;
 	private final boolean withSymbol;
 	private final UStroke stroke;
+	private final double rounded;
+	private final double shadowing;
 
-	public InnerStateAutonom(final IEntityImage im, final TextBlock title, TextBlock attribute, HColor borderColor,
-			HColor backColor, boolean shadowing, Url url, boolean withSymbol, UStroke stroke) {
+	public InnerStateAutonom(IEntityImage im, TextBlock title, TextBlock attribute, HColor borderColor,
+			HColor backColor, Url url, boolean withSymbol, UStroke stroke, double rounded, double shadowing) {
 		this.im = im;
 		this.withSymbol = withSymbol;
 		this.title = title;
@@ -68,6 +69,7 @@ public final class InnerStateAutonom extends AbstractTextBlock implements IEntit
 		this.attribute = attribute;
 		this.url = url;
 		this.stroke = stroke;
+		this.rounded = rounded;
 	}
 
 	public void drawU(UGraphic ug) {
@@ -78,13 +80,12 @@ public final class InnerStateAutonom extends AbstractTextBlock implements IEntit
 
 		final double titreHeight = IEntityImage.MARGIN + text.getHeight() + IEntityImage.MARGIN_LINE;
 		final RoundedContainer r = new RoundedContainer(total, titreHeight, attr.getHeight() + marginForFields,
-				borderColor, backColor, im.getBackcolor(), stroke);
+				borderColor, backColor, im.getBackcolor(), stroke, rounded, shadowing);
 
-		if (url != null) {
+		if (url != null)
 			ug.startUrl(url);
-		}
 
-		r.drawU(ug, shadowing);
+		r.drawU(ug);
 		title.drawU(ug.apply(new UTranslate((total.getWidth() - text.getWidth()) / 2, IEntityImage.MARGIN)));
 		attribute.drawU(ug.apply(
 				new UTranslate(0 + IEntityImage.MARGIN, IEntityImage.MARGIN + text.getHeight() + IEntityImage.MARGIN)));
@@ -92,14 +93,12 @@ public final class InnerStateAutonom extends AbstractTextBlock implements IEntit
 		final double spaceYforURL = getSpaceYforURL(ug.getStringBounder());
 		im.drawU(ug.apply(new UTranslate(IEntityImage.MARGIN, spaceYforURL)));
 
-		if (withSymbol) {
+		if (withSymbol)
 			EntityImageState.drawSymbol(ug.apply(borderColor), total.getWidth(), total.getHeight());
 
-		}
-
-		if (url != null) {
+		if (url != null)
 			ug.closeUrl();
-		}
+
 	}
 
 	private double getSpaceYforURL(StringBounder stringBounder) {

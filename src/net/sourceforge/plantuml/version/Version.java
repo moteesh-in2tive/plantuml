@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -41,7 +41,7 @@ public class Version {
 	private static final int MAJOR_SEPARATOR = 1000000;
 
 	public static int version() {
-		return 1202110;
+		return 1202202;
 	}
 
 	public static int versionPatched() {
@@ -90,7 +90,7 @@ public class Version {
 	}
 
 	public static long compileTime() {
-		return 1630331028954L;
+		return 1646497819191L;
 	}
 
 	public static String compileTimeString() {

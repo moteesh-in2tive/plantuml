@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -56,9 +56,9 @@ public class CommandBoxEnd extends SingleLineCommand2<SequenceDiagram> {
 
 	@Override
 	protected CommandExecutionResult executeArg(SequenceDiagram diagram, LineLocation location, RegexResult arg) {
-		if (diagram.isBoxPending() == false) {
+		if (diagram.isBoxPending() == false)
 			return CommandExecutionResult.error("Missing starting box");
-		}
+
 		diagram.endBox();
 		return CommandExecutionResult.ok();
 	}

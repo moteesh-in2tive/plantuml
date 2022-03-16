@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.StringBounder;
@@ -72,7 +72,7 @@ public class ReferenceTile extends AbstractTile implements Tile {
 			final LivingSpace livingSpace = tileArguments.getLivingSpace(p);
 			final Real pos = livingSpace.getPosC(stringBounder);
 			if (first == null || pos.getCurrentValue() < first.getCurrentValue()) {
-				this.first = livingSpace.getPosB();
+				this.first = livingSpace.getPosB(stringBounder);
 			}
 			if (last == null || pos.getCurrentValue() > last.getCurrentValue()) {
 				this.last = livingSpace.getPosD(stringBounder);

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -79,7 +79,6 @@ public class LanguageDescriptor {
 		type.add("queue");
 		type.add("archimate");
 		type.add("diamond");
-		type.add("detach");
 		type.add("collections");
 		type.add("hexagon");
 		type.add("label");
@@ -197,6 +196,7 @@ public class LanguageDescriptor {
 		keyword.add("fork");
 		keyword.add("again");
 		keyword.add("kill");
+		keyword.add("detach");
 		keyword.add("order");
 		keyword.add("allow_mixing");
 		keyword.add("allowmixing");

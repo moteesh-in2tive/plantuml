@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,7 +31,7 @@
  */
 package net.sourceforge.plantuml.timingdiagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 
 import net.sourceforge.plantuml.ISkinSimple;
@@ -46,6 +46,7 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
+import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class TimeArrow implements UDrawable {
 
@@ -106,12 +107,13 @@ public class TimeArrow implements UDrawable {
 	private FontConfiguration getFontConfiguration() {
 		final UFont font = UFont.serif(14);
 
-		return new FontConfiguration(font, type.getSpecificColor(), type.getSpecificColor(), false);
+		final HColor color = type.getSpecificColor();
+		return new FontConfiguration(font, color, color, false);
 	}
 
 	public void drawU(UGraphic ug) {
 		final double angle = getAngle();
-		// ug = ug.apply(type.getSpecificColor()).apply(type.getType().getStroke3(new UStroke()));
+
 		ug = ug.apply(type.getSpecificColor()).apply(type.getUStroke());
 		final ULine line = new ULine(end.getX() - start.getX(), end.getY() - start.getY());
 		ug.apply(new UTranslate(start)).draw(line);

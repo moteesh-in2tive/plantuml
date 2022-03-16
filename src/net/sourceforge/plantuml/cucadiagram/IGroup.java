@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -68,8 +68,8 @@ public interface IGroup extends IEntity {
 
 	public void setConcurrentSeparator(char separator);
 
-	public void setLegend(DisplayPositionned legend);
+	public void setLegend(DisplayPositioned legend);
 
-	public DisplayPositionned getLegend();
+	public DisplayPositioned getLegend();
 
 }

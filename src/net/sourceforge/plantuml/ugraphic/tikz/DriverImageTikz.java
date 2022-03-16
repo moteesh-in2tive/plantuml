@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,13 +35,11 @@ import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverImageTikz implements UDriver<TikzGraphics> {
+public class DriverImageTikz implements UDriver<UImage, TikzGraphics> {
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
-		final UImage shape = (UImage) ushape;
+	public void draw(UImage shape, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
 		final String rawFileName = shape.getRawFileName();
 		if (rawFileName != null) {
 			final String raw = "\\includegraphics{" + rawFileName + "}";

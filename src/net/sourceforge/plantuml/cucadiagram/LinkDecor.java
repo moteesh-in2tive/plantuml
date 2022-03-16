@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -136,9 +136,9 @@ public enum LinkDecor {
 		case NOT_NAVIGABLE:
 			return new ExtremityFactoryNotNavigable();
 		case AGREGATION:
-			return new ExtremityFactoryDiamond(false, backgroundColor);
+			return new ExtremityFactoryDiamond(false);
 		case COMPOSITION:
-			return new ExtremityFactoryDiamond(true, backgroundColor);
+			return new ExtremityFactoryDiamond(true);
 		case CIRCLE:
 			return new ExtremityFactoryCircle(false, backgroundColor);
 		case CIRCLE_FILL:

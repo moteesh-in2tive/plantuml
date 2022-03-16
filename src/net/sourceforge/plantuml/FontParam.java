@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,7 @@ import java.awt.Font;
 
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.style.SName;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 
 interface FontParamConstant {
 	String FAMILY = "SansSerif";
@@ -184,23 +184,23 @@ public enum FontParam {
 		return new FontConfiguration(skinParam, this, null);
 	}
 
-	public StyleSignature getStyleDefinition(SName diagramType) {
+	public StyleSignatureBasic getStyleDefinition(SName diagramType) {
 		if (this == FOOTER) {
-			return StyleSignature.of(SName.root, SName.document, SName.footer);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.footer);
 		}
 		if (this == HEADER) {
-			return StyleSignature.of(SName.root, SName.document, SName.header);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.header);
 		}
 		if (this == TITLE) {
-			return StyleSignature.of(SName.root, SName.document, SName.title);
+			return StyleSignatureBasic.of(SName.root, SName.document, SName.title);
 		}
 		if (this == CLASS_ATTRIBUTE) {
-			return StyleSignature.of(SName.root, SName.element, SName.classDiagram, SName.class_);
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.classDiagram, SName.class_);
 		}
 		if (this == RECTANGLE || this == NODE) {
-			return StyleSignature.of(SName.root, SName.element, SName.componentDiagram, SName.component);
+			return StyleSignatureBasic.of(SName.root, SName.element, SName.componentDiagram, SName.component);
 		}
-		return StyleSignature.of(SName.root, SName.element, diagramType, SName.component);
+		return StyleSignatureBasic.of(SName.root, SName.element, diagramType, SName.component);
 //		System.err.println("Warning " + this);
 //		throw new UnsupportedOperationException();
 	}

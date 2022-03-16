@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -50,7 +50,7 @@ import net.sourceforge.plantuml.mindmap.IdeaShape;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -84,19 +84,19 @@ abstract class WBSTextBlock extends AbstractTextBlock {
 	}
 
 	final protected void drawLine(UGraphic ug, double x1, double y1, double x2, double y2) {
-		drawLine(ug, new Point2D.Double(x1, y1), new Point2D.Double(x2, y2));
+		drawLine(ug, new Point2D.Double(Math.min(x1, x2), y1), new Point2D.Double(Math.max(x1, x2), y2));
 	}
 
-	final public StyleSignature getDefaultStyleDefinitionArrow() {
-		return StyleSignature.of(SName.root, SName.element, SName.wbsDiagram, SName.arrow).add(SName.depth(level));
+	final public StyleSignatureBasic getDefaultStyleDefinitionArrow() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.wbsDiagram, SName.arrow).add(SName.depth(level));
 	}
 
 	final protected TextBlock buildMain(WElement idea) {
 		final Display label = idea.getLabel();
 		final Style style = idea.getStyle();
-		if (idea.getShape() == IdeaShape.BOX) {
+		if (idea.getShape() == IdeaShape.BOX)
 			return FtileBoxOld.createWbs(style, idea.withBackColor(skinParam), label);
-		}
+
 		final TextBlock text = label.create0(
 				style.getFontConfiguration(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet()),
 				style.getHorizontalAlignment(), skinParam, style.wrapWidth(), CreoleMode.FULL, null, null);

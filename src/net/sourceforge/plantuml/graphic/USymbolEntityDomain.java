@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.EntityDomain;
 
 class USymbolEntityDomain extends USymbolSimpleAbstract {
@@ -39,6 +40,11 @@ class USymbolEntityDomain extends USymbolSimpleAbstract {
 	@Override
 	public SkinParameter getSkinParameter() {
 		return SkinParameter.ENTITY;
+	}
+
+	@Override
+	public SName getSName() {
+		return SName.entity;
 	}
 
 	@Override

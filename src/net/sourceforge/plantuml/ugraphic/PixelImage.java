@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -129,8 +129,8 @@ public class PixelImage implements MutableImage {
 				// if (isTransparent(color)) {
 				// continue;
 				// }
-				final int grey = ColorUtils.getGrayScale(rgb);
-				if (darkerRgb == -1 || grey < ColorUtils.getGrayScale(darkerRgb)) {
+				final int gray = ColorUtils.getGrayScale(rgb);
+				if (darkerRgb == -1 || gray < ColorUtils.getGrayScale(darkerRgb)) {
 					darkerRgb = rgb;
 				}
 			}

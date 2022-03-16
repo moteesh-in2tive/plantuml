@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,6 +35,8 @@
  */
 package net.sourceforge.plantuml.code;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -53,7 +55,7 @@ public class ByteArray {
 	}
 
 	public String toUFT8String() throws UnsupportedEncodingException {
-		return new String(data, 0, length, "UTF-8");
+		return new String(data, 0, length, UTF_8);
 	}
 
 	public String toUPF9String() throws IOException {

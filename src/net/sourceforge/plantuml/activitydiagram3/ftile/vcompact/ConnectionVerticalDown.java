@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -73,15 +73,16 @@ public class ConnectionVerticalDown extends AbstractConnection implements Connec
 	}
 
 	private Snake getSimpleSnake() {
-		final Snake snake = Snake.create(color, Arrows.asToDown()).withLabel(textBlock,
+		final Snake snake = Snake.create(getFtile1().skinParam(), color, Arrows.asToDown()).withLabel(textBlock,
 				arrowHorizontalAlignment());
 		snake.addPoint(p1);
 		snake.addPoint(p2);
 		return snake;
 	}
 
+	@Override
 	public void drawTranslate(UGraphic ug, UTranslate translate1, UTranslate translate2) {
-		final Snake snake = Snake.create(color, Arrows.asToDown()).withLabel(textBlock,
+		final Snake snake = Snake.create(getFtile1().skinParam(), color, Arrows.asToDown()).withLabel(textBlock,
 				arrowHorizontalAlignment());
 		final Point2D mp1a = translate1.getTranslated(p1);
 		final Point2D mp2b = translate2.getTranslated(p2);

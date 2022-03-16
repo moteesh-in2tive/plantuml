@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,9 +35,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
@@ -51,13 +52,18 @@ class USymbolPerson extends USymbol {
 		return SkinParameter.PERSON;
 	}
 
-	private void drawHeadAndBody(UGraphic ug, boolean shadowing, Dimension2D dimBody, double headSize) {
+	@Override
+	public SName getSName() {
+		return SName.person;
+	}
+
+	private void drawHeadAndBody(UGraphic ug, double shadowing, Dimension2D dimBody, double headSize) {
 		final UEllipse head = new UEllipse(headSize, headSize);
 		final URectangle body = new URectangle(dimBody).rounded(headSize);
-		if (shadowing) {
-			body.setDeltaShadow(3.0);
-			head.setDeltaShadow(1.0);
-		}
+
+		body.setDeltaShadow(shadowing);
+		head.setDeltaShadow(shadowing);
+
 		final double posx = (dimBody.getWidth() - headSize) / 2;
 		ug.apply(UTranslate.dx(posx)).draw(head);
 		ug.apply(UTranslate.dy(headSize)).draw(body);
@@ -83,7 +89,7 @@ class USymbolPerson extends USymbol {
 				ug = UGraphicStencil.create(ug, dimFull);
 				ug = symbolContext.apply(ug);
 				final double headSize = headSize(dimBody);
-				drawHeadAndBody(ug, symbolContext.isShadowing(), dimBody, headSize);
+				drawHeadAndBody(ug, symbolContext.getDeltaShadow(), dimBody, headSize);
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, stereoAlignment);
 				final Margin margin = getMargin();
 				tb.drawU(ug.apply(new UTranslate(margin.getX1(), margin.getY1() + headSize)));

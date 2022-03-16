@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -46,12 +46,11 @@ public class CompressionBrotli implements Compression {
 	}
 
 	public ByteArray decompress(byte[] in) throws NoPlantumlCompressionException {
-		try {
-			final BrotliInputStream brotli = new BrotliInputStream(new ByteArrayInputStream(in));
-			final ByteArrayOutputStream result = new ByteArrayOutputStream();
+		try (
+				final BrotliInputStream brotli = new BrotliInputStream(new ByteArrayInputStream(in));
+				final ByteArrayOutputStream result = new ByteArrayOutputStream();
+		) {
 			FileUtils.copyToStream(brotli, result);
-			brotli.close();
-			result.close();
 			return ByteArray.from(result.toByteArray());
 		} catch (IOException e) {
 			e.printStackTrace();

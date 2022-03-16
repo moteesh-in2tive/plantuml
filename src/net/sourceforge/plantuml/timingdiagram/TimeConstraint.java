@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,12 +31,13 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Objects;
 
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -46,7 +47,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.timingdiagram.graphic.TimeArrow;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -73,6 +74,10 @@ public class TimeConstraint {
 		this.styleBuilder = skinParam.getCurrentStyleBuilder();
 	}
 
+	public final boolean containsStrict(TimeTick other) {
+		return tick1.compareTo(other) < 0 && tick2.compareTo(other) > 0;
+	}
+
 	public final TimeTick getTick1() {
 		return tick1;
 	}
@@ -90,8 +95,11 @@ public class TimeConstraint {
 	}
 
 	private FontConfiguration getFontConfiguration() {
-		final UFont font = UFont.serif(14);
-		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLUE, false);
+		if (UseStyle.useBetaStyle() == false) {
+			final UFont font = UFont.serif(14);
+			return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLUE, false);
+		}
+		return getStyle().getFontConfiguration(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 	}
 
 	public void drawU(UGraphic ug, TimingRuler ruler) {
@@ -112,9 +120,9 @@ public class TimeConstraint {
 	}
 
 	private HColor getArrowColor() {
-		if (styleBuilder == null) {
+		if (UseStyle.useBetaStyle() == false)
 			return HColorUtils.MY_RED;
-		}
+
 		return getStyle().value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 	}
 
@@ -123,14 +131,14 @@ public class TimeConstraint {
 	}
 
 	private UStroke getUStroke() {
-		if (styleBuilder == null) {
+		if (UseStyle.useBetaStyle() == false)
 			return new UStroke(1.5);
-		}
+
 		return getStyle().getStroke();
 	}
 
-	private StyleSignature getStyleSignature() {
-		return StyleSignature.of(SName.root, SName.element, SName.timingDiagram, SName.constraintArrow);
+	private StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram, SName.constraintArrow);
 	}
 
 	public double getConstraintHeight(StringBounder stringBounder) {
@@ -158,14 +166,13 @@ public class TimeConstraint {
 	}
 
 	public static double getHeightForConstraints(StringBounder stringBounder, List<TimeConstraint> constraints) {
-		if (constraints.size() == 0) {
+		if (constraints.size() == 0)
 			return 0;
-		}
+
 		double result = 0;
-		for (TimeConstraint constraint : constraints) {
+		for (TimeConstraint constraint : constraints)
 			result = Math.max(result, constraint.getConstraintHeight(stringBounder));
 
-		}
 		return result;
 	}
 

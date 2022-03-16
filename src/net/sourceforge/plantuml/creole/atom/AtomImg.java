@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,10 +32,11 @@
  */
 package net.sourceforge.plantuml.creole.atom;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.awt.Color;
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -50,7 +51,7 @@ import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.ImgValign;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TileImageSvg;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.security.SURL;
 import net.sourceforge.plantuml.security.SecurityProfile;
@@ -154,7 +155,7 @@ public class AtomImg extends AbstractAtom implements Atom {
 
 	private static Atom buildRasterFromData(String source, final FontConfiguration fc, final byte[] data, double scale,
 			Url url) throws IOException {
-		final BufferedImage read = ImageIO.read(new ByteArrayInputStream(data));
+		final BufferedImage read = SImageIO.read(data);
 		if (read == null) {
 			return AtomTextUtils.createLegacy("(Cannot decode: " + source + ")", fc);
 		}
@@ -182,7 +183,7 @@ public class AtomImg extends AbstractAtom implements Atom {
 		if (read == null) {
 			return AtomTextUtils.createLegacy("(Cannot decode SVG: " + text + ")", fc);
 		}
-		return new AtomImgSvg(new TileImageSvg(new String(read, "UTF-8")));
+		return new AtomImgSvg(new TileImageSvg(new String(read, UTF_8)));
 	}
 
 	// End

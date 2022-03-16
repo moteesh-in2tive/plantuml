@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,7 +35,7 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +90,7 @@ public class Body3 extends AbstractTextBlock implements TextBlock, WithPorts {
 		return foo;
 	}
 
+	@Override
 	public Ports getPorts(StringBounder stringBounder) {
 		return new Ports();
 	}

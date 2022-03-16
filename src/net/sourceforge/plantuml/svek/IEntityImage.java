@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -44,7 +44,7 @@ public interface IEntityImage extends Hideable, TextBlockBackcolored {
 	public ShapeType getShapeType();
 
 	public Margins getShield(StringBounder stringBounder);
-	
+
 	public double getOverscanX(StringBounder stringBounder);
 
 }

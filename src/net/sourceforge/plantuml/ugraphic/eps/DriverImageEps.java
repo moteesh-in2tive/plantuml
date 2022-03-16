@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -37,10 +37,9 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UImage;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverImageEps implements UDriver<EpsGraphics> {
+public class DriverImageEps implements UDriver<UImage, EpsGraphics> {
 
 	private final ClipContainer clipContainer;
 
@@ -48,10 +47,7 @@ public class DriverImageEps implements UDriver<EpsGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
-
-		final UImage shape = (UImage) ushape;
-
+	public void draw(UImage shape, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
 		final UClip clip = clipContainer.getClip();
 		if (clip != null) {
 			if (clip.isInside(x, y) == false) {

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -58,12 +58,11 @@ public enum PName {
 	ShowStereotype, //
 	ImagePosition;
 
-	public static PName getFromName(String name) {
-		for (PName prop : values()) {
-			if (prop.name().equalsIgnoreCase(name)) {
+	public static PName getFromName(String name, StyleScheme scheme) {
+		for (PName prop : values())
+			if (prop.name().equalsIgnoreCase(name))
 				return prop;
-			}
-		}
+
 		return null;
 	}
 

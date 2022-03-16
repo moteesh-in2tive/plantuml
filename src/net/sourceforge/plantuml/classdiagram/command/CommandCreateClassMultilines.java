@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -69,8 +69,8 @@ import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
 
 public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagram> {
 
-	private static final String CODE = CommandLinkClass.getSeparator() + "?[%pLN_]+" + "(?:"
-			+ CommandLinkClass.getSeparator() + "[%pLN_]+)*";
+	private static final String CODE = CommandLinkClass.getSeparator() + "?[%pLN_$]+" + "(?:"
+			+ CommandLinkClass.getSeparator() + "[%pLN_$]+)*";
 	public static final String CODES = CODE + "(?:\\s*,\\s*" + CODE + ")*";
 
 	enum Mode {
@@ -261,7 +261,7 @@ public class CommandCreateClassMultilines extends CommandMultilines2<ClassDiagra
 		}
 		result.setVisibilityModifier(visibilityModifier);
 		if (stereotype != null) {
-			result.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+			result.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
 					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
 					diagram.getSkinParam().getIHtmlColorSet()));
 		}

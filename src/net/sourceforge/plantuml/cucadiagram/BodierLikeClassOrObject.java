@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -46,11 +46,13 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.UrlBuilder;
 import net.sourceforge.plantuml.creole.legacy.CreoleParser;
+import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockLineBefore;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
+import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
 
 public class BodierLikeClassOrObject implements Bodier {
@@ -62,6 +64,7 @@ public class BodierLikeClassOrObject implements Bodier {
 	private List<Member> fieldsToDisplay;
 	private ILeaf leaf;
 
+	@Override
 	public void muteClassToObject() {
 		methodsToDisplay = null;
 		fieldsToDisplay = null;
@@ -77,11 +80,13 @@ public class BodierLikeClassOrObject implements Bodier {
 		this.hides = hides;
 	}
 
+	@Override
 	public void setLeaf(ILeaf leaf) {
 		this.leaf = Objects.requireNonNull(leaf);
 
 	}
 
+	@Override
 	public void addFieldOrMethod(String s) {
 		// Empty cache
 		methodsToDisplay = null;
@@ -109,6 +114,7 @@ public class BodierLikeClassOrObject implements Bodier {
 		return purged.contains("(") || purged.contains(")");
 	}
 
+	@Override
 	public Display getMethodsToDisplay() {
 		if (methodsToDisplay == null) {
 			methodsToDisplay = new ArrayList<>();
@@ -138,6 +144,7 @@ public class BodierLikeClassOrObject implements Bodier {
 		return isMethod(rawBody.get(i));
 	}
 
+	@Override
 	public Display getFieldsToDisplay() {
 		if (fieldsToDisplay == null) {
 			fieldsToDisplay = new ArrayList<>();
@@ -164,6 +171,7 @@ public class BodierLikeClassOrObject implements Bodier {
 		}
 	}
 
+	@Override
 	public boolean hasUrl() {
 		for (CharSequence cs : getFieldsToDisplay()) {
 			if (cs instanceof Member) {
@@ -201,8 +209,9 @@ public class BodierLikeClassOrObject implements Bodier {
 		return result;
 	}
 
+	@Override
 	public TextBlock getBody(FontParam fontParam, ISkinParam skinParam, boolean showMethods, boolean showFields,
-			Stereotype stereotype, Style style) {
+			Stereotype stereotype, Style style, FontConfiguration fontConfiguration) {
 
 		if (BodyFactory.BODY3) {
 			return new Body3(rawBody, fontParam, skinParam, stereotype, style);
@@ -220,7 +229,7 @@ public class BodierLikeClassOrObject implements Bodier {
 		}
 		if (type == LeafType.OBJECT) {
 			if (showFields == false) {
-				return new TextBlockLineBefore(TextBlockUtils.empty(0, 0));
+				return new TextBlockLineBefore(style.value(PName.LineThickness).asDouble(), TextBlockUtils.empty(0, 0));
 			}
 			return BodyFactory.create1(skinParam.getDefaultTextAlignment(HorizontalAlignment.LEFT),
 					rawBodyWithoutHidden(), fontParam, skinParam, stereotype, leaf, style);
@@ -245,6 +254,7 @@ public class BodierLikeClassOrObject implements Bodier {
 		return TextBlockUtils.mergeTB(bb1, bb2, HorizontalAlignment.LEFT);
 	}
 
+	@Override
 	public List<CharSequence> getRawBody() {
 		return Collections.unmodifiableList(rawBody);
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -48,7 +48,7 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 
 import net.sourceforge.plantuml.Log;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 
 public class PngIOMetadata {
 
@@ -97,7 +97,7 @@ public class PngIOMetadata {
 		// http://plantuml.sourceforge.net/qa/?qa=4367/sometimes-missing-response-headers-for-broken-png-images
 		// Code provided by Michael Griffel
 		synchronized (imagewriter) {
-			final ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(os);
+			final ImageOutputStream imageOutputStream = SImageIO.createImageOutputStream(os);
 			imagewriter.setOutput(imageOutputStream);
 			try {
 				imagewriter.write(null /* default */, iioImage, null /* use default ImageWriteParam */);
@@ -167,8 +167,8 @@ public class PngIOMetadata {
 	}
 
 	private static ImageWriter getImageWriter() {
-		final Iterator<ImageWriter> iterator = ImageIO.getImageWritersBySuffix("png");
-		for (final Iterator<ImageWriter> it = ImageIO.getImageWritersBySuffix("png"); it.hasNext();) {
+		final Iterator<ImageWriter> iterator = SImageIO.getImageWritersBySuffix("png");
+		for (final Iterator<ImageWriter> it = SImageIO.getImageWritersBySuffix("png"); it.hasNext();) {
 			final ImageWriter imagewriter = iterator.next();
 			Log.debug("PngIOMetadata countImageWriter = " + it.next());
 			if (imagewriter.getClass().getName().equals("com.sun.imageio.plugins.png.PNGImageWriter")) {
@@ -178,7 +178,7 @@ public class PngIOMetadata {
 
 		}
 		Log.debug("Using first one");
-		return ImageIO.getImageWritersBySuffix("png").next();
+		return SImageIO.getImageWritersBySuffix("png").next();
 	}
 
 }

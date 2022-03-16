@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -38,7 +38,7 @@ package net.sourceforge.plantuml.project.draw;
 import java.util.Objects;
 
 import net.sourceforge.plantuml.SpriteContainerEmpty;
-import net.sourceforge.plantuml.ThemeStyle;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -55,7 +55,6 @@ import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorNone;
 import net.sourceforge.plantuml.ugraphic.color.HColorSet;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public abstract class TimeHeader {
 
@@ -128,9 +127,9 @@ public abstract class TimeHeader {
 
 	final protected FontConfiguration getFontConfiguration(int size, boolean bold, HColor color) {
 		UFont font = UFont.serif(size);
-		if (bold) {
+		if (bold)
 			font = font.bold();
-		}
+
 		return new FontConfiguration(font, color, color, false);
 	}
 
@@ -165,9 +164,9 @@ public abstract class TimeHeader {
 	}
 
 	protected final void drawRectangle(UGraphic ug, double height, double x1, double x2) {
-		if (height == 0) {
+		if (height == 0)
 			return;
-		}
+
 		ug = ug.apply(new HColorNone());
 		ug = ug.apply(new UTranslate(x1, getFullHeaderHeight()));
 		ug.draw(new URectangle(x2 - x1, height));

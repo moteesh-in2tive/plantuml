@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -41,7 +41,7 @@ import static gen.lib.cgraph.node__c.agnode;
 import static gen.lib.gvc.gvc__c.gvContext;
 import static gen.lib.gvc.gvlayout__c.gvLayoutJobs;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +59,7 @@ import net.sourceforge.plantuml.json.JsonValue;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -109,27 +109,40 @@ public class SmetanaForJson {
 		this.ug = ug;
 	}
 
-	private UGraphic getUgFor(SName name) {
-		return getStyle(name).applyStrokeAndLineColor(ug, skinParam.getIHtmlColorSet(), skinParam.getThemeStyle());
-	}
-
 	private SName getDiagramType() {
-		return skinParam.getUmlDiagramType() == UmlDiagramType.YAML ? SName.yamlDiagram : SName.jsonDiagram;
+		if (skinParam.getUmlDiagramType() == UmlDiagramType.JSON)
+			return SName.jsonDiagram;
+		return SName.yamlDiagram;
 	}
 
-	private Style getStyle(SName name) {
-		return StyleSignature.of(SName.root, SName.element, getDiagramType(), name)
+	private Style getStyleArrow() {
+		return StyleSignatureBasic.of(SName.root, SName.element, getDiagramType(), SName.arrow)
+				.getMergedStyle(skinParam.getCurrentStyleBuilder());
+	}
+
+	private Style getStyleNode() {
+		return StyleSignatureBasic.of(SName.root, SName.element, getDiagramType(), SName.node)
+				.getMergedStyle(skinParam.getCurrentStyleBuilder());
+	}
+
+	private Style getStyleNodeHeader() {
+		return StyleSignatureBasic.of(SName.root, SName.element, getDiagramType(), SName.header, SName.node)
 				.getMergedStyle(skinParam.getCurrentStyleBuilder());
 	}
 
 	private Style getStyleNodeHighlight() {
-		return StyleSignature.of(SName.root, SName.element, getDiagramType(), SName.node, SName.highlight)
+		return StyleSignatureBasic.of(SName.root, SName.element, getDiagramType(), SName.node, SName.highlight)
+				.getMergedStyle(skinParam.getCurrentStyleBuilder());
+	}
+
+	private Style getStyleNodeHeaderHighlight() {
+		return StyleSignatureBasic.of(SName.root, SName.element, getDiagramType(), SName.header, SName.node, SName.highlight)
 				.getMergedStyle(skinParam.getCurrentStyleBuilder());
 	}
 
 	private ST_Agnode_s manageOneNode(JsonValue current, List<String> highlighted) {
-		final TextBlockJson block = new TextBlockJson(skinParam, current, highlighted, getStyle(SName.node),
-				getStyleNodeHighlight());
+		final TextBlockJson block = new TextBlockJson(skinParam, current, highlighted, getStyleNode(),
+				getStyleNodeHighlight(), getStyleNodeHeader(), getStyleNodeHeaderHighlight());
 		final ST_Agnode_s node1 = createNode(block.calculateDimension(stringBounder), block.size(), current.isArray(),
 				(int) block.getWidthColA(stringBounder), (int) block.getWidthColB(stringBounder));
 		nodes.add(new InternalNode(block, node1));
@@ -171,16 +184,20 @@ public class SmetanaForJson {
 		xMirror = new Mirror(max);
 
 		for (InternalNode node : nodes) {
-			node.block.drawU(getUgFor(SName.node).apply(getPosition(node.node)));
+			node.block.drawU(
+					getStyleNode().applyStrokeAndLineColor(ug, skinParam.getIHtmlColorSet(), skinParam.getThemeStyle())
+							.apply(getPosition(node.node)));
 		}
-		final HColor color = getStyle(SName.arrow).value(PName.LineColor).asColor(skinParam.getThemeStyle(),
+		final HColor color = getStyleArrow().value(PName.LineColor).asColor(skinParam.getThemeStyle(),
 				skinParam.getIHtmlColorSet());
 
 		for (ST_Agedge_s edge : edges) {
 			final JsonCurve curve = getCurve(edge, 13);
-			// curve.drawCurve(color, getUgFor(SName.arrow).apply(new UStroke(3, 3, 1)));
-			curve.drawCurve(color, getUgFor(SName.arrow));
-			curve.drawSpot(getUgFor(SName.arrow).apply(color.bg()));
+			curve.drawCurve(color, getStyleArrow().applyStrokeAndLineColor(ug, skinParam.getIHtmlColorSet(),
+					skinParam.getThemeStyle()));
+			curve.drawSpot(
+					getStyleArrow().applyStrokeAndLineColor(ug, skinParam.getIHtmlColorSet(), skinParam.getThemeStyle())
+							.apply(color.bg()));
 		}
 	}
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,7 +35,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +61,8 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.FtileFactoryDele
 import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.FtileFactoryDelegatorWhile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.UGraphicInterceptorOneSwimlane;
 import net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.VCompactFactory;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GConnection;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.AbstractTextBlock;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -73,7 +75,7 @@ import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.Styleable;
 import net.sourceforge.plantuml.svek.UGraphicForSnake;
 import net.sourceforge.plantuml.ugraphic.LimitFinder;
@@ -118,8 +120,8 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 		return Collections.unmodifiableList(swimlanesSpecial);
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
+	public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.swimlane);
 	}
 
 	public Swimlanes(ISkinParam skinParam, Pragma pragma) {
@@ -129,7 +131,7 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 
 	protected Style getStyle() {
 		if (style == null) {
-			this.style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			this.style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder());
 		}
 		return style;
 	}
@@ -194,6 +196,15 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 					final ConnectionCross connectionCross = new ConnectionCross(connection);
 					connectionCross.drawU(getUg());
 				}
+			} else if (shape instanceof Gtile) {
+				final Gtile tile = (Gtile) shape;
+				tile.drawU(this);
+			} else if (shape instanceof GConnection) {
+				final GConnection connection = (GConnection) shape;
+				System.err.println("CROSS IN SWIMLANES");
+				connection.drawTranslatable(getUg());
+				// connection.drawU(this);
+				// throw new UnsupportedOperationException();
 			}
 		}
 
@@ -213,6 +224,11 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 	}
 
 	public final void drawU(UGraphic ug) {
+		if (Gtile.USE_GTILE) {
+			drawGtile(ug);
+			return;
+		}
+
 		TextBlock full = root.createFtile(getFtileFactory(ug.getStringBounder()));
 
 		ug = new UGraphicForSnake(ug);
@@ -224,6 +240,20 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 			full.drawU(ug);
 			ug.flushUg();
 		}
+	}
+
+	private void drawGtile(UGraphic ug) {
+		TextBlock full = root.createGtile(skinParam, ug.getStringBounder());
+
+		ug = new UGraphicForSnake(ug);
+		if (swimlanes().size() > 1) {
+			drawWhenSwimlanes(ug, full);
+		} else {
+			full = new TextBlockInterceptorUDrawable(full);
+			full.drawU(ug);
+			ug.flushUg();
+		}
+
 	}
 
 	private TextBlock getTitle(Swimlane swimlane) {
@@ -276,7 +306,7 @@ public class Swimlanes extends AbstractTextBlock implements TextBlock, Styleable
 			final LaneDivider divider1 = dividers.get(i);
 
 			final double xpos = swimlane.getTranslate().getDx() + swimlane.getMinMax().getMinX();
-			final HColor back = swimlane.getColors(skinParam).getColor(ColorType.BACK);
+			final HColor back = swimlane.getColors().getColor(ColorType.BACK);
 			if (back != null) {
 				final LaneDivider divider2 = dividers.get(i + 1);
 				final UGraphic background = ug.apply(back.bg()).apply(back)

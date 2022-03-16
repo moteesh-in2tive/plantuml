@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -34,8 +34,10 @@
  */
 package net.sourceforge.plantuml.ugraphic.debug;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.awt.Color;
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,7 +47,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.ugraphic.AbstractCommonUGraphic;
 import net.sourceforge.plantuml.ugraphic.ClipContainer;
@@ -53,7 +54,6 @@ import net.sourceforge.plantuml.ugraphic.UCenteredCharacter;
 import net.sourceforge.plantuml.ugraphic.UComment;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UEmpty;
-import net.sourceforge.plantuml.ugraphic.UGraphic2;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -68,7 +68,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColorMiddle;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContainer, UGraphic2 {
+public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContainer {
 
 	private final List<String> output;
 	private final double scaleFactor;
@@ -98,7 +98,7 @@ public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContain
 
 	public UGraphicDebug(double scaleFactor, Dimension2D dim, String svgLinkTarget, String hoverPathColorRGB, long seed,
 			String preserveAspectRatio) {
-		super(HColorUtils.WHITE, new ColorMapperIdentity());
+		super(HColorUtils.WHITE, new ColorMapperIdentity(), new StringBounderDebug());
 		this.output = new ArrayList<>();
 		this.scaleFactor = scaleFactor;
 		this.dim = dim;
@@ -106,10 +106,6 @@ public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContain
 		this.hoverPathColorRGB = hoverPathColorRGB;
 		this.seed = seed;
 		this.preserveAspectRatio = preserveAspectRatio;
-	}
-
-	public StringBounder getStringBounder() {
-		return new StringBounderDebug();
 	}
 
 	public void draw(UShape shape) {
@@ -278,7 +274,8 @@ public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContain
 		return color.getClass().getSimpleName() + " " + new Date();
 	}
 
-	public void writeImageTOBEMOVED(OutputStream os, String metadata, int dpi) throws IOException {
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
 		print(os, "DPI: " + dpi);
 		print(os, "dimension: " + pointd(dim.getWidth(), dim.getHeight()));
 		print(os, "scaleFactor: " + String.format(Locale.US, "%.4f", scaleFactor));
@@ -295,8 +292,8 @@ public class UGraphicDebug extends AbstractCommonUGraphic implements ClipContain
 	}
 
 	private void print(OutputStream os, String out) throws UnsupportedEncodingException, IOException {
-		os.write(out.getBytes("UTF-8"));
-		os.write("\n".getBytes("UTF-8"));
+		os.write(out.getBytes(UTF_8));
+		os.write("\n".getBytes(UTF_8));
 	}
 
 }

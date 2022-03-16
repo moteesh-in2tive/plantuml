@@ -5,7 +5,7 @@ public class A0002_TestResult {
 /*
 """
 DPI: 96
-dimension: [ 763.0498 ; 895.5000 ]
+dimension: [ 763.0498 ; 890.5000 ]
 scaleFactor: 1.0000
 seed: -9181376250803721714
 svgLinkTarget: _top
@@ -18,9 +18,9 @@ ELLIPSE:
   start: 0.0
   extend: 0.0
   stroke: 0.0-0.0-1.0
-  shadow: 3
-  color: NULL_COLOR
-  backcolor: ff000000
+  shadow: 0
+  color: ff222222
+  backcolor: ff222222
 
 EMPTY:
   pt1: [ 20.0000 ; 220.0000 ]
@@ -39,10 +39,10 @@ PATH:
      pt1: [ 93.4243 ; 0.0000 ]
    - type: SEG_LINETO
      pt1: [ 0.0000 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
-  shadow: 4
-  color: ffa80036
-  backcolor: fffbfb77
+  stroke: 0.0-0.0-0.5
+  shadow: 0
+  color: ff181818
+  backcolor: fffeffdd
 
 PATH:
    - type: SEG_MOVETO
@@ -53,10 +53,10 @@ PATH:
      pt1: [ 103.4243 ; 10.0000 ]
    - type: SEG_LINETO
      pt1: [ 93.4243 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
+  stroke: 0.0-0.0-0.5
   shadow: 0
-  color: ffa80036
-  backcolor: fffbfb77
+  color: ff181818
+  backcolor: fffeffdd
 
 TEXT:
   text: This 
@@ -99,10 +99,10 @@ PATH:
      pt1: [ 193.3768 ; 0.0000 ]
    - type: SEG_LINETO
      pt1: [ 0.0000 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
-  shadow: 4
-  color: ffa80036
-  backcolor: fffbfb77
+  stroke: 0.0-0.0-0.5
+  shadow: 0
+  color: ff181818
+  backcolor: fffeffdd
 
 PATH:
    - type: SEG_MOVETO
@@ -113,10 +113,10 @@ PATH:
      pt1: [ 203.3768 ; 10.0000 ]
    - type: SEG_LINETO
      pt1: [ 193.3768 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
+  stroke: 0.0-0.0-0.5
   shadow: 0
-  color: ffa80036
-  backcolor: fffbfb77
+  color: ff181818
+  backcolor: fffeffdd
 
 TEXT:
   text: A Long
@@ -307,14 +307,14 @@ LINE:
   pt2: [ 431.7562 ; 358.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 LINE:
   pt1: [ 228.3794 ; 360.5000 ]
   pt2: [ 431.7562 ; 360.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 ELLIPSE:
   pt1: [ 237.3794 ; 366.5000 ]
@@ -387,10 +387,10 @@ RECTANGLE:
   pt2: [ 218.3794 ; 270.5000 ]
   xCorner: 25
   yCorner: 25
-  stroke: 0.0-0.0-1.5
-  shadow: 4
-  color: ffa80036
-  backcolor: fffefece
+  stroke: 0.0-0.0-0.5
+  shadow: 0
+  color: ff181818
+  backcolor: fff1f1f1
 
 TEXT:
   text: foo1
@@ -407,7 +407,7 @@ EMPTY:
 LINE:
   pt1: [ 15.0000 ; 12.5000 ]
   pt2: [ 15.0000 ; 879.5000 ]
-  stroke: 0.0-0.0-2.0
+  stroke: 0.0-0.0-1.5
   shadow: 0
   color: ff000000
 
@@ -448,10 +448,10 @@ PATH:
      largeArcFlag: false
      sweepFlag: false
      dest: [ 0.0000 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
-  shadow: 4
-  color: ffa80036
-  backcolor: fffbfb77
+  stroke: 0.0-0.0-0.5
+  shadow: 0
+  color: ff181818
+  backcolor: fffeffdd
 
 PATH:
    - type: SEG_MOVETO
@@ -462,10 +462,10 @@ PATH:
      pt1: [ 185.8127 ; 10.0000 ]
    - type: SEG_LINETO
      pt1: [ 175.8127 ; 0.0000 ]
-  stroke: 0.0-0.0-1.0
+  stroke: 0.0-0.0-0.5
   shadow: 0
-  color: ffa80036
-  backcolor: fffbfb77
+  color: ff181818
+  backcolor: fffeffdd
 
 TEXT:
   text:  KO for 
@@ -672,14 +672,14 @@ LINE:
   pt2: [ 733.5219 ; 762.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 LINE:
   pt1: [ 547.7092 ; 764.5000 ]
   pt2: [ 733.5219 ; 764.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 ELLIPSE:
   pt1: [ 556.7092 ; 770.5000 ]
@@ -744,10 +744,10 @@ RECTANGLE:
   pt2: [ 527.7092 ; 661.5000 ]
   xCorner: 25
   yCorner: 25
-  stroke: 0.0-0.0-1.5
-  shadow: 4
-  color: ffa80036
-  backcolor: fffefece
+  stroke: 0.0-0.0-0.5
+  shadow: 0
+  color: ff181818
+  backcolor: fff1f1f1
 
 TEXT:
   text: foo2
@@ -763,9 +763,9 @@ ELLIPSE:
   start: 0.0
   extend: 0.0
   stroke: 0.0-0.0-1.0
-  shadow: 3
-  color: ff000000
-  backcolor: ffffffff
+  shadow: 0
+  color: ff222222
+  backcolor: 0
 
 ELLIPSE:
   pt1: [ 484.2327 ; 862.5000 ]
@@ -774,8 +774,8 @@ ELLIPSE:
   extend: 0.0
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: middle(ff000000 & ff000000 )
-  backcolor: ff000000
+  color: middle(ff222222 & ff222222 )
+  backcolor: ff222222
 
 EMPTY:
   pt1: [ 441.7562 ; 12.5000 ]
@@ -784,7 +784,7 @@ EMPTY:
 LINE:
   pt1: [ 446.7562 ; 12.5000 ]
   pt2: [ 446.7562 ; 879.5000 ]
-  stroke: 0.0-0.0-2.0
+  stroke: 0.0-0.0-1.5
   shadow: 0
   color: ff000000
 
@@ -795,16 +795,16 @@ EMPTY:
 LINE:
   pt1: [ 738.5219 ; 12.5000 ]
   pt2: [ 738.5219 ; 879.5000 ]
-  stroke: 0.0-0.0-2.0
+  stroke: 0.0-0.0-1.5
   shadow: 0
   color: ff000000
 
 LINE:
   pt1: [ 180.9019 ; 55.5000 ]
   pt2: [ 180.9019 ; 238.5000 ]
-  stroke: 0.0-0.0-1.5
+  stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 POLYGON:
   points:
@@ -814,15 +814,15 @@ POLYGON:
    - [ 180.9019 ; 232.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
-  backcolor: ffa80036
+  color: ff181818
+  backcolor: ff181818
 
 LINE:
   pt1: [ 490.2327 ; 661.5000 ]
   pt2: [ 490.2327 ; 857.5000 ]
-  stroke: 0.0-0.0-1.5
+  stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 POLYGON:
   points:
@@ -832,29 +832,29 @@ POLYGON:
    - [ 490.2327 ; 851.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
-  backcolor: ffa80036
+  color: ff181818
+  backcolor: ff181818
 
 LINE:
   pt1: [ 180.9019 ; 270.5000 ]
   pt2: [ 180.9019 ; 448.5000 ]
-  stroke: 0.0-0.0-1.5
+  stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 LINE:
   pt1: [ 180.9019 ; 448.5000 ]
   pt2: [ 490.2327 ; 448.5000 ]
-  stroke: 0.0-0.0-1.5
+  stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 LINE:
   pt1: [ 490.2327 ; 448.5000 ]
   pt2: [ 490.2327 ; 629.5000 ]
-  stroke: 0.0-0.0-1.5
+  stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
+  color: ff181818
 
 POLYGON:
   points:
@@ -864,8 +864,8 @@ POLYGON:
    - [ 490.2327 ; 623.5000 ]
   stroke: 0.0-0.0-1.0
   shadow: 0
-  color: ffa80036
-  backcolor: ffa80036
+  color: ff181818
+  backcolor: ff181818
 
 TEXT:
   text: Actor 1

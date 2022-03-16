@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.salt;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,6 +50,7 @@ import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
 import net.sourceforge.plantuml.WithSprite;
 import net.sourceforge.plantuml.api.ImageDataSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.BlocLines;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
@@ -94,13 +95,13 @@ public class PSystemSalt extends TitledDiagram implements WithSprite {
 	private final Dictionary dictionary = new Dictionary();
 
 	@Deprecated
-	public PSystemSalt(UmlSource source, List<String> data) {
-		super(source, UmlDiagramType.SALT);
+	public PSystemSalt(ThemeStyle style, UmlSource source, List<String> data) {
+		super(style, source, UmlDiagramType.SALT);
 		this.data = data;
 	}
 
-	public PSystemSalt(UmlSource source) {
-		this(source, new ArrayList<String>());
+	public PSystemSalt(ThemeStyle style, UmlSource source) {
+		this(style, source, new ArrayList<String>());
 	}
 
 	public void add(String s) {
@@ -114,9 +115,7 @@ public class PSystemSalt extends TitledDiagram implements WithSprite {
 			final Element salt = createElement(manageSprite());
 			final StringBounder stringBounder = fileFormatOption.getDefaultStringBounder(getSkinParam());
 			final Dimension2D size = salt.getPreferredDimension(stringBounder, 0, 0);
-			return createImageBuilder(fileFormatOption)
-					.drawable(getTextBlock(salt, size))
-					.write(os);
+			return createImageBuilder(fileFormatOption).drawable(getTextBlock(salt, size)).write(os);
 		} catch (Exception e) {
 			e.printStackTrace();
 			UmlDiagram.exportDiagramError(os, e, fileFormatOption, seed(), getMetadata(), "none",
@@ -129,7 +128,7 @@ public class PSystemSalt extends TitledDiagram implements WithSprite {
 		return new TextBlockBackcolored() {
 
 			public void drawU(UGraphic ug) {
-				ug = ug.apply(HColorUtils.BLACK);
+				ug = ug.apply(getBlack());
 				salt.drawU(ug, 0, new Dimension2DDouble(size.getWidth(), size.getHeight()));
 				salt.drawU(ug, 1, new Dimension2DDouble(size.getWidth(), size.getHeight()));
 			}
@@ -147,7 +146,7 @@ public class PSystemSalt extends TitledDiagram implements WithSprite {
 			}
 
 			public HColor getBackcolor() {
-				return getSkinParam().getBackgroundColor(false);
+				return getSkinParam().getBackgroundColor();
 			}
 		};
 	}
@@ -255,5 +254,9 @@ public class PSystemSalt extends TitledDiagram implements WithSprite {
 	@Override
 	public ClockwiseTopRightBottomLeft getDefaultMargins() {
 		return ClockwiseTopRightBottomLeft.same(5);
+	}
+
+	private HColor getBlack() {
+		return HColorUtils.BLACK;
 	}
 }

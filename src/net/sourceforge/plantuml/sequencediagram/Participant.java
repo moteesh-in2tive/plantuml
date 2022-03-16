@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -47,9 +47,11 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.MergeStrategy;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.WithStyle;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -69,20 +71,20 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 
 	// private Style style;
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return type.getDefaultStyleDefinition().addClickable(getUrl());
+	public StyleSignatureBasic getStyleSignature() {
+		return type.getStyleSignature().addClickable(getUrl());
 	}
 
 	public Style[] getUsedStyles() {
 		if (UseStyle.useBetaStyle() == false) {
 			return null;
 		}
-		final StyleSignature signature = getDefaultStyleDefinition().with(stereotype);
+		final StyleSignature signature = getStyleSignature().withTOBECHANGED(stereotype);
 		Style tmp = signature.getMergedStyle(styleBuilder);
-		tmp = tmp.eventuallyOverride(getColors(null));
-		Style stereo = getDefaultStyleDefinition().withStereotype(stereotype).getMergedStyle(styleBuilder);
+		tmp = tmp.eventuallyOverride(getColors());
+		Style stereo = getStyleSignature().forStereotypeItself(stereotype).getMergedStyle(styleBuilder);
 		if (tmp != null) {
-			stereo = tmp.mergeWith(stereo);
+			stereo = tmp.mergeWith(stereo, MergeStrategy.OVERWRITE_EXISTING_VALUE);
 		}
 		return new Style[] { tmp, stereo };
 	}
@@ -160,7 +162,7 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 		return liveBackcolors;
 	}
 
-	public Colors getColors(ISkinParam skinParam) {
+	public Colors getColors() {
 		return colors;
 	}
 
@@ -196,7 +198,7 @@ public class Participant implements SpecificBackcolorable, WithStyle {
 
 	public SkinParamBackcolored getSkinParamBackcolored(ISkinParam skinParam) {
 		final ColorParam param = getColorParam();
-		HColor specificBackColor = getColors(skinParam).getColor(ColorType.BACK);
+		HColor specificBackColor = getColors().getColor(ColorType.BACK);
 		final boolean clickable = getUrl() != null;
 		final HColor stereoBackColor = skinParam.getHtmlColor(getBackgroundColorParam(), getStereotype(), clickable);
 		if (stereoBackColor != null && specificBackColor == null) {

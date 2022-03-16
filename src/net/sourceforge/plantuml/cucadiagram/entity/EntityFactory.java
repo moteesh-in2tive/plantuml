@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -49,6 +49,7 @@ import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.creole.CreoleMode;
 import net.sourceforge.plantuml.cucadiagram.Bodier;
+import net.sourceforge.plantuml.cucadiagram.BodierJSon;
 import net.sourceforge.plantuml.cucadiagram.BodierMap;
 import net.sourceforge.plantuml.cucadiagram.BodyFactory;
 import net.sourceforge.plantuml.cucadiagram.Code;
@@ -121,20 +122,19 @@ public final class EntityFactory {
 		final USymbol symbol = g.getUSymbol();
 		folder.setUSymbol(symbol);
 		folder.setStereotype(g.getStereotype());
-		folder.setColors(g.getColors(skinParam));
+		folder.setColors(g.getColors());
 		if (g.getUrl99() != null) {
 			folder.addUrl(g.getUrl99());
 		}
 		if (UseStyle.useBetaStyle()) {
 			// System.err.println("Backcolor ?");
 		} else {
-			if (g.getColors(skinParam).getColor(ColorType.BACK) == null) {
+			if (g.getColors().getColor(ColorType.BACK) == null) {
 				final ColorParam param = symbol == null ? ColorParam.packageBackground : symbol.getColorParamBack();
 				final HColor c1 = skinParam.getHtmlColor(param, g.getStereotype(), false);
-				folder.setSpecificColorTOBEREMOVED(ColorType.BACK,
-						c1 == null ? skinParam.getBackgroundColor(false) : c1);
+				folder.setSpecificColorTOBEREMOVED(ColorType.BACK, c1 == null ? skinParam.getBackgroundColor() : c1);
 			} else {
-				folder.setSpecificColorTOBEREMOVED(ColorType.BACK, g.getColors(skinParam).getColor(ColorType.BACK));
+				folder.setSpecificColorTOBEREMOVED(ColorType.BACK, g.getColors().getColor(ColorType.BACK));
 			}
 		}
 		emptyGroupsAsNode.put(g, folder);
@@ -220,7 +220,14 @@ public final class EntityFactory {
 
 	public ILeaf createLeaf(Ident ident, Code code, Display display, LeafType entityType, IGroup parentContainer,
 			Set<VisibilityModifier> hides, String namespaceSeparator) {
-		final Bodier bodier = Objects.requireNonNull(entityType) == LeafType.MAP ? new BodierMap() : BodyFactory.createLeaf(entityType, hides);
+		final Bodier bodier;
+		if (Objects.requireNonNull(entityType) == LeafType.MAP)
+			bodier = new BodierMap();
+		else if (Objects.requireNonNull(entityType) == LeafType.JSON)
+			bodier = new BodierJSon();
+		else
+			bodier = BodyFactory.createLeaf(entityType, hides);
+
 		final EntityImpl result = new EntityImpl(ident, code, this, bodier, parentContainer, entityType,
 				namespaceSeparator, rawLayout);
 		bodier.setLeaf(result);

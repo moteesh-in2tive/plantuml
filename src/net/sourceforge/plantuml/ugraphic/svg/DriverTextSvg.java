@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,7 +31,7 @@
  */
 package net.sourceforge.plantuml.ugraphic.svg;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -44,14 +44,13 @@ import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UFontContext;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class DriverTextSvg implements UDriver<SvgGraphics> {
+public class DriverTextSvg implements UDriver<UText, SvgGraphics> {
 
 	private final StringBounder stringBounder;
 	private final ClipContainer clipContainer;
@@ -61,14 +60,12 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
-
+	public void draw(UText shape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
 		final UClip clip = clipContainer.getClip();
 		if (clip != null && clip.isInside(x, y) == false) {
 			return;
 		}
 
-		final UText shape = (UText) ushape;
 		final FontConfiguration fontConfiguration = shape.getFontConfiguration();
 		if (HColorUtils.isTransparent(fontConfiguration.getColor())) {
 			return;
@@ -95,6 +92,9 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 		}
 
 		String text = shape.getText();
+		if (text.matches("^\\s*$"))
+			text = text.replace(' ', (char)160);
+		
 		if (text.startsWith(" ")) {
 			final double space = stringBounder.calculateDimension(font, " ").getWidth();
 			while (text.startsWith(" ")) {
@@ -124,7 +124,13 @@ public class DriverTextSvg implements UDriver<SvgGraphics> {
 			}
 		}
 
-		svg.setFillColor(mapper.toSvg(fontConfiguration.getColor()));
+		final HColor textColor = fontConfiguration.getColor();
+		final HColor dark = textColor == null ? null : textColor.darkSchemeTheme();
+		if (dark == textColor)
+			svg.setFillColor(mapper.toSvg(textColor));
+		else
+			svg.setFillColor(mapper.toSvg(textColor), mapper.toSvg(dark));
+
 		svg.text(text, x, y, font.getFamily(UFontContext.SVG), font.getSize(), fontWeight, fontStyle, textDecoration,
 				width, fontConfiguration.getAttributes(), backColor);
 	}

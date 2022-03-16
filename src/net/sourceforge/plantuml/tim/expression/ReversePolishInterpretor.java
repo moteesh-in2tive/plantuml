@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  *
@@ -95,7 +95,7 @@ public class ReversePolishInterpretor {
 				if (trace)
 					System.err.println("function=" + function);
 				if (function == null) {
-					throw EaterException.unlocated("Unknow built-in function " + token2.getSurface());
+					throw EaterException.unlocated("Unknown built-in function " + token2.getSurface());
 				}
 				if (function.canCover(nb, Collections.<String>emptySet()) == false) {
 					throw EaterException

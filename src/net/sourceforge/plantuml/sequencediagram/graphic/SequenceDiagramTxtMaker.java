@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,9 @@
  */
 package net.sourceforge.plantuml.sequencediagram.graphic;
 
-import java.awt.geom.Dimension2D;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -123,7 +125,7 @@ public class SequenceDiagramTxtMaker implements FileMaker {
 
 	public ImageData createOne(OutputStream os, int index, boolean isWithMetadata) throws IOException {
 		if (fileFormat == FileFormat.UTXT) {
-			final PrintStream ps = SecurityUtils.createPrintStream(os, true, "UTF-8");
+			final PrintStream ps = SecurityUtils.createPrintStream(os, true, UTF_8);
 			ug.getCharArea().print(ps);
 		} else {
 			final PrintStream ps = SecurityUtils.createPrintStream(os);

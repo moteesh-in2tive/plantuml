@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -57,7 +57,7 @@ import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.image.EntityImageState;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -113,8 +113,8 @@ public final class GroupPngMakerActivity {
 		return result;
 	}
 
-	final public StyleSignature getDefaultStyleDefinitionGroup() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.group);
+	final public StyleSignatureBasic getDefaultStyleDefinitionGroup() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.group);
 	}
 
 	public IEntityImage getImage() throws IOException, InterruptedException {
@@ -134,9 +134,9 @@ public final class GroupPngMakerActivity {
 		if (group.getGroupType() == GroupType.INNER_ACTIVITY) {
 			final Stereotype stereo = group.getStereotype();
 			final HColor borderColor = getColor(ColorParam.activityBorder, stereo);
-			final HColor backColor = group.getColors(skinParam).getColor(ColorType.BACK) == null
+			final HColor backColor = group.getColors().getColor(ColorType.BACK) == null
 					? getColor(ColorParam.background, stereo)
-					: group.getColors(skinParam).getColor(ColorType.BACK);
+					: group.getColors().getColor(ColorType.BACK);
 			final double shadowing;
 			if (UseStyle.useBetaStyle()) {
 				final Style style = getDefaultStyleDefinitionGroup().getMergedStyle(skinParam.getCurrentStyleBuilder());

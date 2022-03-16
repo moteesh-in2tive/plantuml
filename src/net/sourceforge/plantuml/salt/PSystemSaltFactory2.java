@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
+import net.sourceforge.plantuml.command.CommonCommands;
 import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
@@ -54,16 +56,16 @@ public class PSystemSaltFactory2 extends PSystemCommandFactory {
 		if (getDiagramType() == DiagramType.UML) {
 			cmds.add(new CommandSalt());
 		}
-		addCommonCommands2(cmds);
-		addTitleCommands(cmds);
+		CommonCommands.addCommonCommands2(cmds);
+		CommonCommands.addTitleCommands(cmds);
 		cmds.add(new CommandAnything());
 
 		return cmds;
 	}
 
 	@Override
-	public PSystemSalt createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
-		final PSystemSalt result = new PSystemSalt(source);
+	public PSystemSalt createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		final PSystemSalt result = new PSystemSalt(style, source);
 		if (getDiagramType() == DiagramType.SALT) {
 			result.setIamSalt(true);
 		}

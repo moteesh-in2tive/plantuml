@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -69,12 +69,15 @@ public class SymbolContext {
 	}
 
 	public UGraphic applyColors(UGraphic ug) {
-		ug = ug.apply(foreColor);
-		if (backColor == null) {
+		if (foreColor == null)
+			ug = ug.apply(new HColorNone());
+		else
+			ug = ug.apply(foreColor);
+		if (backColor == null)
 			ug = ug.apply(new HColorNone().bg());
-		} else {
+		else
 			ug = ug.apply(backColor.bg());
-		}
+
 		return ug;
 	}
 

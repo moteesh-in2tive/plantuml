@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact.cond;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +43,10 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractConnection;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Arrows;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Connection;
 import net.sourceforge.plantuml.activitydiagram3.ftile.ConnectionTranslatable;
-import net.sourceforge.plantuml.activitydiagram3.ftile.Diamond;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileUtils;
+import net.sourceforge.plantuml.activitydiagram3.ftile.Hexagon;
 import net.sourceforge.plantuml.activitydiagram3.ftile.MergeStrategy;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
@@ -97,7 +97,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = Snake.create(color, usingArrow);
+			final Snake snake = Snake.create(skinParam(), color, usingArrow);
 			snake.addPoint(x1, y1);
 			snake.addPoint(x2, y1);
 			snake.addPoint(x2, y2);
@@ -132,6 +132,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			throw new IllegalStateException();
 		}
 
+		@Override
 		public void drawTranslate(UGraphic ug, UTranslate translate1, UTranslate translate2) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			Point2D p1 = getP1(stringBounder);
@@ -141,16 +142,16 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			p2 = translate2.getTranslated(p2);
 			final Direction newDirection = Direction.leftOrRight(p1, p2);
 			if (originalDirection != newDirection) {
-				final double delta = (originalDirection == Direction.RIGHT ? -1 : 1) * Diamond.diamondHalfSize;
+				final double delta = (originalDirection == Direction.RIGHT ? -1 : 1) * Hexagon.hexagonHalfSize;
 				final Dimension2D dimDiamond1 = diamond1.calculateDimension(stringBounder);
-				final Snake small = Snake.create(color);
+				final Snake small = Snake.create(skinParam(), color);
 				small.addPoint(p1);
 				small.addPoint(p1.getX() + delta, p1.getY());
 				small.addPoint(p1.getX() + delta, p1.getY() + dimDiamond1.getHeight() * .75);
 				ug.draw(small);
 				p1 = small.getLast();
 			}
-			final Snake snake = Snake.create(color, usingArrow).withMerge(MergeStrategy.LIMITED);
+			final Snake snake = Snake.create(skinParam(), color, usingArrow).withMerge(MergeStrategy.LIMITED);
 			snake.addPoint(p1);
 			snake.addPoint(p2.getX(), p1.getY());
 			snake.addPoint(p2);
@@ -186,7 +187,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			final double y2 = p2.getY();
 
 			final UPolygon arrow = x2 > x1 ? Arrows.asToRight() : Arrows.asToLeft();
-			Snake snake = Snake.create(myArrowColor, arrow);
+			Snake snake = Snake.create(skinParam(), myArrowColor, arrow);
 			if (branchEmpty) {
 				snake = snake.emphasizeDirection(Direction.DOWN);
 			}
@@ -220,6 +221,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			throw new IllegalStateException();
 		}
 
+		@Override
 		public void drawTranslate(UGraphic ug, UTranslate translate1, UTranslate translate2) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			final FtileGeometry geo = getFtile1().calculateDimension(stringBounder);
@@ -237,30 +239,30 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			final Direction newDirection = Direction.leftOrRight(mp1a, mp2b);
 			final UPolygon arrow = x2 > x1 ? Arrows.asToRight() : Arrows.asToLeft();
 			if (originalDirection == newDirection) {
-				final double delta = (x2 > x1 ? -1 : 1) * 1.5 * Diamond.diamondHalfSize;
+				final double delta = (x2 > x1 ? -1 : 1) * 1.5 * Hexagon.hexagonHalfSize;
 				final Point2D mp2bc = new Point2D.Double(mp2b.getX() + delta, mp2b.getY());
-				final Snake snake = Snake.create(myArrowColor).withMerge(MergeStrategy.LIMITED);
+				final Snake snake = Snake.create(skinParam(), myArrowColor).withMerge(MergeStrategy.LIMITED);
 				final double middle = (mp1a.getY() + mp2b.getY()) / 2.0;
 				snake.addPoint(mp1a);
 				snake.addPoint(mp1a.getX(), middle);
 				snake.addPoint(mp2bc.getX(), middle);
 				snake.addPoint(mp2bc);
 				ug.draw(snake);
-				final Snake small = Snake.create(myArrowColor, arrow).withMerge(MergeStrategy.LIMITED);
+				final Snake small = Snake.create(skinParam(), myArrowColor, arrow).withMerge(MergeStrategy.LIMITED);
 				small.addPoint(mp2bc);
 				small.addPoint(mp2bc.getX(), mp2b.getY());
 				small.addPoint(mp2b);
 				ug.draw(small);
 			} else {
-				final double delta = (x2 > x1 ? -1 : 1) * 1.5 * Diamond.diamondHalfSize;
+				final double delta = (x2 > x1 ? -1 : 1) * 1.5 * Hexagon.hexagonHalfSize;
 				final Point2D mp2bb = new Point2D.Double(mp2b.getX() + delta,
-						mp2b.getY() - 1.5 * Diamond.diamondHalfSize);
-				final Snake snake = Snake.create(myArrowColor).withMerge(MergeStrategy.LIMITED);
+						mp2b.getY() - 1.5 * Hexagon.hexagonHalfSize);
+				final Snake snake = Snake.create(skinParam(), myArrowColor).withMerge(MergeStrategy.LIMITED);
 				snake.addPoint(mp1a);
 				snake.addPoint(mp1a.getX(), mp2bb.getY());
 				snake.addPoint(mp2bb);
 				ug.draw(snake);
-				final Snake small = Snake.create(myArrowColor, arrow).withMerge(MergeStrategy.LIMITED);
+				final Snake small = Snake.create(skinParam(), myArrowColor, arrow).withMerge(MergeStrategy.LIMITED);
 				small.addPoint(mp2bb);
 				small.addPoint(mp2bb.getX(), mp2b.getY());
 				small.addPoint(mp2b);
@@ -298,7 +300,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			Snake snake = Snake.create(myArrowColor);
+			Snake snake = Snake.create(skinParam(), myArrowColor);
 			if (branchEmpty) {
 				snake = snake.emphasizeDirection(Direction.DOWN);
 			}
@@ -310,6 +312,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			ug.draw(snake);
 		}
 
+		@Override
 		public void drawTranslate(UGraphic ug, UTranslate translate1, UTranslate translate2) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			final FtileGeometry dimTotal = calculateDimensionInternal(stringBounder);
@@ -319,12 +322,12 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 				return;
 			}
 			final Point2D p1 = geo.translate(translate(stringBounder)).getPointOut();
-			final Point2D p2 = new Point2D.Double(dimTotal.getLeft(), dimTotal.getHeight() - Diamond.diamondHalfSize);
+			final Point2D p2 = new Point2D.Double(dimTotal.getLeft(), dimTotal.getHeight() - Hexagon.hexagonHalfSize);
 
 			final Point2D mp1a = translate1.getTranslated(p1);
 			final Point2D mp2b = translate2.getTranslated(p2);
 
-			final Snake snake = Snake.create(myArrowColor).withMerge(MergeStrategy.LIMITED);
+			final Snake snake = Snake.create(skinParam(), myArrowColor).withMerge(MergeStrategy.LIMITED);
 			// snake.emphasizeDirection(Direction.DOWN);
 
 			final double x1 = mp1a.getX();
@@ -380,7 +383,8 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			}
 			final Point2D p2 = new Point2D.Double(p1.getX(), totalHeight);
 
-			final Snake snake = Snake.create(color, Arrows.asToDown()).withLabel(out2, arrowHorizontalAlignment());
+			final Snake snake = Snake.create(skinParam(), color, Arrows.asToDown()).withLabel(out2,
+					arrowHorizontalAlignment());
 			snake.addPoint(p1);
 			snake.addPoint(p2);
 			ug.draw(snake);
@@ -413,7 +417,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			super(null, null);
 			this.arrowColor = arrowColor;
 		}
-		
+
 		public void drawU(UGraphic ug) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			final Dimension2D totalDim = calculateDimensionInternal(stringBounder);
@@ -438,12 +442,12 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 				return;
 			}
 
-			final Snake s = Snake.create(arrowColor).withMerge(MergeStrategy.NONE);
+			final Snake s = Snake.create(skinParam(), arrowColor).withMerge(MergeStrategy.NONE);
 			s.addPoint(minX, totalDim.getHeight());
 			s.addPoint(maxX, totalDim.getHeight());
 			ug.draw(s);
 		}
-		
+
 		private double[] getMinmax(StringBounder stringBounder, double width, List<Ftile> allTiles, Swimlane intoSw,
 				List<Swimlane> allSwimlanes) {
 			final int current = allSwimlanes.indexOf(intoSw);
@@ -496,7 +500,7 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 			}
 			return new double[] { minX, maxX };
 		}
-		
+
 		private int getFirstSwimlane(StringBounder stringBounder, List<Ftile> allTiles, List<Swimlane> allSwimlanes) {
 			for (int i = 0; i < allSwimlanes.size(); i++) {
 				if (atLeastOne(stringBounder, allSwimlanes.get(i), allTiles)) {
@@ -525,7 +529,6 @@ public class FtileIfWithLinks extends FtileIfWithDiamonds {
 		private boolean ftileDoesOutcomeInThatSwimlane(Ftile ftile, Swimlane swimlane) {
 			return ftile.getSwimlaneOut() == swimlane && ftile.getSwimlanes().contains(swimlane);
 		}
-
 
 	}
 

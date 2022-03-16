@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,12 +39,11 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverRectangleEps implements UDriver<EpsGraphics> {
+public class DriverRectangleEps implements UDriver<URectangle, EpsGraphics> {
 
 	private final ClipContainer clipContainer;
 
@@ -52,9 +51,7 @@ public class DriverRectangleEps implements UDriver<EpsGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
-		final URectangle rect = (URectangle) ushape;
-
+	public void draw(URectangle rect, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
 		double width = rect.getWidth();
 		double height = rect.getHeight();
 
@@ -90,6 +87,5 @@ public class DriverRectangleEps implements UDriver<EpsGraphics> {
 					.getStroke().getDashSpace());
 			eps.epsRectangle(x, y, width, height, rx / 2, ry / 2);
 		}
-
 	}
 }

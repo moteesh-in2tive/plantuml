@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  *
@@ -38,7 +38,7 @@ import java.util.Objects;
 
 import net.sourceforge.plantuml.json.JsonValue;
 
-public class TValue {
+public final class TValue {
 
 	private final int intValue;
 	private final String stringValue;
@@ -140,6 +140,10 @@ public class TValue {
 
 	public boolean isJson() {
 		return this.jsonValue != null;
+	}
+
+	public boolean isString() {
+		return this.stringValue != null;
 	}
 
 	public Token toToken() {

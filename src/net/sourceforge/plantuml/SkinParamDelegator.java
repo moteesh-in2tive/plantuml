@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,6 +35,7 @@ package net.sourceforge.plantuml;
 import java.util.Collection;
 import java.util.Map;
 
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
@@ -72,8 +73,8 @@ public class SkinParamDelegator implements ISkinParam {
 	}
 
 	@Override
-	public HColor getBackgroundColor(boolean replaceTransparentByWhite) {
-		return skinParam.getBackgroundColor(replaceTransparentByWhite);
+	public HColor getBackgroundColor() {
+		return skinParam.getBackgroundColor();
 	}
 
 	@Override
@@ -452,10 +453,10 @@ public class SkinParamDelegator implements ISkinParam {
 		return skinParam.getlengthAdjust();
 	}
 
-	@Override
-	public void assumeTransparent(ThemeStyle style) {
-		skinParam.assumeTransparent(style);
-	}
+//	@Override
+//	public void assumeTransparent(ThemeStyle style) {
+//		skinParam.assumeTransparent(style);
+//	}
 
 	@Override
 	public ThemeStyle getThemeStyle() {

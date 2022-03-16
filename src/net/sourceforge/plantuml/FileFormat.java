@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -129,10 +129,6 @@ public enum FileFormat {
 		return getDefaultStringBounder(TikzFontDistortion.getDefault(), SvgCharSizeHack.NO_HACK);
 	}
 
-	public StringBounder getDefaultStringBounder(TikzFontDistortion tikzFontDistortion) {
-		return getDefaultStringBounder(tikzFontDistortion, SvgCharSizeHack.NO_HACK);
-	}
-
 	public StringBounder getDefaultStringBounder(TikzFontDistortion tikzFontDistortion, SvgCharSizeHack charSizeHack) {
 		if (this == LATEX || this == LATEX_NO_PREAMBLE) {
 			return getTikzStringBounder(tikzFontDistortion);
@@ -197,6 +193,11 @@ public enum FileFormat {
 				final double height = 5 * quanta;
 				final double width = 3 * nb * quanta + 1;
 				return new Dimension2DDouble(width, height);
+			}
+
+			@Override
+			public double getDescent(UFont font, String text) {
+				return UGraphicBraille.QUANTA;
 			}
 		};
 	}

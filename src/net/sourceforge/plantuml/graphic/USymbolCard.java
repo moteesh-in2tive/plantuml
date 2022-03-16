@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,9 +32,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -50,15 +51,19 @@ class USymbolCard extends USymbol {
 	}
 
 	@Override
+	public SName getSName() {
+		return SName.card;
+	}
+
+	@Override
 	public SkinParameter getSkinParameter() {
 		return skinParameter;
 	}
 
-	private void drawCard(UGraphic ug, double width, double height, boolean shadowing, double top, double roundCorner) {
+	private void drawCard(UGraphic ug, double width, double height, double shadowing, double top, double roundCorner) {
 		final URectangle shape = new URectangle(width, height).rounded(roundCorner);
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
+
 		ug.draw(shape);
 		if (top != 0) {
 			ug.apply(UTranslate.dy(top)).draw(ULine.hline(width));
@@ -78,7 +83,7 @@ class USymbolCard extends USymbol {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(), 0,
+				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(), 0,
 						symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
@@ -104,7 +109,7 @@ class USymbolCard extends USymbol {
 				ug = symbolContext.apply(ug);
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final Dimension2D dimTitle = title.calculateDimension(ug.getStringBounder());
-				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawCard(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						dimTitle.getHeight() + dimStereo.getHeight() + 4, symbolContext.getRoundCorner());
 				final double posStereo = (width - dimStereo.getWidth()) / 2;
 				stereotype.drawU(ug.apply(new UTranslate(posStereo, 2)));

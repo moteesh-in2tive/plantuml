@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -45,6 +45,4 @@ public interface UParam {
 	public boolean isHidden();
 
 	public UPattern getPattern();
-	
-	public double getScale();
 }

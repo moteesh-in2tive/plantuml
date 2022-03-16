@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.asciiart;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,7 +89,7 @@ public class ComponentTextArrow extends AbstractComponentText implements ArrowCo
 		if (fileFormat == FileFormat.UTXT) {
 			final Pattern pattern = Pattern.compile("\\<b\\>([0-9]+)\\</b\\>");
 			final Matcher matcher = pattern.matcher(s);
-			final StringBuffer result = new StringBuffer();
+			final StringBuffer result = new StringBuffer(); // Can't be switched to StringBuilder in order to support Java 8
 			while (matcher.find()) {
 				final String num = matcher.group(1);
 				final String replace = StringUtils.toInternalBoldNumber(num);

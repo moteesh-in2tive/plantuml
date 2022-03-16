@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -126,7 +126,7 @@ public class CommandLinkActivity extends SingleLineCommand2<ActivityDiagram> {
 			return CommandExecutionResult.error("No such activity");
 		}
 		if (arg.get("STEREOTYPE", 0) != null) {
-			entity1.setStereotype(new Stereotype(arg.get("STEREOTYPE", 0)));
+			entity1.setStereotype(Stereotype.build(arg.get("STEREOTYPE", 0)));
 		}
 		if (arg.get("BACKCOLOR", 0) != null) {
 			String s = arg.get("BACKCOLOR", 0);
@@ -144,7 +144,7 @@ public class CommandLinkActivity extends SingleLineCommand2<ActivityDiagram> {
 					diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));
 		}
 		if (arg.get("STEREOTYPE2", 0) != null) {
-			entity2.setStereotype(new Stereotype(arg.get("STEREOTYPE2", 0)));
+			entity2.setStereotype(Stereotype.build(arg.get("STEREOTYPE2", 0)));
 		}
 
 		final Display linkLabel = Display.getWithNewlines(arg.get("BRACKET", 0));

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.classdiagram.command.CommandHideShow2;
 import net.sourceforge.plantuml.classdiagram.command.CommandNamespaceSeparator;
 import net.sourceforge.plantuml.classdiagram.command.CommandRemoveRestore;
@@ -43,8 +44,8 @@ import net.sourceforge.plantuml.classdiagram.command.CommandUrl;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandEndPackage;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
-import net.sourceforge.plantuml.command.CommandPage;
 import net.sourceforge.plantuml.command.CommandRankDir;
+import net.sourceforge.plantuml.command.CommonCommands;
 import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.CommandFactoryNote;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
@@ -63,8 +64,8 @@ import net.sourceforge.plantuml.descdiagram.command.CommandPackageWithUSymbol;
 public class DescriptionDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public DescriptionDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
-		return new DescriptionDiagram(source, skinParam);
+	public DescriptionDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new DescriptionDiagram(style, source, skinParam);
 	}
 
 	@Override
@@ -75,9 +76,8 @@ public class DescriptionDiagramFactory extends PSystemCommandFactory {
 		cmds.add(new CommandNamespaceSeparator());
 		cmds.add(new CommandRankDir());
 		cmds.add(new CommandNewpage(this));
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
 
-		cmds.add(new CommandPage());
 		cmds.add(new CommandLinkElement());
 		cmds.add(new CommandHideShow2());
 		cmds.add(new CommandRemoveRestore());
@@ -90,7 +90,7 @@ public class DescriptionDiagramFactory extends PSystemCommandFactory {
 		final CommandFactoryNoteOnLink factoryNoteOnLinkCommand = new CommandFactoryNoteOnLink();
 		cmds.add(factoryNoteOnLinkCommand.createSingleLine());
 		cmds.add(factoryNoteOnLinkCommand.createMultiLine(false));
-		
+
 		final CommandFactoryNoteOnEntity factoryNoteOnEntityCommand = new CommandFactoryNoteOnEntity("desc",
 				new RegexOr("ENTITY", //
 						new RegexLeaf("[%pLN_.]+"), //
@@ -112,7 +112,6 @@ public class DescriptionDiagramFactory extends PSystemCommandFactory {
 		cmds.add(factoryNoteOnEntityCommand.createMultiLine(true));
 		cmds.add(factoryNoteOnEntityCommand.createMultiLine(false));
 		cmds.add(factoryNoteCommand.createMultiLine(false));
-
 
 		// cmds.add(new CommandHideShowSpecificClass());
 

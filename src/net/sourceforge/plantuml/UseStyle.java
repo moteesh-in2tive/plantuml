@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -40,11 +40,12 @@ public class UseStyle {
 	private static final ThreadLocal<Boolean> useBeta = new ThreadLocal<>();
 
 	static public boolean useBetaStyle() {
-		final Boolean result = useBeta.get();
-		if (result == null) {
-			return false;
-		}
-		return result;
+//		final Boolean result = useBeta.get();
+//		if (result == null) {
+//			return false;
+//		}
+//		return result;
+		return true;
 	}
 
 	static public void setBetaStyle(boolean betastyle) {

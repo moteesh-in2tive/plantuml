@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -51,6 +51,7 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
@@ -85,8 +86,8 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = Snake.create(null, arrowColor, Arrows.asToDown()).withLabel(getLabelPositive(branch),
-					arrowHorizontalAlignment());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown())
+					.withLabel(branch.getTextBlockPositive(), arrowHorizontalAlignment());
 			snake.addPoint(x1, y1);
 			snake.addPoint(x2, y1);
 			snake.addPoint(x2, y2);
@@ -97,13 +98,13 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 		private Point2D getP1(StringBounder stringBounder) {
 			final FtileGeometry dimDiamond1 = diamond1.calculateDimension(stringBounder);
 			final Point2D pt;
-			if (getFtile2() == tiles.get(0)) {
+			if (getFtile2() == tiles.get(0))
 				pt = dimDiamond1.getPointD();
-			} else if (getFtile2() == tiles.get(tiles.size() - 1)) {
+			else if (getFtile2() == tiles.get(tiles.size() - 1))
 				pt = dimDiamond1.getPointB();
-			} else {
+			else
 				throw new IllegalStateException();
-			}
+
 			return getTranslateDiamond1(stringBounder).getTranslated(pt);
 		}
 
@@ -116,16 +117,19 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 
 	class ConnectionVerticalThenHorizontal extends AbstractConnection {
 
-		public ConnectionVerticalThenHorizontal(Ftile tile) {
+		private final TextBlock outLabel;
+
+		public ConnectionVerticalThenHorizontal(Ftile tile, TextBlock outLabel) {
 			super(tile, diamond2);
+			this.outLabel = outLabel;
 		}
 
 		public void drawU(UGraphic ug) {
 			final StringBounder stringBounder = ug.getStringBounder();
 			final FtileGeometry geo = getFtile1().calculateDimension(stringBounder);
-			if (geo.hasPointOut() == false) {
+			if (geo.hasPointOut() == false)
 				return;
-			}
+
 			final Point2D p1 = getP1(stringBounder);
 			final double x1 = p1.getX();
 			final double y1 = p1.getY();
@@ -154,7 +158,8 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = Snake.create(arrowColor, arrow);
+			final Snake snake = Snake.create(skinParam(), arrowColor, arrow).withLabel(outLabel,
+					VerticalAlignment.CENTER);
 			snake.addPoint(x1, y1);
 			if (direction == Direction.LEFT && x2 > x1 - 10) {
 				snake.addPoint(x1, y2 - 8);
@@ -195,8 +200,8 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 			final double x2 = p2.getX();
 			final double y2 = p2.getY();
 
-			final Snake snake = Snake.create(null, arrowColor, Arrows.asToDown()).withLabel(getLabelPositive(branch),
-					VerticalAlignment.BOTTOM);
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown())
+					.withLabel(branch.getTextBlockPositive(), VerticalAlignment.CENTER);
 			if (x2 < p1d.getX() - margin || x2 > p1b.getX() + margin) {
 				snake.addPoint(x2, p1d.getY());
 				snake.addPoint(x2, y2);
@@ -222,8 +227,11 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 
 	class ConnectionVerticalBottom extends AbstractConnection {
 
-		public ConnectionVerticalBottom(Ftile tile) {
+		final private TextBlock outLabel;
+
+		public ConnectionVerticalBottom(Ftile tile, TextBlock textBlock) {
 			super(tile, diamond2);
+			this.outLabel = textBlock;
 		}
 
 		public void drawU(UGraphic ug) {
@@ -248,7 +256,8 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 
 			final double ym = (y1 + y2) / 2;
 
-			final Snake snake = Snake.create(null, arrowColor, Arrows.asToDown());
+			final Snake snake = Snake.create(skinParam(), arrowColor, Arrows.asToDown()).withLabel(outLabel,
+					VerticalAlignment.CENTER);
 
 			if (x1 < p1d.getX() - margin || x1 > p1b.getX() + margin) {
 				snake.addPoint(x1, y1);
@@ -270,52 +279,68 @@ public class FtileSwitchWithManyLinks extends FtileSwitchWithDiamonds {
 
 	}
 
-	public double getYdelta1a(StringBounder stringBounder) {
+	@Override
+	protected double getYdelta1a(StringBounder stringBounder) {
 		double max = 10;
 		for (Branch branch : branches) {
-			max = Math.max(max, getLabelPositive(branch).calculateDimension(stringBounder).getHeight());
+			max = Math.max(max, branch.getTextBlockPositive().calculateDimension(stringBounder).getHeight());
+		}
+		if (mode == Mode.BIG_DIAMOND) {
+			final double diamondHeight = diamond1.calculateDimension(stringBounder).getHeight();
+			max += diamondHeight / 2;
 		}
 		return max + 10;
 	}
 
 	public Ftile addLinks(StringBounder stringBounder) {
 		final List<Connection> conns = new ArrayList<>();
-		conns.add(new ConnectionHorizontalThenVertical(tiles.get(0), branches.get(0)));
-		conns.add(new ConnectionHorizontalThenVertical(tiles.get(tiles.size() - 1), branches.get(tiles.size() - 1)));
-
-		final int first = getFirst(stringBounder);
-		final int last = getLast(stringBounder);
-		if (first < tiles.size())
-			conns.add(new ConnectionVerticalThenHorizontal(tiles.get(first)));
-		if (last > 0)
-			conns.add(new ConnectionVerticalThenHorizontal(tiles.get(last)));
-		for (int i = first + 1; i < last; i++) {
-			final Ftile tile = tiles.get(i);
-			conns.add(new ConnectionVerticalTop(tile, branches.get(i)));
-			if (tile.calculateDimension(stringBounder).hasPointOut()) {
-				conns.add(new ConnectionVerticalBottom(tile));
-			}
-		}
-
+		addIngoingArrows(conns);
+		addOutgoingArrows(stringBounder, conns);
 		return FtileUtils.addConnection(this, conns);
 	}
 
-	private int getFirst(StringBounder stringBounder) {
+	private void addIngoingArrows(final List<Connection> conns) {
+		conns.add(new ConnectionHorizontalThenVertical(tiles.get(0), branches.get(0)));
+		conns.add(new ConnectionHorizontalThenVertical(tiles.get(tiles.size() - 1), branches.get(tiles.size() - 1)));
+		for (int i = 1; i < tiles.size() - 1; i++) {
+			final Ftile tile = tiles.get(i);
+			conns.add(new ConnectionVerticalTop(tile, branches.get(i)));
+		}
+	}
+
+	private void addOutgoingArrows(StringBounder stringBounder, final List<Connection> conns) {
+		final int firstOutgoingArrow = getFirstOutgoingArrow(stringBounder);
+		final int lastOutgoingArrow = getLastOutgoingArrow(stringBounder);
+		if (firstOutgoingArrow < tiles.size())
+			conns.add(new ConnectionVerticalThenHorizontal(tiles.get(firstOutgoingArrow),
+					branches.get(firstOutgoingArrow).getTextBlockSpecial()));
+		if (lastOutgoingArrow > 0)
+			conns.add(new ConnectionVerticalThenHorizontal(tiles.get(lastOutgoingArrow),
+					branches.get(lastOutgoingArrow).getTextBlockSpecial()));
+		for (int i = firstOutgoingArrow + 1; i < lastOutgoingArrow; i++) {
+			final Ftile tile = tiles.get(i);
+			if (tile.calculateDimension(stringBounder).hasPointOut())
+				conns.add(new ConnectionVerticalBottom(tile, branches.get(i).getTextBlockSpecial()));
+
+		}
+	}
+
+	private int getFirstOutgoingArrow(StringBounder stringBounder) {
 		for (int i = 0; i < tiles.size() - 1; i++) {
 			final Ftile tile = tiles.get(i);
-			if (tile.calculateDimension(stringBounder).hasPointOut()) {
+			if (tile.calculateDimension(stringBounder).hasPointOut())
 				return i;
-			}
+
 		}
 		return tiles.size();
 	}
 
-	private int getLast(StringBounder stringBounder) {
+	private int getLastOutgoingArrow(StringBounder stringBounder) {
 		for (int i = tiles.size() - 1; i >= 0; i--) {
 			final Ftile tile = tiles.get(i);
-			if (tile.calculateDimension(stringBounder).hasPointOut()) {
+			if (tile.calculateDimension(stringBounder).hasPointOut())
 				return i;
-			}
+
 		}
 		return -1;
 	}

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,13 +32,14 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.AbstractFtile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileGeometry;
@@ -46,6 +47,10 @@ import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -58,7 +63,7 @@ public class FtileBlackBlock extends AbstractFtile {
 	private double width;
 	private double height;
 	private TextBlock label = TextBlockUtils.empty(0, 0);
-	private final HColor colorBar;
+	private HColor colorBar;
 	private final Swimlane swimlane;
 
 	public FtileBlackBlock(ISkinParam skinParam, HColor colorBar, Swimlane swimlane) {
@@ -79,17 +84,28 @@ public class FtileBlackBlock extends AbstractFtile {
 	@Override
 	protected FtileGeometry calculateDimensionFtile(StringBounder stringBounder) {
 		double supp = label.calculateDimension(stringBounder).getWidth();
-		if (supp > 0) {
+		if (supp > 0)
 			supp += labelMargin;
-		}
+
 		return new FtileGeometry(width + supp, height, width / 2, 0, height);
+	}
+
+	private StyleSignatureBasic getSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.activityBar);
 	}
 
 	public void drawU(UGraphic ug) {
 		final URectangle rect = new URectangle(width, height).rounded(5).ignoreForCompressionOnX();
-		if (skinParam().shadowing(null)) {
-			rect.setDeltaShadow(3);
+		if (UseStyle.useBetaStyle()) {
+			final Style style = getSignature().getMergedStyle(skinParam().getCurrentStyleBuilder());
+			final double shadowing = style.value(PName.Shadowing).asDouble();
+			rect.setDeltaShadow(shadowing);
+			colorBar = style.value(PName.BackGroundColor).asColor(skinParam().getThemeStyle(), getIHtmlColorSet());
+		} else {
+			if (skinParam().shadowing(null))
+				rect.setDeltaShadow(3);
 		}
+
 		ug.apply(colorBar).apply(colorBar.bg()).draw(rect);
 		final Dimension2D dimLabel = label.calculateDimension(ug.getStringBounder());
 		label.drawU(ug.apply(new UTranslate(width + labelMargin, -dimLabel.getHeight() / 2)));

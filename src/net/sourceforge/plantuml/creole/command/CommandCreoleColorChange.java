@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,6 @@
  */
 package net.sourceforge.plantuml.creole.command;
 
-import net.sourceforge.plantuml.ThemeStyle;
 import net.sourceforge.plantuml.command.regex.Matcher2;
 import net.sourceforge.plantuml.command.regex.MyPattern;
 import net.sourceforge.plantuml.command.regex.Pattern2;
@@ -46,53 +45,55 @@ import net.sourceforge.plantuml.ugraphic.color.NoSuchColorRuntimeException;
 
 public class CommandCreoleColorChange implements Command {
 
-	private static final Pattern2 pattern = MyPattern
-			.cmpile("^(" + Splitter.fontColorPattern2 + "(.*?)\\</color\\>)");
+	@Override
+	public String startingChars() {
+		return "<";
+	}
+
+	private static final Pattern2 pattern = MyPattern.cmpile("^(" + Splitter.fontColorPattern2 + "(.*?)\\</color\\>)");
 
 	private static final Pattern2 patternEol = MyPattern.cmpile("^(" + Splitter.fontColorPattern2 + "(.*)$)");
 
 	private final Pattern2 mypattern;
-	private final ThemeStyle themeStyle;
 
-	public static Command create(ThemeStyle themeStyle) {
-		return new CommandCreoleColorChange(themeStyle, pattern);
+	public static Command create() {
+		return new CommandCreoleColorChange(pattern);
 	}
 
-	public static Command createEol(ThemeStyle themeStyle) {
-		return new CommandCreoleColorChange(themeStyle, patternEol);
+	public static Command createEol() {
+		return new CommandCreoleColorChange(patternEol);
 	}
 
-	private CommandCreoleColorChange(ThemeStyle themeStyle, Pattern2 pattern) {
+	private CommandCreoleColorChange(Pattern2 pattern) {
 		this.mypattern = pattern;
-		this.themeStyle = themeStyle;
-
 	}
 
 	public int matchingSize(String line) {
 		final Matcher2 m = mypattern.matcher(line);
-		if (m.find() == false) {
+		if (m.find() == false)
 			return 0;
-		}
+
 		return m.group(2).length();
 	}
 
 	public String executeAndGetRemaining(String line, StripeSimple stripe) throws NoSuchColorRuntimeException {
 		final Matcher2 m = mypattern.matcher(line);
-		if (m.find() == false) {
+		if (m.find() == false)
 			throw new IllegalStateException();
-		}
+
 		final FontConfiguration fc1 = stripe.getActualFontConfiguration();
 		final String s = m.group(2);
 		try {
-			final HColor color = HColorSet.instance().getColor(themeStyle, s);
+			final HColor color = HColorSet.instance().getColor(stripe.getSkinParam().getThemeStyle(), s);
 			final FontConfiguration fc2 = fc1.changeColor(color);
 			stripe.setActualFontConfiguration(fc2);
-			stripe.analyzeAndAdd(m.group(3));
-			stripe.setActualFontConfiguration(fc1);
-			return line.substring(m.group(1).length());
 		} catch (NoSuchColorException e) {
-			throw new NoSuchColorRuntimeException();
+			// Too late for parsing error
+			// So we just ignore
 		}
+		stripe.analyzeAndAdd(m.group(3));
+		stripe.setActualFontConfiguration(fc1);
+		return line.substring(m.group(1).length());
 	}
 
 }

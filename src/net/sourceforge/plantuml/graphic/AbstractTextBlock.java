@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -41,10 +41,12 @@ import net.sourceforge.plantuml.ugraphic.MinMax;
 
 public abstract class AbstractTextBlock implements TextBlock {
 
+	@Override
 	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
 		throw new UnsupportedOperationException("member=" + member + " " + getClass().toString());
 	}
 
+	@Override
 	public MinMax getMinMax(StringBounder stringBounder) {
 		throw new UnsupportedOperationException(getClass().toString());
 	}

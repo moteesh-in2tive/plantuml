@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -42,15 +42,15 @@ import java.util.List;
 import net.sourceforge.plantuml.Log;
 import net.sourceforge.plantuml.SplitParam;
 import net.sourceforge.plantuml.SuggestedFile;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
 
 public class PngSplitter {
 
 	private final List<SFile> files = new ArrayList<>();
 
-	public PngSplitter(SuggestedFile pngFile, int horizontalPages, int verticalPages, String source, int dpi,
-			boolean isWithMetadata, SplitParam splitParam) throws IOException {
+	public PngSplitter(SuggestedFile pngFile, int horizontalPages, int verticalPages, String metadata, int dpi,
+			SplitParam splitParam) throws IOException {
 		if (horizontalPages == 1 && verticalPages == 1) {
 			this.files.add(pngFile.getFile(0));
 			return;
@@ -68,7 +68,7 @@ public class PngSplitter {
 		}
 
 		// Thread.yield();
-		final BufferedImage im = ImageIO.read(full);
+		final BufferedImage im = SImageIO.read(full);
 		// Thread.yield();
 		final PngSegment horizontalSegment = new PngSegment(im.getWidth(), horizontalPages);
 		final PngSegment verticalSegment = new PngSegment(im.getHeight(), verticalPages);
@@ -103,7 +103,7 @@ public class PngSplitter {
 					g2d.dispose();
 				}
 				// Thread.yield();
-				PngIO.write(piece, f, isWithMetadata ? source : null, dpi);
+				PngIO.write(piece, f, metadata, dpi);
 				// Thread.yield();
 			}
 		}

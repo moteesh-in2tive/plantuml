@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,7 +31,7 @@
  */
 package net.sourceforge.plantuml.ugraphic.visio;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.StringUtils;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
@@ -40,11 +40,10 @@ import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UFontContext;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UText;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverTextVdx implements UDriver<VisioGraphics> {
+public class DriverTextVdx implements UDriver<UText, VisioGraphics> {
 
 	private final StringBounder stringBounder;
 
@@ -52,8 +51,7 @@ public class DriverTextVdx implements UDriver<VisioGraphics> {
 		this.stringBounder = stringBounder;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, VisioGraphics visio) {
-		final UText shape = (UText) ushape;
+	public void draw(UText shape, double x, double y, ColorMapper mapper, UParam param, VisioGraphics visio) {
 		Thread.dumpStack();
 
 		final FontConfiguration fontConfiguration = shape.getFontConfiguration();

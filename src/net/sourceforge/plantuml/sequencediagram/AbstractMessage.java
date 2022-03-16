@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -45,21 +45,21 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.WithStyle;
 
 public abstract class AbstractMessage implements EventWithDeactivate, WithStyle {
 
 	public Style[] getUsedStyles() {
-		Style style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+		Style style = getStyleSignature().getMergedStyle(styleBuilder);
 		if (style != null && arrowConfiguration.getColor() != null) {
 			style = style.eventuallyOverride(PName.LineColor, arrowConfiguration.getColor());
 		}
 		return new Style[] { style };
 	}
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.sequenceDiagram, SName.arrow);
+	public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.sequenceDiagram, SName.arrow);
 	}
 
 	private final Display label;
@@ -69,6 +69,7 @@ public abstract class AbstractMessage implements EventWithDeactivate, WithStyle 
 	private Url url;
 	private final String messageNumber;
 	private boolean parallel = false;
+	private AbstractMessage parallelBrother;
 	private final StyleBuilder styleBuilder;
 
 	private List<Note> noteOnMessages = new ArrayList<>();
@@ -88,6 +89,10 @@ public abstract class AbstractMessage implements EventWithDeactivate, WithStyle 
 
 	public void goParallel() {
 		this.parallel = true;
+	}
+
+	public void setParallelBrother(AbstractMessage brother) {
+		this.parallelBrother = brother;
 	}
 
 	public boolean isParallel() {
@@ -259,4 +264,5 @@ public abstract class AbstractMessage implements EventWithDeactivate, WithStyle 
 	public abstract Participant getParticipant1();
 
 	public abstract Participant getParticipant2();
+
 }

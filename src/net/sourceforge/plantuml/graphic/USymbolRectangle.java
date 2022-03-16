@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,9 +32,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
@@ -50,17 +51,20 @@ class USymbolRectangle extends USymbol {
 	}
 
 	@Override
+	public SName getSName() {
+		return SName.rectangle;
+	}
+
+	@Override
 	public SkinParameter getSkinParameter() {
 		return skinParameter;
 	}
 
-	private void drawRect(UGraphic ug, double width, double height, boolean shadowing, double roundCorner,
+	private void drawRect(UGraphic ug, double width, double height, double shadowing, double roundCorner,
 			double diagonalCorner) {
 		final URectangle rect = new URectangle(width, height);
 		final Shadowable shape = diagonalCorner > 0 ? rect.diagonalCorner(diagonalCorner) : rect.rounded(roundCorner);
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
 		ug.draw(shape);
 	}
 
@@ -77,7 +81,7 @@ class USymbolRectangle extends USymbol {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner(), symbolContext.getDiagonalCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, stereoAlignment);
@@ -100,8 +104,8 @@ class USymbolRectangle extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
-						symbolContext.getRoundCorner(), 0);
+				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
+						symbolContext.getRoundCorner(), symbolContext.getDiagonalCorner());
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereoX;
 				final double posStereoY;
@@ -115,13 +119,13 @@ class USymbolRectangle extends USymbol {
 				stereotype.drawU(ug.apply(new UTranslate(posStereoX, posStereoY)));
 				final Dimension2D dimTitle = title.calculateDimension(ug.getStringBounder());
 				final double posTitle;
-				if (labelAlignment == HorizontalAlignment.LEFT) {
+				if (labelAlignment == HorizontalAlignment.LEFT)
 					posTitle = 3;
-				} else if (labelAlignment == HorizontalAlignment.RIGHT) {
+				else if (labelAlignment == HorizontalAlignment.RIGHT)
 					posTitle = width - dimTitle.getWidth() - 3;
-				} else {
+				else
 					posTitle = (width - dimTitle.getWidth()) / 2;
-				}
+
 				title.drawU(ug.apply(new UTranslate(posTitle, 2 + dimStereo.getHeight())));
 			}
 

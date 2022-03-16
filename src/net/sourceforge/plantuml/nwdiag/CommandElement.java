@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -49,7 +49,7 @@ public class CommandElement extends SingleLineCommand2<NwDiagram> {
 	static IRegex getRegexConcat() {
 		return RegexConcat.build(CommandElement.class.getName(), RegexLeaf.start(), //
 				RegexLeaf.spaceZeroOrMore(), //
-				new RegexLeaf("NAME", "([%pLN_]+)"), //
+				new RegexLeaf("NAME", "([-.%pLN_]+)"), //
 				RegexLeaf.spaceZeroOrMore(), //
 				new RegexLeaf("DEFINITION", "(\\[(.*)\\])?"), //
 				new RegexLeaf(";?"), RegexLeaf.end());

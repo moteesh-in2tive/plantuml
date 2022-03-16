@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,7 +35,7 @@
  */
 package net.sourceforge.plantuml.creole;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -70,11 +70,19 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 	private MinMax minMax;
 	private final LineBreakStrategy maxWidth;
 	private final double padding;
+	private final double marginX1;
+	private final double marginX2;
 
 	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, double padding) {
+		this(sheet, maxWidth, padding, 0, 0);
+	}
+
+	public SheetBlock1(Sheet sheet, LineBreakStrategy maxWidth, double padding, double marginX1, double marginX2) {
 		this.sheet = sheet;
 		this.maxWidth = Objects.requireNonNull(maxWidth);
 		this.padding = padding;
+		this.marginX1 = marginX1;
+		this.marginX2 = marginX2;
 	}
 
 	@Override
@@ -182,11 +190,11 @@ public class SheetBlock1 extends AbstractTextBlock implements TextBlock, Atom, S
 	}
 
 	public double getStartingX(StringBounder stringBounder, double y) {
-		return 0;
+		return -marginX1;
 	}
 
 	public double getEndingX(StringBounder stringBounder, double y) {
-		return calculateDimension(stringBounder).getWidth();
+		return calculateDimension(stringBounder).getWidth() + marginX2;
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -47,7 +47,6 @@ import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UPattern;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UShapeSized;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -55,7 +54,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 import net.sourceforge.plantuml.ugraphic.color.HColorSimple;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Graphics2D> {
+public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<URectangle, Graphics2D> {
 
 	private final double dpiFactor;
 	private final EnsureVisible visible;
@@ -65,9 +64,8 @@ public class DriverRectangleG2d extends DriverShadowedG2d implements UDriver<Gra
 		this.visible = visible;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, Graphics2D g2d) {
+	public void draw(URectangle rect, double x, double y, ColorMapper mapper, UParam param, Graphics2D g2d) {
 		g2d.setStroke(new BasicStroke((float) param.getStroke().getThickness()));
-		final URectangle rect = (URectangle) ushape;
 		final double rx = rect.getRx();
 		final double ry = rect.getRy();
 		final Shape shape;

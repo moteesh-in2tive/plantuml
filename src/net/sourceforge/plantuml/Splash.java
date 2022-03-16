@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -209,8 +209,8 @@ public class Splash extends Window implements MouseListener, MouseMotionListener
 		final int y = 33;
 		final int barWidth = 170;
 		final int barHeight = (int) (rect.getHeight() + 2);
-		final int grey = 230;
-		g.setColor(new Color(grey, grey, grey));
+		final int gray = 230;
+		g.setColor(new Color(gray, gray, gray));
 		final int value = barWidth * intValue / totalValue;
 		g.fillRect(x, y, value, barHeight);
 		g.setColor(Color.BLACK);

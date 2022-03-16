@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -95,9 +95,9 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 		lines = lines.trim().removeEmptyLines();
 		final RegexResult line0 = getStartingPattern().matcher(lines.getFirst().getTrimmed().getString());
 		final IEntity entity1 = executeArg0(diagram, line0);
-		if (entity1 == null) {
+		if (entity1 == null)
 			return CommandExecutionResult.error("No such entity");
-		}
+
 		lines = lines.subExtract(1, 1);
 		for (StringLocated sl : lines) {
 			final String line = sl.getString();
@@ -110,9 +110,9 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 				final String dest = line.substring(x + linkStr.length()).trim();
 				final Ident ident2 = diagram.buildLeafIdentSpecial(dest);
 				final ILeaf entity2 = diagram.getEntityFactory().getLeafStrict(ident2);
-				if (entity2 == null) {
+				if (entity2 == null)
 					return CommandExecutionResult.error("No such entity " + ident2.getName());
-				}
+
 				final LinkType linkType = new LinkType(LinkDecor.ARROW, LinkDecor.NONE);
 				final int length = linkStr.length() - 2;
 				final Link link = new Link(entity1, entity2, linkType, Display.NULL, length,
@@ -131,15 +131,15 @@ public class CommandCreateMap extends CommandMultilines2<AbstractClassOrObjectDi
 		final String display = line0.get("NAME", 0);
 		final String stereotype = line0.get("STEREO", 0);
 		final boolean leafExist = diagram.V1972() ? diagram.leafExistSmart(ident) : diagram.leafExist(code);
-		if (leafExist) {
+		if (leafExist)
 			return diagram.getOrCreateLeaf(diagram.buildLeafIdent(name), code, LeafType.MAP, null);
-		}
+
 		final IEntity entity = diagram.createLeaf(ident, code, Display.getWithNewlines(display), LeafType.MAP, null);
-		if (stereotype != null) {
-			entity.setStereotype(new Stereotype(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
+		if (stereotype != null) 
+			entity.setStereotype(Stereotype.build(stereotype, diagram.getSkinParam().getCircledCharacterRadius(),
 					diagram.getSkinParam().getFont(null, false, FontParam.CIRCLED_CHARACTER),
 					diagram.getSkinParam().getIHtmlColorSet()));
-		}
+		
 		final String s = line0.get("COLOR", 0);
 		entity.setSpecificColorTOBEREMOVED(ColorType.BACK, s == null ? null
 				: diagram.getSkinParam().getIHtmlColorSet().getColor(diagram.getSkinParam().getThemeStyle(), s));

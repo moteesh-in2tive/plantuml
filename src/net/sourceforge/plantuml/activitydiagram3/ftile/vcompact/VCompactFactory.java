@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -68,7 +68,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -91,15 +91,27 @@ public class VCompactFactory implements FtileFactory {
 		this.stringBounder = stringBounder;
 	}
 
-	final public StyleSignature getDefaultStyleDefinitionCircle() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.circle);
+	private StyleSignatureBasic getSignatureCircleEnd() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.circle, SName.end);
+	}
+
+	private StyleSignatureBasic getSignatureCircleStop() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.circle, SName.stop);
+	}
+
+	private StyleSignatureBasic getSignatureCircleSpot() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.circle, SName.spot);
+	}
+
+	private StyleSignatureBasic getSignatureCircleStart() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.circle, SName.start);
 	}
 
 	public Ftile start(Swimlane swimlane) {
 		final HColor color;
 		Style style = null;
 		if (UseStyle.useBetaStyle()) {
-			style = getDefaultStyleDefinitionCircle().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			style = getSignatureCircleStart().getMergedStyle(skinParam.getCurrentStyleBuilder());
 			color = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
 		} else {
 			color = rose.getHtmlColor(skinParam, ColorParam.activityStart);
@@ -112,23 +124,23 @@ public class VCompactFactory implements FtileFactory {
 		Style style = null;
 		final HColor backgroundColor;
 		if (UseStyle.useBetaStyle()) {
-			style = getDefaultStyleDefinitionCircle().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			style = getSignatureCircleStop().getMergedStyle(skinParam.getCurrentStyleBuilder());
 			borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
-			// backgroundColor =
-			// style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
-			backgroundColor = skinParam.getBackgroundColor(false);
+			backgroundColor = skinParam.getBackgroundColor();
 		} else {
 			borderColor = rose.getHtmlColor(skinParam, ColorParam.activityEnd);
-			backgroundColor = skinParam.getBackgroundColor(false);
+			backgroundColor = skinParam.getBackgroundColor();
 		}
 		return new FtileCircleStop(skinParam(), backgroundColor, borderColor, swimlane, style);
 	}
 
 	public Ftile spot(Swimlane swimlane, String spot, HColor color) {
-		// final HtmlColor color = rose.getHtmlColor(skinParam,
-		// ColorParam.activityBackground);
 		final UFont font = skinParam.getFont(null, false, FontParam.ACTIVITY);
-		return new FtileCircleSpot(skinParam(), swimlane, spot, font, color);
+		Style style = null;
+		if (UseStyle.useBetaStyle()) {
+			style = getSignatureCircleSpot().getMergedStyle(skinParam.getCurrentStyleBuilder());
+		}
+		return new FtileCircleSpot(skinParam(), swimlane, spot, font, color, style);
 	}
 
 	public Ftile end(Swimlane swimlane) {
@@ -136,14 +148,12 @@ public class VCompactFactory implements FtileFactory {
 		Style style = null;
 		final HColor backgroundColor;
 		if (UseStyle.useBetaStyle()) {
-			style = getDefaultStyleDefinitionCircle().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			style = getSignatureCircleEnd().getMergedStyle(skinParam.getCurrentStyleBuilder());
 			borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
-			// backgroundColor =
-			// style.value(PName.BackGroundColor).asColor(skinParam.getIHtmlColorSet());
-			backgroundColor = skinParam.getBackgroundColor(false);
+			backgroundColor = skinParam.getBackgroundColor();
 		} else {
 			borderColor = rose.getHtmlColor(skinParam, ColorParam.activityEnd);
-			backgroundColor = skinParam.getBackgroundColor(false);
+			backgroundColor = skinParam.getBackgroundColor();
 		}
 		return new FtileCircleEnd(skinParam(), backgroundColor, borderColor, swimlane, style);
 	}

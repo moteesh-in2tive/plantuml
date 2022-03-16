@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.UAntiAliasing;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -54,12 +55,17 @@ public class EmptyImageBuilder {
 	private final BufferedImage im;
 	private final Graphics2D g2d;
 	private final Color background;
+	private final StringBounder stringBounder;
 
-	public EmptyImageBuilder(String watermark, double width, double height, Color background) {
-		this(watermark, (int) width, (int) height, background);
+	public EmptyImageBuilder(String watermark, double width, double height, Color background,
+			StringBounder stringBounder) {
+		this(watermark, (int) width, (int) height, background, stringBounder);
 	}
 
-	public EmptyImageBuilder(String watermark, int width, int height, Color background) {
+	public EmptyImageBuilder(String watermark, int width, int height, Color background, StringBounder stringBounder) {
+		if (width <= 0 || height <= 0)
+			throw new IllegalArgumentException("width and height must be positive");
+
 		if (width > GraphvizUtils.getenvImageLimit()) {
 			Log.info("Width too large " + width + ". You should set PLANTUML_LIMIT_SIZE");
 			width = GraphvizUtils.getenvImageLimit();
@@ -69,6 +75,7 @@ public class EmptyImageBuilder {
 			height = GraphvizUtils.getenvImageLimit();
 		}
 		this.background = background;
+		this.stringBounder = stringBounder;
 		Log.info("Creating image " + width + "x" + height);
 		im = new BufferedImage(width, height, getType(background));
 		g2d = im.createGraphics();
@@ -146,8 +153,9 @@ public class EmptyImageBuilder {
 		return result;
 	}
 
-	public EmptyImageBuilder(String watermark, int width, int height, Color background, double dpiFactor) {
-		this(watermark, width * dpiFactor, height * dpiFactor, background);
+	public EmptyImageBuilder(String watermark, int width, int height, Color background, StringBounder stringBounder,
+			double dpiFactor) {
+		this(watermark, width * dpiFactor, height * dpiFactor, background, stringBounder);
 		if (dpiFactor != 1.0) {
 			g2d.setTransform(AffineTransform.getScaleInstance(dpiFactor, dpiFactor));
 		}
@@ -163,7 +171,7 @@ public class EmptyImageBuilder {
 
 	public UGraphicG2d getUGraphicG2d() {
 		final HColor back = new HColorSimple(background, false);
-		final UGraphicG2d result = new UGraphicG2d(back, new ColorMapperIdentity(), g2d, 1.0);
+		final UGraphicG2d result = new UGraphicG2d(back, new ColorMapperIdentity(), stringBounder, g2d, 1.0);
 		result.setBufferedImage(im);
 		return result;
 	}

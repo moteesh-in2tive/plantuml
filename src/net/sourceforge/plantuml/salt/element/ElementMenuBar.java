@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.salt.element;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,7 +45,6 @@ import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.HColorSet;
 
 public class ElementMenuBar extends AbstractElement {
 
@@ -100,10 +99,11 @@ public class ElementMenuBar extends AbstractElement {
 	public void drawU(UGraphic ug, int zIndex, Dimension2D dimToUse) {
 		final Dimension2D preferred = getPreferredDimension(ug.getStringBounder(), 0, 0);
 
+		ug = ug.apply(getBlack());
+
 		double x1 = 0;
 		if (zIndex == 0) {
-			ug.apply(HColorSet.instance().getColorOrWhite(getThemeStyle(), "#DDDDDD").bg()).draw(
-					new URectangle(dimToUse.getWidth(), dimToUse.getHeight()));
+			ug.apply(getColorDD().bg()).draw(new URectangle(dimToUse.getWidth(), dimToUse.getHeight()));
 			for (ElementMenuEntry entry : entries) {
 				entry.drawU(ug.apply(UTranslate.dx(x1)), zIndex, dimToUse);
 				final double w = entry.getPreferredDimension(ug.getStringBounder(), x1, 0).getWidth();
@@ -114,9 +114,8 @@ public class ElementMenuBar extends AbstractElement {
 		}
 
 		if (zIndex == 1) {
-			for (ElementMenuEntry entry : popups.keySet()) {
-				entry.setBackground(HColorSet.instance().getColorOrWhite(getThemeStyle(), "#BBBBBB"));
-			}
+			for (ElementMenuEntry entry : popups.keySet())
+				entry.setBackground(getColorBB());
 
 			final double y1 = preferred.getHeight();
 			for (Map.Entry<ElementMenuEntry, ElementMenuPopup> ent : popups.entrySet()) {

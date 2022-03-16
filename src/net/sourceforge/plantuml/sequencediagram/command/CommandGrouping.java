@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -82,7 +82,7 @@ public class CommandGrouping extends SingleLineCommand2<SequenceDiagram> {
 		HColor backColorGeneral = null;
 		if (s2 != null) {
 			backColorGeneral = colorSet.getColor(diagram.getSkinParam().getThemeStyle(), s2,
-					diagram.getSkinParam().getBackgroundColor(true));
+					diagram.getSkinParam().getBackgroundColor());
 		}
 		String comment = arg.get("COMMENT", 0);
 		final GroupingType groupingType = GroupingType.getType(type);

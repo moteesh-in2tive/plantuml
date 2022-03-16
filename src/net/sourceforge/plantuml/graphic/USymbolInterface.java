@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,6 +32,7 @@
  */
 package net.sourceforge.plantuml.graphic;
 
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.svek.CircleInterface2;
 
 public class USymbolInterface extends USymbolSimpleAbstract {
@@ -40,7 +41,12 @@ public class USymbolInterface extends USymbolSimpleAbstract {
 	public SkinParameter getSkinParameter() {
 		return SkinParameter.INTERFACE;
 	}
-	
+
+	@Override
+	public SName getSName() {
+		return SName.interface_;
+	}
+
 	@Override
 	protected TextBlock getDrawing(SymbolContext symbolContext) {
 		return new CircleInterface2(symbolContext.getBackColor(), symbolContext.getForeColor(),

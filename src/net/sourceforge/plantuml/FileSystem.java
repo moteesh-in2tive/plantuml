@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -81,7 +81,7 @@ public class FileSystem {
 
 			}
 		}
-		for (SFile d : SecurityUtils.getPath("plantuml.include.path")) {
+		for (SFile d : SecurityUtils.getPath(SecurityUtils.PATHS_INCLUDES)) {
 			assert d.isDirectory();
 			final SFile file = d.file(nameOrPath);
 			if (file.exists()) {
@@ -89,7 +89,7 @@ public class FileSystem {
 
 			}
 		}
-		for (SFile d : SecurityUtils.getPath("java.class.path")) {
+		for (SFile d : SecurityUtils.getPath(SecurityUtils.PATHS_CLASSES)) {
 			assert d.isDirectory();
 			final SFile file = d.file(nameOrPath);
 			if (file.exists()) {

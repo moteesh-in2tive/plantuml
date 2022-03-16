@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -38,7 +38,7 @@ import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public interface LineConfigurable {
 
-	public Colors getColors(ISkinParam skinParam);
+	public Colors getColors();
 	
 	public void setSpecificColorTOBEREMOVED(ColorType type, HColor color);
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -40,6 +40,11 @@ import net.sourceforge.plantuml.graphic.FontPosition;
 public class CommandCreoleExposantChange extends CommandCreoleCache implements Command {
 
 	private final FontPosition position;
+	
+	@Override
+	public String startingChars() {
+		return "<";
+	}
 
 	private CommandCreoleExposantChange(String p, FontPosition position) {
 		super(p);

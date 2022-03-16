@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,8 +39,8 @@ import java.util.Objects;
 
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ISkinParam;
-import net.sourceforge.plantuml.ThemeStyle;
 import net.sourceforge.plantuml.UseStyle;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.Style;
@@ -75,6 +75,7 @@ public class Rainbow {
 		return Rainbow.build(new HtmlColorAndStyle(arrowColor, arrowHeadColor));
 	}
 
+	@Deprecated
 	public static Rainbow build(ISkinParam skinParam) {
 		if (UseStyle.useBetaStyle()) {
 			throw new IllegalStateException();

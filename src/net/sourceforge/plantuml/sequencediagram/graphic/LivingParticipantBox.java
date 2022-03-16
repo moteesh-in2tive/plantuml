@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -48,15 +48,17 @@ public class LivingParticipantBox implements InGroupable {
 	}
 
 	/**
-	 * @deprecated a virer
+	 * @deprecated to be deleted
 	 */
+	@Deprecated
 	public ParticipantBox getParticipantBox() {
 		return participantBox;
 	}
 
 	/**
-	 * @deprecated a virer
+	 * @deprecated to be deleted
 	 */
+	@Deprecated
 	public LifeLine getLifeLine() {
 		return lifeLine;
 	}

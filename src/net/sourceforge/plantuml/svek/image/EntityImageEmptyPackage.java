@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,8 +32,6 @@
  */
 package net.sourceforge.plantuml.svek.image;
 
-import java.awt.geom.Dimension2D;
-
 import net.sourceforge.plantuml.AlignmentParam;
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -44,8 +42,9 @@ import net.sourceforge.plantuml.SkinParamUtils;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.EntityImageLegend;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositioned;
 import net.sourceforge.plantuml.cucadiagram.EntityPortion;
 import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.PortionShower;
@@ -56,12 +55,14 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.style.StyleSignature;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.AbstractEntityImage;
 import net.sourceforge.plantuml.svek.Cluster;
 import net.sourceforge.plantuml.svek.ClusterDecoration;
@@ -79,26 +80,27 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 	private final Stereotype stereotype;
 	private final TextBlock stereoBlock;
 	private final Url url;
-	private final SName styleName;
+	private final SName sname;
 	private final double shadowing;
 	private final HColor borderColor;
 	private final UStroke stroke;
 	private final double roundCorner;
+	private final double diagonalCorner;
 	private final HColor back;
 
 	private Style getStyle() {
-		return getDefaultStyleDefinition().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+		return getStyleSignature().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
 	}
 
-	private StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, styleName, SName.package_).with(stereotype);
+	private StyleSignature getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, sname, SName.package_).withTOBECHANGED(stereotype);
 	}
 
-	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower, SName styleName) {
+	public EntityImageEmptyPackage(ILeaf entity, ISkinParam skinParam, PortionShower portionShower, SName sname) {
 		super(entity, skinParam);
-		this.styleName = styleName;
+		this.sname = sname;
 
-		final Colors colors = entity.getColors(getSkinParam());
+		final Colors colors = entity.getColors();
 		final HColor specificBackColor = colors.getColor(ColorType.BACK);
 		this.stereotype = entity.getStereotype();
 		final FontConfiguration titleFontConfiguration;
@@ -113,6 +115,7 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 			this.shadowing = style.value(PName.Shadowing).asDouble();
 			this.stroke = style.getStroke(colors);
 			this.roundCorner = style.value(PName.RoundCorner).asDouble();
+			this.diagonalCorner = style.value(PName.DiagonalCorner).asDouble();
 			if (specificBackColor == null) {
 				this.back = style.value(PName.BackGroundColor).asColor(getSkinParam().getThemeStyle(),
 						getSkinParam().getIHtmlColorSet());
@@ -123,18 +126,19 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 					getSkinParam().getIHtmlColorSet());
 			titleHorizontalAlignment = style.getHorizontalAlignment();
 		} else {
+			this.diagonalCorner = 0;
 			this.borderColor = SkinParamUtils.getColor(getSkinParam(), getStereo(), ColorParam.packageBorder);
 			this.shadowing = getSkinParam().shadowing(getEntity().getStereotype()) ? 3 : 0;
 			this.stroke = GeneralImageBuilder.getForcedStroke(getEntity().getStereotype(), getSkinParam());
 			this.roundCorner = 0;
-			this.back = Cluster.getBackColor(specificBackColor, skinParam, stereotype, styleName);
+			this.back = Cluster.getBackColor(specificBackColor, skinParam, stereotype, sname, USymbols.PACKAGE);
 			titleFontConfiguration = new FontConfiguration(getSkinParam(), FontParam.PACKAGE, stereotype);
 			titleHorizontalAlignment = HorizontalAlignment.CENTER;
 		}
 
 		this.desc = entity.getDisplay().create(titleFontConfiguration, titleHorizontalAlignment, skinParam);
 
-		final DisplayPositionned legend = ((EntityImpl) entity).getLegend();
+		final DisplayPositioned legend = ((EntityImpl) entity).getLegend();
 		if (legend != null) {
 			final TextBlock legendBlock = EntityImageLegend.create(legend.getDisplay(), skinParam);
 			stereoBlock = legendBlock;
@@ -178,7 +182,8 @@ public class EntityImageEmptyPackage extends AbstractEntityImage {
 				.getHorizontalAlignment(AlignmentParam.packageTitleAlignment, null, false, null);
 		final HorizontalAlignment stereotypeAlignment = getSkinParam().getStereotypeAlignment();
 
-		decoration.drawU(ug, back, borderColor, shadowing, roundCorner, horizontalAlignment, stereotypeAlignment);
+		decoration.drawU(ug, back, borderColor, shadowing, roundCorner, horizontalAlignment, stereotypeAlignment,
+				diagonalCorner);
 
 		if (url != null) {
 			ug.closeUrl();

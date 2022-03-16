@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,9 @@
  */
 package net.sourceforge.plantuml.posimo;
 
-import java.awt.geom.Dimension2D;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -102,7 +104,7 @@ public class GraphvizSolverB {
 			throw new IllegalStateException("Timeout2 " + state);
 		}
 		final byte[] result = baos.toByteArray();
-		final String s = new String(result, "UTF-8");
+		final String s = new String(result, UTF_8);
 		// Log.println("result=" + s);
 
 		// if (OptionFlags.getInstance().isKeepTmpFiles()) {
@@ -219,11 +221,11 @@ public class GraphvizSolverB {
 
 	private void exportPng(final String dotString, SFile f) throws IOException {
 		final Graphviz graphviz = GraphvizUtils.create(null, dotString, "png");
-		final OutputStream os = f.createBufferedOutputStream();
-		final ProcessState state = graphviz.createFile3(os);
-		os.close();
-		if (state.differs(ProcessState.TERMINATED_OK())) {
-			throw new IllegalStateException("Timeout3 " + state);
+		try (OutputStream os = f.createBufferedOutputStream()) {
+			final ProcessState state = graphviz.createFile3(os);
+			if (state.differs(ProcessState.TERMINATED_OK())) {
+				throw new IllegalStateException("Timeout3 " + state);
+			}
 		}
 	}
 

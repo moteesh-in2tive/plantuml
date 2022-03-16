@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -52,7 +52,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -72,7 +71,7 @@ import javax.swing.WindowConstants;
 import net.sourceforge.plantuml.GeneratedImage;
 import net.sourceforge.plantuml.ImageSelection;
 import net.sourceforge.plantuml.graphic.GraphicStrings;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SFile;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.version.PSystemVersion;
@@ -315,7 +314,7 @@ class ImageWindow extends JFrame {
 		final File png = generatedImage.getPngFile();
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new SFile(png.getAbsolutePath()));
+			image = SImageIO.read(new SFile(png.getAbsolutePath()));
 			if (sizeMode == SizeMode.ZOOM_FIT) {
 				final Dimension imageDim = new Dimension(image.getWidth(), image.getHeight());
 				final Dimension newImgDim = ImageHelper.getScaledDimension(imageDim,
@@ -336,7 +335,7 @@ class ImageWindow extends JFrame {
 			final TextBlockBackcolored error = GraphicStrings.createForError(Arrays.asList(msg), false);
 			try {
 				final byte[] bytes = plainPngBuilder(error).writeByteArray();
-				image = ImageIO.read(new ByteArrayInputStream(bytes));
+				image = SImageIO.read(bytes);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -388,10 +387,14 @@ class ImageWindow extends JFrame {
 		if (generatedImage == null) {
 			return;
 		}
-		final File png = generatedImage.getPngFile();
-		final Image image = Toolkit.getDefaultToolkit().createImage(png.getAbsolutePath());
-		final ImageSelection imgSel = new ImageSelection(image);
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(imgSel, null);
+		try {
+			final File png = generatedImage.getPngFile();
+			final Image image = SImageIO.read(png);
+			final ImageSelection imgSel = new ImageSelection(image);
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(imgSel, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public SimpleLine getSimpleLine() {

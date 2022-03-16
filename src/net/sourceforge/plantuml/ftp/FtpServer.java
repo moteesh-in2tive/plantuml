@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,6 +35,8 @@ package net.sourceforge.plantuml.ftp;
 // server
 
 // FtpServer.java
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -50,7 +52,6 @@ public class FtpServer {
 
 	private final Map<String, FtpConnexion> datas = new TreeMap<String, FtpConnexion>();
 	private final ExecutorService exeImage = Executors.newFixedThreadPool(2);
-	private final String charset = "UTF-8";
 
 	private final int listenPort;
 
@@ -117,7 +118,7 @@ public class FtpServer {
 	}
 
 	public final String getCharset() {
-		return charset;
+		return UTF_8.name();
 	}
 
 }

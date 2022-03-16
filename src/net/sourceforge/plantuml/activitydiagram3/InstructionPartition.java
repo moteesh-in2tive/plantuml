@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -43,7 +43,7 @@ import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.sequencediagram.NotePosition;
 import net.sourceforge.plantuml.sequencediagram.NoteType;
 
-public class InstructionPartition implements Instruction {
+public class InstructionPartition extends AbstractInstruction implements Instruction {
 
 	private final InstructionList list = new InstructionList();
 	private final Instruction parent;
@@ -51,7 +51,7 @@ public class InstructionPartition implements Instruction {
 	public InstructionPartition(Instruction parent, String partitionTitle) {
 		this.parent = parent;
 	}
-	
+
 	public Instruction getParent() {
 		return parent;
 	}

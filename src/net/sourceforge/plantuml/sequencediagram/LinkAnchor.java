@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,6 +35,7 @@ package net.sourceforge.plantuml.sequencediagram;
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FontParam;
 import net.sourceforge.plantuml.ISkinParam;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Arrows;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Snake;
 import net.sourceforge.plantuml.cucadiagram.Display;
@@ -43,8 +44,11 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.Rainbow;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.sequencediagram.teoz.CommonTile;
-import net.sourceforge.plantuml.sequencediagram.teoz.Tile;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -77,7 +81,7 @@ public class LinkAnchor {
 		return message;
 	}
 
-	public void drawAnchor(UGraphic ug, CommonTile tile1, CommonTile tile2, ISkinParam param) {
+	public void drawAnchor(UGraphic ug, CommonTile tile1, CommonTile tile2, ISkinParam skinParam) {
 
 		final double y1 = tile1.getY() + tile1.getContactPointRelative();
 		final double y2 = tile2.getY() + tile2.getContactPointRelative();
@@ -87,13 +91,25 @@ public class LinkAnchor {
 		final double ymin = Math.min(y1, y2);
 		final double ymax = Math.max(y1, y2);
 
-		final HColor color = new Rose().getHtmlColor(param, ColorParam.arrow);
+		final HColor color;
+		final FontConfiguration fontConfiguration;
+		if (UseStyle.useBetaStyle()) {
+			final StyleSignatureBasic signature = StyleSignatureBasic.of(SName.root, SName.element, SName.sequenceDiagram,
+					SName.arrow);
+			final Style style = signature.getMergedStyle(skinParam.getCurrentStyleBuilder());
+
+			color = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
+			fontConfiguration = new FontConfiguration(skinParam, style);
+		} else {
+			color = new Rose().getHtmlColor(skinParam, ColorParam.arrow);
+			fontConfiguration = new FontConfiguration(skinParam, FontParam.ARROW, null);
+		}
+
 		final Rainbow rainbow = Rainbow.fromColor(color, null);
 
 		final Display display = Display.getWithNewlines(message);
-		final TextBlock title = display.create(new FontConfiguration(param, FontParam.ARROW, null),
-				HorizontalAlignment.CENTER, param);
-		final Snake snake = Snake.create(Arrows.asToUp(), rainbow, Arrows.asToDown()).withLabel(title,
+		final TextBlock title = display.create(fontConfiguration, HorizontalAlignment.CENTER, skinParam);
+		final Snake snake = Snake.create(skinParam, Arrows.asToUp(), rainbow, Arrows.asToDown()).withLabel(title,
 				HorizontalAlignment.CENTER);
 
 		snake.addPoint(x, ymin + 2);

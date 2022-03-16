@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,18 +36,16 @@ import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.svg.SvgGraphics;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverDotPathSvg implements UDriver<SvgGraphics> {
+public class DriverDotPathSvg implements UDriver<DotPath, SvgGraphics> {
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
-		final DotPath shape = (DotPath) ushape;
+	public void draw(DotPath shape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
 		// DriverLineG2d.manageStroke(param, g2d);
 
 		if (param.getColor() != null) {
-			final String color = mapper.toSvg(param.getColor());
-			svg.setStrokeColor(color);
+			DriverRectangleSvg.applyStrokeColor(svg, mapper, param);
+
 			svg.setFillColor(null);
 			svg.setStrokeWidth(param.getStroke().getThickness(), param.getStroke().getDasharraySvg());
 

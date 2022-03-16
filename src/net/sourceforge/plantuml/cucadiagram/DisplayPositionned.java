@@ -2,12 +2,15 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
  * If you like this project or if you find it useful, you can support us at:
- *
+ * 
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
+ * 
  * This file is part of PlantUML.
  *
  * PlantUML is free software; you can redistribute it and/or modify it
@@ -32,49 +35,27 @@
  */
 package net.sourceforge.plantuml.cucadiagram;
 
-import net.sourceforge.plantuml.graphic.HorizontalAlignment;
-import net.sourceforge.plantuml.graphic.VerticalAlignment;
+import net.sourceforge.plantuml.api.ApiWarning;
 
+/**
+ * 
+ * There is a typo in this class name.
+ * 
+ * You should use directly DisplayPositioned and not this interface which is here for legacy code.
+ * This file will be removed, so use DisplayPositioned instead.
+ * 
+ */
+@Deprecated
+@ApiWarning(willBeRemoved = "use DisplayPositioned instead")
 public class DisplayPositionned {
 
-	private final Display display;
-	private final HorizontalAlignment horizontalAlignment;
-	private final VerticalAlignment verticalAlignment;
-
-	private DisplayPositionned(Display display, HorizontalAlignment horizontalAlignment,
-			VerticalAlignment verticalAlignment) {
-		this.display = display;
-		this.horizontalAlignment = horizontalAlignment;
-		this.verticalAlignment = verticalAlignment;
+	public Display getDisplay() {
+		return null;
 	}
-
-	public static DisplayPositionned single(Display display, HorizontalAlignment horizontalAlignment,
-			VerticalAlignment verticalAlignment) {
-		return new DisplayPositionned(display, horizontalAlignment, verticalAlignment);
-	}
-
-	public static DisplayPositionned none(HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
-		return new DisplayPositionned(Display.NULL, horizontalAlignment, verticalAlignment);
-	}
-
-	public final Display getDisplay() {
-		return display;
-	}
-
-	public final HorizontalAlignment getHorizontalAlignment() {
-		return horizontalAlignment;
-	}
-
-	public final VerticalAlignment getVerticalAlignment() {
-		return verticalAlignment;
-	}
-
+	
 	public boolean isNull() {
-		return Display.isNull(display);
+		return false;
 	}
 
-	public boolean hasUrl() {
-		return display.hasUrl();
-	}
 
 }

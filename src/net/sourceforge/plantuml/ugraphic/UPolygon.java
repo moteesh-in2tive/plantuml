@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -53,9 +53,9 @@ public class UPolygon extends AbstractShadowable {
 	public UPolygon(List<Point2D.Double> points) {
 		this((String) null);
 		all.addAll(points);
-		for (Point2D.Double pt : all) {
+		for (Point2D.Double pt : all)
 			manageMinMax(pt.getX(), pt.getY());
-		}
+
 	}
 
 	public UPolygon(String name) {
@@ -69,9 +69,9 @@ public class UPolygon extends AbstractShadowable {
 			final Point2D.Double middle = new Point2D.Double((pt1.getX() + pt2.getX()) / 2,
 					(pt1.getY() + pt2.getY()) / 2);
 			final double delta = middle.distance(center);
-			if (delta < 1) {
+			if (delta < 1)
 				return all.get((i - 1) % all.size());
-			}
+
 		}
 		return null;
 	}
@@ -95,24 +95,27 @@ public class UPolygon extends AbstractShadowable {
 
 	public UPolygon translate(double dx, double dy) {
 		final UPolygon result = new UPolygon();
-		for (Point2D.Double pt : all) {
+		for (Point2D.Double pt : all)
 			result.addPoint(pt.x + dx, pt.y + dy);
-		}
+
 		return result;
 	}
 
 	public void rotate(double theta) {
-		final AffineTransform rotate = AffineTransform.getRotateInstance(theta);
-		for (Point2D.Double pt : all) {
+		affine(AffineTransform.getRotateInstance(theta));
+	}
+
+	public void affine(AffineTransform rotate) {
+		for (Point2D.Double pt : all)
 			rotate.transform(pt, pt);
-		}
+
 	}
 
 	@Override
 	public String toString() {
-		if (name != null) {
+		if (name != null)
 			return name;
-		}
+
 		return super.toString() + " " + all;
 	}
 
@@ -155,7 +158,7 @@ public class UPolygon extends AbstractShadowable {
 		}
 		return points;
 	}
-	
+
 	private CompressionMode compressionMode;
 
 	public final CompressionMode getCompressionMode() {
@@ -165,6 +168,5 @@ public class UPolygon extends AbstractShadowable {
 	public final void setCompressionMode(CompressionMode compressionMode) {
 		this.compressionMode = compressionMode;
 	}
-
 
 }

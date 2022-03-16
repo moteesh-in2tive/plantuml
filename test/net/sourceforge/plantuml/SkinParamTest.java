@@ -1,5 +1,15 @@
 package net.sourceforge.plantuml;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.awt.Color;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.cucadiagram.Rankdir;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.DotSplines;
@@ -12,15 +22,6 @@ import net.sourceforge.plantuml.svek.PackageStyle;
 import net.sourceforge.plantuml.svg.LengthAdjust;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperIdentity;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.EnumSource;
-
-import java.awt.Color;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class SkinParamTest {
 
@@ -36,15 +37,14 @@ class SkinParamTest {
 	@EnumSource(UmlDiagramType.class)
 	public void testDefaultValues(UmlDiagramType umlDiagramType) {
 
-		final SkinParam skinParam = SkinParam.create(umlDiagramType);
-		final Stereotype fooStereotype = new Stereotype("foo");
+		final SkinParam skinParam = SkinParam.create(umlDiagramType, ThemeStyle.LIGHT_REGULAR);
+		final Stereotype fooStereotype = Stereotype.build("<<foo>>");
 
 		assertThat(skinParam.actorStyle()).isEqualTo(ActorStyle.STICKMAN);
 
 		assertThat(skinParam.getAllSpriteNames()).isEmpty();
 
-		assertThat(skinParam.getBackgroundColor(false)).isEqualTo(HColorUtils.WHITE);
-		assertThat(skinParam.getBackgroundColor(true)).isEqualTo(HColorUtils.WHITE);
+		assertThat(skinParam.getBackgroundColor()).isEqualTo(HColorUtils.WHITE);
 
 		assertThat(skinParam.getCircledCharacter(fooStereotype)).isEqualTo('\0');
 
@@ -502,7 +502,7 @@ class SkinParamTest {
 
 	private SkinParam createSkinParam(String... keyValuePairs) {
 		// Using SEQUENCE here is an arbitrary decision that should not affect test outcome
-		final SkinParam skinParam = SkinParam.create(UmlDiagramType.SEQUENCE);
+		final SkinParam skinParam = SkinParam.create(UmlDiagramType.SEQUENCE, ThemeStyle.LIGHT_REGULAR);
 		for (int i = 0; i < keyValuePairs.length; i += 2) {
 			skinParam.setParam(StringUtils.goLowerCase(keyValuePairs[i]), keyValuePairs[i + 1]);
 		}

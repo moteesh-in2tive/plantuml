@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,10 +32,10 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
-import net.sourceforge.plantuml.ThemeStyle;
 import net.sourceforge.plantuml.UseStyle;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.skin.AbstractComponent;
@@ -56,9 +56,9 @@ public class ComponentRoseActiveLine extends AbstractComponent {
 	public ComponentRoseActiveLine(ThemeStyle themeStyle, Style style, SymbolContext symbolContext, boolean closeUp,
 			boolean closeDown, HColorSet set) {
 		super(style);
-		if (UseStyle.useBetaStyle()) {
+		if (UseStyle.useBetaStyle())
 			symbolContext = style.getSymbolContext(themeStyle, set);
-		}
+
 		this.symbolContext = symbolContext;
 		this.closeUp = closeUp;
 		this.closeDown = closeDown;

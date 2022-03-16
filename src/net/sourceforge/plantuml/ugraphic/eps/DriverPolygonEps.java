@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,12 +39,11 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverPolygonEps implements UDriver<EpsGraphics> {
+public class DriverPolygonEps implements UDriver<UPolygon, EpsGraphics> {
 
 	private final ClipContainer clipContainer;
 
@@ -52,9 +51,7 @@ public class DriverPolygonEps implements UDriver<EpsGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
-		final UPolygon shape = (UPolygon) ushape;
-
+	public void draw(UPolygon shape, double x, double y, ColorMapper mapper, UParam param, EpsGraphics eps) {
 		final double points[] = new double[shape.getPoints().size() * 2];
 		int i = 0;
 

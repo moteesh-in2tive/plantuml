@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -53,7 +53,7 @@ import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.cucadiagram.Bodier;
 import net.sourceforge.plantuml.cucadiagram.Code;
 import net.sourceforge.plantuml.cucadiagram.Display;
-import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositioned;
 import net.sourceforge.plantuml.cucadiagram.EntityPosition;
 import net.sourceforge.plantuml.cucadiagram.EntityUtils;
 import net.sourceforge.plantuml.cucadiagram.GroupRoot;
@@ -63,11 +63,13 @@ import net.sourceforge.plantuml.cucadiagram.ILeaf;
 import net.sourceforge.plantuml.cucadiagram.Ident;
 import net.sourceforge.plantuml.cucadiagram.LeafType;
 import net.sourceforge.plantuml.cucadiagram.Link;
+import net.sourceforge.plantuml.cucadiagram.Stereostyles;
 import net.sourceforge.plantuml.cucadiagram.Stereotag;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.cucadiagram.dot.Neighborhood;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.skin.VisibilityModifier;
@@ -91,10 +93,11 @@ final public class EntityImpl implements ILeaf, IGroup {
 	private final Bodier bodier;
 	private final String uid = StringUtils.getUid("cl", UniqueSequence.getValue());
 	private Display display = Display.empty();
-	private DisplayPositionned legend = null;
+	private DisplayPositioned legend = null;
 
 	private LeafType leafType;
 	private Stereotype stereotype;
+	private Stereostyles stereostyles = Stereostyles.NONE;
 	private String generic;
 	private IGroup parentContainer;
 
@@ -571,7 +574,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public USymbol getUSymbol() {
 		if (getLeafType() == LeafType.CIRCLE) {
-			return USymbol.INTERFACE;
+			return USymbols.INTERFACE;
 		}
 		// if (symbol != null && stereotype != null && stereotype.getSprite() != null) {
 		// return symbol.withStereoAlignment(HorizontalAlignment.RIGHT);
@@ -659,19 +662,6 @@ final public class EntityImpl implements ILeaf, IGroup {
 		return true;
 	}
 
-	private int layer;
-
-	public int getHectorLayer() {
-		return layer;
-	}
-
-	public void setHectorLayer(int layer) {
-		this.layer = layer;
-		if (layer > 1000) {
-			throw new IllegalArgumentException();
-		}
-	}
-
 	private FontParam getTitleFontParam() {
 		if (symbol != null) {
 			return symbol.getFontParam();
@@ -722,7 +712,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	private Colors colors = Colors.empty();
 
-	public Colors getColors(ISkinParam skinParam) {
+	public Colors getColors() {
 		return colors;
 	}
 
@@ -738,8 +728,7 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public Collection<String> getPortShortNames() {
 		checkNotGroup();
-		// return Collections.unmodifiableCollection(portShortNames);
-		return portShortNames;
+		return Collections.unmodifiableCollection(portShortNames);
 	}
 
 	public void addPortShortName(String portShortName) {
@@ -757,12 +746,12 @@ final public class EntityImpl implements ILeaf, IGroup {
 		return visibility;
 	}
 
-	public void setLegend(DisplayPositionned legend) {
+	public void setLegend(DisplayPositioned legend) {
 		checkGroup();
 		this.legend = legend;
 	}
 
-	public DisplayPositionned getLegend() {
+	public DisplayPositioned getLegend() {
 		return legend;
 	}
 
@@ -799,6 +788,16 @@ final public class EntityImpl implements ILeaf, IGroup {
 
 	public void setCodeLine(LineLocation codeLine) {
 		this.codeLine = codeLine;
+	}
+
+	@Override
+	public void setStereostyle(String stereo) {
+		this.stereostyles = Stereostyles.build(stereo);
+	}
+
+	@Override
+	public Stereostyles getStereostyles() {
+		return stereostyles;
 	}
 
 }

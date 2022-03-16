@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -43,7 +43,7 @@ import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.graphic.color.Colors;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.WithStyle;
 
 final public class Note extends AbstractEvent implements Event, SpecificBackcolorable, WithStyle {
@@ -69,7 +69,7 @@ final public class Note extends AbstractEvent implements Event, SpecificBackcolo
 
 	private Style style;
 
-	public StyleSignature getDefaultStyleDefinition() {
+	public StyleSignatureBasic getStyleSignature() {
 		return noteStyle.getDefaultStyleDefinition();
 	}
 
@@ -100,14 +100,14 @@ final public class Note extends AbstractEvent implements Event, SpecificBackcolo
 		this.position = position;
 		this.strings = strings;
 		if (UseStyle.useBetaStyle()) {
-			this.style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+			this.style = getStyleSignature().getMergedStyle(styleBuilder);
 		}
 	}
 
 	public void setStereotype(Stereotype stereotype) {
 		if (UseStyle.useBetaStyle()) {
 			final List<Style> others = stereotype.getStyles(styleBuilder);
-			this.style = getDefaultStyleDefinition().mergeWith(others).getMergedStyle(styleBuilder);
+			this.style = getStyleSignature().mergeWith(others).getMergedStyle(styleBuilder);
 		}
 	}
 
@@ -139,7 +139,7 @@ final public class Note extends AbstractEvent implements Event, SpecificBackcolo
 		return position;
 	}
 
-	final public Colors getColors(ISkinParam skinParam) {
+	final public Colors getColors() {
 		return colors;
 	}
 

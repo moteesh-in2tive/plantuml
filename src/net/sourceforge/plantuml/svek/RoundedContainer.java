@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -50,12 +50,15 @@ public final class RoundedContainer {
 	private final HColor backColor;
 	private final HColor imgBackcolor;
 	private final UStroke stroke;
+	private final double rounded;
+	private final double shadowing;
 
 	public RoundedContainer(Dimension2D dim, double titleHeight, double attributeHeight, HColor borderColor,
-			HColor backColor, HColor imgBackcolor, UStroke stroke) {
+			HColor backColor, HColor imgBackcolor, UStroke stroke, double rounded, double shadowing) {
 		if (dim.getWidth() == 0) {
 			throw new IllegalArgumentException();
 		}
+		this.rounded = rounded;
 		this.dim = dim;
 		this.imgBackcolor = imgBackcolor;
 		this.titleHeight = titleHeight;
@@ -63,15 +66,13 @@ public final class RoundedContainer {
 		this.backColor = backColor;
 		this.attributeHeight = attributeHeight;
 		this.stroke = stroke;
+		this.shadowing = shadowing;
 	}
 
-	public void drawU(UGraphic ug, boolean shadowing) {
-
+	public void drawU(UGraphic ug) {
 		ug = ug.apply(backColor.bg()).apply(borderColor);
-		final URectangle rect = new URectangle(dim.getWidth(), dim.getHeight()).rounded(IEntityImage.CORNER);
-		if (shadowing) {
-			rect.setDeltaShadow(3.0);
-		}
+		final URectangle rect = new URectangle(dim.getWidth(), dim.getHeight()).rounded(rounded);
+		rect.setDeltaShadow(shadowing);
 		ug.apply(stroke).draw(rect);
 
 		final double yLine = titleHeight + attributeHeight;
@@ -81,9 +82,8 @@ public final class RoundedContainer {
 		final double thickness = stroke.getThickness();
 
 		final URectangle inner = new URectangle(dim.getWidth() - 4 * thickness,
-				dim.getHeight() - titleHeight - 4 * thickness - attributeHeight).rounded(IEntityImage.CORNER);
-		ug.apply(imgBackcolor).apply(new UTranslate(2 * thickness, yLine + 2 * thickness))
-				.draw(inner);
+				dim.getHeight() - titleHeight - 4 * thickness - attributeHeight).rounded(rounded);
+		ug.apply(imgBackcolor).apply(new UTranslate(2 * thickness, yLine + 2 * thickness)).draw(inner);
 
 		if (titleHeight > 0) {
 			ug.apply(stroke).apply(UTranslate.dy(yLine)).draw(ULine.hline(dim.getWidth()));

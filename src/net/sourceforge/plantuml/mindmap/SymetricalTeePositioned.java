@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -105,12 +105,12 @@ public class SymetricalTeePositioned {
 	}
 
 	public SymetricalTeePositioned getMax(SymetricalTeePositioned other) {
-		if (this.tee != other.tee) {
+		if (this.tee != other.tee) 
 			throw new IllegalArgumentException();
-		}
-		if (other.y > this.y) {
+		
+		if (other.y > this.y) 
 			return other;
-		}
+		
 		return this;
 	}
 

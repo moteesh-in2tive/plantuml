@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,10 +32,10 @@
  */
 package net.sourceforge.plantuml.skin.rose;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
-import net.sourceforge.plantuml.ThemeStyle;
 import net.sourceforge.plantuml.UseStyle;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.skin.AbstractComponent;
 import net.sourceforge.plantuml.skin.Area;
@@ -60,22 +60,25 @@ public class ComponentRoseLine extends AbstractComponent {
 		super(style);
 		if (UseStyle.useBetaStyle()) {
 			this.color = style.value(PName.LineColor).asColor(themeStyle, set);
+			this.stroke = style.getStroke();
 		} else {
 			this.color = color;
+			this.stroke = stroke;
 		}
 		this.continueLine = continueLine;
-		this.stroke = stroke;
 	}
 
 	@Override
 	protected void drawInternalU(UGraphic ug, Area area) {
 		final Dimension2D dimensionToUse = area.getDimensionToUse();
 		ug = ug.apply(color);
-		if (continueLine) {
+		if (UseStyle.useBetaStyle()) {
+			ug = ug.apply(stroke);
+		} else if (continueLine)
 			ug = ug.apply(new UStroke());
-		} else {
+		else
 			ug = ArrowConfiguration.stroke(ug, 5, 5, stroke.getThickness());
-		}
+
 		final int x = (int) (dimensionToUse.getWidth() / 2);
 		ug.apply(UTranslate.dx(x)).draw(ULine.vline(dimensionToUse.getHeight()));
 	}

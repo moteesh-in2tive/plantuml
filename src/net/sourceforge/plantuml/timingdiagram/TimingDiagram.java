@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,7 +31,7 @@
  */
 package net.sourceforge.plantuml.timingdiagram;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,6 +46,8 @@ import net.sourceforge.plantuml.Dimension2DDouble;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.UseStyle;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
@@ -55,6 +57,10 @@ import net.sourceforge.plantuml.graphic.InnerStrategy;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.color.Colors;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.timingdiagram.graphic.IntricatedPoint;
 import net.sourceforge.plantuml.timingdiagram.graphic.TimeArrow;
@@ -86,8 +92,8 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 		return new DiagramDescription("(Timing Diagram)");
 	}
 
-	public TimingDiagram(UmlSource source) {
-		super(source, UmlDiagramType.TIMING);
+	public TimingDiagram(ThemeStyle style, UmlSource source) {
+		super(style, source, UmlDiagramType.TIMING);
 	}
 
 	@Override
@@ -124,14 +130,27 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 		};
 	}
 
+	private StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.timingDiagram);
+	}
+
+	private HColor black() {
+		if (UseStyle.useBetaStyle() == false)
+			return HColorUtils.BLACK;
+
+		final Style style = getStyleSignature().getMergedStyle(getSkinParam().getCurrentStyleBuilder());
+		return style.value(PName.LineColor).asColor(getSkinParam().getThemeStyle(), getSkinParam().getIHtmlColorSet());
+
+	}
+
 	private void drawInternal(UGraphic ug) {
 		ruler.ensureNotEmpty();
 		final StringBounder stringBounder = ug.getStringBounder();
 		final double part1MaxWidth = getPart1MaxWidth(stringBounder);
 		final UTranslate widthPart1 = UTranslate.dx(part1MaxWidth);
-		if (compactByDefault == false) {
+		if (compactByDefault == false)
 			drawBorder(ug);
-		}
+
 		ug = ug.apply(UTranslate.dx(marginX1));
 
 		drawHighlightsBack(ug.apply(widthPart1));
@@ -142,33 +161,33 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 			final UGraphic ugPlayer = ug.apply(getUTranslateForPlayer(player, stringBounder));
 			final double caption = getHeightForCaptions(stringBounder);
 			if (first) {
-				if (player.isCompact() == false) {
+				if (player.isCompact() == false)
 					drawHorizontalSeparator(ugPlayer);
-				}
+
 				player.getPart1(part1MaxWidth, caption).drawU(ugPlayer);
 				player.getPart2().drawU(ugPlayer.apply(widthPart1).apply(UTranslate.dy(caption)));
 			} else {
-				if (player.isCompact() == false) {
+				if (player.isCompact() == false)
 					drawHorizontalSeparator(ugPlayer.apply(UTranslate.dy(caption)));
-				}
+
 				player.getPart1(part1MaxWidth, 0).drawU(ugPlayer.apply(UTranslate.dy(caption)));
 				player.getPart2().drawU(ugPlayer.apply(widthPart1).apply(UTranslate.dy(caption)));
 			}
 			first = false;
 		}
 		ug = ug.apply(widthPart1);
-		if (this.drawTimeAxis) {
+		if (this.drawTimeAxis)
 			ruler.drawTimeAxis(ug.apply(getLastTranslate(stringBounder)));
-		}
-		for (TimeMessage timeMessage : messages) {
+
+		for (TimeMessage timeMessage : messages)
 			drawMessages(ug, timeMessage);
-		}
+
 		drawHighlightsLines(ug);
 	}
 
 	private void drawHorizontalSeparator(UGraphic ug) {
 		final StringBounder stringBounder = ug.getStringBounder();
-		ug = ug.apply(HColorUtils.BLACK);
+		ug = ug.apply(black());
 		ug = ug.apply(getBorderStroke());
 		ug = ug.apply(UTranslate.dx(-marginX1));
 		ug.draw(ULine.hline(getWidthTotal(stringBounder)));
@@ -177,13 +196,13 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 	private void drawBorder(UGraphic ug) {
 		final StringBounder stringBounder = ug.getStringBounder();
 		final ULine border = ULine.vline(getLastTranslate(stringBounder).getDy());
-		ug = ug.apply(HColorUtils.BLACK).apply(getBorderStroke());
+		ug = ug.apply(black()).apply(getBorderStroke());
 		ug.draw(border);
 		ug.apply(UTranslate.dx(getWidthTotal(stringBounder))).draw(border);
 	}
 
 	private UStroke getBorderStroke() {
-		return new UStroke(1.7);
+		return getStyleSignature().getMergedStyle(getCurrentStyleBuilder()).getStroke();
 	}
 
 	private UTranslate getLastTranslate(final StringBounder stringBounder) {
@@ -192,9 +211,9 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 
 	private void drawHighlightsBack(UGraphic ug) {
 		final double height = getHeightInner(ug.getStringBounder());
-		for (Highlight highlight : highlights) {
+		for (Highlight highlight : highlights)
 			highlight.drawHighlightsBack(ug, ruler, height);
-		}
+
 	}
 
 	private void drawHighlightsLines(UGraphic ug) {
@@ -229,10 +248,9 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 
 	private double getPart1MaxWidth(StringBounder stringBounder) {
 		double width = 0;
-		for (Player player : players.values()) {
+		for (Player player : players.values())
 			width = Math.max(width, player.getPart1(0, 0).calculateDimension(stringBounder).getWidth());
 
-		}
 		return width;
 	}
 
@@ -249,9 +267,8 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 		final IntricatedPoint pt1 = player1.getTimeProjection(stringBounder, message.getTick1());
 		final IntricatedPoint pt2 = player2.getTimeProjection(stringBounder, message.getTick2());
 
-		if (pt1 == null || pt2 == null) {
+		if (pt1 == null || pt2 == null)
 			return;
-		}
 
 		final TimeArrow timeArrow = TimeArrow.create(pt1.translated(translate1), pt2.translated(translate2),
 				message.getLabel(), getSkinParam(), message);
@@ -262,17 +279,17 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 	private UTranslate getUTranslateForPlayer(Player candidat, StringBounder stringBounder) {
 		double y = 0;
 		for (Player player : players.values()) {
-			if (candidat == player) {
+			if (candidat == player)
 				return UTranslate.dy(y);
-			}
+
 //			if (y == 0) {
 //				y += getHeightHighlights(stringBounder);
 //			}
 			y += player.getFullHeight(stringBounder);
 		}
-		if (candidat == null) {
+		if (candidat == null)
 			return UTranslate.dy(y);
-		}
+
 		throw new IllegalArgumentException();
 	}
 
@@ -283,8 +300,10 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 		return CommandExecutionResult.ok();
 	}
 
-	public CommandExecutionResult createClock(String code, String full, int period, int pulse, boolean compact) {
-		final PlayerClock player = new PlayerClock(getSkinParam(), ruler, period, pulse, compactByDefault);
+	public CommandExecutionResult createClock(String code, String full, int period, int pulse, int offset,
+			boolean compact) {
+		final PlayerClock player = new PlayerClock(full, getSkinParam(), ruler, period, pulse, offset,
+				compactByDefault);
 		players.put(code, player);
 		clocks.put(code, player);
 		final TimeTick tick = new TimeTick(new BigDecimal(period), TimingFormat.DECIMAL);
@@ -314,9 +333,9 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 	public void addTime(TimeTick time, String code) {
 		this.now = time;
 		ruler.addTime(time);
-		if (code != null) {
+		if (code != null)
 			this.codes.put(code, time);
-		}
+
 	}
 
 	public TimeTick getCodeValue(String code) {
@@ -337,9 +356,9 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 
 	public TimeTick getClockValue(String clockName, int nb) {
 		final PlayerClock clock = clocks.get(clockName);
-		if (clock == null) {
+		if (clock == null)
 			return null;
-		}
+
 		return new TimeTick(new BigDecimal(nb * clock.getPeriod()), TimingFormat.DECIMAL);
 	}
 
@@ -361,7 +380,7 @@ public class TimingDiagram extends UmlDiagram implements Clocks {
 	}
 
 	public CommandExecutionResult highlight(TimeTick tickFrom, TimeTick tickTo, Display caption, Colors colors) {
-		this.highlights.add(new Highlight(tickFrom, tickTo, caption, colors));
+		this.highlights.add(new Highlight(getSkinParam(), tickFrom, tickTo, caption, colors));
 		return CommandExecutionResult.ok();
 
 	}

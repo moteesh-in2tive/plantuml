@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,12 +39,11 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverLineSvg implements UDriver<SvgGraphics> {
+public class DriverLineSvg implements UDriver<ULine, SvgGraphics> {
 
 	private final ClipContainer clipContainer;
 
@@ -52,9 +51,7 @@ public class DriverLineSvg implements UDriver<SvgGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
-		final ULine shape = (ULine) ushape;
-
+	public void draw(ULine shape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
 		double x2 = x + shape.getDX();
 		double y2 = y + shape.getDY();
 
@@ -80,7 +77,11 @@ public class DriverLineSvg implements UDriver<SvgGraphics> {
 			final HColorGradient gr = (HColorGradient) color;
 			svg.setStrokeColor(mapper.toSvg(gr.getColor1()));
 		} else {
-			svg.setStrokeColor(mapper.toSvg(color));
+			final HColor dark = color == null ? null : color.darkSchemeTheme();
+			if (dark == color)
+				svg.setStrokeColor(mapper.toSvg(color));
+			else
+				svg.setStrokeColor(mapper.toSvg(color), mapper.toSvg(dark));
 		}
 		svg.setStrokeWidth(param.getStroke().getThickness(), param.getStroke().getDasharraySvg());
 		svg.svgLine(x, y, x2, y2, shape.getDeltaShadow());

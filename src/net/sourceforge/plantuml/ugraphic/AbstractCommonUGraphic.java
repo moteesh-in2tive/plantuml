@@ -2,11 +2,14 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
+ *
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
  *
  * This file is part of PlantUML.
  *
@@ -27,14 +30,16 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
+ *
  *
  */
 package net.sourceforge.plantuml.ugraphic;
 
+import java.util.Map;
 import java.util.Objects;
 
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapperTransparentWrapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
@@ -49,11 +54,11 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 	private HColor color = null;
 	private boolean enlargeClip = false;
 
+	private final StringBounder stringBounder;
 	private UTranslate translate = new UTranslate();
 
 	private final ColorMapper colorMapper;
 	private UClip clip;
-	private double scale = 1;
 
 	private final HColor defaultBackground;
 
@@ -70,7 +75,7 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 		Objects.requireNonNull(change);
 		final AbstractCommonUGraphic copy = copyUGraphic();
 		if (change instanceof UTranslate) {
-			copy.translate = ((UTranslate) change).scaled(scale).compose(copy.translate);
+			copy.translate = ((UTranslate) change).compose(copy.translate);
 		} else if (change instanceof UClip) {
 			copy.clip = (UClip) change;
 			copy.clip = copy.clip.translate(getTranslateX(), getTranslateY());
@@ -86,9 +91,6 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 			copy.color = null;
 		} else if (change instanceof HColor) {
 			copy.color = (HColor) change;
-		} else if (change instanceof UScale) {
-			final double factor = ((UScale) change).getScale();
-			copy.scale = scale * factor;
 		}
 		return copy;
 	}
@@ -104,15 +106,17 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 		this.enlargeClip = true;
 	}
 
-	public AbstractCommonUGraphic(HColor defaultBackground, ColorMapper colorMapper) {
+	public AbstractCommonUGraphic(HColor defaultBackground, ColorMapper colorMapper, StringBounder stringBounder) {
 		this.colorMapper = colorMapper;
 		this.defaultBackground = defaultBackground;
+		this.stringBounder = stringBounder;
 	}
 
 	protected AbstractCommonUGraphic(AbstractCommonUGraphic other) {
 		this.defaultBackground = other.defaultBackground;
 		this.enlargeClip = other.enlargeClip;
 		this.colorMapper = other.colorMapper;
+		this.stringBounder = other.stringBounder;
 		this.translate = other.translate;
 		this.clip = other.clip;
 
@@ -121,7 +125,6 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 		this.hidden = other.hidden;
 		this.color = other.color;
 		this.backColor = other.backColor;
-		this.scale = other.scale;
 	}
 
 	protected abstract AbstractCommonUGraphic copyUGraphic();
@@ -148,11 +151,12 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 			public UPattern getPattern() {
 				return pattern;
 			}
-
-			public double getScale() {
-				return scale;
-			}
 		};
+	}
+
+	@Override
+	public StringBounder getStringBounder() {
+		return stringBounder;
 	}
 
 	final protected double getTranslateX() {
@@ -170,13 +174,15 @@ public abstract class AbstractCommonUGraphic implements UGraphic {
 	final public void flushUg() {
 	}
 
+	@Override
 	public void startUrl(Url url) {
 	}
 
+	@Override
 	public void closeUrl() {
 	}
 
-	public void startGroup(UGroupType type, String ident) {
+	public void startGroup(Map<UGroupType, String> typeIdents) {
 	}
 
 	public void closeGroup() {

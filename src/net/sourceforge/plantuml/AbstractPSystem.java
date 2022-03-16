@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -46,6 +46,7 @@ import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.cucadiagram.Display;
+import net.sourceforge.plantuml.cucadiagram.DisplayPositioned;
 import net.sourceforge.plantuml.cucadiagram.DisplayPositionned;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.VerticalAlignment;
@@ -59,6 +60,8 @@ public abstract class AbstractPSystem implements Diagram {
 
 	private final UmlSource source;
 	private Scale scale;
+	private int splitPagesHorizontal = 1;
+	private int splitPagesVertical = 1;
 
 	public AbstractPSystem(UmlSource source) {
 		this.source = Objects.requireNonNull(source);
@@ -103,11 +106,29 @@ public abstract class AbstractPSystem implements Diagram {
 		return 1;
 	}
 
+	@Override
+	public int getSplitPagesHorizontal() {
+		return splitPagesHorizontal;
+	}
+
+	public void setSplitPagesHorizontal(int splitPagesHorizontal) {
+		this.splitPagesHorizontal = splitPagesHorizontal;
+	}
+
+	@Override
+	public int getSplitPagesVertical() {
+		return splitPagesVertical;
+	}
+
+	public void setSplitPagesVertical(int splitPagesVertical) {
+		this.splitPagesVertical = splitPagesVertical;
+	}
+
 	public DisplayPositionned getTitle() {
 		if (source == null) {
-			return DisplayPositionned.single(Display.empty(), HorizontalAlignment.CENTER, VerticalAlignment.TOP);
+			return DisplayPositioned.single(Display.empty(), HorizontalAlignment.CENTER, VerticalAlignment.TOP);
 		}
-		return DisplayPositionned.single(source.getTitle(), HorizontalAlignment.CENTER, VerticalAlignment.TOP);
+		return DisplayPositioned.single(source.getTitle(), HorizontalAlignment.CENTER, VerticalAlignment.TOP);
 	}
 
 	public String getWarningOrError() {
@@ -176,6 +197,11 @@ public abstract class AbstractPSystem implements Diagram {
 
 	public ClockwiseTopRightBottomLeft getDefaultMargins() {
 		return ClockwiseTopRightBottomLeft.same(0);
+	}
+	
+	@Override
+	public Display getTitleDisplay() {
+		return null;
 	}
 
 }

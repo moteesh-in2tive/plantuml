@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -44,7 +44,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
 import net.sourceforge.plantuml.ugraphic.UStroke;
@@ -91,42 +91,50 @@ public class GanttArrow implements UDrawable {
 	}
 
 	private TaskDraw getSource() {
-		return toTaskDraw.getTaskDraw((Task) source.getMoment());
+		if (source.getMoment() instanceof Task)
+			return toTaskDraw.getTaskDraw((Task) source.getMoment());
+
+		return null;
+
 	}
 
 	private TaskDraw getDestination() {
-		return toTaskDraw.getTaskDraw((Task) dest.getMoment());
+		if (dest.getMoment() instanceof Task)
+			return toTaskDraw.getTaskDraw((Task) dest.getMoment());
+
+		return null;
 	}
 
 	public void drawU(UGraphic ug) {
 		ug = style.applyStrokeAndLineColor(ug, colorSet, styleBuilder.getSkinParam().getThemeStyle());
 
-		double x1 = getX(source.getAttribute(), getSource(), atStart);
+		final TaskDraw start = getSource();
+		final TaskDraw end = getDestination();
+		if (start == null || end == null)
+			return;
+
+		double x1 = getX(source.getAttribute(), start, atStart);
 		final StringBounder stringBounder = ug.getStringBounder();
-		double y1 = getSource().getY(stringBounder, atStart);
+		double y1 = start.getY(stringBounder, atStart);
 
-		final double x2 = getX(dest.getAttribute(), getDestination(), atEnd.getInv());
-		final double y2 = getDestination().getY(stringBounder, atEnd);
+		final double x2 = getX(dest.getAttribute(), end, atEnd.getInv());
+		final double y2 = end.getY(stringBounder, atEnd);
 
-		if (atStart == Direction.DOWN && y2 < y1) {
-			y1 = getSource().getY(stringBounder, atStart.getInv());
-		}
+		if (atStart == Direction.DOWN && y2 < y1)
+			y1 = start.getY(stringBounder, atStart.getInv());
 
 		final double minimalWidth = 8;
-//		final Style style = getStyleSignatureTask().getMergedStyle(styleBuilder);
-//		final ClockwiseTopRightBottomLeft margin = style.getMargin();
-//		final ClockwiseTopRightBottomLeft padding = style.getPadding();
 
 		if (this.atStart == Direction.DOWN && this.atEnd == Direction.RIGHT) {
 			if (x2 > x1) {
-				if (x2 - x1 < minimalWidth) {
+				if (x2 - x1 < minimalWidth)
 					x1 = x2 - minimalWidth;
-				}
+
 				drawLine(ug, x1, y1, x1, y2, x2, y2);
 			} else {
-				x1 = getX(source.getAttribute(), getSource(), Direction.RIGHT);
-				y1 = getSource().getY(stringBounder, Direction.RIGHT);
-				final double y1b = getDestination().getY(stringBounder).getCurrentValue();
+				x1 = getX(source.getAttribute(), start, Direction.RIGHT);
+				y1 = start.getY(stringBounder, Direction.RIGHT);
+				final double y1b = end.getY(stringBounder).getCurrentValue();
 				drawLine(ug, x1, y1, x1 + 6, y1, x1 + 6, y1b, x2 - 8, y1b, x2 - 8, y2, x2, y2);
 			}
 		} else if (this.atStart == Direction.RIGHT && this.atEnd == Direction.LEFT) {
@@ -158,8 +166,8 @@ public class GanttArrow implements UDrawable {
 
 	}
 
-	private StyleSignature getStyleSignatureTask() {
-		return StyleSignature.of(SName.root, SName.element, SName.ganttDiagram, SName.task);
+	private StyleSignatureBasic getStyleSignatureTask() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.ganttDiagram, SName.task);
 	}
 
 	private double getX(TaskAttribute taskAttribute, TaskDraw task, Direction direction) {

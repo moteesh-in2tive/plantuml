@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -43,10 +43,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -60,8 +58,8 @@ import net.sourceforge.plantuml.ftp.FtpServer;
 import net.sourceforge.plantuml.picoweb.PicoWebServer;
 import net.sourceforge.plantuml.png.MetadataTag;
 import net.sourceforge.plantuml.preproc.Stdlib;
-import net.sourceforge.plantuml.security.ImageIO;
 import net.sourceforge.plantuml.security.SFile;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.sprite.SpriteGrayLevel;
 import net.sourceforge.plantuml.sprite.SpriteUtils;
@@ -82,10 +80,10 @@ public class Run {
 		if (argsArray.length > 0 && argsArray[0].equalsIgnoreCase("-headless")) {
 			System.setProperty("java.awt.headless", "true");
 		}
-		if (argsArray.length > 0 && argsArray[0].equalsIgnoreCase("--de")) {
-			debugGantt();
-			return;
-		}
+//		if (argsArray.length > 0 && argsArray[0].equalsIgnoreCase("--de")) {
+//			debugGantt();
+//			return;
+//		}
 		saveCommandLine(argsArray);
 		final Option option = new Option(argsArray);
 		ProgressBar.setEnable(option.isTextProgressBar());
@@ -294,17 +292,10 @@ public class Run {
 			return;
 		}
 
-		InputStream stream = null;
 		final BufferedImage im;
-		try {
-			stream = source.openStream();
-			im = ImageIO.read(stream);
-		} finally {
-			if (stream != null) {
-				stream.close();
-			}
+		try (InputStream stream = source.openStream()) {
+			im = SImageIO.read(stream);
 		}
-
 		final String name = getSpriteName(fileName);
 		final String s = compressed ? SpriteUtils.encodeCompressed(im, name, level)
 				: SpriteUtils.encode(im, name, level);
@@ -542,24 +533,24 @@ public class Run {
 					.withPreprocFormat();
 			final SFile file = suggested.getFile(0);
 			Log.info("Export preprocessing source to " + file.getPrintablePath());
-			final PrintWriter pw = charset == null ? file.createPrintWriter() : file.createPrintWriter(charset);
-			int level = 0;
-			for (CharSequence cs : blockUml.getDefinition(true)) {
-				String s = cs.toString();
-				if (cypher != null) {
-					if (s.contains("skinparam") && s.contains("{")) {
-						level++;
+			try (final PrintWriter pw = charset == null ? file.createPrintWriter() : file.createPrintWriter(charset)) {
+				int level = 0;
+				for (CharSequence cs : blockUml.getDefinition(true)) {
+					String s = cs.toString();
+					if (cypher != null) {
+						if (s.contains("skinparam") && s.contains("{")) {
+							level++;
+						}
+						if (level == 0 && s.contains("skinparam") == false) {
+							s = cypher.cypher(s);
+						}
+						if (level > 0 && s.contains("}")) {
+							level--;
+						}
 					}
-					if (level == 0 && s.contains("skinparam") == false) {
-						s = cypher.cypher(s);
-					}
-					if (level > 0 && s.contains("}")) {
-						level--;
-					}
+					pw.println(s);
 				}
-				pw.println(s);
 			}
-			pw.close();
 		}
 	}
 
@@ -580,16 +571,16 @@ public class Run {
 		error.goOk();
 	}
 
-	public static void debugGantt() {
-		final Locale locale = Locale.GERMAN;
-		for (java.time.Month month : java.time.Month.values()) {
-			System.err.println("Testing locale " + locale + " " + month);
-			for (TextStyle style : TextStyle.values()) {
-				final String s = month.getDisplayName(style, locale);
-				System.err.println(style + " --> '" + s + "'");
-
-			}
-		}
-	}
+//	public static void debugGantt() {
+//		final Locale locale = Locale.GERMAN;
+//		for (java.time.Month month : java.time.Month.values()) {
+//			System.err.println("Testing locale " + locale + " " + month);
+//			for (TextStyle style : TextStyle.values()) {
+//				final String s = month.getDisplayName(style, locale);
+//				System.err.println(style + " --> '" + s + "'");
+//
+//			}
+//		}
+//	}
 
 }

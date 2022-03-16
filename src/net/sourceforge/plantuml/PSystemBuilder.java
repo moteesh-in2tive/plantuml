@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -42,6 +42,7 @@ import java.util.List;
 import net.sourceforge.plantuml.activitydiagram.ActivityDiagramFactory;
 import net.sourceforge.plantuml.activitydiagram3.ActivityDiagramFactory3;
 import net.sourceforge.plantuml.api.PSystemFactory;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.board.BoardDiagramFactory;
 import net.sourceforge.plantuml.bpm.BpmDiagramFactory;
 import net.sourceforge.plantuml.classdiagram.ClassDiagramFactory;
@@ -58,6 +59,7 @@ import net.sourceforge.plantuml.error.PSystemErrorUtils;
 import net.sourceforge.plantuml.flowdiagram.FlowDiagramFactory;
 import net.sourceforge.plantuml.font.PSystemListFontsFactory;
 import net.sourceforge.plantuml.gitlog.GitDiagramFactory;
+import net.sourceforge.plantuml.hcl.HclDiagramFactory;
 import net.sourceforge.plantuml.help.HelpFactory;
 import net.sourceforge.plantuml.jsondiagram.JsonDiagramFactory;
 import net.sourceforge.plantuml.math.PSystemLatexFactory;
@@ -68,8 +70,6 @@ import net.sourceforge.plantuml.openiconic.PSystemListOpenIconicFactory;
 import net.sourceforge.plantuml.openiconic.PSystemOpenIconicFactory;
 import net.sourceforge.plantuml.project.GanttDiagramFactory;
 import net.sourceforge.plantuml.salt.PSystemSaltFactory2;
-import net.sourceforge.plantuml.security.SecurityProfile;
-import net.sourceforge.plantuml.security.SecurityUtils;
 import net.sourceforge.plantuml.sequencediagram.SequenceDiagramFactory;
 import net.sourceforge.plantuml.sprite.ListSpriteDiagramFactory;
 import net.sourceforge.plantuml.sprite.PSystemListInternalSpritesFactory;
@@ -87,7 +87,7 @@ public class PSystemBuilder {
 
 	public static final long startTime = System.currentTimeMillis();
 
-	final public Diagram createPSystem(ISkinSimple skinParam, List<StringLocated> source,
+	final public Diagram createPSystem(ThemeStyle style, ISkinSimple skinParam, List<StringLocated> source,
 			List<StringLocated> rawSource) {
 
 		final long now = System.currentTimeMillis();
@@ -111,10 +111,10 @@ public class PSystemBuilder {
 			final DiagramType diagramType = umlSource.getDiagramType();
 			final List<PSystemError> errors = new ArrayList<>();
 			for (PSystemFactory systemFactory : factories) {
-				if (diagramType != systemFactory.getDiagramType()) {
+				if (diagramType != systemFactory.getDiagramType())
 					continue;
-				}
-				final Diagram sys = systemFactory.createSystem(umlSource, skinParam);
+
+				final Diagram sys = systemFactory.createSystem(style, umlSource, skinParam);
 				if (isOk(sys)) {
 					result = sys;
 					return sys;
@@ -122,9 +122,8 @@ public class PSystemBuilder {
 				errors.add((PSystemError) sys);
 			}
 
-			final PSystemError err = PSystemErrorUtils.merge(errors);
-			result = err;
-			return err;
+			result = PSystemErrorUtils.merge(errors);
+			return result;
 		} finally {
 			if (result != null && OptionFlags.getInstance().isEnableStats()) {
 				StatsUtilsIncrement.onceMoreParse(System.currentTimeMillis() - now, result.getClass());
@@ -182,12 +181,13 @@ public class PSystemBuilder {
 		factories.add(new GitDiagramFactory());
 		factories.add(new BoardDiagramFactory());
 		factories.add(new YamlDiagramFactory());
+		factories.add(new HclDiagramFactory());
 	}
 
 	private boolean isOk(Diagram ps) {
-		if (ps == null || ps instanceof PSystemError) {
+		if (ps == null || ps instanceof PSystemError)
 			return false;
-		}
+
 		return true;
 	}
 

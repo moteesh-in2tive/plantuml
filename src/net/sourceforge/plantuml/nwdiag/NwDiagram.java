@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,7 +31,7 @@
  */
 package net.sourceforge.plantuml.nwdiag;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,11 +43,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SpriteContainerEmpty;
 import net.sourceforge.plantuml.UmlDiagram;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
@@ -61,21 +61,24 @@ import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.nwdiag.core.NServer;
+import net.sourceforge.plantuml.nwdiag.core.NStackable;
 import net.sourceforge.plantuml.nwdiag.core.Network;
 import net.sourceforge.plantuml.nwdiag.core.NwGroup;
-import net.sourceforge.plantuml.nwdiag.next.GridTextBlockDecoratedNext;
-import net.sourceforge.plantuml.nwdiag.next.LinkedElementNext;
+import net.sourceforge.plantuml.nwdiag.next.GridTextBlockDecorated;
+import net.sourceforge.plantuml.nwdiag.next.LinkedElement;
 import net.sourceforge.plantuml.nwdiag.next.NBar;
 import net.sourceforge.plantuml.nwdiag.next.NPlayField;
 import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.TextBlockBackcolored;
 import net.sourceforge.plantuml.ugraphic.MinMax;
 import net.sourceforge.plantuml.ugraphic.UEmpty;
-import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class NwDiagram extends UmlDiagram {
 
@@ -91,27 +94,49 @@ public class NwDiagram extends UmlDiagram {
 		return new DiagramDescription("(Nwdiag)");
 	}
 
-	public NwDiagram(UmlSource source) {
-		super(source, UmlDiagramType.NWDIAG);
+	public NwDiagram(ThemeStyle style, UmlSource source) {
+		super(style, source, UmlDiagramType.NWDIAG);
 	}
 
 	public void init() {
 		initDone = true;
 	}
 
-	private Network currentNetwork() {
+	private Network lastNetwork() {
 		if (networks.size() == 0) {
 			return null;
 		}
 		return networks.get(networks.size() - 1);
 	}
 
+	private Network stackedNetwork() {
+		for (NStackable element : stack)
+			if (element instanceof Network)
+				return (Network) element;
+		return null;
+	}
+
+	private NwGroup stakedGroup() {
+		for (NStackable element : stack)
+			if (element instanceof NwGroup)
+				return (NwGroup) element;
+		return null;
+	}
+
+	private final List<NStackable> stack = new ArrayList<NStackable>();
+
 	public CommandExecutionResult openGroup(String name) {
 		if (initDone == false) {
 			return errorNoInit();
 		}
-		currentGroup = new NwGroup(name, currentNetwork());
-		groups.add(currentGroup);
+		for (NStackable element : stack)
+			if (element instanceof NwGroup)
+				return CommandExecutionResult.error("Cannot nest group");
+
+		final NwGroup newGroup = new NwGroup(name);
+		stack.add(0, newGroup);
+		groups.add(newGroup);
+		currentGroup = newGroup;
 		return CommandExecutionResult.ok();
 	}
 
@@ -119,12 +144,26 @@ public class NwDiagram extends UmlDiagram {
 		if (initDone == false) {
 			return errorNoInit();
 		}
-		createNetwork(name);
+		for (NStackable element : stack)
+			if (element instanceof Network)
+				return CommandExecutionResult.error("Cannot nest network");
+		final Network network = createNetwork(name);
+		stack.add(0, network);
+		return CommandExecutionResult.ok();
+	}
+
+	public CommandExecutionResult closeSomething() {
+		if (initDone == false) {
+			return errorNoInit();
+		}
+		if (stack.size() > 0)
+			stack.remove(0);
+		this.currentGroup = null;
 		return CommandExecutionResult.ok();
 	}
 
 	private Network createNetwork(String name) {
-		final Network network = new Network(playField.getLast(), playField.createNewStage(), name, networks.size());
+		final Network network = new Network(playField.getLast(), playField.createNewStage(), name);
 		networks.add(network);
 		return network;
 	}
@@ -133,39 +172,23 @@ public class NwDiagram extends UmlDiagram {
 		if (initDone == false) {
 			return errorNoInit();
 		}
-		final NServer element;
-		if (currentNetwork() == null) {
+		final NServer server2;
+		if (lastNetwork() == null) {
 			createNetwork(name1);
-			element = new NServer(name2, currentNetwork(), this.getSkinParam());
+			server2 = new NServer(name2);
 		} else {
-			final NServer already = servers.get(name1);
+			final NServer server1 = servers.get(name1);
 			final Network network1 = createNetwork("");
 			network1.goInvisible();
-			if (already != null) {
-				connect(already, toSet(null));
+			if (server1 != null) {
+				server1.connectTo(lastNetwork());
 			}
-			element = new NServer(name2, currentNetwork(), this.getSkinParam());
+			server2 = new NServer(name2, server1.getBar());
 		}
-		servers.put(name2, element);
-		addInternal(element, toSet(null));
+		servers.put(name2, server2);
+		server2.connectTo(lastNetwork());
+		playField.addInPlayfield(server2.getBar());
 		return CommandExecutionResult.ok();
-	}
-
-	private void addInternal(NServer server, Map<String, String> props) {
-		connect(server, props);
-		final String description = props.get("description");
-		if (description != null) {
-			server.setDescription(description);
-		}
-		final String shape = props.get("shape");
-		if (shape != null) {
-			server.setShape(shape);
-		}
-		playField.addInPlayfield(server.getBar());
-	}
-
-	private void connect(NServer server, final Map<String, String> props) {
-		server.connect(currentNetwork(), props);
 	}
 
 	public CommandExecutionResult addElement(String name, String definition) {
@@ -176,32 +199,27 @@ public class NwDiagram extends UmlDiagram {
 			currentGroup.addName(name);
 		}
 		NServer server = null;
-		if (currentNetwork() == null) {
+		if (lastNetwork() == null) {
 			if (currentGroup != null) {
 				return CommandExecutionResult.ok();
 			}
 			assert currentGroup == null;
 			final Network network1 = createNetwork("");
 			network1.goInvisible();
-			server = new NServer(name, currentNetwork(), this.getSkinParam());
+			server = new NServer(name);
 			servers.put(name, server);
-			server.doNotHaveItsOwnColumn();
+			server.doNotPrintFirstLink();
 		} else {
 			server = servers.get(name);
 			if (server == null) {
-				server = new NServer(name, currentNetwork(), this.getSkinParam());
+				server = new NServer(name);
 				servers.put(name, server);
 			}
 		}
-		addInternal(server, toSet(definition));
-		return CommandExecutionResult.ok();
-	}
-
-	public CommandExecutionResult endSomething() {
-		if (initDone == false) {
-			return errorNoInit();
-		}
-		this.currentGroup = null;
+		final Map<String, String> props = toSet(definition);
+		server.connectTo(lastNetwork(), props.get("address"));
+		server.updateProperties(props);
+		playField.addInPlayfield(server.getBar());
 		return CommandExecutionResult.ok();
 	}
 
@@ -257,17 +275,20 @@ public class NwDiagram extends UmlDiagram {
 		};
 	}
 
-	private TextBlock toTextBlock(String name, String s) {
+	private StyleSignatureBasic getStyleDefinitionNetwork(SName sname) {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.nwdiagDiagram, sname);
+	}
+
+	private TextBlock toTextBlockForNetworkName(String name, String s) {
 		if (s != null) {
 			name += "\\n" + s;
 		}
-		return Display.getWithNewlines(name).create(getFontConfiguration(), HorizontalAlignment.RIGHT,
+		final StyleBuilder styleBuilder = getSkinParam().getCurrentStyleBuilder();
+		final Style style = getStyleDefinitionNetwork(SName.network).getMergedStyle(styleBuilder);
+		final FontConfiguration fontConfiguration = style.getFontConfiguration(getSkinParam().getThemeStyle(),
+				getSkinParam().getIHtmlColorSet());
+		return Display.getWithNewlines(name).create(fontConfiguration, HorizontalAlignment.RIGHT,
 				new SpriteContainerEmpty());
-	}
-
-	private FontConfiguration getFontConfiguration() {
-		final UFont font = UFont.serif(11);
-		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLACK, false);
 	}
 
 	private Dimension2D getTotalDimension(StringBounder stringBounder) {
@@ -288,15 +309,15 @@ public class NwDiagram extends UmlDiagram {
 		double deltaX = 0;
 		double deltaY = 0;
 
-		final GridTextBlockDecoratedNext grid = buildGrid(stringBounder);
+		final GridTextBlockDecorated grid = buildGrid(stringBounder);
 
 		for (int i = 0; i < networks.size(); i++) {
 			final Network current = networks.get(i);
 			final String address = current.getOwnAdress();
-			final TextBlock desc = toTextBlock(current.getDisplayName(), address);
+			final TextBlock desc = toTextBlockForNetworkName(current.getDisplayName(), address);
 			final Dimension2D dim = desc.calculateDimension(stringBounder);
 			if (i == 0) {
-				deltaY = (dim.getHeight() - GridTextBlockDecoratedNext.NETWORK_THIN) / 2;
+				deltaY = (dim.getHeight() - GridTextBlockDecorated.NETWORK_THIN) / 2;
 			}
 			deltaX = Math.max(deltaX, dim.getWidth());
 		}
@@ -304,7 +325,7 @@ public class NwDiagram extends UmlDiagram {
 		for (int i = 0; i < networks.size(); i++) {
 			final Network current = networks.get(i);
 			final String address = current.getOwnAdress();
-			final TextBlock desc = toTextBlock(current.getDisplayName(), address);
+			final TextBlock desc = toTextBlockForNetworkName(current.getDisplayName(), address);
 			final Dimension2D dim = desc.calculateDimension(stringBounder);
 			desc.drawU(ug.apply(new UTranslate(deltaX - dim.getWidth(), y)));
 
@@ -312,8 +333,7 @@ public class NwDiagram extends UmlDiagram {
 		}
 		deltaX += 5;
 
-		grid.drawU(ug.apply(ColorParam.activityBorder.getDefaultValue())
-				.apply(ColorParam.activityBackground.getDefaultValue().bg()).apply(new UTranslate(deltaX, deltaY)));
+		grid.drawU(ug.apply(new UTranslate(deltaX, deltaY)));
 		final Dimension2D dimGrid = grid.calculateDimension(stringBounder);
 
 		ug.apply(new UTranslate(dimGrid.getWidth() + deltaX + margin, dimGrid.getHeight() + deltaY + margin))
@@ -332,11 +352,11 @@ public class NwDiagram extends UmlDiagram {
 		return result;
 	}
 
-	private GridTextBlockDecoratedNext buildGrid(StringBounder stringBounder) {
+	private GridTextBlockDecorated buildGrid(StringBounder stringBounder) {
 
 		playField.fixGroups(groups, servers.values());
 
-		final GridTextBlockDecoratedNext grid = new GridTextBlockDecoratedNext(networks.size(), servers.size(), groups,
+		final GridTextBlockDecorated grid = new GridTextBlockDecorated(networks.size(), servers.size(), groups,
 				networks, getSkinParam());
 
 		final Map<NBar, Integer> layout = playField.doLayout();
@@ -347,11 +367,11 @@ public class NwDiagram extends UmlDiagram {
 				if (server.getMainNetworkNext() == current) {
 					final Map<Network, String> conns = getLinks(server);
 					final int col = layout.get(server.getBar());
-					double topMargin = LinkedElementNext.MAGIC;
+					double topMargin = LinkedElement.MAGIC;
 					NwGroup group = getGroupOf(server);
 					if (group != null)
 						topMargin += group.getTopHeaderHeight(stringBounder, getSkinParam());
-					grid.add(i, col, server.asTextBlockNext(topMargin, conns, networks, getSkinParam()));
+					grid.add(i, col, server.getLinkedElement(topMargin, conns, networks, getSkinParam()));
 				}
 			}
 		}
@@ -361,7 +381,7 @@ public class NwDiagram extends UmlDiagram {
 
 	private NwGroup getGroupOf(NServer server) {
 		for (NwGroup group : groups) {
-			if (group.containsNext(server)) {
+			if (group.contains(server)) {
 				return group;
 			}
 		}
@@ -372,24 +392,24 @@ public class NwDiagram extends UmlDiagram {
 		if (initDone == false) {
 			return errorNoInit();
 		}
-		if ("address".equalsIgnoreCase(property) && currentNetwork() != null) {
-			currentNetwork().setOwnAdress(value);
+		if ("address".equalsIgnoreCase(property) && lastNetwork() != null) {
+			lastNetwork().setOwnAdress(value);
 		}
-		if ("width".equalsIgnoreCase(property) && currentNetwork() != null) {
-			currentNetwork().setFullWidth("full".equalsIgnoreCase(value));
+		if ("width".equalsIgnoreCase(property) && lastNetwork() != null) {
+			lastNetwork().setFullWidth("full".equalsIgnoreCase(value));
 		}
 		if ("color".equalsIgnoreCase(property)) {
 			final HColor color = value == null ? null
-					: NwGroup.colors.getColorOrWhite(getSkinParam().getThemeStyle(), value);
+					: getSkinParam().getIHtmlColorSet().getColorOrWhite(getSkinParam().getThemeStyle(), value);
 			if (currentGroup != null) {
 				currentGroup.setColor(color);
-			} else if (currentNetwork() != null) {
-				currentNetwork().setColor(color);
+			} else if (lastNetwork() != null) {
+				lastNetwork().setColor(color);
 			}
 		}
 		if ("description".equalsIgnoreCase(property)) {
 			if (currentGroup == null) {
-				currentNetwork().setDescription(value);
+				lastNetwork().setDescription(value);
 			} else {
 				currentGroup.setDescription(value);
 			}

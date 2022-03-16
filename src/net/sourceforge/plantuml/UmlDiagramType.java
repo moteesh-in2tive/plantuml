@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,7 @@ import net.sourceforge.plantuml.style.SName;
 
 public enum UmlDiagramType {
 	SEQUENCE, STATE, CLASS, OBJECT, ACTIVITY, DESCRIPTION, COMPOSITE, FLOW, TIMING, BPM, NWDIAG, MINDMAP, WBS, WIRE,
-	HELP, GANTT, SALT, JSON, GIT, BOARD, YAML;
+	HELP, GANTT, SALT, JSON, GIT, BOARD, YAML, HCL;
 
 	public SName getStyleName() {
 		if (this == SEQUENCE) {
@@ -75,11 +75,17 @@ public enum UmlDiagramType {
 		if (this == YAML) {
 			return SName.yamlDiagram;
 		}
+		if (this == HCL) {
+			return SName.yamlDiagram;
+		}
 		if (this == JSON) {
 			return SName.jsonDiagram;
 		}
 		if (this == TIMING) {
 			return SName.timingDiagram;
+		}
+		if (this == NWDIAG) {
+			return SName.nwdiagDiagram;
 		}
 		return SName.activityDiagram;
 	}

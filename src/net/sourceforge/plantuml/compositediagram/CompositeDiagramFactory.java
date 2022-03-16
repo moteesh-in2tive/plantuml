@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
+import net.sourceforge.plantuml.command.CommonCommands;
 import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.compositediagram.command.CommandCreateBlock;
 import net.sourceforge.plantuml.compositediagram.command.CommandCreatePackageBlock;
@@ -59,13 +61,13 @@ public class CompositeDiagramFactory extends PSystemCommandFactory {
 		cmds.add(new CommandLinkBlock());
 		cmds.add(new CommandCreatePackageBlock());
 		cmds.add(new CommandEndPackageBlock());
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
 
 		return cmds;
 	}
 
 	@Override
-	public CompositeDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
-		return new CompositeDiagram(source, skinParam);
+	public CompositeDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new CompositeDiagram(style, source, skinParam);
 	}
 }

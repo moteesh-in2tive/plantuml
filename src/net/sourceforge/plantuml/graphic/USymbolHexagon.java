@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,11 +35,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
-import net.sourceforge.plantuml.graphic.USymbol.Margin;
-import net.sourceforge.plantuml.ugraphic.Shadowable;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UPath;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -49,6 +48,11 @@ public class USymbolHexagon extends USymbol {
 	@Override
 	public SkinParameter getSkinParameter() {
 		return SkinParameter.HEXAGON;
+	}
+
+	@Override
+	public SName getSName() {
+		return SName.hexagon;
 	}
 
 	private final double marginY = 5;
@@ -76,7 +80,7 @@ public class USymbolHexagon extends USymbol {
 		};
 	}
 
-	private void drawRect(UGraphic ug, double width, double height, boolean shadowing, double roundCorner,
+	private void drawRect(UGraphic ug, double width, double height, double shadowing, double roundCorner,
 			double diagonalCorner) {
 //		final UShape shape = new URectangle(width, height);
 		final UPath shape = new UPath();
@@ -89,16 +93,15 @@ public class USymbolHexagon extends USymbol {
 		shape.lineTo(dx, height);
 		shape.lineTo(0, height / 2);
 		shape.closePath();
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+
+		shape.setDeltaShadow(shadowing);
+
 		ug.draw(shape);
 	}
-	
+
 	private Margin getMargin() {
 		return new Margin(10, 10, 10, 10);
 	}
-
 
 	@Override
 	public TextBlock asBig(final TextBlock title, final HorizontalAlignment labelAlignment, final TextBlock stereotype,
@@ -108,7 +111,7 @@ public class USymbolHexagon extends USymbol {
 			public void drawU(UGraphic ug) {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = symbolContext.apply(ug);
-				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.isShadowing(),
+				drawRect(ug, dim.getWidth(), dim.getHeight(), symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner(), 0);
 				final Dimension2D dimStereo = stereotype.calculateDimension(ug.getStringBounder());
 				final double posStereoX;

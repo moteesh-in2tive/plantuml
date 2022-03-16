@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -33,6 +33,7 @@
 package net.sourceforge.plantuml.salt;
 
 import net.sourceforge.plantuml.StringUtils;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.PSystemBasicFactory;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
@@ -44,11 +45,11 @@ public class PSystemSaltFactory extends PSystemBasicFactory<PSystemSalt> {
 	}
 
 	@Override
-	public PSystemSalt initDiagram(UmlSource source, String startLine) {
+	public PSystemSalt initDiagram(ThemeStyle style, UmlSource source, String startLine) {
 		if (getDiagramType() == DiagramType.UML) {
 			return null;
 		} else if (getDiagramType() == DiagramType.SALT) {
-			return new PSystemSalt(source);
+			return new PSystemSalt(style, source);
 		} else {
 			throw new IllegalStateException(getDiagramType().name());
 		}
@@ -56,9 +57,9 @@ public class PSystemSaltFactory extends PSystemBasicFactory<PSystemSalt> {
 	}
 
 	@Override
-	public PSystemSalt executeLine(UmlSource source, PSystemSalt system, String line) {
+	public PSystemSalt executeLine(ThemeStyle style, UmlSource source, PSystemSalt system, String line) {
 		if (system == null && line.replace('\t', ' ').trim().equals("salt")) {
-			return new PSystemSalt(source);
+			return new PSystemSalt(style, source);
 		}
 		if (system == null) {
 			return null;

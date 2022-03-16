@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -38,14 +38,12 @@ import net.sourceforge.plantuml.tikz.TikzGraphics;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UFont;
 import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class DriverAtomTextTikz implements UDriver<TikzGraphics> {
+public class DriverAtomTextTikz implements UDriver<AtomText, TikzGraphics> {
 
-	public void draw(UShape shape, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
-		final AtomText text = (AtomText) shape;
+	public void draw(AtomText text, double x, double y, ColorMapper mapper, UParam param, TikzGraphics tikz) {
 		final FontConfiguration fontConfiguration = text.getFontConfiguration();
 		final UFont font = fontConfiguration.getFont();
 		final HColor col = fontConfiguration.getColor();
@@ -54,7 +52,6 @@ public class DriverAtomTextTikz implements UDriver<TikzGraphics> {
 		final boolean italic = font.isItalic();
 		final boolean bold = font.isBold();
 		tikz.text(x, y, text.getText(), underline, italic, bold);
-
 	}
 
 }

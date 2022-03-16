@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,7 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.WithStyle;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
@@ -52,19 +52,18 @@ public abstract class Grouping implements Event, WithStyle {
 	final private Style style;
 	final private Style styleHeader;
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.sequenceDiagram, SName.group);
+	public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.sequenceDiagram, SName.group);
 	}
 
-	private StyleSignature getHeaderStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.sequenceDiagram, SName.groupHeader);
+	private StyleSignatureBasic getHeaderStyleDefinition() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.sequenceDiagram, SName.groupHeader);
 	}
 
 	public Style[] getUsedStyles() {
 		return new Style[] {
-				style,
-				styleHeader == null ? styleHeader : styleHeader.eventuallyOverride(PName.BackGroundColor,
-						backColorElement) };
+				style == null ? null : style.eventuallyOverride(PName.BackGroundColor, getBackColorGeneral()),
+				styleHeader == null ? null : styleHeader.eventuallyOverride(PName.BackGroundColor, backColorElement) };
 	}
 
 	public Grouping(String title, String comment, GroupingType type, HColor backColorElement,
@@ -74,7 +73,7 @@ public abstract class Grouping implements Event, WithStyle {
 		this.comment = comment;
 		this.type = type;
 		this.backColorElement = backColorElement;
-		this.style = getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+		this.style = getStyleSignature().getMergedStyle(styleBuilder);
 		this.styleHeader = getHeaderStyleDefinition().getMergedStyle(styleBuilder);
 	}
 

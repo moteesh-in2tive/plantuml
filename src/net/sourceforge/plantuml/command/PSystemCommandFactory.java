@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,9 +32,6 @@
  */
 package net.sourceforge.plantuml.command;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import net.sourceforge.plantuml.AbstractPSystem;
@@ -43,23 +40,22 @@ import net.sourceforge.plantuml.ErrorUmlType;
 import net.sourceforge.plantuml.ISkinSimple;
 import net.sourceforge.plantuml.LineLocation;
 import net.sourceforge.plantuml.StringLocated;
-import net.sourceforge.plantuml.classdiagram.command.CommandHideShowByGender;
-import net.sourceforge.plantuml.classdiagram.command.CommandHideShowByVisibility;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.core.Diagram;
 import net.sourceforge.plantuml.core.DiagramType;
 import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.error.PSystemError;
 import net.sourceforge.plantuml.error.PSystemErrorUtils;
-import net.sourceforge.plantuml.sequencediagram.command.CommandSkin;
-import net.sourceforge.plantuml.statediagram.command.CommandHideEmptyDescription;
-import net.sourceforge.plantuml.style.CommandStyleImport;
-import net.sourceforge.plantuml.style.CommandStyleMultilinesCSS;
 import net.sourceforge.plantuml.utils.StartUtils;
 import net.sourceforge.plantuml.version.IteratorCounter2;
 
 public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 
 	private List<Command> cmds;
+
+	protected abstract List<Command> createCommands();
+
+	public abstract AbstractPSystem createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam);
 
 	protected PSystemCommandFactory() {
 		this(DiagramType.UML);
@@ -70,26 +66,25 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 	}
 
 	@Override
-	final public Diagram createSystem(UmlSource source, ISkinSimple skinParam) {
+	final public Diagram createSystem(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
 		final IteratorCounter2 it = source.iterator2();
 		final StringLocated startLine = it.next();
-		if (StartUtils.isArobaseStartDiagram(startLine.getString()) == false) {
+		if (StartUtils.isArobaseStartDiagram(startLine.getString()) == false)
 			throw new UnsupportedOperationException();
-		}
 
 		if (source.isEmpty()) {
-			if (it.hasNext()) {
+			if (it.hasNext())
 				it.next();
-			}
+
 			return buildEmptyError(source, startLine.getLocation(), it.getTrace());
 		}
-		AbstractPSystem sys = createEmptyDiagram(source, skinParam);
+		AbstractPSystem sys = createEmptyDiagram(style, source, skinParam);
 
 		while (it.hasNext()) {
 			if (StartUtils.isArobaseEndDiagram(it.peek().getString())) {
-				if (sys == null) {
+				if (sys == null)
 					return null;
-				}
+
 				final String err = sys.checkFinalError();
 				if (err != null) {
 					final LineLocation location = it.next().getLocation();
@@ -100,15 +95,15 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 					return buildEmptyError(source, location, it.getTrace());
 				}
 				sys.makeDiagramReady();
-				if (sys.isOk() == false) {
+				if (sys.isOk() == false)
 					return null;
-				}
+
 				return sys;
 			}
 			sys = executeFewLines(sys, source, it);
-			if (sys instanceof PSystemError) {
+			if (sys instanceof PSystemError)
 				return sys;
-			}
+
 		}
 		return sys;
 
@@ -129,9 +124,9 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 					location);
 			sys = PSystemErrorUtils.buildV2(source, err, result.getDebugLines(), it.getTrace());
 		}
-		if (result.getNewDiagram() != null) {
+		if (result.getNewDiagram() != null)
 			sys = result.getNewDiagram();
-		}
+
 		return sys;
 
 	}
@@ -149,9 +144,9 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 
 	private Step getCandidate(final IteratorCounter2 it) {
 		final BlocLines single = BlocLines.single(it.peek());
-		if (cmds == null) {
+		if (cmds == null)
 			cmds = createCommands();
-		}
+
 		for (Command cmd : cmds) {
 			final CommandControl result = cmd.isValid(single);
 			if (result == CommandControl.OK) {
@@ -161,9 +156,9 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 			if (result == CommandControl.OK_PARTIAL) {
 				final IteratorCounter2 cloned = it.cloneMe();
 				final BlocLines lines = isMultilineCommandOk(cloned, cmd);
-				if (lines == null) {
+				if (lines == null)
 					continue;
-				}
+
 				it.copyStateFrom(cloned);
 				assert lines != null;
 				return new Step(cmd, lines);
@@ -178,16 +173,16 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 		while (it.hasNext()) {
 			lines = addOneSingleLineManageEmbedded2(it, lines);
 			final CommandControl result = cmd.isValid(lines);
-			if (result == CommandControl.NOT_OK) {
+			if (result == CommandControl.NOT_OK)
 				return null;
-			}
-			if (result == CommandControl.OK) {
+
+			if (result == CommandControl.OK)
 				return lines;
-			}
+
 			nb++;
-			if (cmd instanceof CommandDecoratorMultine && nb > ((CommandDecoratorMultine) cmd).getNbMaxLines()) {
+			if (cmd instanceof CommandDecoratorMultine && nb > ((CommandDecoratorMultine) cmd).getNbMaxLines())
 				return null;
-			}
+
 		}
 		return null;
 	}
@@ -199,84 +194,12 @@ public abstract class PSystemCommandFactory extends PSystemAbstractFactory {
 			while (it.hasNext()) {
 				final StringLocated s = it.next();
 				lines = lines.add(s);
-				if (s.getTrimmed().getString().equals("}}")) {
+				if (s.getTrimmed().getString().equals("}}"))
 					return lines;
-				}
+
 			}
 		}
 		return lines;
-	}
-
-	// -----------------------------------
-
-	protected abstract List<Command> createCommands();
-
-	public abstract AbstractPSystem createEmptyDiagram(UmlSource source, ISkinSimple skinParam);
-
-	final protected void addCommonCommands1(List<Command> cmds) {
-		addTitleCommands(cmds);
-		addCommonCommands2(cmds);
-		addCommonHides(cmds);
-	}
-
-	final protected void addCommonCommands2(List<Command> cmds) {
-		cmds.add(new CommandNope());
-		cmds.add(new CommandPragma());
-		cmds.add(new CommandAssumeTransparent());
-
-		cmds.add(new CommandSkinParam());
-		cmds.add(new CommandSkinParamMultilines());
-		cmds.add(new CommandSkin());
-		cmds.add(new CommandMinwidth());
-		cmds.add(new CommandRotate());
-		cmds.add(new CommandScale());
-		cmds.add(new CommandScaleWidthAndHeight());
-		cmds.add(new CommandScaleWidthOrHeight());
-		cmds.add(new CommandScaleMaxWidth());
-		cmds.add(new CommandScaleMaxHeight());
-		cmds.add(new CommandScaleMaxWidthAndHeight());
-		cmds.add(new CommandAffineTransform());
-		cmds.add(new CommandAffineTransformMultiline());
-		final CommandFactorySprite factorySpriteCommand = new CommandFactorySprite();
-		cmds.add(factorySpriteCommand.createMultiLine(false));
-		cmds.add(factorySpriteCommand.createSingleLine());
-		cmds.add(new CommandSpriteFile());
-
-		cmds.add(new CommandStyleMultilinesCSS());
-		cmds.add(new CommandStyleImport());
-
-	}
-
-	final protected void addCommonHides(List<Command> cmds) {
-		cmds.add(new CommandHideEmptyDescription());
-		cmds.add(new CommandHideUnlinked());
-		cmds.add(new CommandHideShowByVisibility());
-		cmds.add(new CommandHideShowByGender());
-	}
-
-	final protected void addTitleCommands(List<Command> cmds) {
-		cmds.add(new CommandTitle());
-		cmds.add(new CommandMainframe());
-		cmds.add(new CommandCaption());
-		cmds.add(new CommandMultilinesCaption());
-		cmds.add(new CommandMultilinesTitle());
-		cmds.add(new CommandMultilinesLegend());
-		cmds.add(new CommandLegend());
-
-		cmds.add(new CommandFooter());
-		cmds.add(new CommandMultilinesFooter());
-
-		cmds.add(new CommandHeader());
-		cmds.add(new CommandMultilinesHeader());
-	}
-
-	final public List<String> getDescription() {
-		final List<String> result = new ArrayList<>();
-		for (Command cmd : createCommands()) {
-			result.addAll(Arrays.asList(cmd.getDescription()));
-		}
-		return Collections.unmodifiableList(result);
-
 	}
 
 }

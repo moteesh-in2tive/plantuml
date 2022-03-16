@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,9 +32,10 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
+import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.ugraphic.Shadowable;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicStencil;
@@ -50,13 +51,16 @@ class USymbolFrame extends USymbol {
 		return SkinParameter.FRAME;
 	}
 
-	private void drawFrame(UGraphic ug, double width, double height, Dimension2D dimTitle, boolean shadowing,
+	@Override
+	public SName getSName() {
+		return SName.frame;
+	}
+
+	private void drawFrame(UGraphic ug, double width, double height, Dimension2D dimTitle, double shadowing,
 			double roundCorner) {
 		final Shadowable shape = new URectangle(width, height).rounded(roundCorner).ignoreForCompressionOnX()
 				.ignoreForCompressionOnY();
-		if (shadowing) {
-			shape.setDeltaShadow(3.0);
-		}
+		shape.setDeltaShadow(shadowing);
 
 		ug.draw(shape);
 
@@ -84,9 +88,9 @@ class USymbolFrame extends USymbol {
 	}
 
 	private double getYpos(Dimension2D dimTitle) {
-		if (dimTitle.getWidth() == 0) {
+		if (dimTitle.getWidth() == 0)
 			return 12;
-		}
+
 		return dimTitle.getHeight() + 3;
 	}
 
@@ -103,8 +107,8 @@ class USymbolFrame extends USymbol {
 				final Dimension2D dim = calculateDimension(ug.getStringBounder());
 				ug = UGraphicStencil.create(ug, dim);
 				ug = symbolContext.apply(ug);
-				drawFrame(ug, dim.getWidth(), dim.getHeight(), new Dimension2DDouble(0, 0), symbolContext.isShadowing(),
-						symbolContext.getRoundCorner());
+				drawFrame(ug, dim.getWidth(), dim.getHeight(), new Dimension2DDouble(0, 0),
+						symbolContext.getDeltaShadow(), symbolContext.getRoundCorner());
 				final Margin margin = getMargin();
 				final TextBlock tb = TextBlockUtils.mergeTB(stereotype, label, HorizontalAlignment.CENTER);
 				tb.drawU(ug.apply(new UTranslate(margin.getX1(), margin.getY1())));
@@ -130,16 +134,15 @@ class USymbolFrame extends USymbol {
 				ug = symbolContext.apply(ug);
 				final Dimension2D dimTitle = title.calculateDimension(stringBounder);
 				final double widthFull = dim.getWidth();
-				drawFrame(ug, widthFull, dim.getHeight(), dimTitle, symbolContext.isShadowing(),
+				drawFrame(ug, widthFull, dim.getHeight(), dimTitle, symbolContext.getDeltaShadow(),
 						symbolContext.getRoundCorner());
 				final double widthTitle = title.calculateDimension(stringBounder).getWidth();
 
 				// Temporary hack...
-				if (widthFull - widthTitle < 25) {
+				if (widthFull - widthTitle < 25)
 					title.drawU(ug.apply(new UTranslate(3, 1)));
-				} else {
+				else
 					ug.apply(new UTranslate(3, 1)).draw(new SpecialText(title));
-				}
 
 				final Dimension2D dimStereo = stereotype.calculateDimension(stringBounder);
 				final double posStereo = (width - dimStereo.getWidth()) / 2;

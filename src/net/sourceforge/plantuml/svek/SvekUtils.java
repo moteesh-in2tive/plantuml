@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -44,15 +44,9 @@ import net.sourceforge.plantuml.security.SFile;
 public class SvekUtils {
 
 	static public void traceString(final SFile f, String text) throws IOException {
-		PrintWriter pw = null;
-		try {
-			Log.info("Creating intermediate file " + f.getPrintablePath());
-			pw = f.createPrintWriter();
+		Log.info("Creating intermediate file " + f.getPrintablePath());
+		try (PrintWriter pw = f.createPrintWriter()) {
 			pw.print(text);
-		} finally {
-			if (pw != null) {
-				pw.close();
-			}
 		}
 	}
 

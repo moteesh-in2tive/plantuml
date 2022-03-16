@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.svek;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -44,17 +44,18 @@ import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
-public class EntityImageProtected extends AbstractTextBlock implements IEntityImage, Untranslated {
+public class EntityImageProtected extends AbstractTextBlock implements IEntityImage, Untranslated, WithPorts {
 
 	private final IEntityImage orig;
 	private final double border;
 	private final Bibliotekon bibliotekon;
 	private final Neighborhood neighborhood;
-	
-	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
-		throw new UnsupportedOperationException();
-	}
 
+	public Rectangle2D getInnerPosition(String member, StringBounder stringBounder, InnerStrategy strategy) {
+		final Rectangle2D result = orig.getInnerPosition(member, stringBounder, strategy);
+		return new Rectangle2D.Double(result.getMinX() + border, result.getMinY() + border, result.getWidth(),
+				result.getHeight());
+	}
 
 	public EntityImageProtected(IEntityImage orig, double border, Neighborhood neighborhood, Bibliotekon bibliotekon) {
 		this.orig = orig;
@@ -91,10 +92,14 @@ public class EntityImageProtected extends AbstractTextBlock implements IEntityIm
 	public Margins getShield(StringBounder stringBounder) {
 		return orig.getShield(stringBounder);
 	}
-	
+
 	public double getOverscanX(StringBounder stringBounder) {
 		return orig.getOverscanX(stringBounder);
 	}
 
+	@Override
+	public Ports getPorts(StringBounder stringBounder) {
+		return ((WithPorts) orig).getPorts(stringBounder);
+	}
 
 }

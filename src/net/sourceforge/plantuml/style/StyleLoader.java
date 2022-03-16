@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -41,9 +41,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sourceforge.plantuml.FileSystem;
 import net.sourceforge.plantuml.LineLocationImpl;
@@ -58,6 +58,7 @@ import net.sourceforge.plantuml.security.SFile;
 
 public class StyleLoader {
 
+	public static final int DELTA_PRIORITY_FOR_STEREOTYPE = 1000;
 	private final SkinParam skinParam;
 
 	public StyleLoader(SkinParam skinParam) {
@@ -69,23 +70,7 @@ public class StyleLoader {
 	public StyleBuilder loadSkin(String filename) throws IOException {
 		this.styleBuilder = new StyleBuilder(skinParam);
 
-		InputStream internalIs = null;
-		SFile localFile = new SFile(filename);
-		Log.info("Trying to load style " + filename);
-		if (localFile.exists() == false) {
-			localFile = FileSystem.getInstance().getFile(filename);
-		}
-		if (localFile.exists()) {
-			Log.info("File found : " + localFile.getPrintablePath());
-			internalIs = localFile.openFile();
-		} else {
-			Log.info("File not found : " + localFile.getPrintablePath());
-			final String res = "/skin/" + filename;
-			internalIs = StyleLoader.class.getResourceAsStream(res);
-			if (internalIs != null) {
-				Log.info("... but " + filename + " found inside the .jar");
-			}
-		}
+		final InputStream internalIs = getInputStreamForStyle(filename);
 		if (internalIs == null) {
 			Log.error("No .skin file seems to be available");
 			throw new NoStyleAvailableException();
@@ -99,26 +84,55 @@ public class StyleLoader {
 		return this.styleBuilder;
 	}
 
-	private void loadSkinInternal(final BlocLines lines) {
-		for (Style newStyle : getDeclaredStyles(lines, styleBuilder)) {
-			this.styleBuilder.loadInternal(newStyle.getSignature(), newStyle);
+	public static InputStream getInputStreamForStyle(String filename) throws IOException {
+		InputStream internalIs = null;
+		SFile localFile = new SFile(filename);
+		Log.info("Trying to load style " + filename);
+		if (localFile.exists() == false)
+			localFile = FileSystem.getInstance().getFile(filename);
+
+		if (localFile.exists()) {
+			Log.info("File found : " + localFile.getPrintablePath());
+			internalIs = localFile.openFile();
+		} else {
+			Log.info("File not found : " + localFile.getPrintablePath());
+			final String res = "/skin/" + filename;
+			internalIs = StyleLoader.class.getResourceAsStream(res);
+			if (internalIs != null)
+				Log.info("... but " + filename + " found inside the .jar");
+
 		}
+		return internalIs;
 	}
 
-	private static final String NAME_USER = "[\\w()]+?";
-	private final static Pattern2 userName = MyPattern.cmpile("^[.:]?(" + NAME_USER + ")([%s]+\\*)?[%s]*\\{$");
+	private void loadSkinInternal(final BlocLines lines) {
+		for (Style newStyle : getDeclaredStyles(lines, styleBuilder))
+			this.styleBuilder.loadInternal(newStyle.getSignature(), newStyle);
+
+	}
+
+	private final static String KEYNAMES = "[-.\\w(), ]+?";
+	private final static Pattern2 keyName = MyPattern.cmpile("^[:]?(" + KEYNAMES + ")([%s]+\\*)?[%s]*\\{$");
 	private final static Pattern2 propertyAndValue = MyPattern.cmpile("^([\\w]+):?[%s]+(.*?);?$");
 	private final static Pattern2 closeBracket = MyPattern.cmpile("^\\}$");
 
 	public static Collection<Style> getDeclaredStyles(BlocLines lines, AutomaticCounter counter) {
 		lines = lines.eventuallyMoveAllEmptyBracket();
 		final List<Style> result = new ArrayList<>();
+		final CssVariables variables = new CssVariables();
+		StyleScheme scheme = StyleScheme.REGULAR;
 
-		final List<String> context = new ArrayList<>();
+		Context context = new Context();
 		final List<Map<PName, Value>> maps = new ArrayList<Map<PName, Value>>();
 		boolean inComment = false;
 		for (StringLocated s : lines) {
 			String trimmed = s.getTrimmed().getString();
+
+			if (trimmed.startsWith("/*") || trimmed.endsWith("*/"))
+				continue;
+			if (trimmed.startsWith("/'") || trimmed.endsWith("'/"))
+				continue;
+
 			if (trimmed.startsWith("/*") || trimmed.startsWith("/'")) {
 				inComment = true;
 				continue;
@@ -127,41 +141,62 @@ public class StyleLoader {
 				inComment = false;
 				continue;
 			}
-			if (inComment) {
+			if (inComment)
+				continue;
+
+			if (trimmed.matches("@media.*dark.*\\{")) {
+				scheme = StyleScheme.DARK;
 				continue;
 			}
-			final int x = trimmed.lastIndexOf("//");
-			if (x != -1) {
-				trimmed = trimmed.substring(0, x).trim();
+
+			if (trimmed.startsWith("--")) {
+				variables.learn(trimmed);
+				continue;
 			}
-			final Matcher2 mUserName = userName.matcher(trimmed);
-			if (mUserName.find()) {
-				String n = mUserName.group(1);
-				final boolean isRecurse = mUserName.group(2) != null;
-				if (isRecurse) {
-					n += "*";
-				}
-				context.add(n);
+
+			final int x = trimmed.lastIndexOf("//");
+			if (x != -1)
+				trimmed = trimmed.substring(0, x).trim();
+
+			final Matcher2 mKeyNames = keyName.matcher(trimmed);
+			if (mKeyNames.find()) {
+				String names = mKeyNames.group(1).replace(" ", "");
+				final boolean isRecurse = mKeyNames.group(2) != null;
+				if (isRecurse)
+					names += "*";
+
+				context = context.push(names);
 				maps.add(new EnumMap<PName, Value>(PName.class));
 				continue;
 			}
 			final Matcher2 mPropertyAndValue = propertyAndValue.matcher(trimmed);
 			if (mPropertyAndValue.find()) {
-				final PName key = PName.getFromName(mPropertyAndValue.group(1));
-				final String value = mPropertyAndValue.group(2);
-				if (key != null && maps.size() > 0) {
-					maps.get(maps.size() - 1).put(key, new ValueImpl(value, counter));
-				}
+				final PName key = PName.getFromName(mPropertyAndValue.group(1), scheme);
+				final String value = variables.value(mPropertyAndValue.group(2));
+				if (key != null && maps.size() > 0)
+					maps.get(maps.size() - 1).put(key, //
+							scheme == StyleScheme.REGULAR ? //
+									ValueImpl.regular(value, counter) : ValueImpl.dark(value, counter));
+
 				continue;
 			}
 			final Matcher2 mCloseBracket = closeBracket.matcher(trimmed);
 			if (mCloseBracket.find()) {
 				if (context.size() > 0) {
-					final StyleSignature signature = contextToSignature(context);
-					final Style style = new Style(signature, maps.get(maps.size() - 1));
-					result.add(style);
-					context.remove(context.size() - 1);
+					final Collection<StyleSignatureBasic> signatures = context.toSignatures();
+					for (StyleSignatureBasic signature : signatures) {
+						Map<PName, Value> tmp = maps.get(maps.size() - 1);
+						if (signature.isWithDot())
+							tmp = addPriorityForStereotype(tmp);
+						if (tmp.size() > 0) {
+							final Style style = new Style(signature, tmp);
+							result.add(style);
+						}
+					}
+					context = context.pop();
 					maps.remove(maps.size() - 1);
+				} else {
+					scheme = StyleScheme.REGULAR;
 				}
 			}
 		}
@@ -170,20 +205,11 @@ public class StyleLoader {
 
 	}
 
-	private static StyleSignature contextToSignature(List<String> context) {
-		StyleSignature result = StyleSignature.empty();
-		boolean star = false;
-		for (Iterator<String> it = context.iterator(); it.hasNext();) {
-			String s = it.next();
-			if (s.endsWith("*")) {
-				star = true;
-				s = s.substring(0, s.length() - 1);
-			}
-			result = result.add(s);
-		}
-		if (star) {
-			result = result.addStar();
-		}
+	public static Map<PName, Value> addPriorityForStereotype(Map<PName, Value> tmp) {
+		final Map<PName, Value> result = new EnumMap<>(PName.class);
+		for (Entry<PName, Value> ent : tmp.entrySet())
+			result.put(ent.getKey(), ((ValueImpl) ent.getValue()).addPriority(DELTA_PRIORITY_FOR_STEREOTYPE));
+
 		return result;
 	}
 

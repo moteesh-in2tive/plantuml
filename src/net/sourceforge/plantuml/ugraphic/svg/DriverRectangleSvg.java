@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,12 +39,11 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverRectangleSvg implements UDriver<SvgGraphics> {
+public class DriverRectangleSvg implements UDriver<URectangle, SvgGraphics> {
 
 	private final ClipContainer clipContainer;
 
@@ -52,26 +51,14 @@ public class DriverRectangleSvg implements UDriver<SvgGraphics> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
-		final URectangle rect = (URectangle) ushape;
-
+	public void draw(URectangle rect, double x, double y, ColorMapper mapper, UParam param, SvgGraphics svg) {
 		final double rx = rect.getRx();
 		final double ry = rect.getRy();
 		double width = rect.getWidth();
 		double height = rect.getHeight();
 
-		final HColor back = param.getBackcolor();
-		if (back instanceof HColorGradient) {
-			final HColorGradient gr = (HColorGradient) back;
-			final String id = svg.createSvgGradient(mapper.toRGB(gr.getColor1()), mapper.toRGB(gr.getColor2()),
-					gr.getPolicy());
-			svg.setFillColor("url(#" + id + ")");
-			applyColor(svg, mapper, param);
-		} else {
-			final String backcolor = mapper.toSvg(back);
-			svg.setFillColor(backcolor);
-			applyColor(svg, mapper, param);
-		}
+		applyFillColor(svg, mapper, param);
+		applyStrokeColor(svg, mapper, param);
 
 		svg.setStrokeWidth(param.getStroke().getThickness(), param.getStroke().getDasharraySvg());
 
@@ -90,7 +77,23 @@ public class DriverRectangleSvg implements UDriver<SvgGraphics> {
 				rect.getCodeLine());
 	}
 
-	public static void applyColor(SvgGraphics svg, ColorMapper mapper, UParam param) {
+	public static void applyFillColor(SvgGraphics svg, ColorMapper mapper, UParam param) {
+		final HColor background = param.getBackcolor();
+		if (background instanceof HColorGradient) {
+			final HColorGradient gr = (HColorGradient) background;
+			final String id = svg.createSvgGradient(mapper.toRGB(gr.getColor1()), mapper.toRGB(gr.getColor2()),
+					gr.getPolicy());
+			svg.setFillColor("url(#" + id + ")");
+		} else {
+			final HColor dark = background == null ? null : background.darkSchemeTheme();
+			if (dark == background)
+				svg.setFillColor(mapper.toSvg(background));
+			else
+				svg.setFillColor(mapper.toSvg(background), mapper.toSvg(dark));
+		}
+	}
+
+	public static void applyStrokeColor(SvgGraphics svg, ColorMapper mapper, UParam param) {
 		final HColor color = param.getColor();
 		if (color instanceof HColorGradient) {
 			final HColorGradient gr = (HColorGradient) color;
@@ -98,7 +101,12 @@ public class DriverRectangleSvg implements UDriver<SvgGraphics> {
 					gr.getPolicy());
 			svg.setStrokeColor("url(#" + id + ")");
 		} else {
-			svg.setStrokeColor(mapper.toSvg(color));
+			final HColor dark = color == null ? null : color.darkSchemeTheme();
+			if (dark == color)
+				svg.setStrokeColor(mapper.toSvg(color));
+			else
+				svg.setStrokeColor(mapper.toSvg(color), mapper.toSvg(dark));
 		}
+
 	}
 }

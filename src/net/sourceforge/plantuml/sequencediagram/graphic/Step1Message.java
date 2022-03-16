@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -71,7 +71,7 @@ class Step1Message extends Step1Abstract {
 			final ArrowComponent comp = drawingSet.getSkin().createComponentArrow(message.getUsedStyles(), getConfig(),
 					drawingSet.getSkinParam(), message.getLabelNumbered());
 			final Component compAliveBox = drawingSet.getSkin().createComponent(
-					new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getDefaultStyleDefinition()
+					new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getStyleSignature()
 							.getMergedStyle(drawingSet.getSkinParam().getCurrentStyleBuilder()) },
 					ComponentType.ALIVE_BOX_OPEN_OPEN, null, drawingSet.getSkinParam(), null);
 
@@ -221,7 +221,7 @@ class Step1Message extends Step1Abstract {
 	private double getHalfLifeWidth() {
 		return getDrawingSet().getSkin()
 				.createComponent(
-						new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getDefaultStyleDefinition()
+						new Style[] { ComponentType.ALIVE_BOX_OPEN_OPEN.getStyleSignature()
 								.getMergedStyle(getDrawingSet().getSkinParam().getCurrentStyleBuilder()) },
 						ComponentType.ALIVE_BOX_OPEN_OPEN, null, getDrawingSet().getSkinParam(), Display.create(""))
 				.getPreferredWidth(null) / 2;

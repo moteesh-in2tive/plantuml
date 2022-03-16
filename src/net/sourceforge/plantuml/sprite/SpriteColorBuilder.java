@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -52,7 +52,7 @@ public class SpriteColorBuilder {
 				final char charColor = strings.get(line).charAt(col);
 				final int idx = "0123456789ABCDEF".indexOf(charColor);
 				if (idx != -1) {
-					result.setGrey(col, line, idx);
+					result.setGray(col, line, idx);
 				} else {
 					final Color rgb = COLOR_PALETTE.getColorFor(charColor);
 					result.setColor(col, line, rgb.getRGB() & 0xFFFFFF);

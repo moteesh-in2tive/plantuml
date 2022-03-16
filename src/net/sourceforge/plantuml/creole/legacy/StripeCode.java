@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,8 +35,9 @@
  */
 package net.sourceforge.plantuml.creole.legacy;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,7 +112,7 @@ public class StripeCode implements Stripe, Atom {
 	}
 
 	public List<Atom> splitInTwo(StringBounder stringBounder, double width) {
-		throw new UnsupportedOperationException();
+		return Arrays.asList((Atom) this);
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -56,6 +56,7 @@ import net.sourceforge.plantuml.cucadiagram.LinkType;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
 import net.sourceforge.plantuml.descdiagram.DescriptionDiagram;
 import net.sourceforge.plantuml.graphic.USymbol;
+import net.sourceforge.plantuml.graphic.USymbols;
 import net.sourceforge.plantuml.graphic.color.ColorParser;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.ugraphic.color.NoSuchColorException;
@@ -270,7 +271,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 				diagram.getSkinParam().getIHtmlColorSet()));
 		link.applyStyle(diagram.getSkinParam().getThemeStyle(), arg.getLazzy("ARROW_STYLE", 0));
 		if (arg.get("STEREOTYPE", 0) != null) {
-			final Stereotype stereotype = new Stereotype(arg.get("STEREOTYPE", 0));
+			final Stereotype stereotype = Stereotype.build(arg.get("STEREOTYPE", 0));
 			if (UseStyle.useBetaStyle()) {
 				link.setStereotype(stereotype);
 			} else {
@@ -291,7 +292,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		final String codeString = code.getName();
 		if (ident.getLast().startsWith("()")) {
 			ident = ident.removeStartingParenthesis();
-			return getOrCreateLeaf1972(diagram, ident, ident.toCode(diagram), LeafType.DESCRIPTION, USymbol.INTERFACE,
+			return getOrCreateLeaf1972(diagram, ident, ident.toCode(diagram), LeafType.DESCRIPTION, USymbols.INTERFACE,
 					pure);
 		}
 		final char codeChar = codeString.length() > 2 ? codeString.charAt(0) : 0;
@@ -299,7 +300,7 @@ public class CommandLinkElement extends SingleLineCommand2<DescriptionDiagram> {
 		final Ident ident3 = diagram.buildFullyQualified(tmp3);
 		final Code code3 = diagram.V1972() ? ident3 : diagram.buildCode(tmp3);
 		if (codeChar == '(') {
-			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.USECASE, USymbol.USECASE, pure);
+			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.USECASE, USymbols.USECASE, pure);
 		} else if (codeChar == ':') {
 			return getOrCreateLeaf1972(diagram, ident3, code3, LeafType.DESCRIPTION,
 					diagram.getSkinParam().actorStyle().toUSymbol(), pure);

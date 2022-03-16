@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -115,7 +115,7 @@ public class CommandActivity3 extends SingleLineCommand2<ActivityDiagram3> {
 		final String stereo = arg.get("STEREO", 0);
 		Stereotype stereotype = null;
 		if (stereo != null) {
-			stereotype = new Stereotype(stereo);
+			stereotype = Stereotype.build(stereo);
 			colors = colors.applyStereotype(stereotype, diagram.getSkinParam(), ColorParam.activityBackground);
 		}
 		final BoxStyle style = BoxStyle.fromChar(arg.get("STYLE", 0).charAt(0));

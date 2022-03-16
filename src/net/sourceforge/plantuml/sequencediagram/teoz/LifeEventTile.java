@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 
 import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.real.Real;
@@ -44,6 +44,8 @@ import net.sourceforge.plantuml.skin.Component;
 import net.sourceforge.plantuml.skin.ComponentType;
 import net.sourceforge.plantuml.skin.Context2D;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 
@@ -81,9 +83,15 @@ public class LifeEventTile extends AbstractTile {
 		this.skinParam = skinParam;
 	}
 
+	private StyleSignatureBasic getStyleSignature() {
+		return ComponentType.DESTROY.getStyleSignature();
+	}
+
 	public void drawU(UGraphic ug) {
 		if (isDestroyWithoutMessage()) {
-			final Component cross = skin.createComponent(null, ComponentType.DESTROY, null, skinParam, null);
+			final Style style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			final Component cross = skin.createComponent(new Style[] { style }, ComponentType.DESTROY, null, skinParam,
+					null);
 			final Dimension2D dimCross = cross.getPreferredDimension(ug.getStringBounder());
 			final double x = livingSpace.getPosC(ug.getStringBounder()).getCurrentValue();
 			cross.drawU(ug.apply(UTranslate.dx(x - dimCross.getWidth() / 2)), null, (Context2D) ug);
@@ -111,7 +119,7 @@ public class LifeEventTile extends AbstractTile {
 
 	public Real getMinX() {
 		// return tileArguments.getLivingSpace(lifeEvent.getParticipant()).getPosB();
-		return livingSpace.getPosB();
+		return livingSpace.getPosB(getStringBounder());
 	}
 
 	public Real getMaxX() {

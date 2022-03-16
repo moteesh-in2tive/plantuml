@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -301,8 +301,14 @@ public class QuoteUtils {
 			"Lbh jnag gb tb ubzr naq erguvax lbhe yvsr", "V'z trggva gbb byq sbe guvf fuvg",
 			"Vg'f n jryy xabja snpg gung n tybony pbafcvenpl jbhyq or ng gur bevtva bs znal snxr pbafcvenpl gurbevrf",
 			"Gh nhenvf ienvzrag qh pubvfve ha nhger zrgvre.",
-			"...rg qrf srfgvaf qr ebv fhe yr mvap q'ha ohssrg qr tner",
-			"Obevf, V guvax lbh'er tbaan arrq n ovttre ohf");
+			"...rg qrf srfgvaf qr ebv fhe yr mvap q'ha ohssrg qr tner", "Obevf, V guvax lbh'er tbaan arrq n ovttre ohf",
+			"Cebtenzzvat vf na neg sbez gung svtugf onpx", "Jr ernyyl fubhyq trg fbzr cncrejrvtugf",
+			"Vs jr pna'g eha sebz vg, jr'yy eha evtug vagb vg.", "Pr dhv pbzcgr, p'rfg q'nibve raivr",
+			"V guvax gurer vf n jbeyq znexrg sbe znlor svir pbzchgref", "Jr ner tbvat gb svavfu gur wbo jr fgnegrq.",
+			"Guvf qbrfa'g frrz yvxr n jryy gubhtug bhg cyna.",
+			"Vg qbrf abg znxr frafr gung uhznaf qryvorengryl znyshapgvba.",
+			"Gb fhpprrq, cynaavat nybar vf vafhssvpvrag. Bar zhfg vzcebivfr nf jryy.",
+			"Arire yrg lbhe frafr bs zbenyf cerirag lbh sebz qbvat jung vf evtug.");
 
 	private QuoteUtils() {
 	}

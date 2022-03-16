@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -78,7 +78,7 @@ public class FontConfiguration {
 	}
 
 	public static FontConfiguration blackBlueTrue(UFont font) {
-		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLUE, true, 8);
+		return new FontConfiguration(font, HColorUtils.BLACK.withDark(HColorUtils.WHITE), HColorUtils.BLUE, true, 8);
 	}
 
 	public FontConfiguration(ISkinParam skinParam, FontParam fontParam, Stereotype stereo) {
@@ -100,9 +100,9 @@ public class FontConfiguration {
 		return useUnderlineForHyperlink;
 	}
 
-	public final HColor getHyperlinkColor() {
-		return hyperlinkColor;
-	}
+//	public final HColor getHyperlinkColor() {
+//		return hyperlinkColor;
+//	}
 
 	// ---
 
@@ -167,8 +167,11 @@ public class FontConfiguration {
 				fontPosition, svgAttributes, true, hyperlinkColor, useUnderlineForHyperlink, tabSize);
 	}
 
-	public FontConfiguration changeColor(HColor htmlColor) {
-		return new FontConfiguration(styles, motherFont, motherColor, currentFont, htmlColor, extendedColor,
+	public FontConfiguration changeColor(HColor newHtmlColor) {
+		if (hyperlink)
+			return new FontConfiguration(styles, motherFont, motherColor, currentFont, currentColor, extendedColor,
+					fontPosition, svgAttributes, hyperlink, newHtmlColor, useUnderlineForHyperlink, tabSize);
+		return new FontConfiguration(styles, motherFont, motherColor, currentFont, newHtmlColor, extendedColor,
 				fontPosition, svgAttributes, hyperlink, hyperlinkColor, useUnderlineForHyperlink, tabSize);
 	}
 

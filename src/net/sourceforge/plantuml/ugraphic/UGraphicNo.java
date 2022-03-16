@@ -2,11 +2,14 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
- * 
+ *
  * If you like this project or if you find it useful, you can support us at:
+ *
+ * http://plantuml.com/patreon (only 1$ per month!)
+ * http://plantuml.com/paypal
  *
  * This file is part of PlantUML.
  *
@@ -27,31 +30,95 @@
  *
  *
  * Original Author:  Arnaud Roques
- * 
+ *
  *
  */
 package net.sourceforge.plantuml.ugraphic;
 
 import net.sourceforge.plantuml.Url;
+import net.sourceforge.plantuml.graphic.StringBounder;
+import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public abstract class UGraphicNo {
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
 
+public abstract class UGraphicNo implements UGraphic {
+
+	private final StringBounder stringBounder;
+	private final UTranslate translate;
+
+	public UGraphicNo(StringBounder stringBounder) {
+		this.stringBounder = stringBounder;
+		this.translate = new UTranslate();
+	}
+
+	public UGraphicNo(UGraphicNo other, UChange change) {
+		this.stringBounder = other.stringBounder;
+		this.translate = change instanceof UTranslate ? other.translate.compose((UTranslate) change) : other.translate;
+	}
+
+	//
+	// Implement UGraphic
+	//
+
+	@Override
 	final public void startUrl(Url url) {
 	}
 
-	public void startGroup(UGroupType type, String ident) {
+	@Override
+	public void startGroup(Map<UGroupType, String> typeIdents) {
 	}
 
+	@Override
 	final public void closeUrl() {
 	}
 
+	@Override
 	final public void closeGroup() {
 	}
 
+	@Override
+	public ColorMapper getColorMapper() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public HColor getDefaultBackground() {
 		return HColorUtils.BLACK;
 	}
 
+	@Override
+	public UParam getParam() {
+		return new UParamNull();
+	}
+
+	@Override
+	public StringBounder getStringBounder() {
+		return stringBounder;
+	}
+
+	@Override
+	public void flushUg() {
+	}
+
+	@Override
+	public boolean matchesProperty(String propertyName) {
+		return false;
+	}
+
+	@Override
+	public void writeToStream(OutputStream os, String metadata, int dpi) throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	//
+	// Internal things
+	//
+
+	protected UTranslate getTranslate() {
+		return translate;
+	}
 }

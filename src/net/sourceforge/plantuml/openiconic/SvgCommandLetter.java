@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,15 +39,15 @@ public class SvgCommandLetter implements SvgCommand {
 	final private char letter;
 
 	public SvgCommandLetter(String letter) {
-		if (letter.matches("[a-zA-Z]") == false) {
-			throw new IllegalArgumentException();
+		if (letter.matches("[mlhvzsacMLHVZSAC]") == false) {
+			throw new IllegalArgumentException(letter);
 		}
 		this.letter = letter.charAt(0);
 	}
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + letter;
+		return " " + letter;
 	}
 
 	public String toSvg() {
@@ -57,9 +57,11 @@ public class SvgCommandLetter implements SvgCommand {
 	public int argumentNumber() {
 		switch (StringUtils.goLowerCase(letter)) {
 		case 'm':
-		case 'M':
 		case 'l':
 			return 2;
+		case 'h':
+		case 'v':
+			return 1;
 		case 'z':
 			return 0;
 		case 'c':
@@ -72,26 +74,6 @@ public class SvgCommandLetter implements SvgCommand {
 		throw new UnsupportedOperationException("" + letter);
 	}
 
-//	public UGraphic drawMe(UGraphic ug, Iterator<SvgCommand> it) {
-//		System.err.println("drawMe " + letter);
-//		final List<SvgCommandNumber> numbers = new ArrayList<>();
-//		for (int i = 0; i < argumentNumber(); i++) {
-//			numbers.add((SvgCommandNumber) it.next());
-//		}
-//		return drawMe(ug, numbers);
-//	}
-//
-//	private UGraphic drawMe(UGraphic ug, List<SvgCommandNumber> numbers) {
-//		switch (letter) {
-//		case 'M':
-//			final double x = numbers.get(0).getDouble();
-//			final double y = numbers.get(1).getDouble();
-//			return ug.apply(new UTranslate(x, y));
-//		}
-//		return ug;
-//
-//	}
-
 	public boolean isUpperCase() {
 		return Character.isUpperCase(letter);
 	}
@@ -102,5 +84,16 @@ public class SvgCommandLetter implements SvgCommand {
 
 	public char getLetter() {
 		return letter;
+	}
+
+	public SvgCommandLetter implicit() {
+		// https://stackoverflow.com/questions/29251389/svg-path-spec-moveto-and-implicit-lineto
+		if (letter == 'm')
+			return new SvgCommandLetter("l");
+
+		if (letter == 'M')
+			return new SvgCommandLetter("L");
+
+		return this;
 	}
 }

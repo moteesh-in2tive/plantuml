@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,6 +32,8 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile;
 
+import static net.sourceforge.plantuml.utils.ObjectUtils.instanceOfAny;
+
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,35 +45,35 @@ import net.sourceforge.plantuml.ugraphic.UChange;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UGraphicNo;
 import net.sourceforge.plantuml.ugraphic.ULine;
-import net.sourceforge.plantuml.ugraphic.UParam;
-import net.sourceforge.plantuml.ugraphic.UParamNull;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
 import net.sourceforge.plantuml.ugraphic.URectangle;
 import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
-import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
-public class CollisionDetector extends UGraphicNo implements UGraphic {
+public class CollisionDetector extends UGraphicNo {
 
+	@Override
 	public UGraphic apply(UChange change) {
-		if (change instanceof UTranslate) {
-			return new CollisionDetector(stringBounder, translate.compose((UTranslate) change), this.context);
-		} else if (change instanceof UStroke) {
-			return new CollisionDetector(this);
-		} else if (change instanceof UBackground) {
-			return new CollisionDetector(this);
-		} else if (change instanceof HColor) {
-			return new CollisionDetector(this);
-		}
-		throw new UnsupportedOperationException();
+		return new CollisionDetector(this, change);
 	}
 
-	private final StringBounder stringBounder;
-	private final UTranslate translate;
 	private final Context context;
+
+	public CollisionDetector(StringBounder stringBounder) {
+		super(stringBounder);
+		this.context = new Context();
+	}
+
+	private CollisionDetector(CollisionDetector other, UChange change) {
+		super(other, change);
+		if (!instanceOfAny(change, UBackground.class, HColor.class, UStroke.class, UTranslate.class)) {
+			throw new UnsupportedOperationException(change.getClass().toString());
+		}
+		this.context = other.context;
+	}
 
 	static class Context {
 		private final List<MinMax> rectangles = new ArrayList<>();
@@ -79,20 +81,17 @@ public class CollisionDetector extends UGraphicNo implements UGraphic {
 		private boolean manageSnakes;
 
 		public void drawDebug(UGraphic ug) {
-			for (MinMax minmax : rectangles) {
-				if (collision(minmax)) {
-					minmax.drawGrey(ug);
-				}
-			}
+			for (MinMax minmax : rectangles)
+				if (collision(minmax))
+					minmax.drawGray(ug);
+
 			final HColor color = HColorUtils.BLACK;
 			ug = ug.apply(color).apply(new UStroke(5));
-			for (Snake snake : snakes) {
-				for (Line2D line : snake.getHorizontalLines()) {
-					if (collision(line)) {
+			for (Snake snake : snakes)
+				for (Line2D line : snake.getHorizontalLines())
+					if (collision(line))
 						drawLine(ug, line);
-					}
-				}
-			}
+
 		}
 
 		private void drawLine(UGraphic ug, Line2D line) {
@@ -101,11 +100,10 @@ public class CollisionDetector extends UGraphicNo implements UGraphic {
 		}
 
 		private boolean collision(Line2D hline) {
-			for (MinMax r : rectangles) {
-				if (collisionCheck(r, hline)) {
+			for (MinMax r : rectangles)
+				if (collisionCheck(r, hline))
 					return true;
-				}
-			}
+
 			return false;
 		}
 
@@ -123,80 +121,50 @@ public class CollisionDetector extends UGraphicNo implements UGraphic {
 	}
 
 	private static boolean collisionCheck(MinMax rect, Line2D hline) {
-		if (hline.getY1() != hline.getY2()) {
+		if (hline.getY1() != hline.getY2())
 			throw new IllegalArgumentException();
-		}
-		if (hline.getY1() < rect.getMinY()) {
+
+		if (hline.getY1() < rect.getMinY())
 			return false;
-		}
-		if (hline.getY1() > rect.getMaxY()) {
+
+		if (hline.getY1() > rect.getMaxY())
 			return false;
-		}
+
 		final double x1 = Math.min(hline.getX1(), hline.getX2());
 		final double x2 = Math.max(hline.getX1(), hline.getX2());
-		if (x2 < rect.getMinX()) {
+		if (x2 < rect.getMinX())
 			return false;
-		}
-		if (x1 > rect.getMaxX()) {
+
+		if (x1 > rect.getMaxX())
 			return false;
-		}
+
 		return true;
 	}
 
-	public CollisionDetector(StringBounder stringBounder) {
-		this(stringBounder, new UTranslate(), new Context());
-	}
-
-	private CollisionDetector(StringBounder stringBounder, UTranslate translate, Context context) {
-		this.stringBounder = stringBounder;
-		this.translate = translate;
-		this.context = context;
-	}
-
-	private CollisionDetector(CollisionDetector other) {
-		this(other.stringBounder, other.translate, other.context);
-	}
-
-	public StringBounder getStringBounder() {
-		return stringBounder;
-	}
-
-	public UParam getParam() {
-		return new UParamNull();
-	}
-
 	public void draw(UShape shape) {
-		if (shape instanceof UPolygon) {
+		if (shape instanceof UPolygon)
 			drawPolygone((UPolygon) shape);
-		} else if (shape instanceof URectangle) {
+		else if (shape instanceof URectangle)
 			drawRectangle((URectangle) shape);
-		} else if (shape instanceof Snake) {
+		else if (shape instanceof Snake)
 			drawSnake((Snake) shape);
-		} /*
+		/*
 		 * else { System.err.println("shape=" + shape.getClass() + " " + shape); }
 		 */
 	}
 
 	private void drawSnake(Snake shape) {
-		if (context.manageSnakes) {
-			context.snakes.add(shape.translate(translate));
-		}
+		if (context.manageSnakes)
+			context.snakes.add(shape.translate(getTranslate()));
 
 	}
 
 	private void drawRectangle(URectangle shape) {
-		context.rectangles.add(shape.getMinMax().translate(translate));
+		context.rectangles.add(shape.getMinMax().translate(getTranslate()));
 	}
 
 	private void drawPolygone(UPolygon shape) {
-		context.rectangles.add(shape.getMinMax().translate(translate));
-	}
-
-	public ColorMapper getColorMapper() {
-		throw new UnsupportedOperationException();
-	}
-
-	public void flushUg() {
+		context.rectangles.add(shape.getMinMax().translate(getTranslate()));
 	}
 
 	public void drawDebug(UGraphic ug) {
@@ -205,14 +173,6 @@ public class CollisionDetector extends UGraphicNo implements UGraphic {
 
 	public final void setManageSnakes(boolean manageSnakes) {
 		this.context.manageSnakes = manageSnakes;
-	}
-
-	public boolean matchesProperty(String propertyName) {
-		return false;
-	}
-
-	public double dpiFactor() {
-		return 1;
 	}
 
 }

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.sequencediagram.teoz;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -107,7 +107,7 @@ public class MutingLine {
 		if (y2 < y1) {
 			throw new IllegalArgumentException();
 		}
-		final Style style = defaultLineType.getDefaultStyleDefinition().getMergedStyle(styleBuilder);
+		final Style style = defaultLineType.getStyleSignature().getMergedStyle(styleBuilder);
 		final Component comp = skin.createComponent(new Style[] { style }, defaultLineType, null, skinParam,
 				participant.getDisplay(skinParam.forceSequenceParticipantUnderlined()));
 		final Dimension2D dim = comp.getPreferredDimension(ug.getStringBounder());

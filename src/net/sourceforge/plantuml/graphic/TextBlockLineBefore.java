@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.graphic;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 
 import net.sourceforge.plantuml.Dimension2DDouble;
@@ -48,19 +48,21 @@ public class TextBlockLineBefore extends AbstractTextBlock implements TextBlock,
 	private final TextBlock textBlock;
 	private final char separator;
 	private final TextBlock title;
+	private final double defaultThickness;
 
-	public TextBlockLineBefore(TextBlock textBlock, char separator, TextBlock title) {
+	public TextBlockLineBefore(double defaultThickness, TextBlock textBlock, char separator, TextBlock title) {
 		this.textBlock = textBlock;
 		this.separator = separator;
 		this.title = title;
+		this.defaultThickness = defaultThickness;
 	}
 
-	public TextBlockLineBefore(TextBlock textBlock, char separator) {
-		this(textBlock, separator, null);
+	public TextBlockLineBefore(double defaultThickness, TextBlock textBlock, char separator) {
+		this(defaultThickness, textBlock, separator, null);
 	}
 
-	public TextBlockLineBefore(TextBlock textBlock) {
-		this(textBlock, '\0');
+	public TextBlockLineBefore(double defaultThickness, TextBlock textBlock) {
+		this(defaultThickness, textBlock, '\0');
 	}
 
 	public Dimension2D calculateDimension(StringBounder stringBounder) {
@@ -74,18 +76,18 @@ public class TextBlockLineBefore extends AbstractTextBlock implements TextBlock,
 
 	public void drawU(UGraphic ug) {
 		final HColor color = ug.getParam().getColor();
-		if (title == null) {
-			UHorizontalLine.infinite(1, 1, separator).drawMe(ug);
-		}
+		if (title == null)
+			UHorizontalLine.infinite(defaultThickness, 1, 1, separator).drawMe(ug);
+
 		textBlock.drawU(ug);
-		if (color == null) {
+		if (color == null)
 			ug = ug.apply(new HColorNone());
-		} else {
+		else
 			ug = ug.apply(color);
-		}
-		if (title != null) {
-			UHorizontalLine.infinite(1, 1, title, separator).drawMe(ug);
-		}
+
+		if (title != null)
+			UHorizontalLine.infinite(defaultThickness, 1, 1, title, separator).drawMe(ug);
+
 	}
 
 	@Override
@@ -93,8 +95,11 @@ public class TextBlockLineBefore extends AbstractTextBlock implements TextBlock,
 		return textBlock.getInnerPosition(member, stringBounder, strategy);
 	}
 
+	@Override
 	public Ports getPorts(StringBounder stringBounder) {
-		return ((WithPorts) textBlock).getPorts(stringBounder);
+		if (textBlock instanceof WithPorts)
+			return ((WithPorts) textBlock).getPorts(stringBounder);
+		return new Ports();
 	}
 
 }

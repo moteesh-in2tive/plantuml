@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -40,11 +40,10 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.UPolygon;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 
-public class DriverPolygonBraille implements UDriver<BrailleGrid> {
+public class DriverPolygonBraille implements UDriver<UPolygon, BrailleGrid> {
 
 	private final ClipContainer clipContainer;
 
@@ -52,9 +51,7 @@ public class DriverPolygonBraille implements UDriver<BrailleGrid> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, BrailleGrid grid) {
-		final UPolygon shape = (UPolygon) ushape;
-
+	public void draw(UPolygon shape, double x, double y, ColorMapper mapper, UParam param, BrailleGrid grid) {
 		final List<Point2D> points = new ArrayList<>();
 		int i = 0;
 

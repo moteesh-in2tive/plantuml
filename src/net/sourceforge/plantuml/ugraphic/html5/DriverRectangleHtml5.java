@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -38,12 +38,11 @@ import net.sourceforge.plantuml.ugraphic.UClip;
 import net.sourceforge.plantuml.ugraphic.UDriver;
 import net.sourceforge.plantuml.ugraphic.UParam;
 import net.sourceforge.plantuml.ugraphic.URectangle;
-import net.sourceforge.plantuml.ugraphic.UShape;
 import net.sourceforge.plantuml.ugraphic.color.ColorMapper;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 import net.sourceforge.plantuml.ugraphic.color.HColorGradient;
 
-public class DriverRectangleHtml5 implements UDriver<Html5Drawer> {
+public class DriverRectangleHtml5 implements UDriver<URectangle, Html5Drawer> {
 
 	private final ClipContainer clipContainer;
 
@@ -51,9 +50,7 @@ public class DriverRectangleHtml5 implements UDriver<Html5Drawer> {
 		this.clipContainer = clipContainer;
 	}
 
-	public void draw(UShape ushape, double x, double y, ColorMapper mapper, UParam param, Html5Drawer html) {
-		final URectangle rect = (URectangle) ushape;
-
+	public void draw(URectangle rect, double x, double y, ColorMapper mapper, UParam param, Html5Drawer html) {
 		double width = rect.getWidth();
 		double height = rect.getHeight();
 
@@ -88,6 +85,5 @@ public class DriverRectangleHtml5 implements UDriver<Html5Drawer> {
 //					.getStroke().getDashSpace());
 			html.htmlRectangle(x, y, width, height, rx / 2, ry / 2);
 		}
-
 	}
 }

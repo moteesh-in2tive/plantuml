@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -136,9 +136,9 @@ public class FileUtils {
 	}
 
 	static public void copyToFile(byte[] src, SFile dest) throws IOException {
-		final OutputStream fos = dest.createBufferedOutputStream();
-		fos.write(src);
-		fos.close();
+		try (OutputStream fos = dest.createBufferedOutputStream()) {
+			fos.write(src);
+		}
 	}
 
 	static public String readSvg(SFile svgFile) throws IOException {

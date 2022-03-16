@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -40,6 +40,11 @@ import net.sourceforge.plantuml.graphic.FontStyle;
 import net.sourceforge.plantuml.ugraphic.color.HColor;
 
 public class CommandCreoleStyle extends CommandCreoleCache implements Command {
+
+	@Override
+	public String startingChars() {
+		return "</*_~-";
+	}
 
 	private final FontStyle style;
 	private final boolean tryExtendedColor;

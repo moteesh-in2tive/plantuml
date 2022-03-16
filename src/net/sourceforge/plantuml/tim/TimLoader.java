@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  *
@@ -34,6 +34,7 @@
  */
 package net.sourceforge.plantuml.tim;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class TimLoader {
 	private boolean preprocessorError;
 	private List<StringLocated> resultList;
 
-	public TimLoader(ImportedFiles importedFiles, Defines defines, String charset,
+	public TimLoader(ImportedFiles importedFiles, Defines defines, Charset charset,
 			DefinitionsContainer definitionsContainer) {
 		this.context = new TContext(importedFiles, defines, charset, definitionsContainer);
 		try {

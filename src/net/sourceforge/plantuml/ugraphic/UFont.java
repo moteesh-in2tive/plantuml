@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -54,7 +54,7 @@ public class UFont {
 
 	public String toStringDebug() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(font.getFontName());
+		sb.append(getPortableFontName());
 		sb.append("/");
 		sb.append(font.getSize());
 		return sb.toString();
@@ -113,14 +113,6 @@ public class UFont {
 		return font;
 	}
 
-	public UFont scaled(double scale) {
-		if (scale == 1) {
-			return this;
-		}
-		final float current = font.getSize2D();
-		return withSize((float) (current * scale));
-	}
-
 	public UFont withSize(float size) {
 		return new UFont(font.deriveFont(size), family);
 	}
@@ -171,6 +163,20 @@ public class UFont {
 			return family;
 		}
 		return family;
+	}
+
+	// Kludge for testing because font names on some machines (only macOS?) do not end with <DOT><STYLE>
+	// See https://github.com/plantuml/plantuml/issues/720
+	private String getPortableFontName() {
+		final String name = font.getFontName();
+		if (font.isBold() && font.isItalic())
+			return name.endsWith(".bolditalic") ? name : name + ".bolditalic";
+		else if (font.isBold())
+			return name.endsWith(".bold") ? name : name + ".bold";
+		else if (font.isItalic())
+			return name.endsWith(".italic") ? name : name + ".italic";
+		else
+			return name.endsWith(".plain") ? name : name + ".plain";
 	}
 
 	@Override

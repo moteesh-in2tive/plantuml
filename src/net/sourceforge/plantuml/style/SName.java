@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -58,6 +58,9 @@ public enum SName {
 	collection, //
 	collections, //
 	component, //
+	robust, //
+	concise, //
+	clock, //
 	componentDiagram, //
 	constraintArrow, //
 	control, //
@@ -68,6 +71,9 @@ public enum SName {
 	document, //
 	element, //
 	entity, //
+	end, //
+	start, //
+	stop, //
 	file, //
 	folder, //
 	footer, //
@@ -75,9 +81,9 @@ public enum SName {
 	ganttDiagram, //
 	group, //
 	groupHeader, //
+	header, //
 	hexagon, //
 	highlight, //
-	header, //
 	interface_, //
 	jsonDiagram, //
 	gitDiagram, //
@@ -85,11 +91,15 @@ public enum SName {
 	leafNode, //
 	legend, //
 	lifeLine, //
+	map, //
 	milestone, //
 	mindmapDiagram, //
+	network, //
 	node, //
 	note, //
+	nwdiagDiagram, //
 	objectDiagram, //
+	object, //
 	package_, //
 	participant, //
 	partition, //
@@ -103,8 +113,10 @@ public enum SName {
 	saltDiagram, //
 	separator, //
 	sequenceDiagram, //
+	server, //
 	stack, //
 	stateDiagram, //
+	state, //
 	stereotype, //
 	storage, //
 	swimlane, //
@@ -112,8 +124,23 @@ public enum SName {
 	timeline, //
 	timingDiagram, //
 	title, //
-	unstartedTask, //
+	undone, //
+	unstarted, //
 	usecase, //
+	
+	visibilityIcon, //
+	private_, //
+	protected_, //
+	public_, //
+	IEMandatory, //
+	spot, //
+	spotAnnotation, //
+	spotInterface, //
+	spotEnum, //
+	spotEntity, //
+	spotClass, //
+	spotAbstractClass, //
+	
 	wbsDiagram, //
 	yamlDiagram; //
 

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -34,6 +34,8 @@
  */
 package net.sourceforge.plantuml.ditaa;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,7 +53,7 @@ import net.sourceforge.plantuml.api.ImageDataSimple;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.ImageData;
 import net.sourceforge.plantuml.core.UmlSource;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.svek.GraphvizCrash;
 
 public class PSystemDitaa extends AbstractPSystem {
@@ -61,28 +63,40 @@ public class PSystemDitaa extends AbstractPSystem {
 	private final boolean dropShadows;
 	private final String data;
 	private final float scale;
+	private final boolean transparentBackground;
+	private final Font font;
+	private final boolean forceFontSize;
 	private final boolean performSeparationOfCommonEdges;
+	private final boolean allCornersAreRound;
 
-	public PSystemDitaa(UmlSource source, String data, boolean performSeparationOfCommonEdges, boolean dropShadows, float scale) {
+	public PSystemDitaa(UmlSource source, String data, boolean performSeparationOfCommonEdges, boolean dropShadows,
+			boolean allCornersAreRound, boolean transparentBackground, float scale, Font font, boolean forceFontSize) {
 		super(source);
 		this.data = data;
 		this.dropShadows = dropShadows;
 		this.performSeparationOfCommonEdges = performSeparationOfCommonEdges;
+		this.allCornersAreRound = allCornersAreRound;
 		try {
 			this.processingOptions = Class.forName("org.stathissideris.ascii2image.core.ProcessingOptions")
 					.newInstance();
 			// this.processingOptions.setPerformSeparationOfCommonEdges(performSeparationOfCommonEdges);
 			this.processingOptions.getClass().getMethod("setPerformSeparationOfCommonEdges", boolean.class)
 					.invoke(this.processingOptions, performSeparationOfCommonEdges);
+			this.processingOptions.getClass().getMethod("setAllCornersAreRound", boolean.class)
+					.invoke(this.processingOptions, allCornersAreRound);
 		} catch (Exception e) {
 			e.printStackTrace();
 			this.processingOptions = null;
 		}
+		this.transparentBackground = transparentBackground;
 		this.scale = scale;
+		this.font = font;
+		this.forceFontSize = forceFontSize;
 	}
 
 	PSystemDitaa add(String line) {
-		return new PSystemDitaa(getSource(), data + line + BackSlash.NEWLINE, performSeparationOfCommonEdges, dropShadows, scale);
+		return new PSystemDitaa(getSource(), data + line + BackSlash.NEWLINE, performSeparationOfCommonEdges,
+				dropShadows, allCornersAreRound, transparentBackground, scale, font, forceFontSize);
 	}
 
 	public DiagramDescription getDescription() {
@@ -106,6 +120,18 @@ public class PSystemDitaa extends AbstractPSystem {
 			// final RenderingOptions renderingOptions = options.renderingOptions;
 			final Field f_renderingOptions = options.getClass().getField("renderingOptions");
 			final Object renderingOptions = f_renderingOptions.get(options);
+
+			// renderingOptions.setBackgroundColor(font);
+			final Method setBackgroundColor = renderingOptions.getClass().getMethod("setBackgroundColor", Color.class);
+			setBackgroundColor.invoke(renderingOptions, transparentBackground ? new Color(0, 0, 0, 0) : Color.WHITE);
+
+			// renderingOptions.setFont(font);
+			final Method setFont = renderingOptions.getClass().getMethod("setFont", Font.class);
+			setFont.invoke(renderingOptions, font);
+
+			// renderingOptions.setForceFontSize(font);
+			final Method setForceFontSize = renderingOptions.getClass().getMethod("setForceFontSize", boolean.class);
+			setForceFontSize.invoke(renderingOptions, forceFontSize);
 
 			// renderingOptions.setScale(scale);
 			final Method setScale = renderingOptions.getClass().getMethod("setScale", float.class);
@@ -141,7 +167,7 @@ public class PSystemDitaa extends AbstractPSystem {
 					renderingOptions.getClass());
 			final BufferedImage image = (BufferedImage) renderToImage.invoke(bitmapRenderer, diagram, renderingOptions);
 
-			ImageIO.write(image, "png", os);
+			SImageIO.write(image, "png", os);
 			final int width = image.getWidth();
 			final int height = image.getHeight();
 			return new ImageDataSimple(width, height);

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -70,11 +70,11 @@ public class SkinParamBackcolored extends SkinParamDelegator {
 	}
 
 	@Override
-	public HColor getBackgroundColor(boolean replaceTransparentByWhite) {
+	public HColor getBackgroundColor() {
 		if (backColorGeneral != null) {
 			return backColorGeneral;
 		}
-		return super.getBackgroundColor(replaceTransparentByWhite);
+		return super.getBackgroundColor();
 	}
 
 	@Override

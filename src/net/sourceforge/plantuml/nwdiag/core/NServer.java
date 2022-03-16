@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -39,9 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.ComponentStyle;
-import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.graphic.FontConfiguration;
 import net.sourceforge.plantuml.graphic.HorizontalAlignment;
@@ -49,31 +48,33 @@ import net.sourceforge.plantuml.graphic.SymbolContext;
 import net.sourceforge.plantuml.graphic.TextBlock;
 import net.sourceforge.plantuml.graphic.TextBlockUtils;
 import net.sourceforge.plantuml.graphic.USymbol;
-import net.sourceforge.plantuml.nwdiag.next.LinkedElementNext;
+import net.sourceforge.plantuml.graphic.USymbols;
+import net.sourceforge.plantuml.nwdiag.next.LinkedElement;
 import net.sourceforge.plantuml.nwdiag.next.NBar;
 import net.sourceforge.plantuml.skin.ActorStyle;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.Style;
+import net.sourceforge.plantuml.style.StyleBuilder;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.PackageStyle;
-import net.sourceforge.plantuml.ugraphic.UFont;
-import net.sourceforge.plantuml.ugraphic.color.HColorUtils;
 
 public class NServer {
 
 	private final Map<Network, String> connections = new LinkedHashMap<Network, String>();
 
-	private USymbol shape = USymbol.RECTANGLE;
+	private USymbol shape = USymbols.RECTANGLE;
 	private final String name;
 	private String description;
-	private final NBar bar = new NBar();
+	private final NBar bar;
 
-	// To be renamed in "printFirstLink"
-	private boolean hasItsOwnColumn = true;
+	private boolean printFirstLink = true;
 
-	public void doNotHaveItsOwnColumn() {
-		this.hasItsOwnColumn = false;
+	public void doNotPrintFirstLink() {
+		this.printFirstLink = false;
 	}
 
-	public final boolean hasItsOwnColumn() {
-		return hasItsOwnColumn;
+	public final boolean printFirstLink() {
+		return printFirstLink;
 	}
 
 	public Network getMainNetworkNext() {
@@ -84,7 +85,7 @@ public class NServer {
 		return connections.get(network);
 	}
 
-	protected final TextBlock toTextBlock(String s, ISkinSimple spriteContainer) {
+	private TextBlock toTextBlock(String s, ISkinParam skinParam, SName sname) {
 		if (s == null) {
 			return null;
 		}
@@ -92,39 +93,62 @@ public class NServer {
 			return TextBlockUtils.empty(0, 0);
 		}
 		s = s.replace(", ", "\\n");
-		return Display.getWithNewlines(s).create(getFontConfiguration(), HorizontalAlignment.LEFT, spriteContainer);
+		return Display.getWithNewlines(s).create(getFontConfiguration(skinParam, sname), HorizontalAlignment.LEFT,
+				skinParam);
 	}
 
-	public LinkedElementNext asTextBlockNext(double topMargin, Map<Network, String> conns, List<Network> networks,
-			ISkinSimple spriteContainer) {
+	private StyleSignatureBasic getStyleDefinition(SName sname) {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.nwdiagDiagram, sname);
+	}
+
+	private FontConfiguration getFontConfiguration(ISkinParam skinParam, SName sname) {
+		final StyleBuilder styleBuilder = skinParam.getCurrentStyleBuilder();
+		final Style style = getStyleDefinition(sname).getMergedStyle(styleBuilder);
+		return style.getFontConfiguration(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
+	}
+
+	public LinkedElement getLinkedElement(double topMargin, Map<Network, String> conns, List<Network> networks,
+			ISkinParam skinParam) {
+		final StyleBuilder styleBuilder = skinParam.getCurrentStyleBuilder();
+		final SymbolContext symbolContext = getStyleDefinition(SName.server).getMergedStyle(styleBuilder)
+				.getSymbolContext(skinParam.getThemeStyle(), skinParam.getIHtmlColorSet());
+
 		final Map<Network, TextBlock> conns2 = new LinkedHashMap<Network, TextBlock>();
 		for (Entry<Network, String> ent : conns.entrySet()) {
-			conns2.put(ent.getKey(), toTextBlock(ent.getValue(), spriteContainer));
+			conns2.put(ent.getKey(), toTextBlock(ent.getValue(), skinParam, SName.arrow));
 		}
-		final SymbolContext symbolContext = new SymbolContext(ColorParam.activityBackground.getDefaultValue(),
-				ColorParam.activityBorder.getDefaultValue()).withShadow(3);
-		final TextBlock desc = toTextBlock(getDescription(), spriteContainer);
+
+		final TextBlock desc = toTextBlock(getDescription(), skinParam, SName.server);
 		final TextBlock box = getShape().asSmall(TextBlockUtils.empty(0, 0), desc, TextBlockUtils.empty(0, 0),
 				symbolContext, HorizontalAlignment.CENTER);
-		return new LinkedElementNext(topMargin, this, box, conns2, networks);
+		return new LinkedElement(topMargin, this, box, conns2, networks);
 	}
 
-	public void connect(Network network, Map<String, String> props) {
-		String address = props.get("address");
-		if (address == null) {
+	public void connectTo(Network network) {
+		connectTo(network, "");
+	}
+
+	public void connectTo(Network network, String address) {
+		if (address == null)
 			address = "";
-		}
 		if (address.length() == 0 && connections.containsKey(network)) {
 			return;
 		}
 		connections.put(network, address);
-		if (bar.getStart() == null) {
+		if (bar.getStart() == null)
 			bar.addStage(network.getNstage());
-		} else {
-			// Test to be removed
-			if (network.getUp() != null)
-				if (this.getMainNetworkNext() != network)
-					bar.addStage(network.getUp());
+		else if (this.getMainNetworkNext() != network)
+			bar.addStage(network.getUp());
+	}
+
+	public void updateProperties(Map<String, String> props) {
+		final String description = props.get("description");
+		if (description != null) {
+			this.setDescription(description);
+		}
+		final String shape = props.get("shape");
+		if (shape != null) {
+			this.setShape(shape);
 		}
 	}
 
@@ -134,18 +158,13 @@ public class NServer {
 	}
 
 	public NServer(String name) {
-		this.description = name;
-		this.name = name;
+		this(name, new NBar());
 	}
 
-	public NServer(String name, Object... unused) {
+	public NServer(String name, NBar bar) {
 		this.description = name;
 		this.name = name;
-	}
-
-	protected final FontConfiguration getFontConfiguration() {
-		final UFont font = UFont.serif(11);
-		return new FontConfiguration(font, HColorUtils.BLACK, HColorUtils.BLACK, false);
+		this.bar = bar;
 	}
 
 	public final String getDescription() {
@@ -161,7 +180,7 @@ public class NServer {
 	}
 
 	public final void setShape(String shapeName) {
-		final USymbol shapeFromString = USymbol.fromString(shapeName, ActorStyle.STICKMAN, ComponentStyle.RECTANGLE,
+		final USymbol shapeFromString = USymbols.fromString(shapeName, ActorStyle.STICKMAN, ComponentStyle.RECTANGLE,
 				PackageStyle.RECTANGLE);
 		if (shapeFromString != null) {
 			this.shape = shapeFromString;

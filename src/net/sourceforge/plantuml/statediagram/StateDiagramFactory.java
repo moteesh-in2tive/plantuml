@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.classdiagram.command.CommandHideShow2;
 import net.sourceforge.plantuml.classdiagram.command.CommandNamespaceSeparator;
 import net.sourceforge.plantuml.classdiagram.command.CommandRemoveRestore;
@@ -43,6 +44,7 @@ import net.sourceforge.plantuml.classdiagram.command.CommandUrl;
 import net.sourceforge.plantuml.command.Command;
 import net.sourceforge.plantuml.command.CommandFootboxIgnored;
 import net.sourceforge.plantuml.command.CommandRankDir;
+import net.sourceforge.plantuml.command.CommonCommands;
 import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.CommandFactoryNote;
 import net.sourceforge.plantuml.command.note.CommandFactoryNoteOnEntity;
@@ -52,16 +54,18 @@ import net.sourceforge.plantuml.command.regex.RegexOr;
 import net.sourceforge.plantuml.core.UmlSource;
 import net.sourceforge.plantuml.statediagram.command.CommandAddField;
 import net.sourceforge.plantuml.statediagram.command.CommandConcurrentState;
+import net.sourceforge.plantuml.statediagram.command.CommandCreatePackage2;
 import net.sourceforge.plantuml.statediagram.command.CommandCreatePackageState;
 import net.sourceforge.plantuml.statediagram.command.CommandCreateState;
 import net.sourceforge.plantuml.statediagram.command.CommandEndState;
 import net.sourceforge.plantuml.statediagram.command.CommandLinkState;
+import net.sourceforge.plantuml.statediagram.command.CommandLinkStateReverse;
 
 public class StateDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public StateDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
-		return new StateDiagram(source, skinParam);
+	public StateDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new StateDiagram(style, source, skinParam);
 	}
 
 	@Override
@@ -72,7 +76,9 @@ public class StateDiagramFactory extends PSystemCommandFactory {
 		cmds.add(new CommandRemoveRestore());
 		cmds.add(new CommandCreateState());
 		cmds.add(new CommandLinkState());
+		cmds.add(new CommandLinkStateReverse());
 		cmds.add(new CommandCreatePackageState());
+		cmds.add(new CommandCreatePackage2());
 		cmds.add(new CommandEndState());
 		cmds.add(new CommandAddField());
 		cmds.add(new CommandConcurrentState());
@@ -94,7 +100,7 @@ public class StateDiagramFactory extends PSystemCommandFactory {
 		cmds.add(factoryNoteCommand.createSingleLine());
 		cmds.add(factoryNoteCommand.createMultiLine(false));
 
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
 		cmds.add(new CommandHideShow2());
 		cmds.add(new CommandNamespaceSeparator());
 

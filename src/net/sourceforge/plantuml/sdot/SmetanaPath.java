@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -43,6 +43,7 @@ import h.ST_textlabel_t;
 import net.sourceforge.plantuml.ColorParam;
 import net.sourceforge.plantuml.LineParam;
 import net.sourceforge.plantuml.UmlDiagramType;
+import net.sourceforge.plantuml.UseStyle;
 import net.sourceforge.plantuml.cucadiagram.CucaDiagram;
 import net.sourceforge.plantuml.cucadiagram.Link;
 import net.sourceforge.plantuml.cucadiagram.LinkType;
@@ -51,6 +52,9 @@ import net.sourceforge.plantuml.graphic.UDrawable;
 import net.sourceforge.plantuml.graphic.color.ColorType;
 import net.sourceforge.plantuml.posimo.DotPath;
 import net.sourceforge.plantuml.skin.rose.Rose;
+import net.sourceforge.plantuml.style.PName;
+import net.sourceforge.plantuml.style.SName;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.svek.extremity.ExtremityFactory;
 import net.sourceforge.plantuml.ugraphic.UEllipse;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -105,7 +109,16 @@ public class SmetanaPath implements UDrawable {
 			return;
 		}
 		
-		HColor color = rose.getHtmlColor(diagram.getSkinParam(), null, getArrowColorParam());
+		HColor color;
+
+		if (UseStyle.useBetaStyle()) {
+			color = StyleSignatureBasic.of(SName.root, SName.element, diagram.getUmlDiagramType().getStyleName(), SName.arrow)
+					.getMergedStyle(diagram.getSkinParam().getCurrentStyleBuilder())
+					.value(PName.LineColor)
+					.asColor(diagram.getSkinParam().getThemeStyle(), diagram.getSkinParam().getIHtmlColorSet());
+		} else {
+			color = rose.getHtmlColor(diagram.getSkinParam(), null, getArrowColorParam());
+		}
 
 		if (this.link.getColors() != null) {
 			final HColor newColor = this.link.getColors().getColor(ColorType.ARROW, ColorType.LINE);
@@ -148,7 +161,7 @@ public class SmetanaPath implements UDrawable {
 
 	private void printExtremityAtStart(UGraphic ug) {
 		final ExtremityFactory extremityFactory2 = link.getType().getDecor2()
-				.getExtremityFactoryComplete(HColorUtils.WHITE);
+				.getExtremityFactoryComplete(diagram.getSkinParam().getBackgroundColor());
 		if (extremityFactory2 == null) {
 			return;
 		}
@@ -172,7 +185,7 @@ public class SmetanaPath implements UDrawable {
 
 	private void printExtremityAtEnd(UGraphic ug) {
 		final ExtremityFactory extremityFactory1 = link.getType().getDecor1()
-				.getExtremityFactoryComplete(HColorUtils.WHITE);
+				.getExtremityFactoryComplete(diagram.getSkinParam().getBackgroundColor());
 		if (extremityFactory1 == null) {
 			return;
 		}

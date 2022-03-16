@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -42,7 +42,7 @@ public class NBox implements Staged {
 
 	public void add(NBar bar) {
 		if (this.bars.contains(bar)) {
-			throw new IllegalStateException();
+			return;
 		}
 		this.bars.add(bar);
 		this.tetris.add(bar);

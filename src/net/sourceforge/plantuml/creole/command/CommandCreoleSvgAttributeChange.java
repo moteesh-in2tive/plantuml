@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -41,6 +41,11 @@ import net.sourceforge.plantuml.graphic.Splitter;
 import net.sourceforge.plantuml.graphic.SvgAttributes;
 
 public class CommandCreoleSvgAttributeChange implements Command {
+
+	@Override
+	public String startingChars() {
+		return "<";
+	}
 
 	public static final String fontPattern = Splitter.svgAttributePattern;
 

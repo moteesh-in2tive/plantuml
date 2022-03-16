@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.creole.legacy;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -223,18 +223,41 @@ public final class AtomText extends AbstractAtom implements Atom {
 
 	private final Collection<String> splitted() {
 		final List<String> result = new ArrayList<>();
+		final StringBuilder pending = new StringBuilder();
 		for (int i = 0; i < text.length(); i++) {
 			final char ch = text.charAt(i);
-			if (isOfWord(ch)) {
+			if (isSeparator(ch)) {
+				if (pending.length() > 0)
+					result.add(pending.toString());
+				result.add("" + ch);
+				pending.setLength(0);
+			} else if (isChineseSentenceBoundary(ch)) {
+				pending.append(ch);
+				result.add(pending.toString());
+				pending.setLength(0);
+			} else {
+				pending.append(ch);
+			}
+		}
+		if (pending.length() > 0)
+			result.add(pending.toString());
+		return result;
+	}
+
+	private final Collection<String> splittedOld() {
+		final List<String> result = new ArrayList<>();
+		for (int i = 0; i < text.length(); i++) {
+			final char ch = text.charAt(i);
+			if (isSeparator(ch)) {
+				result.add("" + text.charAt(i));
+			} else {
 				final StringBuilder tmp = new StringBuilder();
 				tmp.append(ch);
-				while (i + 1 < text.length() && isOfWord(text.charAt(i + 1))) {
+				while (i + 1 < text.length() && isSeparator(text.charAt(i + 1)) == false) {
 					i++;
 					tmp.append(text.charAt(i));
 				}
 				result.add(tmp.toString());
-			} else {
-				result.add("" + text.charAt(i));
 			}
 		}
 		return result;
@@ -286,8 +309,19 @@ public final class AtomText extends AbstractAtom implements Atom {
 		return Collections.singletonList((Atom) this);
 	}
 
-	private boolean isOfWord(char ch) {
-		return Character.isWhitespace(ch) == false;
+	private boolean isSeparator(char ch) {
+		return Character.isWhitespace(ch);
+	}
+
+	private boolean isChineseSentenceBoundary(char ch) {
+		return ch == '\uFF01' // U+FF01 FULLWIDTH EXCLAMATION MARK (!)
+//				|| ch == '\uFF08' // U+FF08 FULLWIDTH LEFT PARENTHESIS
+//				|| ch == '\uFF09' // U+FF09 FULLWIDTH RIGHT PARENTHESIS
+				|| ch == '\uFF0C' // U+FF0C FULLWIDTH COMMA
+				|| ch == '\uFF1A' // U+FF1A FULLWIDTH COLON (:)
+				|| ch == '\uFF1B' // U+FF1B FULLWIDTH SEMICOLON (;)
+				|| ch == '\uFF1F' // U+FF1F FULLWIDTH QUESTION MARK (?)
+				|| ch == '\u3002'; // U+3002 IDEOGRAPHIC FULL STOP (.)
 	}
 
 	public final String getText() {

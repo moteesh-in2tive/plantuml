@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vertical;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -70,8 +70,7 @@ import net.sourceforge.plantuml.style.ClockwiseTopRightBottomLeft;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.UStroke;
 import net.sourceforge.plantuml.ugraphic.UTranslate;
@@ -97,12 +96,12 @@ public class FtileBox extends AbstractFtile {
 	private final HColor backColor;
 	private final Style style;
 
-	static public StyleSignature getDefaultStyleDefinitionActivity() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.activity);
+	static public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.activity);
 	}
 
-	static public StyleSignature getDefaultStyleDefinitionArrow() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.arrow);
+	static public StyleSignatureBasic getStyleSignatureArrow() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.arrow);
 	}
 
 	final public LinkRendering getInLinkRendering() {
@@ -142,38 +141,12 @@ public class FtileBox extends AbstractFtile {
 		Style style = null;
 		Style styleArrow = null;
 		if (UseStyle.useBetaStyle()) {
-			style = getDefaultStyleDefinitionActivity().with(stereotype)
+			style = getStyleSignature().withTOBECHANGED(stereotype)
 					.getMergedStyle(skinParam.getCurrentStyleBuilder());
-			styleArrow = getDefaultStyleDefinitionArrow().getMergedStyle(skinParam.getCurrentStyleBuilder());
+			styleArrow = getStyleSignatureArrow().getMergedStyle(skinParam.getCurrentStyleBuilder());
 		}
 		return new FtileBox(skinParam, label, swimlane, boxStyle, style, styleArrow);
 	}
-
-//	public static TextBlock createWbs(StyleBuilder styleBuilder, ISkinParam skinParam, Display label,
-//			StyleSignature styleDefinition) {
-//		Style style = null;
-//		Style styleArrow = null;
-//		if (UseStyle.useBetaStyle()) {
-//			style = styleDefinition.getMergedStyle(styleBuilder);
-//			styleArrow = style;
-//		}
-//		return new FtileBox(skinParam, label, null, BoxStyle.PLAIN, style, styleArrow);
-//	}
-//
-//	public static TextBlock createWbs(Style style, ISkinParam skinParam, Display label) {
-//		Style styleArrow = null;
-//		if (UseStyle.useBetaStyle()) {
-//			styleArrow = style;
-//		}
-//		return new FtileBox(skinParam, label, null, BoxStyle.PLAIN, style, styleArrow);
-//	}
-//
-//	public static TextBlock createMindMap(StyleBuilder styleBuilder, ISkinParam skinParam, Display label,
-//			StyleSignature styleDefinition) {
-//		final Style style = styleDefinition.getMergedStyle(styleBuilder);
-//		final Style styleArrow = style;
-//		return new FtileBox(skinParam, label, null, BoxStyle.PLAIN, style, styleArrow);
-//	}
 
 	private FtileBox(ISkinParam skinParam, Display label, Swimlane swimlane, BoxStyle boxStyle, Style style,
 			Style styleArrow) {
@@ -239,7 +212,7 @@ public class FtileBox extends AbstractFtile {
 		if (UseStyle.useBetaStyle()) {
 			thickness = style.getStroke();
 		} else {
-			thickness = getThickness();
+			thickness = getThickness(style);
 		}
 
 		if (borderColor == null) {

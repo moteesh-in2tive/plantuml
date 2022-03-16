@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,7 +35,7 @@
  */
 package net.sourceforge.plantuml.creole.legacy;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -89,10 +89,11 @@ public class AtomTextUtils {
 		return createAtomText(url.getLabel(), url, fontConfiguration, skinSimple);
 	}
 
+	private static final Pattern p = Pattern.compile(Splitter.openiconPattern + "|" + Splitter.spritePattern2 + "|"
+			+ Splitter.imgPatternNoSrcColon + "|" + Splitter.emojiPattern);
+
 	private static Atom createAtomText(final String text, Url url, FontConfiguration fontConfiguration,
 			ISkinSimple skinSimple) {
-		final Pattern p = Pattern.compile(
-				Splitter.openiconPattern + "|" + Splitter.spritePattern2 + "|" + Splitter.imgPatternNoSrcColon);
 		final Matcher m = p.matcher(text);
 		final List<Atom> result = new ArrayList<>();
 		while (m.find()) {
@@ -104,6 +105,10 @@ public class AtomTextUtils {
 			final String valOpenicon = m.group(1);
 			final String valSprite = m.group(3);
 			final String valImg = m.group(5);
+			final String valEmoji = m.group(7);
+			if (valEmoji != null)
+				throw new UnsupportedOperationException();
+
 			if (valOpenicon != null) {
 				final OpenIcon openIcon = OpenIcon.retrieve(valOpenicon);
 				if (openIcon != null) {

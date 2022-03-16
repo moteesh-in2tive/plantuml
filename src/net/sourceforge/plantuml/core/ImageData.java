@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -48,13 +48,11 @@ public interface ImageData {
 
 	/**
 	 * Width in pixel of the image.
-	 * @return
 	 */
 	public int getWidth();
 
 	/**
 	 * Height in pixel of the image.
-	 * @return
 	 */
 	public int getHeight();
 
@@ -69,14 +67,13 @@ public interface ImageData {
 	 * For example, if you call this method with <code>nameId</code>
 	 * set to "foo_map", you will get something like:
 	 * 
-	 * <code><pre>
+	 * <pre>
 	 * &lt;map id="foo_map" name="foo_map"&gt;
 	 * &lt;area shape="rect" id="..." href="..." title="..." alt="" coords="64,68,93,148"/&gt;
 	 * &lt;/map&gt;
-	 * </pre></code>
+	 * </pre>
 	 * 
-	 * @param nameId thie id to be used in the cmap data string.
-	 * @return
+	 * @param nameId the id to be used in the cmap data string.
 	 */
 	public String getCMapData(String nameId);
 	

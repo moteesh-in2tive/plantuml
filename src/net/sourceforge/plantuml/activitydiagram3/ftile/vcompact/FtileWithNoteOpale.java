@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.activitydiagram3.ftile.vcompact;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +68,7 @@ import net.sourceforge.plantuml.skin.rose.Rose;
 import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
 import net.sourceforge.plantuml.style.Styleable;
 import net.sourceforge.plantuml.svek.image.Opale;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -81,13 +81,12 @@ public class FtileWithNoteOpale extends AbstractFtile implements Stencil, Stylea
 	private final Ftile tile;
 	private final Opale opale;
 
-	// private final HtmlColor arrowColor;
 	private final NotePosition notePosition;
 	private final double suppSpace = 20;
 	private final Swimlane swimlaneNote;
 
-	public StyleSignature getDefaultStyleDefinition() {
-		return StyleSignature.of(SName.root, SName.element, SName.activityDiagram, SName.note);
+	public StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.activityDiagram, SName.note);
 	}
 
 	public Set<Swimlane> getSwimlanes() {
@@ -139,11 +138,12 @@ public class FtileWithNoteOpale extends AbstractFtile implements Stencil, Stylea
 		final HColor noteBackgroundColor;
 		final HColor borderColor;
 		final FontConfiguration fc;
+		UStroke stroke = new UStroke();
 
 		final double shadowing;
 		final LineBreakStrategy wrapWidth;
 		if (UseStyle.useBetaStyle()) {
-			final Style style = getDefaultStyleDefinition().getMergedStyle(skinParam.getCurrentStyleBuilder())
+			final Style style = getStyleSignature().getMergedStyle(skinParam.getCurrentStyleBuilder())
 					.eventuallyOverride(note.getColors());
 			noteBackgroundColor = style.value(PName.BackGroundColor).asColor(skinParam.getThemeStyle(),
 					getIHtmlColorSet());
@@ -151,6 +151,7 @@ public class FtileWithNoteOpale extends AbstractFtile implements Stencil, Stylea
 			fc = style.getFontConfiguration(skinParam.getThemeStyle(), getIHtmlColorSet());
 			shadowing = style.value(PName.Shadowing).asDouble();
 			wrapWidth = style.wrapWidth();
+			stroke = style.getStroke();
 		} else {
 			noteBackgroundColor = rose.getHtmlColor(skinParam, ColorParam.noteBackground);
 			borderColor = rose.getHtmlColor(skinParam, ColorParam.noteBorder);
@@ -162,9 +163,8 @@ public class FtileWithNoteOpale extends AbstractFtile implements Stencil, Stylea
 		final HorizontalAlignment align = skinParam.getHorizontalAlignment(AlignmentParam.noteTextAlignment, null,
 				false, null);
 		final Sheet sheet = Parser.build(fc, align, skinParam, CreoleMode.FULL).createSheet(note.getDisplay());
-		final TextBlock text = new SheetBlock2(new SheetBlock1(sheet, wrapWidth, skinParam.getPadding()), this,
-				new UStroke(1));
-		opale = new Opale(shadowing, borderColor, noteBackgroundColor, text, withLink);
+		final TextBlock text = new SheetBlock2(new SheetBlock1(sheet, wrapWidth, skinParam.getPadding()), this, stroke);
+		opale = new Opale(shadowing, borderColor, noteBackgroundColor, text, withLink, stroke);
 
 	}
 
@@ -181,6 +181,13 @@ public class FtileWithNoteOpale extends AbstractFtile implements Stencil, Stylea
 		}
 
 		return new UTranslate(marge, yForFtile);
+	}
+
+	@Override
+	public UTranslate getTranslateFor(Ftile child, StringBounder stringBounder) {
+		if (child == tile)
+			return new UTranslate();
+		return super.getTranslateFor(child, stringBounder);
 
 	}
 

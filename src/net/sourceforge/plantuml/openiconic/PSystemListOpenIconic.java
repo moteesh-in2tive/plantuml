@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -66,14 +66,15 @@ public class PSystemListOpenIconic extends PlainDiagram {
 		lines.add("<i>Credit to");
 		lines.add("https://useiconic.com/open");
 		lines.add(" ");
-		final BufferedReader br = new BufferedReader(new InputStreamReader(getRessourceAllTxt()));
-		String s = null;
-		while ((s = br.readLine()) != null) {
-			// lines.add("<&yen> " + s);
-			// System.err.println("s=" + s);
-			lines.add("<&" + s + "> " + s);
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(getRessourceAllTxt()))) {
+			String s = null;
+			while ((s = br.readLine()) != null) {
+				// lines.add("<&yen> " + s);
+				// System.err.println("s=" + s);
+				lines.add("<&" + s + "> " + s);
+			}
 		}
-		br.close();
+		
 		final List<TextBlock> cols = AbstractTextBlock.getCols(lines, 7, 0);
 		return new TextBlockHorizontal(cols, VerticalAlignment.TOP);
 	}

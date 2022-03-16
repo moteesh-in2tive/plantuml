@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -241,18 +241,19 @@ public class PlantUmlTask extends Task {
 			this.log(s);
 			throw new BuildException(s);
 		}
-		for (File f : dir.listFiles()) {
-			if (f.isFile() == false) {
-				continue;
+		if (dir.listFiles() != null)
+			for (File f : dir.listFiles()) {
+				if (f.isFile() == false)
+					continue;
+
+				if (fileToProcess(f.getName()) == false)
+					continue;
+
+				final boolean error = processingSingleFile(f);
+				if (error)
+					return f;
+
 			}
-			if (fileToProcess(f.getName()) == false) {
-				continue;
-			}
-			final boolean error = processingSingleFile(f);
-			if (error) {
-				return f;
-			}
-		}
 		return null;
 	}
 

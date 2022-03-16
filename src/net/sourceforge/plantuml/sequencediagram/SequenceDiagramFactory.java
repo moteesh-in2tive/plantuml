@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.plantuml.ISkinSimple;
+import net.sourceforge.plantuml.api.ThemeStyle;
 import net.sourceforge.plantuml.command.Command;
+import net.sourceforge.plantuml.command.CommonCommands;
 import net.sourceforge.plantuml.command.PSystemCommandFactory;
 import net.sourceforge.plantuml.command.note.sequence.FactorySequenceNoteAcrossCommand;
 import net.sourceforge.plantuml.command.note.sequence.FactorySequenceNoteCommand;
@@ -63,6 +65,7 @@ import net.sourceforge.plantuml.sequencediagram.command.CommandFootbox;
 import net.sourceforge.plantuml.sequencediagram.command.CommandFootboxOld;
 import net.sourceforge.plantuml.sequencediagram.command.CommandGrouping;
 import net.sourceforge.plantuml.sequencediagram.command.CommandHSpace;
+import net.sourceforge.plantuml.sequencediagram.command.CommandHideUnlinked;
 import net.sourceforge.plantuml.sequencediagram.command.CommandIgnoreNewpage;
 import net.sourceforge.plantuml.sequencediagram.command.CommandLinkAnchor;
 import net.sourceforge.plantuml.sequencediagram.command.CommandNewpage;
@@ -70,6 +73,7 @@ import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA;
 import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA2;
 import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA3;
 import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantA4;
+import net.sourceforge.plantuml.sequencediagram.command.CommandParticipantMultilines;
 import net.sourceforge.plantuml.sequencediagram.command.CommandReferenceMultilinesOverSeveral;
 import net.sourceforge.plantuml.sequencediagram.command.CommandReferenceOverSeveral;
 import net.sourceforge.plantuml.sequencediagram.command.CommandReturn;
@@ -78,8 +82,8 @@ import net.sourceforge.plantuml.sequencediagram.command.CommandUrl;
 public class SequenceDiagramFactory extends PSystemCommandFactory {
 
 	@Override
-	public SequenceDiagram createEmptyDiagram(UmlSource source, ISkinSimple skinParam) {
-		return new SequenceDiagram(source, skinParam);
+	public SequenceDiagram createEmptyDiagram(ThemeStyle style, UmlSource source, ISkinSimple skinParam) {
+		return new SequenceDiagram(style, source, skinParam);
 	}
 
 	@Override
@@ -87,7 +91,8 @@ public class SequenceDiagramFactory extends PSystemCommandFactory {
 
 		final List<Command> cmds = new ArrayList<>();
 
-		addCommonCommands1(cmds);
+		CommonCommands.addCommonCommands1(cmds);
+		cmds.add(new CommandHideUnlinked());
 
 		cmds.add(new CommandActivate());
 		cmds.add(new CommandDeactivateShort());
@@ -96,6 +101,7 @@ public class SequenceDiagramFactory extends PSystemCommandFactory {
 		cmds.add(new CommandParticipantA2());
 		cmds.add(new CommandParticipantA3());
 		cmds.add(new CommandParticipantA4());
+		cmds.add(new CommandParticipantMultilines());
 		cmds.add(new CommandArrow());
 		// addCommand(new CommandArrowCrossX());
 		cmds.add(new CommandExoArrowLeft());

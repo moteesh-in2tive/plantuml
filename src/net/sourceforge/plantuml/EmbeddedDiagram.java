@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -35,9 +35,8 @@
  */
 package net.sourceforge.plantuml;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -51,7 +50,7 @@ import net.sourceforge.plantuml.graphic.HorizontalAlignment;
 import net.sourceforge.plantuml.graphic.Line;
 import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.preproc.Defines;
-import net.sourceforge.plantuml.security.ImageIO;
+import net.sourceforge.plantuml.security.SImageIO;
 import net.sourceforge.plantuml.ugraphic.AffineTransformType;
 import net.sourceforge.plantuml.ugraphic.PixelImage;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
@@ -89,6 +88,12 @@ public class EmbeddedDiagram implements CharSequence {
 		}
 		if (s.equals("{{wire")) {
 			return "wire";
+		}
+		if (s.equals("{{creole")) {
+			return "creole";
+		}
+		if (s.equals("{{board")) {
+			return "board";
 		}
 		return null;
 	}
@@ -187,10 +192,7 @@ public class EmbeddedDiagram implements CharSequence {
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			system.exportDiagram(os, 0, new FileFormatOption(FileFormat.PNG));
 			os.close();
-			final ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-			final BufferedImage im = ImageIO.read(is);
-			is.close();
-			return im;
+			return SImageIO.read(os.toByteArray());
 		}
 
 		public HorizontalAlignment getHorizontalAlignment() {
@@ -198,7 +200,8 @@ public class EmbeddedDiagram implements CharSequence {
 		}
 
 		private Diagram getSystem() throws IOException, InterruptedException {
-			final BlockUml blockUml = new BlockUml(system.as2(), Defines.createEmpty(), skinParam, null);
+			final BlockUml blockUml = new BlockUml(skinParam.getThemeStyle(), system.as2(), Defines.createEmpty(),
+					skinParam, null, null);
 			return blockUml.getDiagram();
 
 		}

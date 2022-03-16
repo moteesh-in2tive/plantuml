@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,7 +32,7 @@
  */
 package net.sourceforge.plantuml.project.draw;
 
-import java.awt.geom.Dimension2D;
+import net.sourceforge.plantuml.awt.geom.Dimension2D;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -65,7 +65,8 @@ import net.sourceforge.plantuml.style.PName;
 import net.sourceforge.plantuml.style.SName;
 import net.sourceforge.plantuml.style.Style;
 import net.sourceforge.plantuml.style.StyleBuilder;
-import net.sourceforge.plantuml.style.StyleSignature;
+import net.sourceforge.plantuml.style.StyleSignatureBasic;
+import net.sourceforge.plantuml.style.Value;
 import net.sourceforge.plantuml.svek.image.Opale;
 import net.sourceforge.plantuml.ugraphic.UGraphic;
 import net.sourceforge.plantuml.ugraphic.ULine;
@@ -170,8 +171,8 @@ public class TaskDrawRegular extends AbstractTaskDraw {
 	}
 
 	@Override
-	StyleSignature getStyleSignature() {
-		return StyleSignature.of(SName.root, SName.element, SName.ganttDiagram, SName.task);
+	StyleSignatureBasic getStyleSignature() {
+		return StyleSignatureBasic.of(SName.root, SName.element, SName.ganttDiagram, SName.task);
 	}
 
 	public void drawU(UGraphic ug) {
@@ -204,7 +205,7 @@ public class TaskDrawRegular extends AbstractTaskDraw {
 	}
 
 	private Opale getOpaleNote() {
-		final Style style = StyleSignature.of(SName.root, SName.element, SName.ganttDiagram, SName.note)
+		final Style style = StyleSignatureBasic.of(SName.root, SName.element, SName.ganttDiagram, SName.note)
 				.getMergedStyle(getStyleBuilder());
 
 		final FontConfiguration fc = style.getFontConfiguration(skinParam.getThemeStyle(), getColorSet());
@@ -219,7 +220,7 @@ public class TaskDrawRegular extends AbstractTaskDraw {
 		final HColor borderColor = style.value(PName.LineColor).asColor(skinParam.getThemeStyle(), getColorSet());
 		final double shadowing = style.value(PName.Shadowing).asDouble();
 
-		return new Opale(shadowing, borderColor, noteBackgroundColor, sheet1, false);
+		return new Opale(shadowing, borderColor, noteBackgroundColor, sheet1, false, style.getStroke());
 	}
 
 	public FingerPrint getFingerPrint(StringBounder stringBounder) {
@@ -288,13 +289,13 @@ public class TaskDrawRegular extends AbstractTaskDraw {
 			off.add(new Segment(x1, x2));
 		}
 
-		final HColor back2 = StyleSignature.of(SName.root, SName.document, SName.ganttDiagram)
+		final HColor backUndone = StyleSignatureBasic.of(SName.root, SName.element, SName.ganttDiagram, SName.undone)
 				.getMergedStyle(getStyleBuilder()).value(PName.BackGroundColor)
 				.asColor(skinParam.getThemeStyle(), getColorSet());
 
 		final RectangleTask rectangleTask = new RectangleTask(startPos, endPos, round, getCompletion(), off);
 
-		rectangleTask.draw(ug, getShapeHeight(stringBounder), back2, oddStart, oddEnd);
+		rectangleTask.draw(ug, getShapeHeight(stringBounder), backUndone, oddStart, oddEnd);
 
 		if (url != null) {
 			ug.closeUrl();

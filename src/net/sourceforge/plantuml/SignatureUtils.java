@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -31,6 +31,8 @@
  *
  */
 package net.sourceforge.plantuml;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -124,12 +126,12 @@ public class SignatureUtils {
 	public static synchronized byte[] getMD5raw(String s)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
-		msgDigest.update(s.getBytes("UTF-8"));
+		msgDigest.update(s.getBytes(UTF_8));
 		return msgDigest.digest();
 	}
 
 	public static byte[] getSHA512raw(String s) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		return getSHA512raw(s.getBytes("UTF-8"));
+		return getSHA512raw(s.getBytes(UTF_8));
 	}
 
 	public static synchronized byte[] getSHA512raw(byte data[])
@@ -140,11 +142,8 @@ public class SignatureUtils {
 	}
 
 	public static String getSignatureSha512(SFile f) throws IOException {
-		final InputStream is = f.openFile();
-		try {
+		try (InputStream is = f.openFile()) {
 			return getSignatureSha512(is);
-		} finally {
-			is.close();
 		}
 	}
 
@@ -180,9 +179,8 @@ public class SignatureUtils {
 	}
 
 	public static synchronized String getSignature(SFile f) throws IOException {
-		try {
+		try (final InputStream is = f.openFile()) {
 			final MessageDigest msgDigest = MessageDigest.getInstance("MD5");
-			final InputStream is = f.openFile();
 			if (is == null) {
 				throw new FileNotFoundException();
 			}
@@ -190,7 +188,6 @@ public class SignatureUtils {
 			while ((read = is.read()) != -1) {
 				msgDigest.update((byte) read);
 			}
-			is.close();
 			final byte[] digest = msgDigest.digest();
 			return toString(digest);
 		} catch (NoSuchAlgorithmException e) {

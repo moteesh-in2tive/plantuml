@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -32,17 +32,24 @@
  */
 package net.sourceforge.plantuml.activitydiagram3;
 
+import java.util.Collection;
 import java.util.Objects;
 
+import net.sourceforge.plantuml.ISkinParam;
 import net.sourceforge.plantuml.Url;
 import net.sourceforge.plantuml.activitydiagram3.ftile.BoxStyle;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Ftile;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileFactory;
 import net.sourceforge.plantuml.activitydiagram3.ftile.FtileKilled;
 import net.sourceforge.plantuml.activitydiagram3.ftile.Swimlane;
+import net.sourceforge.plantuml.activitydiagram3.gtile.Gtile;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileBox;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileWithNoteOpale;
+import net.sourceforge.plantuml.activitydiagram3.gtile.GtileWithNotes;
 import net.sourceforge.plantuml.command.CommandExecutionResult;
 import net.sourceforge.plantuml.cucadiagram.Display;
 import net.sourceforge.plantuml.cucadiagram.Stereotype;
+import net.sourceforge.plantuml.graphic.StringBounder;
 import net.sourceforge.plantuml.graphic.color.Colors;
 
 public class InstructionSimple extends MonoSwimable implements Instruction {
@@ -55,6 +62,7 @@ public class InstructionSimple extends MonoSwimable implements Instruction {
 	private final Url url;
 	private final Stereotype stereotype;
 
+	@Override
 	public boolean containsBreak() {
 		return false;
 	}
@@ -70,6 +78,24 @@ public class InstructionSimple extends MonoSwimable implements Instruction {
 		this.colors = Objects.requireNonNull(colors);
 	}
 
+	@Override
+	public Gtile createGtile(ISkinParam skinParam, StringBounder stringBounder) {
+		GtileBox result = GtileBox.create(stringBounder, colors.mute(skinParam), label, getSwimlaneIn(), style,
+				stereotype);
+		if (hasNotes()) {
+			final Collection<PositionedNote> notes = getPositionedNotes();
+			if (notes.size() == 0)
+				throw new UnsupportedOperationException("wip");
+			if (notes.size() > 0)
+				return new GtileWithNotes(result, notes, skinParam);
+
+			return new GtileWithNoteOpale(result, notes.iterator().next(), skinParam, false);
+
+		}
+		return result;
+	}
+
+	@Override
 	public Ftile createFtile(FtileFactory factory) {
 		Ftile result = factory.activity(label, getSwimlaneIn(), style, colors, stereotype);
 		if (url != null) {
@@ -82,15 +108,18 @@ public class InstructionSimple extends MonoSwimable implements Instruction {
 		return result;
 	}
 
+	@Override
 	public CommandExecutionResult add(Instruction other) {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	final public boolean kill() {
 		this.killed = true;
 		return true;
 	}
 
+	@Override
 	public LinkRendering getInLinkRendering() {
 		return inlinkRendering;
 	}

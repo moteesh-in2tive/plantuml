@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -38,20 +38,12 @@ import net.sourceforge.plantuml.PlainStringsDiagram;
 import net.sourceforge.plantuml.core.DiagramDescription;
 import net.sourceforge.plantuml.core.UmlSource;
 
-
 public class PSystemListFonts extends PlainStringsDiagram {
 
 	public PSystemListFonts(UmlSource source, String text) {
 		super(source);
 		strings.add("   <b><size:16>Fonts available:");
 		strings.add(" ");
-		// final Font fonts[] =
-		// GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-		// for (Font f : fonts) {
-		// strings.add("f=" + f + "/" + f.getPSName() + "/" + f.getName() + "/" +
-		// f.getFontName() + "/"
-		// + f.getFamily());
-		// }
 		final String name[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
 		for (String n : name) {
 			strings.add(n + " : <font:" + n + ">" + text);

@@ -2,7 +2,7 @@
  * PlantUML : a free UML diagram generator
  * ========================================================================
  *
- * (C) Copyright 2009-2020, Arnaud Roques
+ * (C) Copyright 2009-2023, Arnaud Roques
  *
  * Project Info:  http://plantuml.com
  * 
@@ -79,10 +79,6 @@ public interface IEntity extends SpecificBackcolorable, Hideable, Removeable, Li
 
 	public boolean hasUrl();
 
-	public int getHectorLayer();
-
-	public void setHectorLayer(int layer);
-
 	public int getRawLayout();
 
 	public void putTip(String member, Display display);
@@ -100,5 +96,9 @@ public interface IEntity extends SpecificBackcolorable, Hideable, Removeable, Li
 	public String getCodeLine();
 
 	public void setCodeLine(LineLocation codeLine);
+
+	public void setStereostyle(String stereo);
+
+	public Stereostyles getStereostyles();
 
 }
