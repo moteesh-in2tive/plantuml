@@ -432,16 +432,7 @@ public class SURL {
 
 				if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
 						|| responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
-					final String newUrl = http.getHeaderField("Location");
-
-					if (newUrl.startsWith("http://") || newUrl.startsWith("https://"))
-					{
-						http = openConnection(new URL(newUrl));
-					}
-					else
-					{
-						throw new IOException("Invalid redirect URL: " + newUrl);
-					}
+					throw new IOException("Redirection not supported");
 				}
 
 				return retrieveResponseAsBytes(http);
