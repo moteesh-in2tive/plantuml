@@ -34,7 +34,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sourceforge.plantuml</groupId>
     <artifactId>plantuml</artifactId>
-    <version>1.2022.2-DRAWIO</version>
+    <version>1.2022.2.1-DRAWIO</version>
     <packaging>jar</packaging>
     <name>PlantUML</name>
     <description>
@@ -128,6 +128,8 @@
           <include>net/sourceforge/plantuml/version/*.png</include>
           <include>net/sourceforge/plantuml/openiconic/data/*.txt</include>
           <include>net/sourceforge/plantuml/openiconic/data/*.svg</include>
+          <include>net/sourceforge/plantuml/emoji/data/*.txt</include>
+          <include>net/sourceforge/plantuml/emoji/data/*.svg</include>
           <include>sprites/archimate/*.png</include>
           <include>net/sourceforge/plantuml/math/*.js</include>
           <include>net/sourceforge/plantuml/windowsdot/*.dat</include>

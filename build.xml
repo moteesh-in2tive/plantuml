@@ -36,6 +36,12 @@
 				<include name="*.svg" />
 			</fileset>
 		</copy>
+		<copy todir="build/net/sourceforge/plantuml/emoji/data">
+			<fileset dir="src/net/sourceforge/plantuml/emoji/data">
+				<include name="*.txt" />
+				<include name="*.svg" />
+			</fileset>
+		</copy>
 		<copy todir="build/sprites/archimate">
 			<fileset dir="src/sprites/archimate">
 				<include name="*.png" />
@@ -104,13 +110,13 @@
 
 	<target name="mvn_windows" if="isWindows">
 	    <exec dir="." executable="cmd">
-	        <arg line="/c mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2022.2-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml" />
+	        <arg line="/c mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2022.2.1-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml" />
 	    </exec>
 	</target>
 
 	<target name="mvn_unix" if="isUnix">
 	    <exec dir="." executable="sh">
-	        <arg line="-c 'mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2022.2-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml'" />
+	        <arg line="-c 'mvn deploy:deploy-file -DgroupId=net.sourceforge.plantuml -DartifactId=plantuml -Dversion=1.2022.2.1-DRAWIO -Dpackaging=jar -Dfile=dist/plantuml.jar -DrepositoryId=github -Durl=https://maven.pkg.github.com/jgraph/plantuml'" />
 	    </exec>
 	</target>
 </project>
