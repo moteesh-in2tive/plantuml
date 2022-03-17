@@ -3,8 +3,13 @@
 Strips out eggs, games, licensing, GPL licensed code, etc. Build of server version found under [server repo packages section](https://github.com/jgraph/plantuml/packages).
 
 ***diagrams.net specific changes:***
+Start by merging with base repository, fix conflicting changes, check dependencies for vulnerabilities (and update as needed), then test the build with maven.
 
-In order for deploying our custom PlantUML jars to Github, change the version in build.xml (in `mvn_windows` and `mvn_unix` targets). Then in PlantUML Server repository, change the dependency version to match the new version (in `pom.xml` find `plantuml` dependency) 
+It is recommended to build using Java 11 now. Change you Java version to 11 before running the build.
+
+Test the code using `mvn clean package` which run plantuml test suite as well as build the project.
+
+In order to deploy our custom PlantUML jars to Github, change the version in build.xml (in `mvn_windows` and `mvn_unix` targets). Then build using ant `ant mvn-deploy-jar`. Finally in PlantUML Server & PlantUML Serverless repositories, change the dependency version to match the new version (in `pom.xml` find `plantuml.version` property) 
 
 Original README
 ===============
