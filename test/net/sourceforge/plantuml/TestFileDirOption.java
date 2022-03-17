@@ -17,9 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import net.sourceforge.plantuml.picoweb.PicoWebServer;
-import net.sourceforge.plantuml.picoweb.RenderRequest;
-
 public class TestFileDirOption {
 
 	@TempDir
@@ -34,20 +31,6 @@ public class TestFileDirOption {
 	//
 	// Test Cases
 	//
-
-	@Test
-	public void test_picoweb_without_filedir_cannot_find_include() throws Exception {
-
-		final String output = renderViaPicoWeb();
-		assertThat(output).contains("cannot include include.iuml");
-	}
-
-	@Test
-	public void test_picoweb_with_filedir_succeeds() throws Exception {
-
-		final String output = renderViaPicoWeb("-filedir", tempDir.toString());
-		assertThat(output).contains("included-ok");
-	}
 
 	@Test
 	public void test_pipe_without_filedir_cannot_find_include() throws Exception {
@@ -83,21 +66,6 @@ public class TestFileDirOption {
 		final List<String> list = newArrayList(COMMON_OPTIONS);
 		Collections.addAll(list, extraOptions);
 		return list.toArray(new String[0]);
-	}
-
-	private String renderViaPicoWeb(String... extraOptions) throws Exception {
-
-		final RenderRequest renderRequest = new RenderRequest(optionArray(extraOptions), DIAGRAM);
-
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-		final PicoWebServer picoWebServer = new PicoWebServer(null);
-
-		picoWebServer.handleRenderRequest(renderRequest, new BufferedOutputStream(baos));
-
-		final String httpResponse = new String(baos.toByteArray(), UTF_8);
-
-		return httpResponse.substring(httpResponse.indexOf("\n\r\n") + 3);  // return just the HTTP body
 	}
 
 	private String renderViaPipe(String... extraOptions) throws Exception {

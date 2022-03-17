@@ -411,6 +411,9 @@ public class SURL {
 		return new Callable<byte[]>() {
 
 			private HttpURLConnection openConnection(final URL url) throws IOException {
+				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
+					return null;
+
 				// Add proxy, if passed throw parameters
 				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
 				if (connection == null)
@@ -454,6 +457,8 @@ public class SURL {
 			final SecurityAuthentication authentication, final String data, final Map<String, Object> headers) {
 		return new Callable<byte[]>() {
 			public byte[] call() throws IOException {
+				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
+					return null;
 				// Add proxy, if passed throw parameters
 				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
 				if (connection == null)
