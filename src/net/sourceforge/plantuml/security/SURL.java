@@ -414,8 +414,8 @@ public class SURL {
 				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
 					return null;
 
-				// Ignore proxy as we don't need it
-				final URLConnection connection = url.openConnection();
+				// Add proxy, if passed throw parameters
+				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
 				if (connection == null)
 					return null;
 
@@ -433,7 +433,15 @@ public class SURL {
 				if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
 						|| responseCode == HttpURLConnection.HTTP_MOVED_PERM) {
 					final String newUrl = http.getHeaderField("Location");
-					http = openConnection(new URL(newUrl));
+
+					if (newUrl.startsWith("http://") || newUrl.startsWith("https://"))
+					{
+						http = openConnection(new URL(newUrl));
+					}
+					else
+					{
+						throw new IOException("Invalid redirect URL: " + newUrl);
+					}
 				}
 
 				return retrieveResponseAsBytes(http);
@@ -460,7 +468,7 @@ public class SURL {
 				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
 					return null;
 				// Add proxy, if passed throw parameters
-				final URLConnection connection = url.openConnection();
+				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
 				if (connection == null)
 					return null;
 
