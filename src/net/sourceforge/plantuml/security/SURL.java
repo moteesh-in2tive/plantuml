@@ -414,8 +414,8 @@ public class SURL {
 				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
 					return null;
 
-				// Add proxy, if passed throw parameters
-				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
+				// Ignore proxy as we don't need it
+				final URLConnection connection = url.openConnection();
 				if (connection == null)
 					return null;
 
@@ -460,7 +460,7 @@ public class SURL {
 				if (!url.getProtocol().equals("https") && !url.getProtocol().equals("http"))
 					return null;
 				// Add proxy, if passed throw parameters
-				final URLConnection connection = proxy == null ? url.openConnection() : url.openConnection(proxy);
+				final URLConnection connection = url.openConnection();
 				if (connection == null)
 					return null;
 
